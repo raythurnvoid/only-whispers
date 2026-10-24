@@ -69,8 +69,6 @@ test("OpenAI reasoning model: the step after a tool call works without stored it
   });
   const vite = await createRendererServer(t, { cachePrefix: "openwhispr-openai-zdr-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", appVersion: "1.8.3", policy: null });
   const { ToolRegistry } = await vite.ssrLoadModule("/services/tools/ToolRegistry.ts");
   t.after(() => reasoningService.destroy());
 

@@ -15,8 +15,6 @@ import { useMainProcessNotifications } from "./hooks/useMainProcessNotifications
 import { useListeningEntrancePhase } from "./hooks/useListeningEntrancePhase";
 import { useWindowResizeCompensation } from "./hooks/useWindowResizeCompensation";
 import { useSettingsStore } from "./stores/settingsStore";
-import { isAgentAllowed } from "./stores/policyRules";
-import { usePolicyStore } from "./stores/policyStore";
 import { useTrayQuickActions } from "./hooks/useTrayQuickActions";
 import { VoicePill } from "./components/dictation/VoicePill";
 import { AssistantPanel } from "./components/dictation/AssistantPanel";
@@ -120,13 +118,6 @@ export default function App() {
 
   useWindowResizeCompensation();
   useMainProcessNotifications({ toast, dismiss, t });
-
-  const agentAllowed = usePolicyStore(isAgentAllowed);
-  // The agent allowance fails closed while the policy is loading or its fetch failed,
-  // so the tray's refusals need to tell those apart from a real org restriction.
-  const policyStatus = usePolicyStore((state) => state.status);
-  const policyResolved =
-    policyStatus === "idle" || policyStatus === "managed" || policyStatus === "unmanaged";
 
   const mainWindowResizeCoordinatorRef = useRef(null);
   useEffect(() => {
@@ -414,8 +405,6 @@ export default function App() {
   const closeCommandMenu = useCallback(() => setIsCommandMenuOpen(false), []);
 
   useTrayQuickActions({
-    agentAllowed,
-    policyResolved,
     isRecording,
     liveTranscriptMounted: liveTranscript.mounted,
     closeCommandMenu,
@@ -818,7 +807,6 @@ export default function App() {
               buttonRef={buttonRef}
               align={voicePillPopoverAlign}
               isRecording={isRecording}
-              agentAllowed={agentAllowed}
               isHovered={isHovered}
               setWindowInteractivity={setWindowInteractivity}
               onToggleListening={() => {

@@ -3,13 +3,8 @@ import type { ReasoningConfig } from "../services/BaseReasoningService";
 import type { PermissionGuideState, PermissionGuideAction } from "./permissionGuide";
 import type { TinfoilCatalogModel } from "../models/tinfoilModels";
 import type { DictationTone, ToneAppCategory } from "../config/toneStyle";
-import type { OrgPolicy } from "./policy";
 import type { TechnicalErrorDetailsData } from "../components/ui/useToast";
 import type { ProviderSettingsTarget } from "../utils/describeProviderError";
-import type {
-  ManagedEnterpriseConfig,
-  ManagedEnterpriseRequestContext,
-} from "./enterpriseIdentity";
 
 export type LocalTranscriptionProvider = "whisper" | "nvidia" | "cohere";
 
@@ -133,22 +128,6 @@ export interface IpcErrorFields {
  */
 export type ProxyTranscriptionResult =
   { text: string; model?: string; error?: undefined } | (IpcErrorFields & { text?: undefined });
-
-export interface AuthTokenState {
-  token: string | null;
-  generation: number;
-}
-
-export interface AuthTokenMutationResult extends AuthTokenState {
-  success: boolean;
-  code?: string;
-}
-
-/** The validated account scope the main process holds, as seen by any window. */
-export interface ActiveAccountScope {
-  accountId: string;
-  authGeneration: number;
-}
 
 export interface TranscriptionItem {
   id: number;
@@ -368,10 +347,6 @@ export interface ScreenContextImage {
   mediaType: string;
   /** Base64 image bytes, no data-URL prefix. */
   data: string;
-}
-
-export interface AppVersionResult {
-  version: string;
 }
 
 export interface LocalModelDownloadStatus {
@@ -647,50 +622,6 @@ declare global {
       showAgentDictationFinalTranscript?: (text: string) => void;
       onAgentDictationPillFinalTranscript?: (callback: (text: string) => void) => () => void;
 
-      // Org policy (see src/types/policy.ts)
-      getWorkspacePolicy?: (
-        accountId?: string,
-        expectedAuthGeneration?: number
-      ) => Promise<{
-        success: boolean;
-        status?: "network" | "cached" | "current" | "unsupported" | "restricted" | "error";
-        revision?: number;
-        accountId?: string | null;
-        authGeneration?: number | null;
-        managed?: boolean;
-        policy?: OrgPolicy | null;
-        policyUpdatedAt?: string | null;
-        endpointSupported?: boolean;
-        code?: string;
-        error?: string;
-        enforcementRequired?: boolean;
-      }>;
-      onWorkspacePolicyChanged?: (
-        callback: (
-          snapshot:
-            | {
-                success: true;
-                status: "network" | "cached" | "current" | "unsupported";
-                revision: number;
-                accountId: string | null;
-                authGeneration: number;
-                managed: boolean;
-                policy: OrgPolicy | null;
-                policyUpdatedAt: string | null;
-                endpointSupported: boolean;
-              }
-            | {
-                success: false;
-                status: "error";
-                revision: number;
-                accountId: string | null;
-                authGeneration: number;
-                code: "POLICY_UNRESOLVABLE";
-                error: string;
-              }
-        ) => void
-      ) => () => void;
-
       // Database operations
       saveTranscription: (
         text: string,
@@ -727,7 +658,6 @@ declare global {
         audioRetentionDays: number;
         transcriptRetentionDays: number;
         dataRetentionEnabled: boolean;
-        localHistoryPolicyResolved: boolean;
       }) => void;
       retryTranscription: (
         id: number,
@@ -768,20 +698,6 @@ declare global {
 
       exportDictionary: (words: string[]) => Promise<{ success: boolean; error?: string }>;
 
-      setActiveAccountScope?: (
-        accountId: string | null,
-        expectedAuthGeneration?: number
-      ) => Promise<{ success: boolean; code?: string; error?: string }>;
-      closeActivationStream?: () => Promise<void>;
-      beginActivationCapture?: () => Promise<string | null>;
-      stopActivationCapture?: (id: string) => Promise<void>;
-      finishActivationCapture?: (id: string, words: number) => Promise<void>;
-      cancelActivationCapture?: (id: string) => Promise<void>;
-      getActiveAccountScope?: () => Promise<ActiveAccountScope | null>;
-      onActiveAccountScopeChanged?: (
-        callback: (scope: ActiveAccountScope | null) => void
-      ) => () => void;
-
       // Audio file operations
       saveTempAudio: (buffer: ArrayBuffer) => Promise<{ success: boolean; path: string }>;
       deleteTempAudio: (tempPath: string) => Promise<{ success: boolean; error?: string }>;
@@ -812,7 +728,6 @@ declare global {
           model?: string;
           language?: string;
           keepLocalModelLoaded: boolean;
-          policySettled: boolean;
         }
       ) => Promise<void>;
 
@@ -984,12 +899,10 @@ declare global {
       setAssistantPanelOpen: (open: boolean) => Promise<{ success: boolean }>;
       setAssistantPanelBusy: (busy: boolean) => Promise<{ success: boolean }>;
 
-      getAppVersion: () => Promise<AppVersionResult>;
       /** Version of an update downloaded and waiting to install, or null. */
       getDownloadedUpdate?: () => Promise<string | null>;
       installUpdate?: () => Promise<boolean>;
       onUpdateDownloaded?: (callback: (payload: { version: string | null }) => void) => () => void;
-      getOAuthProtocol: () => Promise<string>;
       markBundleMigrated: () => Promise<void>;
 
       openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
@@ -1049,7 +962,7 @@ declare global {
       getPendingSettingsSection?: () => Promise<string | null>;
 
       // Accessibility permission events (macOS)
-      markMacAccessibilityFeaturesReady?: (expectedAccountScope?: ActiveAccountScope) => void;
+      markMacAccessibilityFeaturesReady?: () => void;
       onAccessibilityMissing?: (callback: () => void) => () => void;
 
       // Gemini API key management
@@ -1153,35 +1066,6 @@ declare global {
           underlyingError?: string;
         };
       }>;
-      getManagedEnterpriseConfig?: (
-        accountId: string,
-        workspaceId: string,
-        expectedAuthGeneration: number,
-        forceRefresh?: boolean
-      ) => Promise<{
-        success: boolean;
-        status?: "network" | "current" | "cached" | "error";
-        accountId?: string | null;
-        workspaceId?: string | null;
-        authGeneration?: number | null;
-        config?: ManagedEnterpriseConfig;
-        code?: string;
-        error?: string;
-        enforcementRequired?: boolean;
-        enforcedScopes?: string[];
-      }>;
-      onManagedEnterpriseConfigChanged?: (
-        callback: (snapshot: {
-          accountId: string;
-          workspaceId: string;
-          authGeneration: number;
-          config: ManagedEnterpriseConfig | null;
-          code: string | null;
-          enforcementRequired?: boolean;
-          enforcedScopes?: string[];
-        }) => void
-      ) => () => void;
-      clearManagedEnterpriseIdentity?: () => Promise<void>;
 
       // Dictation key persistence (file-based for reliable startup)
       getDictationKey?: () => Promise<string | null>;
@@ -1252,53 +1136,6 @@ declare global {
         }) => void
       ) => () => void;
 
-      // Auth
-      authClearSession?: () => Promise<{
-        success: boolean;
-        tokenState?: AuthTokenState;
-        error?: string;
-      }>;
-      authGetTokenState?: () => Promise<AuthTokenState>;
-      authSetToken?: (
-        token: string,
-        expectedGeneration: number
-      ) => Promise<AuthTokenMutationResult>;
-      onAuthTokenStateChanged?: (
-        callback: (state: { generation: number; hasToken: boolean }) => void
-      ) => () => void;
-
-      cloudReason?: (
-        text: string,
-        opts: {
-          model?: string;
-          agentName?: string;
-          customDictionary?: string[];
-          customPrompt?: string;
-          systemPrompt?: string;
-          requestPurpose?: "agent";
-          promptMode?: "cleanup" | "agent";
-          purpose?: CloudReasonPurpose;
-          screenContext?: ScreenContextImage;
-          tone?: DictationTone;
-          appCategory?: ToneAppCategory;
-          language?: string;
-          locale?: string;
-          streamingFallbackReason?: string;
-        } & SttDetectedLanguageFields &
-          OrukeetTelemetry
-      ) => Promise<{
-        success: boolean;
-        text?: string;
-        model?: string;
-        provider?: string;
-        promptMode?: string;
-        matchType?: string;
-        screenContextApplied?: boolean;
-        error?: string;
-        code?: string;
-      }>;
-      cancelCloudReason?: () => void;
-
       // BYOK audio file transcription
       transcribeAudioFileByok?: (options: { filePath: string; model: string }) => Promise<{
         success: boolean;
@@ -1358,42 +1195,6 @@ declare global {
         metadata?: string;
         created_at: string;
       } | null>;
-
-      // Agent cloud streaming (event-based)
-      startAgentStream?: (
-        requestId: string,
-        messages: Array<{ role: string; content: string | Array<unknown> }>,
-        opts?: {
-          systemPrompt?: string;
-          tools?: Array<{ name: string; description: string; parameters: Record<string, unknown> }>;
-          screenContext?: { data: string; mediaType: string };
-        }
-      ) => void;
-      cancelAgentStream?: (requestId: string) => void;
-      onAgentStreamChunk?: (
-        callback: (payload: {
-          requestId: string;
-          chunk: {
-            type: "content" | "tool_call" | "done";
-            text?: string;
-            id?: string;
-            name?: string;
-            arguments?: string;
-            finishReason?: string;
-          };
-        }) => void
-      ) => () => void;
-      onAgentStreamError?: (
-        callback: (payload: PolicyFailureMetadata & { requestId: string; error: string }) => void
-      ) => () => void;
-      onAgentStreamEnd?: (callback: (payload: { requestId: string }) => void) => () => void;
-
-      productHelp: (
-        id: string,
-        input: { topic: string; page?: string }
-      ) => Promise<import("../services/help/productHelp").HelpResult>;
-      cancelProductHelp: (id: string) => void;
-      productHelpBasics: () => Promise<import("../services/help/productHelp").HelpBasics>;
 
       // Dictation realtime streaming
       dictationRealtimeWarmup?: (

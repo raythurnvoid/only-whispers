@@ -4,13 +4,9 @@ import App from "./App.jsx";
 import AgentDictationPillOverlay from "./components/dictation/AgentDictationPillOverlay.tsx";
 import { PermissionGuideOverlay } from "./components/onboarding/PermissionGuideOverlay";
 import { LEGACY_ONBOARDING_STEP_KEY, ONBOARDING_SESSION_KEY } from "./components/onboarding/flow";
-import { useAuth } from "./hooks/useAuth";
 import { useControlPanelWindowDrag } from "./hooks/useControlPanelWindowDrag";
 import { useTheme } from "./hooks/useTheme";
-import { mirrorActiveAccountScope } from "./lib/accountScopeMirror";
-import { usePolicyStore } from "./stores/policyStore";
 import { resolveSettledControlPanelWindowMode } from "./utils/controlPanelWindowMode.ts";
-import { resolveMacAccessibilityReadiness } from "./utils/macAccessibilityReadiness.ts";
 import { isControlPanelWindow } from "./utils/windowContext.ts";
 
 // Either marker means the flow is mid-way: the legacy step key is kept for
@@ -37,15 +33,6 @@ export default function AppRouter() {
 }
 
 function MainApp() {
-  const { isSignedIn, isGracePeriodOnly, isLoaded: authLoaded } = useAuth();
-  const policyStatus = usePolicyStore((state) => state.status);
-  const policyResolved =
-    !isSignedIn ||
-    policyStatus === "managed" ||
-    policyStatus === "unmanaged" ||
-    policyStatus === "error";
-  const isWaitingForPolicyStart = isSignedIn && !policyResolved;
-
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postOnboardingSettingsSection, setPostOnboardingSettingsSection] = useState(undefined);
@@ -66,24 +53,6 @@ function MainApp() {
   }, [isControlPanel]);
 
   useEffect(() => {
-    // The dictation window cannot resolve a session (see mirrorActiveAccountScope),
-    // so its policy and managed identity follow the main process's account scope.
-    if (!isDictationPanel) return;
-    return mirrorActiveAccountScope();
-  }, [isDictationPanel]);
-
-  useEffect(() => {
-    if (!authLoaded) return;
-
-    const onboardingCompleted = localStorage.getItem("onboardingCompleted") === "true";
-    const onboardingInProgress = isOnboardingInProgress();
-    const isReturningUser =
-      !onboardingCompleted && isSignedIn && !isGracePeriodOnly && !onboardingInProgress;
-
-    if (isReturningUser) {
-      localStorage.setItem("onboardingCompleted", "true");
-    }
-
     const resolved = localStorage.getItem("onboardingCompleted") === "true";
 
     if (isControlPanel && !resolved) {
@@ -97,22 +66,21 @@ function MainApp() {
     }
 
     setIsLoading(false);
-  }, [authLoaded, isControlPanel, isDictationPanel, isGracePeriodOnly, isSignedIn]);
+  }, [isControlPanel, isDictationPanel]);
 
   useEffect(() => {
-    if (!isControlPanel || !authLoaded) return;
+    if (!isControlPanel) return;
     // Fast path: a user who already finished onboarding never enters the
     // compact flow, so restore the saved window size right away.
     const completed = localStorage.getItem("onboardingCompleted") === "true";
     if (completed && !isOnboardingInProgress()) {
       void window.electronAPI?.setOnboardingWindowMode?.("restore");
     }
-  }, [authLoaded, isControlPanel]);
+  }, [isControlPanel]);
 
   const settledControlPanelWindowMode = resolveSettledControlPanelWindowMode({
     isControlPanel,
     isLoading,
-    isWaitingForPolicyStart,
     showOnboarding,
   });
 
@@ -125,35 +93,16 @@ function MainApp() {
   }, [settledControlPanelWindowMode]);
 
   useEffect(() => {
-    if (isLoading || isWaitingForPolicyStart) return;
+    if (isLoading) return;
 
     const onboardingCompleted = localStorage.getItem("onboardingCompleted") === "true";
     const normalAppVisible = onboardingCompleted && (!isControlPanel || !showOnboarding);
-    const authSkipped =
-      localStorage.getItem("authenticationSkipped") === "true" ||
-      localStorage.getItem("skipAuth") === "true";
     // Main starts fail-closed. Only a renderer that has resolved the route and
     // actually committed the normal app may release global hotkeys and popup
     // surfaces; fresh installs and onboarding reloads keep them suppressed.
     void window.electronAPI?.setOnboardingActive?.(!normalAppVisible);
-    let cancelled = false;
-    void resolveMacAccessibilityReadiness({
-      normalAppVisible,
-      isControlPanel,
-      isSignedIn,
-      authSkipped,
-      // The hidden dictation window cannot resolve Better Auth itself. Its
-      // persisted main-process scope proves this is a validated returning user.
-      readActiveAccountScope: window.electronAPI?.getActiveAccountScope,
-    }).then((readiness) => {
-      if (!cancelled && readiness) {
-        window.electronAPI?.markMacAccessibilityFeaturesReady?.(readiness.expectedAccountScope);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [isControlPanel, isLoading, isSignedIn, isWaitingForPolicyStart, showOnboarding]);
+    if (normalAppVisible) window.electronAPI?.markMacAccessibilityFeaturesReady?.();
+  }, [isControlPanel, isLoading, showOnboarding]);
 
   const handleOnboardingComplete = (options) => {
     if (options?.openSettings) {
@@ -163,10 +112,8 @@ function MainApp() {
     localStorage.setItem("onboardingCompleted", "true");
   };
 
-  // isLoading clears once the onboarding effect has run, which itself waits
-  // for authLoaded — and authLoaded terminates even when the session cannot
-  // resolve (guest/offline presents as signed out).
-  if (isLoading || isWaitingForPolicyStart) {
+  // isLoading clears once the onboarding effect has run.
+  if (isLoading) {
     return <LoadingFallback />;
   }
 

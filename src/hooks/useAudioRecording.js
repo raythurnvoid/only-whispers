@@ -8,12 +8,6 @@ import { expandSnippets } from "../utils/snippets";
 import { getRecordingErrorTitle, getRecordingErrorDescription } from "../utils/recordingErrors";
 import { providerErrorActions } from "../utils/describeProviderError";
 import { isAccessibilitySkipped } from "../utils/permissions";
-import {
-  isAgentAllowed,
-  isScreenContextAllowed,
-  isTranscriptionContextAllowed,
-} from "../stores/policyRules";
-import { usePolicyStore } from "../stores/policyStore";
 import { getOnboardingDemoKind } from "../utils/onboardingDemo";
 import {
   buildLiveTranscriptionPreview,
@@ -142,15 +136,6 @@ export const useAudioRecording = (toast, options = {}) => {
       let recordingStarted = false;
       try {
         if (!audioManagerRef.current) return false;
-        const policyState = usePolicyStore.getState();
-        if (
-          !isTranscriptionContextAllowed(policyState, getSettings(), "dictation") ||
-          (voiceAgentRequested && !isAgentAllowed(policyState))
-        ) {
-          toast({ title: t("common.managedByOrg"), variant: "default" });
-          return false;
-        }
-
         if (!canStartDictation(audioManagerRef.current.getState())) return false;
 
         const assistantSelectionContext = voiceAgentRequested
@@ -196,14 +181,7 @@ export const useAudioRecording = (toast, options = {}) => {
             "reasoning"
           );
         }
-        // getSettings() already reflects a managed policy that forces the
-        // setting off; the predicate additionally fails closed while the
-        // policy is still loading or errored.
-        if (
-          voiceAgentRequested &&
-          getSettings().voiceAgentScreenContext &&
-          isScreenContextAllowed(policyState)
-        ) {
+        if (voiceAgentRequested && getSettings().voiceAgentScreenContext) {
           audioManagerRef.current.beginScreenContextCapture();
         }
 
@@ -276,8 +254,8 @@ export const useAudioRecording = (toast, options = {}) => {
           setIsPreparing(false);
           setIsAssistantVoice(false);
           // Covers every exit above that never started a recording — the
-          // policy-block early return, the mic-open failure, a stale
-          // preparation generation, etc. Without this, a failed start leaves
+          // mic-open failure, a stale preparation generation, etc. Without this,
+          // a failed start leaves
           // the main process (and the companion pill) stuck reporting
           // "preparing" forever, since startRecording's failure path only
           // fires onError, never the onStateChange that normally reports
@@ -287,7 +265,7 @@ export const useAudioRecording = (toast, options = {}) => {
         }
       }
     },
-    [t, toast, dismissDictationError, reportLifecycle]
+    [dismissDictationError, reportLifecycle]
   );
 
   const performStopRecording = useCallback(async () => {
@@ -966,11 +944,6 @@ export const useAudioRecording = (toast, options = {}) => {
     // Keep overlay content protection in sync with the screen-context setting
     // so the dictation pill stays out of captures (survives window recreation).
     window.electronAPI.setScreenContextEnabled?.(getSettings().voiceAgentScreenContext);
-    // A policy refresh can flip the effective screen-context value mid-session;
-    // re-sync overlay content protection when it does.
-    const unsubscribePolicy = usePolicyStore.subscribe(() => {
-      window.electronAPI.setScreenContextEnabled?.(getSettings().voiceAgentScreenContext);
-    });
 
     const handleToggle = async ({ voiceAgentRequested = false } = {}) => {
       if (!audioManagerRef.current) return;
@@ -1046,7 +1019,6 @@ export const useAudioRecording = (toast, options = {}) => {
     // Cleanup
     return () => {
       reportLifecycle("idle");
-      unsubscribePolicy();
       disposeToggle?.();
       disposeVoiceAgentToggle?.();
       disposeStart?.();

@@ -223,8 +223,6 @@ async function streamRequestBody(t, { provider, model, config, tools, keys = {} 
   });
   const vite = await createRendererServer(t, { cachePrefix: `openwhispr-effort-${provider}-` });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", appVersion: "1.8.3", policy: null });
   t.after(() => reasoningService.destroy());
 
   const bodies = [];

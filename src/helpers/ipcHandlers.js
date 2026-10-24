@@ -10,18 +10,8 @@ const { openExternalUrl } = require("./externalUrlOpener");
 const { BYOK_API_KEYS } = require("../config/secretKeys");
 const chatgptAuth = require("./chatgptAuth");
 const chatgptResponsesSocket = require("./chatgptResponsesSocket");
-const tokenStore = require("./tokenStore");
-const accountScopeBinding = require("./accountScopeBinding");
-const { createCloudApiRequestHandler } = require("./cloudApiRequest");
-const { MetaActivation } = require("./metaActivation");
-const { withPolicyRequestHeaders } = require("./policyRequestHeaders");
-const {
-  createWorkspacePolicyManager,
-  isScreenContextBlocked,
-} = require("./workspacePolicyManager");
-const { createEnterpriseIdentityManager } = require("./enterpriseIdentityManager");
 const { extractAnthropicText, describeMissingAnthropicText } = require("./anthropicResponse");
-const { readPolicyResponseError, toPolicyFailure } = require("./policyResponseError");
+const { toPolicyFailure } = require("./policyResponseError");
 const { resolveSystemDefaultMicrophone } = require("./systemDefaultMicrophone");
 const { ipcErrorFields } = require("./ipcErrorFields");
 const {
@@ -189,11 +179,7 @@ class IPCHandlers {
     this.textEditMonitor = managers.textEditMonitor;
     this.selectionManager = managers.selectionManager;
     this.getTrayManager = managers.getTrayManager;
-    this.oauthProtocolRegistered = managers.oauthProtocolRegistered === true;
-    this.oauthProtocol = managers.oauthProtocol || "openwhispr";
     this.sessionId = crypto.randomUUID();
-    this._agentStreamRequests = new AgentStreamRequestRegistry();
-    this._cloudReasonRequests = new AgentStreamRequestRegistry();
     this._enterpriseReasoningRequests = new AgentStreamRequestRegistry();
     this._dictationStreaming = null;
     this._dictationConnectPromise = null;
@@ -226,26 +212,6 @@ class IPCHandlers {
     // Warm the OS default mic answer before the first hotkey press (~2s on Windows).
     resolveSystemDefaultMicrophone();
     this.setupHandlers();
-    // Lives for the app's lifetime; IPCHandlers has no teardown path.
-    tokenStore.subscribe((state) => this._handleAuthTokenChange(state));
-  }
-
-  _handleAuthTokenChange({ generation, token }) {
-    this.enterpriseIdentityManager?.clear();
-    if (!token) {
-      this.databaseManager.setActiveAccountId(null);
-      accountScopeBinding.clear();
-      broadcastToWindows("active-account-scope-changed", null);
-    }
-    broadcastToWindows("auth-token-state-changed", {
-      generation,
-      hasToken: Boolean(token),
-    });
-  }
-
-  /** Whether a signed-in account is bound to this install. */
-  _hasActiveAccountScope() {
-    return Boolean(accountScopeBinding.read());
   }
 
   // The dictation slot reports its own changes from the renderer. Slots
@@ -937,42 +903,6 @@ class IPCHandlers {
         return { success: false };
       }
     });
-
-    ipcMain.handle("set-active-account-scope", async (_event, accountId, expectedGeneration) => {
-      const state = tokenStore.getState();
-      const verdict = accountScopeBinding.evaluateScopeRequest({
-        accountId,
-        expectedGeneration,
-        token: state.token,
-        generation: state.generation,
-      });
-      if (!verdict.ok) {
-        return {
-          success: false,
-          code: verdict.code,
-          error:
-            verdict.code === "INVALID_ACCOUNT"
-              ? "Invalid account scope"
-              : "Authentication context changed before account scoping",
-        };
-      }
-      this.databaseManager.setActiveAccountId(accountId);
-      if (accountId !== null) accountScopeBinding.persist(accountId, state.token);
-      else accountScopeBinding.clear();
-      broadcastToWindows(
-        "active-account-scope-changed",
-        accountId !== null ? { accountId, authGeneration: state.generation } : null
-      );
-      void this.metaActivation?.flush();
-      return { success: true };
-    });
-
-    ipcMain.handle("get-active-account-scope", () =>
-      accountScopeBinding.resolveActiveAccountScope({
-        ...tokenStore.getState(),
-        binding: accountScopeBinding.read(),
-      })
-    );
 
     // Agent conversation handlers
     ipcMain.handle(
@@ -2090,9 +2020,7 @@ class IPCHandlers {
 
         const region = runtime.enterprise.bedrockRegion || "us-east-1";
         let credentials;
-        if (runtime.enterprise.managedCredentialProvider) {
-          credentials = runtime.enterprise.managedCredentialProvider;
-        } else if (runtime.enterprise.bedrockProfile) {
+        if (runtime.enterprise.bedrockProfile) {
           const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
           credentials = fromNodeProviderChain({ profile: runtime.enterprise.bedrockProfile });
         } else if (
@@ -2184,43 +2112,37 @@ class IPCHandlers {
       // the read fallback is removed (~2 releases after this lands).
       clearVars.push("REASONING_PROVIDER", "LOCAL_REASONING_MODEL");
 
-      // No workspace policy governs this, so it applies before the policy settles.
       const modelManager = require("./modelManagerBridge").default;
       modelManager.serverManager.setKeepResident(prefs.keepLocalModelLoaded === true);
 
-      // A signed-in window whose workspace policy is still loading reports
-      // unclamped modes, so it neither pre-warms nor stops the shared
-      // llama-server; signed out, the policy never loads.
-      if (prefs.policySettled || !this._hasActiveAccountScope()) {
-        const localServer = resolveLocalServerNeeds(prefs);
+      const localServer = resolveLocalServerNeeds(prefs);
 
-        if (localServer.cleanup) {
-          setVars.CLEANUP_PROVIDER = "local";
-          setVars.LOCAL_CLEANUP_MODEL = localServer.cleanup;
-        } else {
-          clearVars.push("CLEANUP_PROVIDER", "LOCAL_CLEANUP_MODEL");
-        }
+      if (localServer.cleanup) {
+        setVars.CLEANUP_PROVIDER = "local";
+        setVars.LOCAL_CLEANUP_MODEL = localServer.cleanup;
+      } else {
+        clearVars.push("CLEANUP_PROVIDER", "LOCAL_CLEANUP_MODEL");
+      }
 
-        if (localServer.dictationAgent) {
-          setVars.DICTATION_AGENT_PROVIDER = "local";
-          setVars.LOCAL_DICTATION_AGENT_MODEL = localServer.dictationAgent;
-        } else {
-          clearVars.push("DICTATION_AGENT_PROVIDER", "LOCAL_DICTATION_AGENT_MODEL");
-        }
+      if (localServer.dictationAgent) {
+        setVars.DICTATION_AGENT_PROVIDER = "local";
+        setVars.LOCAL_DICTATION_AGENT_MODEL = localServer.dictationAgent;
+      } else {
+        clearVars.push("DICTATION_AGENT_PROVIDER", "LOCAL_DICTATION_AGENT_MODEL");
+      }
 
-        // Stop the shared llama-server only when no scope still needs the model
-        // it holds, so the active scopes keep their server when another leaves.
-        if (shouldStopLocalServer(localServer, modelManager.currentServerModelId)) {
-          if (modelManager.getServerStatus().running) {
-            debugLogger.debug("Stopping llama-server: no scope needs its model", {
-              loadedModel: modelManager.currentServerModelId,
-              neededModels: localServer.models,
-            });
-          }
-          modelManager.stopServer().catch((err) => {
-            debugLogger.error("Failed to stop llama-server", { error: err.message });
+      // Stop the shared llama-server only when no scope still needs the model
+      // it holds, so the active scopes keep their server when another leaves.
+      if (shouldStopLocalServer(localServer, modelManager.currentServerModelId)) {
+        if (modelManager.getServerStatus().running) {
+          debugLogger.debug("Stopping llama-server: no scope needs its model", {
+            loadedModel: modelManager.currentServerModelId,
+            neededModels: localServer.models,
           });
         }
+        modelManager.stopServer().catch((err) => {
+          debugLogger.error("Failed to stop llama-server", { error: err.message });
+        });
       }
 
       this._syncStartupEnv(setVars, clearVars);
@@ -2578,46 +2500,16 @@ class IPCHandlers {
     ipcMain.handle("open-accessibility-settings", () => openSystemSettings("accessibility"));
 
     ipcMain.handle("capture-screen-context", async (event) => {
-      // Capture immediately so the screenshot reflects the invocation moment;
-      // the policy verdict resolves concurrently and decides whether to
-      // return it. A signed-out user has no workspace and no policy; managed
-      // users are gated even if a stale renderer asks. null matches capture's
-      // contract — a screenshot must never break the dictation it accompanies.
-      // The target's window rect picks the display it is on rather than the one
-      // under the cursor, and the panel reposition has normally cached it already.
-      // A failed rect read falls back to the cursor rather than rejecting: the
-      // policy branch below can abandon this promise, and capture's contract is
-      // to yield null, never to throw.
+      // null matches capture's contract — a screenshot must never break the
+      // dictation it accompanies. The target's window rect picks the display it
+      // is on rather than the one under the cursor, and the panel reposition has
+      // normally cached it already. A failed rect read falls back to the cursor.
       const targetPid = this.textEditMonitor?.lastTargetPid;
       const capturePromise = Promise.resolve(
         targetPid ? this.textEditMonitor.getTargetWindowBounds?.(targetPid) : null
       )
         .catch(() => null)
         .then((targetBounds) => screenContextCapture.captureActiveDisplay(targetBounds));
-      const authHeaders = await getAuthHeader(event);
-      if (authHeaders.Authorization || authHeaders.Cookie) {
-        // Bound the verdict wait: a lapsed policy TTL on a degraded network
-        // must not stall an allowed user's capture past the renderer's 3s
-        // consume race. The renderer gate already fails closed while policy
-        // is unresolved, so this defense-in-depth gate lets an unresolved
-        // verdict through while the refresh completes in flight — a resolved
-        // denial (cached or fresh) still blocks.
-        const snapshot = await Promise.race([
-          workspacePolicyManager.getPolicy({
-            expectedAuthGeneration: tokenStore.getState().generation,
-            authHeaders,
-          }),
-          new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
-        ]);
-        if (snapshot && isScreenContextBlocked(snapshot)) {
-          debugLogger.warn(
-            "Screen context capture blocked by org policy",
-            { code: snapshot.code ?? null },
-            "screenContext"
-          );
-          return null;
-        }
-      }
       return capturePromise;
     });
 
@@ -2754,247 +2646,15 @@ class IPCHandlers {
       return { granted: status === "granted", status };
     });
 
-    ipcMain.handle("auth-clear-session", async (event) => {
-      try {
-        await Promise.race([
-          this.metaActivation?.close(),
-          new Promise((resolve) => setTimeout(resolve, 1500)),
-        ]).catch(() => {});
-        const tokenState = tokenStore.clear();
-        const win = BrowserWindow.fromWebContents(event.sender);
-        if (win) {
-          await win.webContents.session.clearStorageData({ storages: ["cookies"] });
-        }
-        return {
-          success: tokenState.success,
-          tokenState,
-          ...(tokenState.success ? {} : { error: "Could not clear persisted bearer token" }),
-        };
-      } catch (error) {
-        debugLogger.error("Failed to clear auth session:", error);
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("auth-get-token-state", () => tokenStore.getState());
-    ipcMain.handle("auth-set-token", (_event, token, expectedGeneration) => {
-      if (typeof token !== "string" || !token) {
-        // Surface silent rotation-to-empty so we can spot regressions where the
-        // renderer thinks it's persisting a token but the value never lands.
-        debugLogger.debug("auth-set-token ignored: empty or non-string token", {
-          type: typeof token,
-        });
-        return {
-          success: false,
-          code: "AUTH_CONTEXT_UNVALIDATED",
-          ...tokenStore.getState(),
-        };
-      }
-      return tokenStore.setIfGeneration(token, expectedGeneration);
-    });
-
-    // In production, VITE_* env vars aren't available in the main process because
-    // Vite only inlines them into the renderer bundle at build time. Load the
-    // runtime-env.json that the Vite build writes to src/dist/ as a fallback.
-    const runtimeEnv = (() => {
-      const fs = require("fs");
-      const envPath = path.join(__dirname, "..", "dist", "runtime-env.json");
-      try {
-        if (fs.existsSync(envPath)) return JSON.parse(fs.readFileSync(envPath, "utf8"));
-      } catch {}
-      return {};
-    })();
-
-    const getApiUrl = () =>
-      process.env.OPENWHISPR_API_URL ||
-      process.env.VITE_OPENWHISPR_API_URL ||
-      runtimeEnv.VITE_OPENWHISPR_API_URL ||
-      "";
-
-    const getAuthUrl = () =>
-      process.env.AUTH_URL ||
-      process.env.VITE_AUTH_URL ||
-      runtimeEnv.VITE_AUTH_URL ||
-      "https://auth.openwhispr.com";
-
-    const getSessionCookiesFromWindow = async (win) => {
-      const scopedUrls = [getAuthUrl(), getApiUrl()].filter(Boolean);
-      const cookiesByName = new Map();
-
-      for (const url of scopedUrls) {
-        try {
-          const scopedCookies = await win.webContents.session.cookies.get({ url });
-          for (const cookie of scopedCookies) {
-            if (!cookiesByName.has(cookie.name)) {
-              cookiesByName.set(cookie.name, cookie.value);
-            }
-          }
-        } catch (error) {
-          debugLogger.warn("Failed to read scoped auth cookies", {
-            url,
-            error: error.message,
-          });
-        }
-      }
-
-      // Fallback for older sessions where cookies are not URL-scoped as expected.
-      if (cookiesByName.size === 0) {
-        const allCookies = await win.webContents.session.cookies.get({});
-        for (const cookie of allCookies) {
-          if (!cookiesByName.has(cookie.name)) {
-            cookiesByName.set(cookie.name, cookie.value);
-          }
-        }
-      }
-
-      const cookieHeader = [...cookiesByName.entries()]
-        .map(([name, value]) => `${name}=${value}`)
-        .join("; ");
-
-      debugLogger.debug(
-        "Resolved auth cookies for cloud request",
-        {
-          cookieCount: cookiesByName.size,
-          scopedUrls,
-        },
-        "auth"
-      );
-
-      return cookieHeader;
-    };
-
-    // Bearer auth is preferred. Cookie fallback covers the brief window before
-    // main.js's startup migration bridge runs (or if it failed for this user).
-    const getAuthHeaderFromWindow = async (win) => {
-      const token = tokenStore.get();
-      if (token) return { Authorization: `Bearer ${token}` };
-      const cookieHeader = win ? await getSessionCookiesFromWindow(win) : "";
-      return cookieHeader ? { Cookie: cookieHeader } : {};
-    };
-
-    const getAuthHeader = async (event) => {
-      const win = BrowserWindow.fromWebContents(event.sender);
-      return getAuthHeaderFromWindow(win);
-    };
-
     // Honors system proxy via Electron's net stack. useSessionCookies:false so
     // Electron doesn't auto-attach jar cookies on top of our explicit headers.
     const proxyFetch = (url, init = {}) => net.fetch(url, { ...init, useSessionCookies: false });
-    const withPolicyHeaders = (headers) => withPolicyRequestHeaders(headers, app.getVersion());
-    try {
-      const ActivationDatabase = require("better-sqlite3");
-      const activationDb = new ActivationDatabase(
-        path.join(app.getPath("userData"), "meta-activation.db")
-      );
-      activationDb.pragma("foreign_keys = ON");
-      this.metaActivation = new MetaActivation({
-        db: activationDb,
-        getScope: () =>
-          accountScopeBinding.resolveActiveAccountScope({
-            ...tokenStore.getState(),
-            binding: accountScopeBinding.read(),
-          }),
-        request: createCloudApiRequestHandler({
-          getApiUrl,
-          getAppVersion: () => app.getVersion(),
-          tokenStore,
-          proxyFetch: (url, init) =>
-            proxyFetch(url, { ...init, signal: AbortSignal.timeout(10_000) }),
-        }),
-      });
-      this.metaActivation.start();
-    } catch {
-      // Marketing bookkeeping must never prevent ordinary dictation/startup.
-      debugLogger.warn("Activation storage unavailable");
-    }
-    ipcMain.handle("activation-close", async () => {
-      await Promise.race([
-        this.metaActivation?.close(),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]).catch(() => {});
+    const resolveEnterpriseRuntime = async (event, provider, model, config = {}) => ({
+      provider,
+      model,
+      apiKey: config.apiKey || "",
+      enterprise: require("./enterpriseProviderErrors").pickEnterpriseConfig(config),
     });
-    ipcMain.handle("activation-begin", () => this.metaActivation?.begin() ?? null);
-    ipcMain.handle("activation-stop", (_event, id) => {
-      if (typeof id === "string") this.metaActivation?.stopCapture(id);
-    });
-    ipcMain.handle("activation-finish", (_event, id, words) =>
-      this.metaActivation?.finish(id, words)
-    );
-    ipcMain.handle("activation-cancel", (_event, id) => this.metaActivation?.cancel(id));
-    const workspacePolicyManager = createWorkspacePolicyManager({
-      cachePath: path.join(app.getPath("userData"), "workspace-policy.json"),
-      getApiUrl,
-      getAppVersion: () => app.getVersion(),
-      proxyFetch,
-      tokenStore,
-      broadcast: (snapshot) => broadcastToWindows("workspace-policy-changed", snapshot),
-      logger: debugLogger,
-    });
-    this.enterpriseIdentityManager = createEnterpriseIdentityManager({
-      cachePath: path.join(app.getPath("userData"), "managed-enterprise-config.json"),
-      getApiUrl,
-      getAppVersion: () => app.getVersion(),
-      proxyFetch,
-      tokenStore,
-      broadcast: (snapshot) => broadcastToWindows("managed-enterprise-config-changed", snapshot),
-      logger: debugLogger,
-    });
-    const resolveEnterpriseRuntime = async (event, provider, model, config = {}) => {
-      const manual = {
-        provider,
-        model,
-        apiKey: config.apiKey || "",
-        enterprise: require("./enterpriseProviderErrors").pickEnterpriseConfig(config),
-      };
-      const context = config.managedContext;
-      if (!context) return manual;
-      const authHeaders = await getAuthHeader(event);
-      const resolved = await this.enterpriseIdentityManager.resolveProvider({
-        accountId: context.accountId,
-        workspaceId: context.workspaceId,
-        expectedAuthGeneration: context.authGeneration,
-        inferenceScope: context.inferenceScope,
-        setupMode: context.setupMode,
-        authHeaders,
-      });
-      if (!resolved.managed) {
-        throw Object.assign(
-          new Error("Managed enterprise configuration changed. Retry the request."),
-          { code: "MANAGED_CONFIG_CHANGED" }
-        );
-      }
-      if (
-        resolved.provider !== context.provider ||
-        resolved.generation !== context.generation ||
-        resolved.version !== context.providerVersion
-      ) {
-        throw Object.assign(
-          new Error("Managed enterprise configuration changed. Retry the request."),
-          { code: "MANAGED_CONFIG_CHANGED" }
-        );
-      }
-      if (resolved.provider === "bedrock") {
-        return {
-          provider: resolved.provider,
-          model: resolved.model,
-          apiKey: "",
-          enterprise: {
-            bedrockRegion: resolved.config.region,
-            managedCredentialProvider: resolved.credentialProvider,
-          },
-        };
-      }
-      return {
-        provider: resolved.provider,
-        model: resolved.model,
-        apiKey: "",
-        enterprise: {
-          azureEndpoint: resolved.config.endpoint,
-          azureApiVersion: resolved.config.apiVersion,
-          managedTokenProvider: resolved.tokenProvider,
-        },
-      };
-    };
 
     ipcMain.handle("retry-transcription", async (event, id, settings) => {
       const buffer = this.audioStorageManager.getAudioBuffer(id);
@@ -3350,255 +3010,6 @@ class IPCHandlers {
       }
     });
 
-    ipcMain.handle("cloud-reason", async (event, text, opts = {}) => {
-      const sender = event.sender;
-      const senderId = sender.id;
-      const requestId = crypto.randomUUID();
-      const controller = this._cloudReasonRequests.begin(senderId, requestId);
-      const cancelSenderRequests = () => this._cloudReasonRequests.cancelSender(senderId);
-      sender.once("destroyed", cancelSenderRequests);
-      try {
-        const apiUrl = getApiUrl();
-        if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
-
-        const authHeader = await getAuthHeader(event);
-        if (!Object.keys(authHeader).length) throw new Error("Not authenticated");
-
-        debugLogger.debug(
-          "Cloud reason request",
-          {
-            model: opts.model || "(default)",
-            agentName: opts.agentName || "(none)",
-            textLength: text?.length || 0,
-            hasScreenContext: !!opts.screenContext,
-          },
-          "cloud-api"
-        );
-
-        const response = await proxyFetch(`${apiUrl}/api/reason`, {
-          method: "POST",
-          signal: controller.signal,
-          headers: withPolicyHeaders({
-            "Content-Type": "application/json",
-            ...authHeader,
-          }),
-          body: JSON.stringify({
-            text,
-            model: opts.model,
-            agentName: opts.agentName,
-            customDictionary: opts.customDictionary,
-            customPrompt: opts.customPrompt,
-            systemPrompt: opts.systemPrompt,
-            requestPurpose: opts.requestPurpose,
-            promptMode: opts.promptMode,
-            purpose: opts.purpose,
-            screenContext: opts.screenContext,
-            tone: opts.tone,
-            appCategory: opts.appCategory,
-            language: opts.language,
-            locale: opts.locale,
-            sessionId: this.sessionId,
-            clientType: "desktop",
-            appVersion: app.getVersion(),
-            clientVersion: app.getVersion(),
-            streamingFallbackReason: opts.streamingFallbackReason,
-            sttProvider: opts.sttProvider,
-            sttModel: opts.sttModel,
-            sttProcessingMs: opts.sttProcessingMs,
-            sttWordCount: opts.sttWordCount,
-            sttLanguage: opts.sttLanguage,
-            sttDetectedLanguage: opts.sttDetectedLanguage,
-            sttDetectedLanguageConfidence: opts.sttDetectedLanguageConfidence,
-            sttDetectedLanguageAudioSeconds: opts.sttDetectedLanguageAudioSeconds,
-            sttDetectedLanguageStatus: opts.sttDetectedLanguageStatus,
-            orukeetLanguageRouting: opts.orukeetLanguageRouting,
-            orukeetCleanup: opts.orukeetCleanup,
-            audioDurationMs: opts.audioDurationMs,
-            audioSizeBytes: opts.audioSizeBytes,
-            audioFormat: opts.audioFormat,
-            clientTotalMs: opts.clientTotalMs,
-          }),
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
-          }
-          if (response.status === 503) {
-            return { success: false, error: "Request timed out", code: "SERVER_ERROR" };
-          }
-          throw await readPolicyResponseError(response, `API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        debugLogger.debug(
-          "Cloud reason response",
-          {
-            model: data.model,
-            provider: data.provider,
-            resultLength: data.text?.length || 0,
-            promptMode: data.promptMode,
-            matchType: data.matchType,
-            screenContextApplied: data.screenContextApplied,
-          },
-          "cloud-api"
-        );
-        return {
-          success: true,
-          text: data.text,
-          model: data.model,
-          provider: data.provider,
-          promptMode: data.promptMode,
-          matchType: data.matchType,
-          screenContextApplied: data.screenContextApplied,
-        };
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return { success: false, error: "Cancelled", code: "REASON_CANCELLED" };
-        }
-        debugLogger.error("Cloud reasoning error:", error);
-        return toPolicyFailure(error);
-      } finally {
-        sender.removeListener("destroyed", cancelSenderRequests);
-        this._cloudReasonRequests.complete(senderId, requestId, controller);
-      }
-    });
-
-    ipcMain.on("cloud-reason-cancel", (event) => {
-      this._cloudReasonRequests.cancelSender(event.sender.id);
-    });
-
-    ipcMain.on("cloud-agent-stream-start", async (event, requestId, messages, opts = {}) => {
-      if (typeof requestId !== "string" || !requestId.trim()) return;
-
-      const sender = event.sender;
-      const senderId = sender.id;
-      const controller = this._agentStreamRequests.begin(senderId, requestId);
-      const cancelSenderRequests = () => this._agentStreamRequests.cancelSender(senderId);
-      const sendToRenderer = (channel, payload) => {
-        if (!sender.isDestroyed()) sender.send(channel, payload);
-      };
-      sender.once("destroyed", cancelSenderRequests);
-
-      try {
-        const apiUrl = getApiUrl();
-        if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
-
-        const authHeader = await getAuthHeader(event);
-        if (!Object.keys(authHeader).length) throw new Error("Not authenticated");
-
-        const response = await proxyFetch(`${apiUrl}/api/agent/stream`, {
-          method: "POST",
-          headers: withPolicyHeaders({
-            "Content-Type": "application/json",
-            ...authHeader,
-          }),
-          body: JSON.stringify({
-            messages,
-            systemPrompt: opts.systemPrompt,
-            tools: opts.tools,
-            ...(opts.screenContext ? { screenContext: opts.screenContext } : {}),
-            sessionId: this.sessionId,
-            clientType: "desktop",
-            appVersion: app.getVersion(),
-          }),
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          const error = await readPolicyResponseError(response, `API error: ${response.status}`);
-          if (response.status === 401 && !error.code) error.code = "AUTH_EXPIRED";
-          if (response.status === 503 && !error.code) error.code = "SERVER_ERROR";
-          sendToRenderer("cloud-agent-stream-error", {
-            requestId,
-            ...toPolicyFailure(error),
-          });
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              if (!line.trim()) continue;
-              try {
-                sendToRenderer("cloud-agent-stream-chunk", {
-                  requestId,
-                  chunk: JSON.parse(line),
-                });
-              } catch {
-                // skip malformed NDJSON line
-              }
-            }
-          }
-          if (buffer.trim()) {
-            try {
-              sendToRenderer("cloud-agent-stream-chunk", {
-                requestId,
-                chunk: JSON.parse(buffer),
-              });
-            } catch {
-              // skip malformed remainder
-            }
-          }
-        } finally {
-          reader.releaseLock();
-        }
-
-        sendToRenderer("cloud-agent-stream-end", { requestId });
-      } catch (error) {
-        if (controller.signal.aborted) {
-          sendToRenderer("cloud-agent-stream-end", { requestId });
-          return;
-        }
-        debugLogger.error("Cloud agent stream error:", error);
-        sendToRenderer("cloud-agent-stream-error", {
-          requestId,
-          ...toPolicyFailure(error),
-        });
-      } finally {
-        sender.removeListener("destroyed", cancelSenderRequests);
-        this._agentStreamRequests.complete(senderId, requestId, controller);
-      }
-    });
-
-    ipcMain.on("cloud-agent-stream-cancel", (event, requestId) => {
-      if (typeof requestId !== "string" || !requestId.trim()) return;
-      this._agentStreamRequests.cancel(event.sender.id, requestId);
-    });
-
-    ipcMain.handle("get-workspace-policy", async (event, accountId, expectedAuthGeneration) => {
-      const authHeaders = await getAuthHeader(event);
-      return workspacePolicyManager.getPolicy({ accountId, expectedAuthGeneration, authHeaders });
-    });
-
-    ipcMain.handle(
-      "get-managed-enterprise-config",
-      async (event, accountId, workspaceId, expectedAuthGeneration, forceRefresh = false) => {
-        const authHeaders = await getAuthHeader(event);
-        return this.enterpriseIdentityManager.getConfig({
-          accountId,
-          workspaceId,
-          expectedAuthGeneration,
-          authHeaders,
-          forceRefresh,
-        });
-      }
-    );
-    ipcMain.handle("clear-managed-enterprise-identity", async () => {
-      this.enterpriseIdentityManager.clear();
-    });
-
     ipcMain.handle("transcribe-audio-file-byok", async (event, { filePath, model }) => {
       const fs = require("fs");
       let cleanupUpload = null;
@@ -3690,16 +3101,12 @@ class IPCHandlers {
 
     ipcMain.handle("clear-error-log", () => debugLogger.clearErrorLog());
 
-    ipcMain.handle("get-app-version", () => ({ version: app.getVersion() }));
-
     ipcMain.handle(
       "get-downloaded-update",
       () => this.updateManager?.getDownloadedVersion() ?? null
     );
 
     ipcMain.handle("install-update", () => this.updateManager?.installUpdate() ?? false);
-
-    ipcMain.handle("get-oauth-protocol", () => this.oauthProtocol);
 
     ipcMain.handle("mark-bundle-migrated", () => {
       postMigrationDetector.markBundleMigrated();

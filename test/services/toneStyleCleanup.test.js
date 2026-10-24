@@ -3,14 +3,11 @@ const assert = require("node:assert/strict");
 const { createRendererServer, installBrowserGlobals } = require("../lib/rendererTestHarness");
 
 async function loadModules(t) {
-  const { window } = installBrowserGlobals(t);
+  installBrowserGlobals(t);
   const vite = await createRendererServer(t, { cachePrefix: "openwhispr-tone-style-test-" });
   return {
-    window,
     prompts: await vite.ssrLoadModule("/config/prompts.ts"),
     toneStyle: await vite.ssrLoadModule("/config/toneStyle.ts"),
-    openwhispr: (await vite.ssrLoadModule("/services/ai/inferenceProviders/openwhispr.ts"))
-      .openwhisprProvider,
   };
 }
 
@@ -38,9 +35,8 @@ test("the cleanup prompt ends with the app's medium, the tone and its priority",
   assert.doesNotMatch(other, /The text is/);
 });
 
-// openwhispr-api's lib/prompts.ts TONE_INSTRUCTIONS, which Cloud cleanup
-// appends for the same tone: BYOK and local cleanup must send the same words.
-const SERVER_TONE_SENTENCES = {
+// The exact tone sentences, pinned so a wording change is always deliberate.
+const TONE_SENTENCES = {
   formal:
     "Apply this tone: formal and polished. Use complete sentences with standard capitalization and full punctuation, spell out informal contractions (in English: I will, do not) but keep any the language's grammar requires, and leave out slang, filler, texting shorthand, emoji and em dashes. Restyle only; do not add or remove information.",
   casual:
@@ -51,43 +47,15 @@ const SERVER_TONE_SENTENCES = {
     "Apply this tone: upbeat and enthusiastic. Use standard capitalization and warm, energetic wording, and end positive or friendly sentences with an exclamation mark, without overdoing it. Use commas or periods, never semicolons or em dashes, and no emoji. Restyle only; do not add or remove information.",
 };
 
-test("local cleanup sends the server's exact tone sentences", async (t) => {
+test("cleanup sends the exact tone sentences", async (t) => {
   const { prompts } = await loadModules(t);
-  for (const [tone, sentence] of Object.entries(SERVER_TONE_SENTENCES)) {
+  for (const [tone, sentence] of Object.entries(TONE_SENTENCES)) {
     const prompt = prompts.getCleanupSystemPrompt(null, [], "en", "en", {
       appCategory: "other",
       tone,
     });
     assert.ok(prompt.includes(`\n\n${sentence} This tone overrides`), tone);
   }
-});
-
-test("Cloud cleanup sends the tone and category only for a toned dictation", async (t) => {
-  const { window, openwhispr } = await loadModules(t);
-  const requests = [];
-  window.electronAPI.cloudReason = async (_text, options) => {
-    requests.push(options);
-    return { success: true, text: "ok" };
-  };
-  const ctx = {
-    getCustomDictionary: () => [],
-    getPreferredLanguage: () => "en",
-    getUiLanguage: () => "en",
-  };
-  const call = (config) =>
-    openwhispr.call({ text: "hey", model: "", agentName: null, config, ctx });
-
-  await call({
-    inferenceScope: "dictationCleanup",
-    toneStyle: { appCategory: "personal", tone: "very_casual" },
-  });
-  await call({ inferenceScope: "dictationCleanup" });
-
-  assert.equal(requests[0].tone, "very_casual");
-  assert.equal(requests[0].appCategory, "personal");
-  assert.equal(requests[0].promptMode, "cleanup");
-  assert.equal("tone" in requests[1], false);
-  assert.equal("appCategory" in requests[1], false);
 });
 
 test("stored tones keep only the options each category offers", async (t) => {

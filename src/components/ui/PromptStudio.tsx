@@ -13,11 +13,9 @@ import logger from "../../utils/logger";
 import { getDefaultPromptText, resolvePrompt, type PromptKind } from "../../config/prompts";
 import {
   useSettingsStore,
-  selectPolicyEffectiveSettings,
   selectIsCloudCleanupMode,
   selectIsCloudDictationAgentMode,
 } from "../../stores/settingsStore";
-import { usePolicySnapshot } from "../../hooks/usePolicy";
 import { getDictionaryHintWords } from "../../utils/snippets";
 import { resolveDictationAgentInference } from "../../helpers/dictationAgentInference";
 
@@ -58,10 +56,7 @@ export default function PromptStudio({ className = "", kind = "cleanup" }: Promp
 
   const { alertDialog, showAlertDialog, hideAlertDialog } = useDialogs();
   const { agentName } = useAgentName();
-  const policyState = usePolicySnapshot();
-  const effectiveSettings = useSettingsStore(
-    useShallow((settings) => selectPolicyEffectiveSettings(settings, policyState))
-  );
+  const effectiveSettings = useSettingsStore(useShallow((settings) => settings));
   const uiLanguage = effectiveSettings.uiLanguage;
 
   const isCloudMode = selectIsCloudCleanupMode(effectiveSettings);

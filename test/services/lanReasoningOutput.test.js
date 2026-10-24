@@ -10,8 +10,6 @@ test("a self-hosted reply that only thought until the cap carries the cut-off co
   installBrowserGlobals(t, { window: { electronAPI: {} } });
   const vite = await createRendererServer(t, { cachePrefix: "openwhispr-lan-reasoning-test-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", appVersion: "1.10.0", policy: null });
   t.after(() => reasoningService.destroy());
 
   const originalFetch = globalThis.fetch;
@@ -42,11 +40,9 @@ test("a cancelled run aborts its self-hosted request and is not retried", async 
   installBrowserGlobals(t, { window: { electronAPI: {} } });
   const vite = await createRendererServer(t, { cachePrefix: "openwhispr-lan-reasoning-test-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
   const { cancelRequest, trackRequest } = await vite.ssrLoadModule(
     "/services/ai/requestCancellation.ts"
   );
-  usePolicyStore.setState({ status: "unmanaged", appVersion: "1.10.0", policy: null });
   t.after(() => reasoningService.destroy());
   t.after(trackRequest("run-1"));
 

@@ -6,7 +6,6 @@ interface PillCommandMenuProps {
   buttonRef: React.RefObject<HTMLDivElement | null>;
   align: "left" | "right" | "center";
   isRecording: boolean;
-  agentAllowed: boolean;
   isHovered: boolean;
   setWindowInteractivity: (capture: boolean) => void;
   onToggleListening: () => void;
@@ -23,7 +22,6 @@ export function PillCommandMenu({
   buttonRef,
   align,
   isRecording,
-  agentAllowed,
   isHovered,
   setWindowInteractivity,
   onToggleListening,
@@ -79,7 +77,7 @@ export function PillCommandMenu({
           surface (a translation recording becomes invisible AND un-stoppable:
           its hotkey is blocked while the panel is open and Escape belongs to the
           panel). Stop or finish the recording first. */}
-      {agentAllowed && !isRecording && (
+      {!isRecording && (
         <>
           <div className="h-px bg-border" />
           <button

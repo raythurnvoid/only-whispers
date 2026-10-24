@@ -16,8 +16,6 @@ test("cleanup validates completed provider output using the request's prompt set
   const service = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   t.after(() => service.destroy());
   const { useSettingsStore } = await vite.ssrLoadModule("/stores/settingsStore.ts");
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", policy: null });
   const setCustomPrompt = (cleanup) => useSettingsStore.setState({ customPrompts: { cleanup } });
   setCustomPrompt("");
   window.electronAPI.processLocalReasoning = async () => ({ success: true, text: DUPLICATE });
@@ -63,47 +61,42 @@ test("cleanup validates completed provider output using the request's prompt set
     }
   );
 
-  await t.test(
-    "Cloud, Anthropic, enterprise, Gemini and Custom providers share validation",
-    async () => {
-      setCustomPrompt("");
-      window.electronAPI.cloudReason = async () => ({ success: true, text: DUPLICATE });
-      window.electronAPI.processAnthropicReasoning = async () => ({
-        success: true,
-        text: DUPLICATE,
-      });
-      window.electronAPI.processEnterpriseReasoning = async () => ({
-        success: true,
-        text: DUPLICATE,
-      });
-      window.electronAPI.getGeminiKey = async () => "synthetic-key";
-      const originalFetch = globalThis.fetch;
-      t.after(() => {
-        globalThis.fetch = originalFetch;
-      });
-      globalThis.fetch = async () =>
-        new Response(
-          JSON.stringify({
-            choices: [{ message: { content: DUPLICATE }, finish_reason: "stop" }],
-            candidates: [{ content: { parts: [{ text: DUPLICATE }] }, finishReason: "STOP" }],
-          }),
-          { headers: { "Content-Type": "application/json" } }
-        );
-      for (const config of [
-        { provider: "openwhispr" },
-        { provider: "anthropic" },
-        { provider: "bedrock" },
-        { provider: "gemini" },
-        {
-          provider: "custom",
-          baseUrl: "https://cleanup.example.test/v1/chat/completions",
-          customApiKey: "synthetic-key",
-        },
-      ]) {
-        await assert.rejects(process(config), { code: "CLEANUP_OUTPUT_INVALID" }, config.provider);
-      }
+  await t.test("Anthropic, enterprise, Gemini and Custom providers share validation", async () => {
+    setCustomPrompt("");
+    window.electronAPI.processAnthropicReasoning = async () => ({
+      success: true,
+      text: DUPLICATE,
+    });
+    window.electronAPI.processEnterpriseReasoning = async () => ({
+      success: true,
+      text: DUPLICATE,
+    });
+    window.electronAPI.getGeminiKey = async () => "synthetic-key";
+    const originalFetch = globalThis.fetch;
+    t.after(() => {
+      globalThis.fetch = originalFetch;
+    });
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: DUPLICATE }, finish_reason: "stop" }],
+          candidates: [{ content: { parts: [{ text: DUPLICATE }] }, finishReason: "STOP" }],
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    for (const config of [
+      { provider: "anthropic" },
+      { provider: "bedrock" },
+      { provider: "gemini" },
+      {
+        provider: "custom",
+        baseUrl: "https://cleanup.example.test/v1/chat/completions",
+        customApiKey: "synthetic-key",
+      },
+    ]) {
+      await assert.rejects(process(config), { code: "CLEANUP_OUTPUT_INVALID" }, config.provider);
     }
-  );
+  });
 
   await t.test("history retry keeps the raw row on rejected cleanup, flags partials", async () => {
     setCustomPrompt("");
@@ -155,9 +148,6 @@ test("cleanup validates completed provider output using the request's prompt set
       },
       window,
       getSettings: settingsModule.getSettings,
-      getManagedTranscriptionResolution: () => null,
-      isTranscriptionContextAllowed: () => true,
-      usePolicyStore,
       useCleanupModel: true,
       getAgentName: () => "OpenWhispr",
       hasTextContent: (text) => typeof text === "string" && text.trim().length > 0,

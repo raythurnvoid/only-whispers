@@ -14,8 +14,6 @@ import historyEmptyDark from "../assets/empty-states/home-history-dark.svg";
 import type { TranscriptionItem as TranscriptionItemType } from "../types/electron";
 import { formatDateGroup } from "../utils/dateFormatting";
 import { useSettingsStore } from "../stores/settingsStore";
-import { effectiveLocalHistoryEnabled } from "../stores/policyRules";
-import { usePolicyStore } from "../stores/policyStore";
 
 interface HistoryViewProps {
   history: TranscriptionItemType[];
@@ -56,10 +54,7 @@ export default function HistoryView({
 }: HistoryViewProps) {
   const { t } = useTranslation();
   const locale = useUiLocale();
-  const personalDataRetentionEnabled = useSettingsStore((s) => s.dataRetentionEnabled);
-  const dataRetentionEnabled = usePolicyStore((policyState) =>
-    effectiveLocalHistoryEnabled(policyState, personalDataRetentionEnabled)
-  );
+  const dataRetentionEnabled = useSettingsStore((s) => s.dataRetentionEnabled);
   const [isWriting, setIsWriting] = useState(false);
   const hasHistory = history.length > 0;
 

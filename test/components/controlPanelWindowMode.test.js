@@ -6,7 +6,6 @@ const load = () => import("../../src/utils/controlPanelWindowMode.ts");
 const settledState = {
   isControlPanel: true,
   isLoading: false,
-  isWaitingForPolicyStart: false,
   showOnboarding: false,
 };
 
@@ -24,10 +23,6 @@ test("unsettled and onboarding routes leave window sizing to their owners", asyn
     null
   );
   assert.equal(resolveSettledControlPanelWindowMode({ ...settledState, isLoading: true }), null);
-  assert.equal(
-    resolveSettledControlPanelWindowMode({ ...settledState, isWaitingForPolicyStart: true }),
-    null
-  );
   assert.equal(
     resolveSettledControlPanelWindowMode({ ...settledState, showOnboarding: true }),
     null

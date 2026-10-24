@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   LlamaServerStatus,
@@ -34,13 +34,6 @@ import { useFocusHold } from "../hooks/useFocusHold";
 import { useTypingPause } from "../hooks/useTypingPause";
 import { getCachedPlatform } from "../utils/platform";
 import { useSettingsStore } from "../stores/settingsStore";
-import {
-  filterByokProviderOptionsByPolicy,
-  isModeAllowedByPolicy,
-  isProviderAllowedByPolicy,
-  reconcileProviderSelection,
-} from "../stores/policyRules";
-import { usePolicySnapshot } from "../hooks/usePolicy";
 
 type CloudModelOption = {
   value: string;
@@ -370,47 +363,34 @@ export default function ReasoningModelSelector({
   const [selectedMode, setSelectedMode] = useState<"cloud" | "local">(mode || "cloud");
   const [selectedCloudProvider, setSelectedCloudProvider] = useState("openai");
   const [selectedLocalProvider, setSelectedLocalProvider] = useState("qwen");
-  const policyState = usePolicySnapshot();
-  const providerAllowed = useCallback(
-    (providerId: string) => isProviderAllowedByPolicy(policyState, "llm", providerId),
-    [policyState]
-  );
-
-  const cloudProviderTabs = useMemo(
+  const cloudProviders = useMemo(
     () =>
-      filterByokProviderOptionsByPolicy(
-        onlyProductProviders(
-          CLOUD_PROVIDER_IDS.map((id): ProviderTabItem => ({
-            id,
-            name:
-              id === "custom"
-                ? t("reasoning.custom.providerName")
-                : id === OPENROUTER_TAB
-                  ? "OpenRouter"
-                  : REASONING_PROVIDERS[id as keyof typeof REASONING_PROVIDERS]?.name || id,
-          })),
-          "llm"
-        ),
-        "llm",
-        policyState
+      onlyProductProviders(
+        CLOUD_PROVIDER_IDS.map((id): ProviderTabItem => ({
+          id,
+          name:
+            id === "custom"
+              ? t("reasoning.custom.providerName")
+              : id === OPENROUTER_TAB
+                ? "OpenRouter"
+                : REASONING_PROVIDERS[id as keyof typeof REASONING_PROVIDERS]?.name || id,
+        })),
+        "llm"
       ),
-    [policyState, t]
+    [t]
   );
-  const cloudProviders = cloudProviderTabs;
-  const cloudProviderFallback = reconcileProviderSelection(selectedCloudProvider, cloudProviders);
-  const displayedCloudProvider = cloudProviderFallback ?? selectedCloudProvider;
+  // The product list can hide the remembered provider; show the first one instead.
+  const displayedCloudProvider = cloudProviders.some((tab) => tab.id === selectedCloudProvider)
+    ? selectedCloudProvider
+    : (cloudProviders[0]?.id ?? selectedCloudProvider);
   const {
     models: tinfoilModels,
     loading: tinfoilModelsLoading,
     error: tinfoilModelsError,
   } = useTinfoilModels(displayedCloudProvider === "tinfoil");
   const modeTabs = [
-    ...(isModeAllowedByPolicy(policyState, "llm", "providers") && cloudProviders.length > 0
-      ? [{ id: "cloud", name: t("reasoning.mode.cloud") }]
-      : []),
-    ...(isModeAllowedByPolicy(policyState, "llm", "local") && isProductMode("local")
-      ? [{ id: "local", name: t("reasoning.mode.local") }]
-      : []),
+    ...(cloudProviders.length > 0 ? [{ id: "cloud", name: t("reasoning.mode.cloud") }] : []),
+    ...(isProductMode("local") ? [{ id: "local", name: t("reasoning.mode.local") }] : []),
   ];
   const effectiveMode =
     mode ??
@@ -471,11 +451,7 @@ export default function ReasoningModelSelector({
     },
     // A hidden panel is not ready to ask; a shown one asks again, and the main process answers
     // a check it remembers at once.
-    ready:
-      effectiveMode === "cloud" &&
-      providerAllowed(displayedCloudProvider) &&
-      Boolean(typedKey.trim()) &&
-      visible,
+    ready: effectiveMode === "cloud" && Boolean(typedKey.trim()) && visible,
     delayMs,
   });
   const followKeyDraft = keyDraft.follow;
@@ -570,8 +546,6 @@ export default function ReasoningModelSelector({
   };
 
   const handleModeChange = (newMode: "cloud" | "local") => {
-    const policyMode = newMode === "local" ? "local" : "providers";
-    if (!isModeAllowedByPolicy(policyState, "llm", policyMode)) return;
     if (newMode === "cloud" && cloudProviders.length === 0) return;
     setSelectedMode(newMode);
     const inferenceMode: InferenceMode = newMode === "local" ? "local" : "providers";
@@ -583,7 +557,6 @@ export default function ReasoningModelSelector({
   };
 
   const handleCloudProviderChange = (provider: string) => {
-    if (!providerAllowed(provider)) return;
     setSelectedCloudProvider(provider);
   };
 
@@ -624,9 +597,9 @@ export default function ReasoningModelSelector({
 
       {effectiveMode === "cloud" && (
         <div className="space-y-2">
-          {cloudProviderTabs.length > 0 && (
+          {cloudProviders.length > 0 && (
             <ProviderTabs
-              providers={cloudProviderTabs}
+              providers={cloudProviders}
               selectedId={displayedCloudProvider}
               onSelect={handleCloudProviderChange}
               colorScheme="purple"
@@ -634,112 +607,108 @@ export default function ReasoningModelSelector({
             />
           )}
 
-          {providerAllowed(displayedCloudProvider) && (
-            <div>
-              {/* A model renders as selected only under its committed provider —
-                free-form custom/OpenRouter ids can collide with registry ids. */}
-              {displayedCloudProvider === OPENROUTER_TAB ? (
-                <OpenAICompatiblePanel
-                  key={OPENROUTER_TAB}
-                  baseUrl={API_ENDPOINTS.OPENROUTER_BASE}
-                  setBaseUrl={() => {}}
-                  apiKey={openrouterApiKey}
-                  setApiKey={setOpenrouterApiKey}
-                  model={localReasoningProvider === OPENROUTER_TAB ? reasoningModel : ""}
-                  setModel={(m) => {
-                    setLocalReasoningProvider(OPENROUTER_TAB);
-                    setReasoningModel(m);
-                  }}
-                  provider="openrouter"
-                  lockedBaseUrl
-                  apiKeyRequired
-                  getKeyUrl={OPENROUTER_KEYS_URL}
-                />
-              ) : displayedCloudProvider === "custom" ? (
-                <OpenAICompatiblePanel
-                  key="custom"
-                  baseUrl={cloudReasoningBaseUrl}
-                  setBaseUrl={setCloudReasoningBaseUrl}
-                  apiKey={customReasoningApiKey}
-                  setApiKey={setCustomReasoningApiKey || (() => {})}
-                  model={localReasoningProvider === "custom" ? reasoningModel : ""}
-                  setModel={(m) => {
-                    setLocalReasoningProvider("custom");
-                    setReasoningModel(m);
-                  }}
-                  defaultBaseUrl={API_ENDPOINTS.OPENAI_BASE}
-                />
-              ) : (
-                <>
-                  {/* only-whispers runs OpenAI on the ChatGPT plan only, so it asks for no key. */}
-                  {hostedKey && displayedCloudProvider !== "openai" && (
-                    <div className="space-y-2" onFocus={editing.onFocus} onBlur={editing.onBlur}>
-                      {displayedCloudProvider === "corti" && (
+          <div>
+            {/* A model renders as selected only under its committed provider —
+              free-form custom/OpenRouter ids can collide with registry ids. */}
+            {displayedCloudProvider === OPENROUTER_TAB ? (
+              <OpenAICompatiblePanel
+                key={OPENROUTER_TAB}
+                baseUrl={API_ENDPOINTS.OPENROUTER_BASE}
+                setBaseUrl={() => {}}
+                apiKey={openrouterApiKey}
+                setApiKey={setOpenrouterApiKey}
+                model={localReasoningProvider === OPENROUTER_TAB ? reasoningModel : ""}
+                setModel={(m) => {
+                  setLocalReasoningProvider(OPENROUTER_TAB);
+                  setReasoningModel(m);
+                }}
+                provider="openrouter"
+                lockedBaseUrl
+                apiKeyRequired
+                getKeyUrl={OPENROUTER_KEYS_URL}
+              />
+            ) : displayedCloudProvider === "custom" ? (
+              <OpenAICompatiblePanel
+                key="custom"
+                baseUrl={cloudReasoningBaseUrl}
+                setBaseUrl={setCloudReasoningBaseUrl}
+                apiKey={customReasoningApiKey}
+                setApiKey={setCustomReasoningApiKey || (() => {})}
+                model={localReasoningProvider === "custom" ? reasoningModel : ""}
+                setModel={(m) => {
+                  setLocalReasoningProvider("custom");
+                  setReasoningModel(m);
+                }}
+                defaultBaseUrl={API_ENDPOINTS.OPENAI_BASE}
+              />
+            ) : (
+              <>
+                {/* only-whispers runs OpenAI on the ChatGPT plan only, so it asks for no key. */}
+                {hostedKey && displayedCloudProvider !== "openai" && (
+                  <div className="space-y-2" onFocus={editing.onFocus} onBlur={editing.onBlur}>
+                    {displayedCloudProvider === "corti" && (
+                      <p className="text-xs text-muted-foreground">{t("reasoning.corti.euOnly")}</p>
+                    )}
+                    <div className="flex items-baseline justify-between">
+                      <h4 className="font-medium text-foreground">{t("common.apiKey")}</h4>
+                      <GetApiKeyLink url={hostedKey.url} />
+                    </div>
+                    <ProviderCheckField
+                      aria-label={t("common.apiKey")}
+                      check={check}
+                      invalidOn="credentialsRejected"
+                      type="password"
+                      value={typedKey}
+                      onChange={(event) =>
+                        keyDraft.change(
+                          displayedCloudProvider,
+                          event.target.value.trim(),
+                          hostedKey.set
+                        )
+                      }
+                      onBlur={keyDraft.save}
+                      placeholder={t("apiKeyInput.placeholder")}
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                  </div>
+                )}
+
+                {displayedCloudProvider === "openai" && (
+                  <div className="pt-3">
+                    <ChatGPTSignIn />
+                  </div>
+                )}
+
+                <div className="pt-3 space-y-2">
+                  <h4 className="text-sm font-medium text-foreground">
+                    {t("reasoning.selectModel")}
+                  </h4>
+                  <ModelCardList
+                    models={selectedCloudModels}
+                    selectedModel={
+                      localReasoningProvider === displayedCloudProvider ? reasoningModel : ""
+                    }
+                    onModelSelect={handleModelSelect}
+                  />
+                  {displayedCloudProvider === "tinfoil" && (
+                    <>
+                      {tinfoilModelsLoading && (
                         <p className="text-xs text-muted-foreground">
-                          {t("reasoning.corti.euOnly")}
+                          {t("reasoning.tinfoil.refreshingModels")}
                         </p>
                       )}
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="font-medium text-foreground">{t("common.apiKey")}</h4>
-                        <GetApiKeyLink url={hostedKey.url} />
-                      </div>
-                      <ProviderCheckField
-                        aria-label={t("common.apiKey")}
-                        check={check}
-                        invalidOn="credentialsRejected"
-                        type="password"
-                        value={typedKey}
-                        onChange={(event) =>
-                          keyDraft.change(
-                            displayedCloudProvider,
-                            event.target.value.trim(),
-                            hostedKey.set
-                          )
-                        }
-                        onBlur={keyDraft.save}
-                        placeholder={t("apiKeyInput.placeholder")}
-                        autoComplete="off"
-                        spellCheck={false}
-                      />
-                    </div>
+                      {!tinfoilModelsLoading && tinfoilModelsError && (
+                        <p className="text-xs text-destructive">
+                          {t("reasoning.custom.unableToLoadModels")}
+                        </p>
+                      )}
+                    </>
                   )}
-
-                  {displayedCloudProvider === "openai" && (
-                    <div className="pt-3">
-                      <ChatGPTSignIn />
-                    </div>
-                  )}
-
-                  <div className="pt-3 space-y-2">
-                    <h4 className="text-sm font-medium text-foreground">
-                      {t("reasoning.selectModel")}
-                    </h4>
-                    <ModelCardList
-                      models={selectedCloudModels}
-                      selectedModel={
-                        localReasoningProvider === displayedCloudProvider ? reasoningModel : ""
-                      }
-                      onModelSelect={handleModelSelect}
-                    />
-                    {displayedCloudProvider === "tinfoil" && (
-                      <>
-                        {tinfoilModelsLoading && (
-                          <p className="text-xs text-muted-foreground">
-                            {t("reasoning.tinfoil.refreshingModels")}
-                          </p>
-                        )}
-                        {!tinfoilModelsLoading && tinfoilModelsError && (
-                          <p className="text-xs text-destructive">
-                            {t("reasoning.custom.unableToLoadModels")}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 

@@ -17,7 +17,6 @@ async function renderMenu(t, props) {
       buttonRef: { current: null },
       align: "right",
       isRecording: false,
-      agentAllowed: true,
       meetingAllowed: true,
       isHovered: false,
       setWindowInteractivity: () => {},

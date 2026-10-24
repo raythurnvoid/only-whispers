@@ -16,8 +16,6 @@ async function startStream(t, provider, { holdHeaders = false, status = 200 } = 
   });
   const vite = await createRendererServer(t);
   const service = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", policy: null });
   t.after(() => service.destroy());
   t.mock.timers.enable({ apis: ["setTimeout"] });
 

@@ -71,10 +71,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     "permission-guide-state-changed",
     (callback) => (_event, state) => callback(state)
   ),
-  markMacAccessibilityFeaturesReady: (expectedAccountScope) =>
-    expectedAccountScope
-      ? ipcRenderer.send("mac-accessibility-features-ready", expectedAccountScope)
-      : ipcRenderer.send("mac-accessibility-features-ready"),
+  markMacAccessibilityFeaturesReady: () => ipcRenderer.send("mac-accessibility-features-ready"),
   publishOnboardingDemoEvent: (event) => ipcRenderer.invoke("onboarding-demo-publish", event),
   testProviderConnection: (config) => ipcRenderer.invoke("test-provider-connection", config),
   pasteText: (text, options) => ipcRenderer.invoke("paste-text", text, options),
@@ -140,11 +137,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("db-save-transcription", text, rawText, options),
   getTranscriptions: (limit, options) =>
     ipcRenderer.invoke("db-get-transcriptions", limit, options),
-  closeActivationStream: () => ipcRenderer.invoke("activation-close"),
-  beginActivationCapture: () => ipcRenderer.invoke("activation-begin"),
-  stopActivationCapture: (id) => ipcRenderer.invoke("activation-stop", id),
-  finishActivationCapture: (id, words) => ipcRenderer.invoke("activation-finish", id, words),
-  cancelActivationCapture: (id) => ipcRenderer.invoke("activation-cancel", id),
   clearTranscriptions: () => ipcRenderer.invoke("db-clear-transcriptions"),
   deleteTranscription: (id) => ipcRenderer.invoke("db-delete-transcription", id),
 
@@ -183,14 +175,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   undoLearnedCorrections: (words) => ipcRenderer.invoke("undo-learned-corrections", words),
 
   exportDictionary: (words) => ipcRenderer.invoke("export-dictionary", words),
-
-  setActiveAccountScope: (accountId, expectedAuthGeneration) =>
-    ipcRenderer.invoke("set-active-account-scope", accountId, expectedAuthGeneration),
-  getActiveAccountScope: () => ipcRenderer.invoke("get-active-account-scope"),
-  onActiveAccountScopeChanged: registerListener(
-    "active-account-scope-changed",
-    (callback) => (_event, scope) => callback(scope)
-  ),
 
   importAudioFile: () => ipcRenderer.invoke("import-audio-file"),
 
@@ -286,14 +270,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setAssistantPanelOpen: (open) => ipcRenderer.invoke("set-assistant-panel-open", open),
   setAssistantPanelBusy: (busy) => ipcRenderer.invoke("set-assistant-panel-busy", busy),
 
-  getAppVersion: () => ipcRenderer.invoke("get-app-version"),
   getDownloadedUpdate: () => ipcRenderer.invoke("get-downloaded-update"),
   installUpdate: () => ipcRenderer.invoke("install-update"),
   onUpdateDownloaded: registerListener(
     "update-downloaded",
     (callback) => (_event, payload) => callback(payload)
   ),
-  getOAuthProtocol: () => ipcRenderer.invoke("get-oauth-protocol"),
   markBundleMigrated: () => ipcRenderer.invoke("mark-bundle-migrated"),
 
   // Audio event listeners
@@ -384,19 +366,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     (callback) => (_event, payload) => callback(payload)
   ),
   listBedrockModels: (config) => ipcRenderer.invoke("bedrock-list-models", config),
-  getManagedEnterpriseConfig: (accountId, workspaceId, expectedAuthGeneration, forceRefresh) =>
-    ipcRenderer.invoke(
-      "get-managed-enterprise-config",
-      accountId,
-      workspaceId,
-      expectedAuthGeneration,
-      forceRefresh
-    ),
-  onManagedEnterpriseConfigChanged: registerListener(
-    "managed-enterprise-config-changed",
-    (callback) => (_event, snapshot) => callback(snapshot)
-  ),
-  clearManagedEnterpriseIdentity: () => ipcRenderer.invoke("clear-managed-enterprise-identity"),
 
   // llama-server
   llamaServerStart: (modelId) => ipcRenderer.invoke("llama-server-start", modelId),
@@ -440,24 +409,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   resumeMediaPlayback: () => ipcRenderer.invoke("resume-media-playback"),
   muteOtherApps: () => ipcRenderer.invoke("mute-other-apps"),
   unmuteOtherApps: () => ipcRenderer.invoke("unmute-other-apps"),
-  authClearSession: () => ipcRenderer.invoke("auth-clear-session"),
-  authGetTokenState: () => ipcRenderer.invoke("auth-get-token-state"),
-  authSetToken: (token, expectedGeneration) =>
-    ipcRenderer.invoke("auth-set-token", token, expectedGeneration),
-  onAuthTokenStateChanged: registerListener(
-    "auth-token-state-changed",
-    (callback) => (_event, state) => callback(state)
-  ),
-
-  cloudReason: (text, opts) => ipcRenderer.invoke("cloud-reason", text, opts),
-  cancelCloudReason: () => ipcRenderer.send("cloud-reason-cancel"),
-  getWorkspacePolicy: (accountId, expectedAuthGeneration) =>
-    ipcRenderer.invoke("get-workspace-policy", accountId, expectedAuthGeneration),
-  onWorkspacePolicyChanged: (callback) => {
-    const listener = (_event, snapshot) => callback(snapshot);
-    ipcRenderer.on("workspace-policy-changed", listener);
-    return () => ipcRenderer.removeListener("workspace-policy-changed", listener);
-  },
 
   transcribeAudioFileByok: (options) => ipcRenderer.invoke("transcribe-audio-file-byok", options),
 
@@ -578,28 +529,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   updateDictationPreview: (text) => ipcRenderer.invoke("update-dictation-preview", text),
   completeDictationPreview: (payload) => ipcRenderer.invoke("complete-dictation-preview", payload),
   hideDictationPreview: () => ipcRenderer.invoke("hide-dictation-preview"),
-
-  // Agent cloud streaming (event-based for real-time chunks)
-  startAgentStream: (requestId, messages, opts) =>
-    ipcRenderer.send("cloud-agent-stream-start", requestId, messages, opts),
-  cancelAgentStream: (requestId) => ipcRenderer.send("cloud-agent-stream-cancel", requestId),
-  onAgentStreamChunk: registerListener(
-    "cloud-agent-stream-chunk",
-    (callback) => (_event, payload) => callback(payload)
-  ),
-  onAgentStreamError: registerListener(
-    "cloud-agent-stream-error",
-    (callback) => (_event, payload) => callback(payload)
-  ),
-  onAgentStreamEnd: registerListener(
-    "cloud-agent-stream-end",
-    (callback) => (_event, payload) => callback(payload)
-  ),
-
-  // Agent cloud tools
-  productHelp: (id, input) => ipcRenderer.invoke("product-help", id, input),
-  cancelProductHelp: (id) => ipcRenderer.send("product-help-cancel", id),
-  productHelpBasics: () => ipcRenderer.invoke("product-help-basics"),
 
   // Agent conversation persistence
   createAgentConversation: (title, noteId, spaceId, folderId) =>

@@ -7,8 +7,6 @@ async function loadReasoningService(t, cachePrefix, electronAPI = {}) {
   installBrowserGlobals(t, { window: { electronAPI } });
   const vite = await createRendererServer(t, { cachePrefix });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", appVersion: "1.10.0", policy: null });
   const { default: logger } = await vite.ssrLoadModule("/utils/logger.ts");
   t.after(() => reasoningService.destroy());
   return { reasoningService, logger };

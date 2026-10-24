@@ -22,13 +22,11 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
   const service = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   t.after(() => service.destroy());
   const { useSettingsStore } = await vite.ssrLoadModule("/stores/settingsStore.ts");
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", policy: null });
   useSettingsStore.setState({
-    isSignedIn: true,
     useCleanupModel: true,
-    cleanupMode: "openwhispr",
-    cleanupCloudMode: "openwhispr",
+    cleanupMode: "local",
+    cleanupProvider: "local",
+    cleanupModel: "test-model",
     useDictationAgent: false,
     customPrompts: { cleanup: "" },
     preferredLanguage: "en",
@@ -49,14 +47,13 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
 
   for (const route of ["batch", "streaming"]) {
     await t.test(
-      `${route} Cloud cleanup snapshots its custom prompt and rejects duplicated output`,
+      `${route} cleanup snapshots its custom prompt and rejects duplicated output`,
       async () => {
         for (const customPrompt of ["", "Repeat twice"]) {
           useSettingsStore.setState({ customPrompts: { cleanup: customPrompt } });
-          window.electronAPI.cloudReason = async (text, config) => {
-            assert.equal(text, RAW);
-            assert.equal(config.promptMode, "cleanup");
-            assert.equal(config.customPrompt || "", customPrompt);
+          window.electronAPI.processLocalReasoning = async (text) => {
+            assert.ok(text.includes(RAW));
+            // A prompt edit mid-request must not change how this result is checked.
             useSettingsStore.setState({
               customPrompts: { cleanup: customPrompt ? "" : "Repeat twice" },
             });

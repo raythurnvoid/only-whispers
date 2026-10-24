@@ -21,13 +21,11 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
   const service = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   t.after(() => service.destroy());
   const { useSettingsStore } = await vite.ssrLoadModule("/stores/settingsStore.ts");
-  const { usePolicyStore } = await vite.ssrLoadModule("/stores/policyStore.ts");
-  usePolicyStore.setState({ status: "unmanaged", policy: null });
   useSettingsStore.setState({
-    isSignedIn: true,
     useCleanupModel: true,
-    cleanupMode: "openwhispr",
-    cleanupCloudMode: "openwhispr",
+    cleanupMode: "providers",
+    cleanupProvider: "openai",
+    cleanupModel: "gpt-test",
     useDictationAgent: false,
     customPrompts: { cleanup: "" },
     preferredLanguage: "en",
@@ -39,10 +37,6 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
   let capturedCategory;
   window.electronAPI.captureDictationAppCategory = async () => capturedCategory;
   const reasonRequests = [];
-  window.electronAPI.cloudReason = async (_text, options) => {
-    reasonRequests.push(options);
-    return { success: true, text: "hey u around this evening? thinking coffee around 6 lmk" };
-  };
   const createManager = () =>
     Object.assign(Object.create(AudioManager.prototype), {
       voiceAgentRequested: false,
@@ -53,10 +47,14 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
       isDictionaryEcho: () => false,
       isReasoningAvailable: async () => true,
       finalizeChineseScript: async (text) => text,
+      processWithReasoningModel: async (_text, _model, _agentName, config) => {
+        reasonRequests.push(config.toneStyle ?? {});
+        return "hey u around this evening? thinking coffee around 6 lmk";
+      },
     });
   const lastRequest = () => reasonRequests[reasonRequests.length - 1];
 
-  await t.test("batch Cloud cleanup sends the captured app's tone", async () => {
+  await t.test("batch cleanup sends the captured app's tone", async () => {
     capturedCategory = "personal";
     const manager = createManager();
     manager.beginToneStyleCapture();
@@ -65,7 +63,7 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
     assert.equal(lastRequest().appCategory, "personal");
   });
 
-  await t.test("streaming Cloud cleanup sends the captured app's tone", async () => {
+  await t.test("streaming cleanup sends the captured app's tone", async () => {
     capturedCategory = "email";
     const manager = Object.assign(createManager(), {
       streamingFinalText: RAW,

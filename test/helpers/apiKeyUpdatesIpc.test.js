@@ -87,12 +87,6 @@ Module._load = function (request, parent, isMain) {
     if (request === "./mistralRealtimeStreaming")
       return { MistralRealtimeStreaming: FakeStreaming, MISTRAL_REALTIME_MODEL: "voxtral-rt" };
     if (request === "./debugLogger") return new Proxy({}, { get: () => () => {} });
-    if (request === "./tokenStore")
-      return {
-        get: () => "account",
-        getState: () => ({ token: "account", generation: 1 }),
-        subscribe: () => () => {},
-      };
   }
   return originalLoad.call(this, request, parent, isMain);
 };

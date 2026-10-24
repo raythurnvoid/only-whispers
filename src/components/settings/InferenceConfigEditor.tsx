@@ -1,17 +1,14 @@
 import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
-import { Cloud, Key, Cpu, Network, Building2, ShieldCheck, AlertTriangle } from "../icons";
+import { Key, Cpu, Network, Building2 } from "../icons";
 import {
-  LLM_ENTERPRISE_POLICY_PROVIDER_IDS,
-  LLM_POLICY_PROVIDER_IDS,
   useSettingsStore,
-  selectPolicyEffectiveSettings,
   selectResolvedLLMConfig,
   setResolvedLLMConfig,
   type ResolvedLLMConfig,
 } from "../../stores/settingsStore";
-import { usePolicyModeOptions, usePolicySnapshot } from "../../hooks/usePolicy";
+import { isProductMode } from "../../config/productChoices";
 import { InferenceModeSelector } from "../ui/SettingsSection";
 import type { InferenceModeOption } from "../ui/SettingsSection";
 import ReasoningModelSelector from "../ReasoningModelSelector";
@@ -25,16 +22,10 @@ import {
   type InferenceScope,
   type InferenceScopeDefinition,
 } from "../../config/inferenceScopes";
-import { enterpriseProviderName } from "../../models/ModelRegistry";
 import { AUTO_REASONING_EFFORT, isReasoningEffortSupported } from "../../models/reasoningEffort";
 import { selectableReasoningEffort } from "../../services/ai/chatRequestBody";
 import { offersThinkingToggle } from "../../services/ai/thinkingSuppression";
-import { useManagedScopeResolution } from "../../stores/enterpriseIdentityStore";
 import { modeSwitchPatch } from "../../utils/llmModeSwitch";
-import { requestSignIn } from "../../utils/requestSignIn";
-import TestConnectionButton from "../TestConnectionButton";
-import { getEnterpriseCallSettings } from "../../services/ai/enterpriseSettings";
-import { Button } from "../ui/button";
 
 // Radix Select can't hold an empty value, so Auto ("") gets a sentinel.
 const AUTO_REASONING_EFFORT_VALUE = "__auto__";
@@ -52,70 +43,47 @@ export default function InferenceConfigEditor({
   allowedModes,
 }: InferenceConfigEditorProps) {
   const { t } = useTranslation();
-  const policyState = usePolicySnapshot();
   const config = useSettingsStore(
     useShallow((settings): ResolvedLLMConfig => {
-      const effective = selectPolicyEffectiveSettings(settings, policyState);
-      const resolved = selectResolvedLLMConfig(effective, scope);
+      const resolved = selectResolvedLLMConfig(settings, scope);
       const definition: InferenceScopeDefinition = INFERENCE_SCOPES[scope];
       // Inherited runtime defaults are not an explicit selection in an optional picker.
       return definition.optional
-        ? { ...resolved, model: effective[definition.storeKeys.model] as string }
+        ? { ...resolved, model: settings[definition.storeKeys.model] as string }
         : resolved;
     })
   );
-  const isSignedIn = useSettingsStore((s) => s.isSignedIn);
   const keepLocalModelLoaded = useSettingsStore((s) => s.keepLocalModelLoaded);
   const setKeepLocalModelLoaded = useSettingsStore((s) => s.setKeepLocalModelLoaded);
-  const enterpriseSetupMode = useSettingsStore((s) => s.enterpriseSetupMode);
-  const setEnterpriseSetupMode = useSettingsStore((s) => s.setEnterpriseSetupMode);
-  const managed = useManagedScopeResolution(scope, enterpriseSetupMode);
-  const managedAvailable = useManagedScopeResolution(scope, "managed");
-
-  const { modes, effectiveMode, isModeAllowed } = usePolicyModeOptions<InferenceModeOption>(
-    (
-      [
-        {
-          id: "openwhispr",
-          label: t("settingsPage.aiModels.modes.openwhispr"),
-          description: t("settingsPage.aiModels.modes.openwhisprDesc"),
-          icon: <Cloud className="w-4 h-4" />,
-          disabled: !isSignedIn,
-          signInRequired: !isSignedIn,
-        },
-        {
-          id: "providers",
-          label: t("settingsPage.aiModels.modes.providers"),
-          description: t("settingsPage.aiModels.modes.providersDesc"),
-          icon: <Key className="w-4 h-4" />,
-        },
-        {
-          id: "local",
-          label: t("settingsPage.aiModels.modes.local"),
-          description: t("settingsPage.aiModels.modes.localDesc"),
-          icon: <Cpu className="w-4 h-4" />,
-        },
-        {
-          id: "self-hosted",
-          label: t("settingsPage.aiModels.modes.selfHosted"),
-          description: t("settingsPage.aiModels.modes.selfHostedDesc"),
-          icon: <Network className="w-4 h-4" />,
-        },
-        {
-          id: "enterprise",
-          label: t("settingsPage.aiModels.modes.enterprise"),
-          description: t("settingsPage.aiModels.modes.enterpriseDesc"),
-          icon: <Building2 className="w-4 h-4" />,
-        },
-      ] as InferenceModeOption[]
-    ).filter((mode) => !allowedModes || allowedModes.includes(mode.id)),
-    "llm",
-    config.mode,
-    {
-      byokProviders: LLM_POLICY_PROVIDER_IDS,
-      enterpriseProviders: LLM_ENTERPRISE_POLICY_PROVIDER_IDS,
-    }
-  );
+  const effectiveMode = config.mode;
+  const modes = (
+    [
+      {
+        id: "providers",
+        label: t("settingsPage.aiModels.modes.providers"),
+        description: t("settingsPage.aiModels.modes.providersDesc"),
+        icon: <Key className="w-4 h-4" />,
+      },
+      {
+        id: "local",
+        label: t("settingsPage.aiModels.modes.local"),
+        description: t("settingsPage.aiModels.modes.localDesc"),
+        icon: <Cpu className="w-4 h-4" />,
+      },
+      {
+        id: "self-hosted",
+        label: t("settingsPage.aiModels.modes.selfHosted"),
+        description: t("settingsPage.aiModels.modes.selfHostedDesc"),
+        icon: <Network className="w-4 h-4" />,
+      },
+      {
+        id: "enterprise",
+        label: t("settingsPage.aiModels.modes.enterprise"),
+        description: t("settingsPage.aiModels.modes.enterpriseDesc"),
+        icon: <Building2 className="w-4 h-4" />,
+      },
+    ] as InferenceModeOption[]
+  ).filter((mode) => isProductMode(mode.id) && (!allowedModes || allowedModes.includes(mode.id)));
 
   const setField = useCallback(
     <K extends keyof Omit<typeof config, "scope">>(field: K) =>
@@ -127,11 +95,6 @@ export default function InferenceConfigEditor({
 
   const handleModeSelect = useCallback(
     (mode: InferenceMode) => {
-      if (!isModeAllowed(mode)) return;
-      if (mode === "openwhispr" && !isSignedIn) {
-        requestSignIn();
-        return;
-      }
       if (mode === effectiveMode) return;
 
       setResolvedLLMConfig(
@@ -140,7 +103,7 @@ export default function InferenceConfigEditor({
       );
       onModeChange?.(mode);
     },
-    [scope, config.provider, config.model, effectiveMode, isSignedIn, onModeChange, isModeAllowed]
+    [scope, config.provider, config.model, effectiveMode, onModeChange]
   );
 
   const setMode = setField("mode");
@@ -169,92 +132,8 @@ export default function InferenceConfigEditor({
       ? selectableReasoningEffort(config.provider, config.model, config, config.cloudBaseUrl)
       : null;
 
-  if (managed.kind === "error") {
-    return (
-      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3" role="alert">
-        <div className="flex items-start gap-2">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-          <div>
-            <p className="text-sm font-medium">
-              {t("settingsPage.aiModels.managedEnterprise.errorTitle")}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {managed.messageKey ? t(managed.messageKey) : managed.message}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (managed.kind === "managed") {
-    return (
-      <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/[0.03] p-3">
-        <div className="flex items-start gap-2.5">
-          <div className="rounded-md bg-primary/10 p-1.5 text-primary">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">
-              {t("settingsPage.aiModels.managedEnterprise.title")}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {enterpriseProviderName(managed.provider)} ·{" "}
-              <span className="font-mono">{managed.model}</span>
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("settingsPage.aiModels.managedEnterprise.description")}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-3">
-          <TestConnectionButton
-            provider={managed.provider}
-            getConfig={() => ({
-              ...getEnterpriseCallSettings(managed.provider, scope),
-              model: managed.model,
-            })}
-          />
-          {managed.mode !== "managed_required" && managed.allowManualSetup && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setEnterpriseSetupMode("manual")}
-            >
-              {t("settingsPage.aiModels.managedEnterprise.usePersonalSetup")}
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
-      {enterpriseSetupMode === "manual" && managedAvailable.kind === "managed" && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
-          <div className="min-w-0">
-            <p className="text-sm font-medium">
-              {t("settingsPage.aiModels.managedEnterprise.availableTitle")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("settingsPage.aiModels.managedEnterprise.availableDescription", {
-                provider: enterpriseProviderName(managedAvailable.provider),
-              })}
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0"
-            onClick={() => setEnterpriseSetupMode("managed")}
-          >
-            {t("settingsPage.aiModels.managedEnterprise.useManaged")}
-          </Button>
-        </div>
-      )}
       {modes.length > 1 && (
         <InferenceModeSelector
           modes={modes}
