@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "Modalità Traduzione",
       "uploadAudio": "Carica audio",
+      "editItem": "Modifica",
+      "newTranscript": "Nuova trascrizione",
+      "newTranscriptPlaceholder": "Scrivi o incolla il testo…",
+      "saveFailed": "Impossibile salvare la trascrizione",
       "uploadError": "Impossibile caricare l'audio"
     },
     "aiCta": {

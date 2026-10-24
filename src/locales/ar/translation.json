@@ -634,6 +634,10 @@
       "retryTranslationMode": "وضع الترجمة",
       "clearAllDescriptionDevice": "ستتم إزالة جميع النصوص المفرَّغة والملفات الصوتية وعدادات الإحصاءات نهائيًا من هذا الجهاز. أما العدادات التي تمت مزامنتها مع حسابك فلا تتأثر.",
       "uploadAudio": "رفع ملف صوتي",
+      "editItem": "تعديل",
+      "newTranscript": "نص جديد",
+      "newTranscriptPlaceholder": "اكتب النص أو الصقه…",
+      "saveFailed": "تعذّر حفظ النص",
       "uploadError": "تعذر رفع الملف الصوتي"
     },
     "aiCta": {

@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "翻訳モード",
       "uploadAudio": "音声をアップロード",
+      "editItem": "編集",
+      "newTranscript": "新しい文字起こし",
+      "newTranscriptPlaceholder": "テキストを入力または貼り付け…",
+      "saveFailed": "文字起こしを保存できませんでした",
       "uploadError": "音声をアップロードできませんでした"
     },
     "aiCta": {

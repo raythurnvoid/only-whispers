@@ -714,6 +714,10 @@
       "rawTranscript": "Transcripción sin procesar",
       "retryTranslationMode": "Modo Traducción",
       "uploadAudio": "Subir audio",
+      "editItem": "Editar",
+      "newTranscript": "Nueva transcripción",
+      "newTranscriptPlaceholder": "Escribe o pega texto…",
+      "saveFailed": "No se pudo guardar la transcripción",
       "uploadError": "No se pudo subir el audio"
     },
     "aiCta": {

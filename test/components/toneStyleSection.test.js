@@ -94,8 +94,6 @@ test("Tones & voices stays off until it is turned on, which applies the saved pi
   await React.act(async () => click(enabledToggle(container)));
   assert.equal(store.getState().toneStyleEnabled, true);
   assert.deepEqual(store.getState().toneStyles, DEFAULTS);
-  // Home stops offering it, even after a switch back.
-  assert.equal(localStorage.getItem("toneStyleBannerDismissed"), "true");
   assert.equal(enabledToggle(container).getAttribute("aria-checked"), "true");
   assert.equal(picksEnabled(container), true);
   assert.equal(isDisabled(button(container, "toneStyle.settings.saveChanges")), true);

@@ -743,7 +743,7 @@ declare global {
       updateTranscriptionText: (
         id: number,
         text: string,
-        rawText: string
+        rawText: string | null
       ) => Promise<{ success: boolean; transcription?: TranscriptionItem; error?: string }>;
 
       // Dictionary operations

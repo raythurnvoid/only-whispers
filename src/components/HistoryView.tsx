@@ -1,11 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "./lib/utils";
 import { useUiLocale } from "../hooks/useUiLocale";
 import { Button } from "./ui/button";
 import { PAGE_CONTENT_WIDTH_CLASS } from "./ui/pageWidth";
-import { Loader2, Sparkles, X, Trash2, Archive, Upload } from "./icons";
+import { Loader2, Sparkles, X, Trash2, Archive, Upload, Plus } from "./icons";
 import TranscriptionItem from "./ui/TranscriptionItem";
+import TranscriptTextEditor from "./ui/TranscriptTextEditor";
 import ThemedEmptyIllustration from "./ui/ThemedEmptyIllustration";
 import DictationHotkeyHint from "./ui/DictationHotkeyHint";
 import historyEmptyLight from "../assets/empty-states/home-history-light.svg";
@@ -15,10 +16,6 @@ import { formatDateGroup } from "../utils/dateFormatting";
 import { useSettingsStore } from "../stores/settingsStore";
 import { effectiveLocalHistoryEnabled } from "../stores/policyRules";
 import { usePolicyStore } from "../stores/policyStore";
-import { useToneStylePrompt } from "../hooks/useToneStylePrompt";
-import ToneStyleBanner from "./toneStyle/ToneStyleBanner";
-import ToneStyleSetupDialog from "./toneStyle/ToneStyleSetupDialog";
-import { turnOnDictationCleanup } from "./toneStyle/dictationCleanup";
 
 interface HistoryViewProps {
   history: TranscriptionItemType[];
@@ -63,8 +60,16 @@ export default function HistoryView({
   const dataRetentionEnabled = usePolicyStore((policyState) =>
     effectiveLocalHistoryEnabled(policyState, personalDataRetentionEnabled)
   );
-  const toneStylePrompt = useToneStylePrompt();
+  const [isWriting, setIsWriting] = useState(false);
   const hasHistory = history.length > 0;
+
+  // The new row reaches the list through the transcription-added broadcast.
+  const saveWrittenTranscript = async (text: string) => {
+    const result = await window.electronAPI.saveTranscription(text);
+    if (!result?.success) return false;
+    setIsWriting(false);
+    return true;
+  };
 
   const groupedHistory = useMemo(() => {
     if (history.length === 0) return [];
@@ -107,34 +112,39 @@ export default function HistoryView({
         <h2 className={cn("text-xl text-foreground", isLoading && !hasHistory && "invisible")}>
           {t(hasHistory ? "controlPanel.history.welcomeBack" : "controlPanel.history.welcome")}
         </h2>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 gap-1.5 text-xs"
-          onClick={onUploadAudio}
-          disabled={isUploading}
-        >
-          {isUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-          {t("controlPanel.history.uploadAudio")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 text-xs"
+            onClick={() => setIsWriting(true)}
+            disabled={isWriting}
+          >
+            <Plus size={13} />
+            {t("controlPanel.history.newTranscript")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 text-xs"
+            onClick={onUploadAudio}
+            disabled={isUploading}
+          >
+            {isUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+            {t("controlPanel.history.uploadAudio")}
+          </Button>
+        </div>
       </div>
-      {toneStylePrompt.showBanner && (
-        <ToneStyleBanner
-          cleanupEnabled={useCleanupModel}
-          onStart={() => {
-            if (!useCleanupModel) turnOnDictationCleanup();
-            toneStylePrompt.setDialogOpen(true);
-          }}
-          onDismiss={toneStylePrompt.dismissBanner}
-        />
+      {isWriting && (
+        <div className="mb-4 rounded-2xl border border-border/70 bg-card/50 p-3 dark:border-white/10 dark:bg-surface-2/60">
+          <TranscriptTextEditor
+            placeholder={t("controlPanel.history.newTranscriptPlaceholder")}
+            onSave={saveWrittenTranscript}
+            onCancel={() => setIsWriting(false)}
+          />
+        </div>
       )}
-      <ToneStyleSetupDialog
-        open={toneStylePrompt.dialogOpen}
-        onOpenChange={toneStylePrompt.setDialogOpen}
-        onOpenSettings={onOpenSettings}
-      />
-      {/* The Tone & Style banner offers to turn cleanup on itself. */}
-      {!useCleanupModel && !aiCTADismissed && !toneStylePrompt.showBanner && (
+      {!useCleanupModel && !aiCTADismissed && (
         <div className="mb-3 relative rounded-lg border border-primary/20 bg-primary/5 dark:bg-primary/10 p-3">
           <button
             onClick={() => {

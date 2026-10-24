@@ -18,7 +18,10 @@ import {
   AlertCircle,
   ArchiveRestore,
   MoreVertical,
+  Pencil,
 } from "../icons";
+import TranscriptTextEditor from "./TranscriptTextEditor";
+import { updateTranscription } from "../../stores/transcriptionStore";
 import type {
   TranscriptionItem as TranscriptionItemType,
   TranscriptionErrorCode,
@@ -69,6 +72,7 @@ export default function TranscriptionItem({
   const { t, i18n } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const timestampSource = item.timestamp.endsWith("Z") ? item.timestamp : `${item.timestamp}Z`;
   const timestampDate = new Date(timestampSource);
@@ -87,6 +91,15 @@ export default function TranscriptionItem({
     } finally {
       setIsRetrying(false);
     }
+  };
+
+  // The raw transcript stays as it was heard; only the shown text changes.
+  const handleSaveEdit = async (text: string) => {
+    const result = await window.electronAPI.updateTranscriptionText(item.id, text, item.raw_text);
+    if (!result?.success || !result.transcription) return false;
+    updateTranscription(result.transcription);
+    setIsEditing(false);
+    return true;
   };
 
   const isFailed = item.status === "failed";
@@ -206,6 +219,20 @@ export default function TranscriptionItem({
               </Button>
             </Tooltip>
           )}
+          {isTranscribed && (
+            <Tooltip content={t("controlPanel.history.editItem")}>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setIsEditing(true)}
+                disabled={isEditing}
+                aria-label={t("controlPanel.history.editItem")}
+                className={ACTION_BUTTON_CLASS}
+              >
+                <Pencil size={13} />
+              </Button>
+            </Tooltip>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -315,6 +342,12 @@ export default function TranscriptionItem({
                 : t("controlPanel.history.discarded.recording")}
             </span>
           </div>
+        ) : isEditing ? (
+          <TranscriptTextEditor
+            initialText={item.text}
+            onSave={handleSaveEdit}
+            onCancel={() => setIsEditing(false)}
+          />
         ) : (
           <p dir="auto" className={TRANSCRIPT_TEXT_CLASS}>
             {item.text}

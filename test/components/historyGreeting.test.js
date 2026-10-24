@@ -36,7 +36,6 @@ async function mountHistoryView(t) {
       `,
       "/ui/DictationHotkeyHint": `export default function DictationHotkeyHint() { return null; }`,
       "/ui/TranscriptionItem": `export default function TranscriptionItem() { return null; }`,
-      "/toneStyle/ToneStyleBanner": `export default function ToneStyleBanner() { return null; }`,
     },
   });
   const { default: HistoryView } = await vite.ssrLoadModule("/components/HistoryView.tsx");

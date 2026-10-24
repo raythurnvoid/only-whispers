@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "Режим перевода",
       "uploadAudio": "Загрузить аудио",
+      "editItem": "Изменить",
+      "newTranscript": "Новая расшифровка",
+      "newTranscriptPlaceholder": "Введите или вставьте текст…",
+      "saveFailed": "Не удалось сохранить расшифровку",
       "uploadError": "Не удалось загрузить аудио"
     },
     "aiCta": {

@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "翻译模式",
       "uploadAudio": "上传音频",
+      "editItem": "编辑",
+      "newTranscript": "新建转录",
+      "newTranscriptPlaceholder": "输入或粘贴文本…",
+      "saveFailed": "无法保存转录",
       "uploadError": "无法上传音频"
     },
     "aiCta": {

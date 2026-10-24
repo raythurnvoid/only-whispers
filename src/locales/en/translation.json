@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "Translation Mode",
       "uploadAudio": "Upload audio",
+      "editItem": "Edit",
+      "newTranscript": "New transcript",
+      "newTranscriptPlaceholder": "Type or paste text…",
+      "saveFailed": "Couldn't save the transcript",
       "uploadError": "Could not upload the audio"
     },
     "aiCta": {

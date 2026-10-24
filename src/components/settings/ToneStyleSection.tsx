@@ -7,7 +7,6 @@ import { Toggle } from "../ui/toggle";
 import { useToast } from "../ui/useToast";
 import { cn } from "../lib/utils";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { dismissToneStyleBanner } from "../../hooks/useToneStylePrompt";
 import { TONE_APP_CATEGORIES, TONE_OPTIONS, type ToneStyles } from "../../config/toneStyle";
 import { AppMarkStack } from "../toneStyle/toneStyleVisuals";
 import { CATEGORY_APP_MARKS } from "../toneStyle/appMarks";
@@ -33,7 +32,7 @@ export default function ToneStyleSection({ onOpenCleanupSettings }: ToneStyleSec
     toast({ title: t("toneStyle.settings.saved") });
   };
 
-  // As in the setup dialog: cleanup without a usable model goes on to pick one.
+  // Cleanup without a usable model goes on to pick one.
   const turnOnCleanup = () => {
     turnOnDictationCleanup();
     if (!dictationCleanupHasModel()) onOpenCleanupSettings();
@@ -57,10 +56,7 @@ export default function ToneStyleSection({ onOpenCleanupSettings }: ToneStyleSec
           >
             <Toggle
               checked={toneStyleEnabled}
-              onChange={(enabled) => {
-                useSettingsStore.getState().setToneStyleEnabled(enabled);
-                if (enabled) dismissToneStyleBanner();
-              }}
+              onChange={(enabled) => useSettingsStore.getState().setToneStyleEnabled(enabled)}
               ariaLabel={t("toneStyle.settings.enabled")}
             />
           </SettingsRow>

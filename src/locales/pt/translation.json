@@ -693,6 +693,10 @@
       },
       "retryTranslationMode": "Modo de Tradução",
       "uploadAudio": "Enviar áudio",
+      "editItem": "Editar",
+      "newTranscript": "Nova transcrição",
+      "newTranscriptPlaceholder": "Digite ou cole o texto…",
+      "saveFailed": "Não foi possível salvar a transcrição",
       "uploadError": "Não foi possível enviar o áudio"
     },
     "aiCta": {

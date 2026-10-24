@@ -714,6 +714,10 @@
       },
       "retryTranslationMode": "翻譯模式",
       "uploadAudio": "上傳音訊",
+      "editItem": "編輯",
+      "newTranscript": "新增轉錄",
+      "newTranscriptPlaceholder": "輸入或貼上文字…",
+      "saveFailed": "無法儲存轉錄",
       "uploadError": "無法上傳音訊"
     },
     "aiCta": {
