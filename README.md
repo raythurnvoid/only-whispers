@@ -19,7 +19,7 @@
 
 ## How it works
 
-1. Hold the hotkey (Right Ctrl by default) and speak.
+1. Hold the hotkey (Ctrl+Win by default) and speak.
 2. Release the key.
 3. **Mistral Voxtral 3** turns your speech into text.
 4. **OpenAI Luna** cleans the text: it removes filler words and fixes grammar and punctuation. It runs on your ChatGPT plan, so it needs no OpenAI API key.
