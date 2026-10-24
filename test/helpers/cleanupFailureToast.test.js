@@ -63,7 +63,7 @@ test("cleanup toast localizes AWS recovery guidance and keeps fallback status qu
   assert.equal(globalThis.__cleanupFailureToasts.length, 1);
   assert.deepEqual(globalThis.__cleanupFailureToasts[0], {
     title:
-      "AWS Bedrock no está disponible temporalmente debido a una alta demanda. Este es un problema del servicio de AWS, no una interrupción de RT0Wisper. Vuelve a intentarlo en unos minutos.",
+      "AWS Bedrock no está disponible temporalmente debido a una alta demanda. Este es un problema del servicio de AWS, no una interrupción de only-whispers. Vuelve a intentarlo en unos minutos.",
     description: "Ejecuta el siguiente comando en tu terminal para volver a autenticarte:",
     secondaryDescription: "Tu dictado se pegó sin limpieza con IA.",
     copyCommand: "aws sso login --profile company-sso",
@@ -241,7 +241,7 @@ test("a signed-out Cloud cleanup notice says the fix is signing in", async (t) =
   assert.equal(toastProps.title, "Cleanup failed");
   assert.equal(
     toastProps.description,
-    "AI cleanup uses RT0Wisper Cloud, but you're signed out.\nOriginal dictation pasted without AI cleanup."
+    "AI cleanup uses only-whispers Cloud, but you're signed out.\nOriginal dictation pasted without AI cleanup."
   );
   assert.deepEqual(
     toastProps.actions.map(({ label }) => label),

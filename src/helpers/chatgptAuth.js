@@ -16,7 +16,7 @@ const RESOURCE = "https://api.openai.com/v1";
 const SHARING_SCOPE = "chatgpt.tokens.use.direct";
 // First sign-in registers a client owned by this user; OpenAI returns its ID on the callback.
 const REGISTRATION_CLIENT_ID = "dynamic_agent_client";
-const AGENT_NAME = "RT0Wisper";
+const AGENT_NAME = "only-whispers";
 // OpenAI's docs ask for this port on the first (registration) sign-in.
 const REGISTRATION_PORT = 1455;
 const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
@@ -230,7 +230,7 @@ function authorizeURL({ redirect, challenge, state, nonce, savedID, hostID }) {
 
 function page(message) {
   const text = String(message).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
-  return `<!doctype html><meta charset="utf-8"><title>RT0Wisper</title><p style="font-family:sans-serif">${text}</p>`;
+  return `<!doctype html><meta charset="utf-8"><title>only-whispers</title><p style="font-family:sans-serif">${text}</p>`;
 }
 
 module.exports = { signIn, signOut, status, getAccessToken };

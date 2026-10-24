@@ -1,8 +1,8 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-// Skipped tests cover a feature RT0Wisper removed.
+// Skipped tests cover a feature only-whispers removed.
 const REMOVED =
-  "RT0Wisper shows no API key field for language models: OpenAI runs on the ChatGPT plan and other providers are hidden.";
+  "only-whispers shows no API key field for language models: OpenAI runs on the ChatGPT plan and other providers are hidden.";
 const { mountSettingsPanel } = require("../lib/settingsPanelHarness");
 
 const SELECTOR = "/components/ReasoningModelSelector.tsx";

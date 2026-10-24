@@ -4,7 +4,7 @@
       "sectionTitle": "語言",
       "sectionDescription": "分別設定介面語言和轉錄語言",
       "uiLabel": "介面語言",
-      "uiDescription": "選擇 RT0Wisper 介面使用的語言",
+      "uiDescription": "選擇 only-whispers 介面使用的語言",
       "transcriptionLabel": "轉錄語言",
       "transcriptionDescription": "選擇你說話的語言，以提高轉錄準確度",
       "chineseScriptLabel": "中文書寫（語音輸入）",
@@ -64,12 +64,12 @@
     },
     "openControlPanel": "開啟控制面板",
     "hideControlPanel": "隱藏控制面板",
-    "quit": "結束 RT0Wisper",
-    "tooltip": "RT0Wisper - 語音輸入"
+    "quit": "結束 only-whispers",
+    "tooltip": "only-whispers - 語音輸入"
   },
   "menu": {
-    "appLabel": "RT0Wisper",
-    "quit": "結束 RT0Wisper",
+    "appLabel": "only-whispers",
+    "quit": "結束 only-whispers",
     "speech": "語音",
     "settings": "設定...",
     "help": "說明",
@@ -87,8 +87,8 @@
       "message": "無法在瀏覽器中開啟連結：\n{{url}}\n\n錯誤：{{error}}"
     },
     "loadFailure": {
-      "title": "RT0Wisper 載入失敗",
-      "message": "RT0Wisper 無法載入介面。",
+      "title": "only-whispers 載入失敗",
+      "message": "only-whispers 無法載入介面。",
       "detail": {
         "window": "視窗：{{windowName}}",
         "error": "錯誤 {{errorCode}}：{{errorDescription}}",
@@ -99,17 +99,17 @@
   },
   "startup": {
     "error": {
-      "title": "RT0Wisper 啟動錯誤",
+      "title": "only-whispers 啟動錯誤",
       "message": "應用程式啟動失敗：\n\n{{error}}\n\n請回報此問題。"
     },
     "globeHotkey": {
       "title": "Globe 快捷鍵無法使用",
-      "message": "RT0Wisper 無法啟用 Globe 鍵快捷鍵。",
+      "message": "only-whispers 無法啟用 Globe 鍵快捷鍵。",
       "details": {
         "unknown": "啟動 Globe 監聽程式時發生未知錯誤。",
         "fallback": "Globe 鍵快捷鍵將維持停用狀態；現有的鍵盤快捷鍵仍可正常使用。",
         "devHint": "執行 `npm run compile:globe` 並重新建置應用程式以重新產生監聽程式。",
-        "reinstallHint": "請嘗試重新安裝 RT0Wisper，或聯絡客服。"
+        "reinstallHint": "請嘗試重新安裝 only-whispers，或聯絡客服。"
       }
     }
   },
@@ -164,7 +164,7 @@
     "close": "關閉"
   },
   "windows": {
-    "pttUnavailable": "RT0Wisper 按鍵監聽程式無法使用。"
+    "pttUnavailable": "only-whispers 按鍵監聽程式無法使用。"
   },
   "common": {
     "continue": "繼續",
@@ -220,7 +220,7 @@
   "onboarding": {
     "rehaul": {
       "permissions": {
-        "title": "3 分鐘完成 RT0Wisper 設定",
+        "title": "3 分鐘完成 only-whispers 設定",
         "microphoneDescription": "僅在錄音時收音。",
         "accessibilityDescription": "把文字貼到任何 App。",
         "systemAudioTitle": "系統音訊",
@@ -233,7 +233,7 @@
         "title": "你會說哪些語言？",
         "titleLineOne": "你會說",
         "titleLineTwo": "哪些語言？",
-        "description": "選擇所有適用的語言。這有助於 RT0Wisper 更準確地辨識語言切換。"
+        "description": "選擇所有適用的語言。這有助於 only-whispers 更準確地辨識語言切換。"
       },
       "dictationHotkey": {
         "title": "選擇你的聽寫快速鍵",
@@ -243,10 +243,10 @@
         "activation": "點按還是按住？"
       },
       "assistantHotkey": {
-        "title": "設定 RT0Wisper Assistant",
+        "title": "設定 only-whispers Assistant",
         "titleLineOne": "設定",
-        "titleLineTwo": "RT0Wisper Assistant",
-        "description": "說出你的請求，RT0Wisper Assistant 會為你寫好結果。"
+        "titleLineTwo": "only-whispers Assistant",
+        "description": "說出你的請求，only-whispers Assistant 會為你寫好結果。"
       },
       "hotkey": {
         "capture": "請按下你想使用的按鍵",
@@ -258,15 +258,15 @@
         "title": "試試第一次聽寫",
         "titleLineOne": "試試你的",
         "titleLineTwo": "第一次語音輸入",
-        "description": "按 {{hotkey}} 開始說話，RT0Wisper 會把你的語音轉成文字。",
-        "founder": "你好，我是創辦人 Gabe。感謝你試用 RT0Wisper！",
-        "prompt": "點一下下面的輸入框，按下快速鍵，然後告訴我：你希望 RT0Wisper 為你做些什麼？",
-        "placeholder": "點一下這裡，然後按下快速鍵。RT0Wisper 可以在任何文字框中輸入。"
+        "description": "按 {{hotkey}} 開始說話，only-whispers 會把你的語音轉成文字。",
+        "founder": "你好，我是創辦人 Gabe。感謝你試用 only-whispers！",
+        "prompt": "點一下下面的輸入框，按下快速鍵，然後告訴我：你希望 only-whispers 為你做些什麼？",
+        "placeholder": "點一下這裡，然後按下快速鍵。only-whispers 可以在任何文字框中輸入。"
       },
       "assistantDemo": {
-        "title": "認識 RT0Wisper Assistant",
+        "title": "認識 only-whispers Assistant",
         "titleLineOne": "來認識",
-        "titleLineTwo": "RT0Wisper Assistant",
+        "titleLineTwo": "only-whispers Assistant",
         "email": {
           "subject": "下週喝杯咖啡？",
           "senderName": "Maria Alvarez",
@@ -300,13 +300,13 @@
         "typing": "正在輸入…"
       },
       "notes": {
-        "title": "用 RT0Wisper Notes 錄製會議，無需機器人加入",
+        "title": "用 only-whispers Notes 錄製會議，無需機器人加入",
         "titleLineOne": "不需機器人也能錄製會議",
-        "titleLineTwoPrefix": "使用 RT0Wisper",
+        "titleLineTwoPrefix": "使用 only-whispers",
         "titleLineTwoBrand": "Notes",
-        "description": "RT0Wisper 把你的對話變成清楚的筆記。不會有會議機器人加入你的通話。",
+        "description": "only-whispers 把你的對話變成清楚的筆記。不會有會議機器人加入你的通話。",
         "hero": {
-          "description": "錄製你的會議，讓 RT0Wisper 把對話整理成清楚有條理的筆記。",
+          "description": "錄製你的會議，讓 only-whispers 把對話整理成清楚有條理的筆記。",
           "chat": "與會議筆記對話",
           "transcript": "檢視完整逐字稿",
           "speakers": "看看誰說了什麼"
@@ -322,16 +322,16 @@
         }
       },
       "setupChoice": {
-        "title": "選擇你的 RT0Wisper 設定",
+        "title": "選擇你的 only-whispers 設定",
         "titleLineOne": "選擇你的",
-        "titleLineTwo": "RT0Wisper 設定",
+        "titleLineTwo": "only-whispers 設定",
         "description": "選擇最符合你工作方式的方案。",
         "unavailable": {
           "title": "沒有可用的設定選項",
           "description": "你的工作區政策不允許完整設定轉錄與 AI。請聯絡管理員。"
         },
         "cloud": {
-          "title": "RT0Wisper Cloud",
+          "title": "only-whispers Cloud",
           "description": "每週獲得 2,000 個免費字數。你的設定會在各裝置間保持同步。",
           "continue": "免費繼續",
           "signIn": "登入以使用雲端",
@@ -479,14 +479,14 @@
       "accessibilityTitle": "輔助使用",
       "accessibilityDescription": "將完成的文字直接輸入到你正在使用的應用程式 — 文件、郵件、聊天。",
       "testAndGrant": "測試並授權",
-      "requiredForApp": "RT0Wisper 運作所需",
+      "requiredForApp": "only-whispers 運作所需",
       "microphoneRequired": "需要麥克風存取權限",
       "openSystemSettings": "打開系統設定",
       "systemAudioTitle": "系統音訊",
       "systemAudioDescription": "讓會議錄音機聽到通話另一方的聲音 — 會議、講座、Podcast。你可以稍後在「設定」中開啟。",
       "optional": "可選",
       "recommended": "建議",
-      "accessibilityTroubleshooting": "在系統設定 → 輔助使用中，將 RT0Wisper 的開關關閉再重新開啟。如果清單中根本沒有 RT0Wisper，請點按 + 並從「應用程式」資料夾加入。還是不行？請寄信至 support@openwhispr.com。"
+      "accessibilityTroubleshooting": "在系統設定 → 輔助使用中，將 only-whispers 的開關關閉再重新開啟。如果清單中根本沒有 only-whispers，請點按 + 並從「應用程式」資料夾加入。還是不行？請寄信至 support@openwhispr.com。"
     },
     "transcription": {
       "title": "轉錄設定",
@@ -506,18 +506,18 @@
       "textareaPlaceholder": "點擊這裡，然後使用快捷鍵開始語音輸入..."
     },
     "connectivity": {
-      "title": "無法從此網路連線到 RT0Wisper Cloud",
+      "title": "無法從此網路連線到 only-whispers Cloud",
       "body": "{{cause}} 你可以切換到本機引擎，或繼續並稍後再試。",
       "useLocal": "使用本機引擎",
       "continue": "仍然繼續"
     },
     "useCase": {
-      "title": "你會如何使用 RT0Wisper？",
+      "title": "你會如何使用 only-whispers？",
       "titleLineOne": "你會如何使用",
-      "titleLineTwo": "RT0Wisper？",
+      "titleLineTwo": "only-whispers？",
       "description": "選擇所有適用項目，我們會據此為你量身設定。",
       "noteLabel": "還有什麼想告訴我們的嗎？",
-      "notePlaceholder": "告訴我們你打算如何使用 RT0Wisper（選填）",
+      "notePlaceholder": "告訴我們你打算如何使用 only-whispers（選填）",
       "proceedToSetup": "繼續設定",
       "options": {
         "dictation": {
@@ -550,13 +550,13 @@
     "meeting": {
       "title": "會議筆記",
       "description": "擷取並總結你的會議",
-      "autoDetect": "RT0Wisper 會自動偵測你是否正在開會，並提議開始記錄 — 未經你確認不會錄製任何內容。",
+      "autoDetect": "only-whispers 會自動偵測你是否正在開會，並提議開始記錄 — 未經你確認不會錄製任何內容。",
       "hotkeyLabel": "會議快捷鍵",
       "hotkeyHint": "選填 — 在任何會議中按下即可立即開始記錄。"
     },
     "finish": {
       "title": "一切就緒",
-      "cloudDescription": "你正在使用 RT0Wisper Cloud — 快速、準確、零資料保留，每週免費 2,000 字。希望一切都在裝置上？可在「設定」中切換到本機處理。",
+      "cloudDescription": "你正在使用 only-whispers Cloud — 快速、準確、零資料保留，每週免費 2,000 字。希望一切都在裝置上？可在「設定」中切換到本機處理。",
       "localDescription": "你已設定本機處理或自備金鑰。可隨時在「設定」中調整音訊處理方式。",
       "cleanupNote": "AI 文字清理使用合理的預設值，可隨時在「設定」中調整。",
       "openSettings": "開啟設定",
@@ -591,20 +591,20 @@
       "return": "返回初始設定",
       "missingApp": "或透過 + 選取 App",
       "failed": "無法檢查存取權限。",
-      "microphone": "在「麥克風」中開啟 RT0Wisper。",
-      "accessibility": "將 RT0Wisper 拖入「輔助使用」，然後開啟開關。",
-      "systemAudio": "在「僅系統音訊錄製」中開啟 RT0Wisper。",
-      "screenContext": "將 RT0Wisper 拖入「螢幕與系統音訊錄製」，然後開啟開關。",
+      "microphone": "在「麥克風」中開啟 only-whispers。",
+      "accessibility": "將 only-whispers 拖入「輔助使用」，然後開啟開關。",
+      "systemAudio": "在「僅系統音訊錄製」中開啟 only-whispers。",
+      "screenContext": "將 only-whispers 拖入「螢幕與系統音訊錄製」，然後開啟開關。",
       "settings": "開啟設定",
       "check": "重新檢查",
       "restart": "重新啟動",
-      "restartRequired": "重新啟動 RT0Wisper 以套用螢幕存取權限。"
+      "restartRequired": "重新啟動 only-whispers 以套用螢幕存取權限。"
     }
   },
   "streaming": {
     "errors": {
       "cloudUnreachable": {
-        "title": "無法連線到 RT0Wisper Cloud",
+        "title": "無法連線到 only-whispers Cloud",
         "generic": "網路請求失敗，請檢查你的連線。",
         "dnsBlocked": "DNS 無法解析 openwhispr.com — 廣告封鎖器或過濾器可能阻擋了它。",
         "refused": "連線被拒絕 — 可能是防火牆或 VPN。",
@@ -617,13 +617,13 @@
   "controlPanel": {
     "updateRequiredByOrg": {
       "title": "需要更新",
-      "description": "您的組織要求使用 RT0Wisper {{version}} 或更新版本。請更新應用程式。"
+      "description": "您的組織要求使用 only-whispers {{version}} 或更新版本。請更新應用程式。"
     },
     "update": {
       "readyTitle": "更新已準備就緒",
       "readyDescription": "點擊「安裝更新」以重新啟動並套用最新版本。",
       "installTitle": "安裝更新",
-      "installDescription": "RT0Wisper 將重新啟動以套用更新。進行中的工作會自動儲存。",
+      "installDescription": "only-whispers 將重新啟動以套用更新。進行中的工作會自動儲存。",
       "couldNotInstallTitle": "無法安裝更新",
       "couldNotInstallDescription": "發生錯誤，請再試一次。",
       "couldNotDownloadTitle": "無法下載更新",
@@ -638,7 +638,7 @@
     },
     "accessibilityMissing": {
       "title": "需要輔助使用權限",
-      "description": "我們偵測到 RT0Wisper 需要輔助使用權限才能正常運作。請在下方啟用。"
+      "description": "我們偵測到 only-whispers 需要輔助使用權限才能正常運作。請在下方啟用。"
     },
     "billing": {
       "pastDueTitle": "我們無法處理你的付款",
@@ -736,7 +736,7 @@
     },
     "cloudNudge": {
       "title": "你已登入",
-      "description": "聽寫仍在使用你自己的設定。你可以隨時切換至 RT0Wisper Cloud。",
+      "description": "聽寫仍在使用你自己的設定。你可以隨時切換至 only-whispers Cloud。",
       "action": "開啟設定"
     }
   },
@@ -848,7 +848,7 @@
           "modelNotFound": "AWS Bedrock 在區域 {{region}} 中找不到所選模型。請檢查模型 ID，以及該模型是否在此區域提供。",
           "configurationRejected": "AWS Bedrock 拒絕了區域 {{region}} 的模型設定。請檢查模型 ID、推論設定檔和區域。",
           "notConfigured": "AWS Bedrock 設定不正確。請檢查區域和 AWS 憑證。",
-          "serviceUnavailable": "由於需求過高，AWS Bedrock 暫時無法使用。這是 AWS 服務問題，並非 RT0Wisper 中斷。請幾分鐘後再試。",
+          "serviceUnavailable": "由於需求過高，AWS Bedrock 暫時無法使用。這是 AWS 服務問題，並非 only-whispers 中斷。請幾分鐘後再試。",
           "throttled": "由於收到太多請求，AWS Bedrock 正在暫時限制請求。請稍候再試。如果問題持續，請讓 AWS 管理員檢查 Bedrock 使用量和配額。",
           "timeout": "AWS Bedrock 未及時回應。請重試。如果問題持續，請檢查網際網路連線和 AWS Bedrock 服務狀態。",
           "network": "無法連線到 AWS Bedrock。請檢查網際網路連線並重試。",
@@ -933,7 +933,7 @@
   },
   "hooks": {
     "audioRecording": {
-      "cleanupSignedOut": "AI 清理使用 RT0Wisper Cloud，但你尚未登入。",
+      "cleanupSignedOut": "AI 清理使用 only-whispers Cloud，但你尚未登入。",
       "cleanupUnconfigured": "已開啟 AI 清理，但尚未設定清理模型。",
       "errorTitles": {
         "sessionExpired": "工作階段已過期",
@@ -968,7 +968,7 @@
         "description": "部分錄音內容無法轉錄。"
       },
       "errorDescriptions": {
-        "sessionExpired": "RT0Wisper Cloud 工作階段無法使用。請至「設定」重新登入。",
+        "sessionExpired": "only-whispers Cloud 工作階段無法使用。請至「設定」重新登入。",
         "offline": "你目前離線。雲端轉錄需要網際網路連線。",
         "dailyLimitReached": "已達今日的轉錄上限。請明天再試或升級你的方案。",
         "providerRateLimited": "你的轉錄服務商限制了請求頻率。請稍候再試。",
@@ -1005,22 +1005,22 @@
         "notAppliedTitle": "未套用選取文字編輯",
         "changed": "處理期間，選取的文字或目標應用程式已變更。未取代任何內容。",
         "expired": "選取文字編輯已逾時。請重新選取文字後再試。",
-        "pasteFailed": "RT0Wisper 已產生編輯結果，但無法取代選取的文字。",
-        "modifiersHeld": "RT0Wisper 已產生編輯結果，但修飾鍵（如 Ctrl 或 Shift）仍處於按住狀態，因此未套用。編輯結果已複製到剪貼簿。",
-        "modifiersHeldClipboardFailed": "RT0Wisper 已產生編輯結果，但修飾鍵（如 Ctrl 或 Shift）仍處於按住狀態，因此未套用，也無法複製到剪貼簿。",
-        "unavailable": "RT0Wisper 無法安全讀取選取的文字。請檢查輔助使用或輸入自動化權限。",
+        "pasteFailed": "only-whispers 已產生編輯結果，但無法取代選取的文字。",
+        "modifiersHeld": "only-whispers 已產生編輯結果，但修飾鍵（如 Ctrl 或 Shift）仍處於按住狀態，因此未套用。編輯結果已複製到剪貼簿。",
+        "modifiersHeldClipboardFailed": "only-whispers 已產生編輯結果，但修飾鍵（如 Ctrl 或 Shift）仍處於按住狀態，因此未套用，也無法複製到剪貼簿。",
+        "unavailable": "only-whispers 無法安全讀取選取的文字。請檢查輔助使用或輸入自動化權限。",
         "tooLarge": "選取內容過長。請選取不超過 6,000 個字元。",
         "reasoningFailed": "AI 無法完成選取文字編輯。原始文字未被變更。",
         "invalidResponse": "AI 傳回的編輯回應格式無效。未取代任何內容。請選取文字後重試。",
         "emptyResponse": "AI 傳回了空白的編輯結果。未取代任何內容。請嘗試更具體的指示。",
         "truncatedResponse": "AI 在完成編輯之前停止了。未取代任何內容。請嘗試選取較少的文字。",
-        "wlCopyMissing": "RT0Wisper 已產生編輯，但在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取貼上的文字。請安裝 wl-clipboard 以套用編輯。",
-        "wlCopyFailed": "RT0Wisper 已產生編輯，但 wl-copy 無法為 Wayland 應用程式複製它，因此未套用。"
+        "wlCopyMissing": "only-whispers 已產生編輯，但在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取貼上的文字。請安裝 wl-clipboard 以套用編輯。",
+        "wlCopyFailed": "only-whispers 已產生編輯，但 wl-copy 無法為 Wayland 應用程式複製它，因此未套用。"
       },
       "pastePermission": {
         "title": "允許自動貼上",
-        "description": "請在系統設定 → 隱私權與安全性 → 輔助使用中啟用 RT0Wisper。",
-        "settingsFailed": "無法開啟設定。請開啟系統設定 → 隱私權與安全性 → 輔助使用，並啟用 RT0Wisper。",
+        "description": "請在系統設定 → 隱私權與安全性 → 輔助使用中啟用 only-whispers。",
+        "settingsFailed": "無法開啟設定。請開啟系統設定 → 隱私權與安全性 → 輔助使用，並啟用 only-whispers。",
         "manualPaste": "點擊下方按鈕複製文字，然後按 {{shortcut}} 貼上。",
         "openSettings": "開啟設定",
         "copyToClipboard": "複製到剪貼板",
@@ -1029,7 +1029,7 @@
       "pasteFailed": {
         "title": "無法自動貼上"
       },
-      "interruptedRecordingRecovered": "RT0Wisper 在本次語音輸入完成前關閉，已復原此錄音。",
+      "interruptedRecordingRecovered": "only-whispers 在本次語音輸入完成前關閉，已復原此錄音。",
       "waylandClipboard": {
         "title": "轉錄內容未貼上",
         "wlCopyMissing": "在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取貼上的文字。請安裝 wl-clipboard 以貼上聽寫內容。",
@@ -1106,7 +1106,7 @@
       "micErrors": {
         "accessFailed": "麥克風存取失敗。請再試一次。",
         "noMicrophones": "未偵測到麥克風。請在 {{settingsPath}} 中連接或選擇麥克風。",
-        "permissionDenied": "權限被拒絕。請開啟 {{privacyPath}} 並允許 RT0Wisper。",
+        "permissionDenied": "權限被拒絕。請開啟 {{privacyPath}} 並允許 only-whispers。",
         "couldNotStart": "無法啟動所選的麥克風。請在 {{settingsPath}} 中選擇輸入裝置後重新測試。",
         "noActiveInput": "找不到有效的音訊輸入。請在 {{settingsPath}} 中選擇麥克風。",
         "unknown": "麥克風存取失敗：{{error}}。請選擇其他輸入裝置後再試。",
@@ -1135,8 +1135,8 @@
         "accessibilityNeeded": "請在系統設定中授予輔助使用權限，以啟用自動貼上功能。",
         "windowsReady": "Windows 不需要特殊權限即可自動貼上。一切就緒！",
         "linuxReadyWithMethod": "已使用 {{method}} 啟用自動貼上。一切就緒！",
-        "waylandClipboardMode": "此 Wayland 工作階段不支援自動貼上。RT0Wisper 會將文字複製到剪貼簿，你可以使用 Ctrl+V 貼上。",
-        "optionalPasteTool": "如需自動貼上，請安裝 {{tool}}：\n\n{{installCmd}}{{waylandNote}}\n\n沒有安裝也可以使用 RT0Wisper，文字會複製到剪貼簿，你可以使用 Ctrl+V 貼上。"
+        "waylandClipboardMode": "此 Wayland 工作階段不支援自動貼上。only-whispers 會將文字複製到剪貼簿，你可以使用 Ctrl+V 貼上。",
+        "optionalPasteTool": "如需自動貼上，請安裝 {{tool}}：\n\n{{installCmd}}{{waylandNote}}\n\n沒有安裝也可以使用 only-whispers，文字會複製到剪貼簿，你可以使用 Ctrl+V 貼上。"
       },
       "alerts": {
         "accessibilityNeeded": "需要輔助使用權限！請在系統設定中授權。"
@@ -1149,7 +1149,7 @@
         "defaultPasteTool": "xdotool",
         "xdotoolXwayland": "xdotool（XWayland 應用程式）"
       },
-      "accessibilityTestText": "RT0Wisper 輔助使用測試",
+      "accessibilityTestText": "only-whispers 輔助使用測試",
       "warning": {
         "messages": {
           "macos": "請檢查聲音設定以選擇輸入裝置",
@@ -1226,7 +1226,7 @@
       "emailRequired": "輸入您的工作電子郵件以使用 SSO。",
       "failed": "單一登入失敗，請再試一次。",
       "companySignInTitle": "使用公司登入",
-      "requiredDescription": "{{domain}} 要求透過 SSO 登入 RT0Wisper。",
+      "requiredDescription": "{{domain}} 要求透過 SSO 登入 only-whispers。",
       "availableDescription": "您的 {{domain}} 帳戶已可使用公司 SSO。",
       "useEmailInstead": "改用電子郵件和密碼"
     },
@@ -1238,7 +1238,7 @@
       "protocolUnavailable": "無法透過瀏覽器登入 — 請在系統的「預設應用程式」設定中重新註冊 openwhispr:// 協定。"
     },
     "welcomeSubtitle": "你的聲音，由你掌控。",
-    "welcomeTitle": "歡迎使用 RT0Wisper",
+    "welcomeTitle": "歡迎使用 only-whispers",
     "sessionExpired": "工作階段已過期，請重新登入。"
   },
   "cleanupPrompt": "文字整理",
@@ -1462,15 +1462,15 @@
     "recheckChecking": "檢查中...",
     "title": "自動貼上",
     "usingMethodPrefix": "使用",
-    "waylandClipboardDescription": "此 Wayland 工作階段不支援自動貼上。RT0Wisper 會將文字複製到剪貼簿，你可以使用 Ctrl+V 手動貼上。",
+    "waylandClipboardDescription": "此 Wayland 工作階段不支援自動貼上。only-whispers 會將文字複製到剪貼簿，你可以使用 Ctrl+V 手動貼上。",
     "waylandClipboardTitle": "Wayland 剪貼簿模式",
     "windowsReady": "Windows 內建支援自動貼上。不需要額外設定！",
-    "withoutToolPrefix": "若未安裝此工具，RT0Wisper 會將文字複製到剪貼簿。你可以使用 Ctrl+V 手動貼上。",
+    "withoutToolPrefix": "若未安裝此工具，only-whispers 會將文字複製到剪貼簿。你可以使用 Ctrl+V 手動貼上。",
     "wtypeCosmicTerminalsDescription": "在 COSMIC 上，Warp 等終端機只能透過 wtype 接收貼上的文字。其他應用程式不需要 wtype 即可貼上。",
     "wtypeFallbackDescription": "wtype 是此 wlroots 合成器上的首選自動貼上方式。有備用方案可用，但可能較不可靠。",
     "xwaylandAppsOnly": "自動貼上僅適用於 XWayland 應用程式",
     "wlClipboardTitle": "安裝 wl-clipboard 以貼上到 Wayland 應用程式",
-    "wlClipboardDescription": "在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取 RT0Wisper 複製的文字。若要將聽寫內容貼上到這些應用程式，請安裝 wl-clipboard："
+    "wlClipboardDescription": "在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取 only-whispers 複製的文字。若要將聽寫內容貼上到這些應用程式，請安裝 wl-clipboard："
   },
   "promptStudio": {
     "common": {
@@ -1519,7 +1519,7 @@
       "none": "無",
       "outputLabel": "輸出",
       "processing": "處理中...",
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "providerLabel": "供應商",
       "run": "執行測試",
       "customEndpoint": "自訂端點",
@@ -1652,10 +1652,10 @@
         "title": "我們無法處理你的付款"
       },
       "planDescriptions": {
-        "freeUsage": "本週 RT0Wisper Cloud 已使用 {{used}} / {{limit}} 字",
+        "freeUsage": "本週 only-whispers Cloud 已使用 {{used}} / {{limit}} 字",
         "byokUnlimited": "使用自己的 API 金鑰和本機模型仍不受此限制。",
         "nextBilling": "下次扣款日：{{date}}",
-        "pastDue": "本週 RT0Wisper Cloud 已使用 {{used}} / {{limit}} 字——更新付款方式以恢復 Pro",
+        "pastDue": "本週 only-whispers Cloud 已使用 {{used}} / {{limit}} 字——更新付款方式以恢復 Pro",
         "trial": "剩餘 {{days}} 天——無限轉錄",
         "unlimited": "無限",
         "accessUntil": "可使用至 {{date}}",
@@ -1677,7 +1677,7 @@
       "title": "帳號",
       "toasts": {
         "approachingLimit": {
-          "description": "本週已使用 {{used}} / {{limit}} 個 RT0Wisper Cloud 字。升級至 Pro 即可無限使用。",
+          "description": "本週已使用 {{used}} / {{limit}} 個 only-whispers Cloud 字。升級至 Pro 即可無限使用。",
           "title": "即將達到雲端字數上限"
         }
       },
@@ -1694,7 +1694,7 @@
           "price": "$0",
           "period": "永久",
           "features": [
-            "## RT0Wisper Cloud",
+            "## only-whispers Cloud",
             "每週 2,000 字轉錄",
             "每月 5 小時會議錄製",
             "## 永久免費",
@@ -1793,7 +1793,7 @@
         "button": "刪除我的帳戶",
         "deleting": "正在刪除...",
         "title": "刪除您的帳戶？",
-        "description": "這將永久刪除您的 RT0Wisper 帳戶和個人資料。工作區擁有的內容及其他本地使用者的資料會保留在此裝置上。",
+        "description": "這將永久刪除您的 only-whispers 帳戶和個人資料。工作區擁有的內容及其他本地使用者的資料會保留在此裝置上。",
         "confirmText": "刪除帳戶",
         "eraseDeviceLabel": "同時清除此裝置上的所有資料",
         "eraseDeviceDescription": "刪除所有本地使用者的筆記和工作區快取、已下載模型、設定、行事曆連線、憑證和錄音。",
@@ -1871,7 +1871,7 @@
       "enableTextCleanup": "啟用文字整理",
       "enableTextCleanupDescription": "AI 移除語助詞，修正文法和標點",
       "modes": {
-        "openwhispr": "RT0Wisper Cloud",
+        "openwhispr": "only-whispers Cloud",
         "providers": "自備金鑰",
         "local": "本機",
         "selfHosted": "自架主機",
@@ -1882,13 +1882,13 @@
         "enterprise": "企業級",
         "enterpriseDesc": "使用你組織的雲端帳號（AWS、Azure、GCP）。"
       },
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "openwhisprCloudDescription": "準確可靠，無需設定。",
       "title": "AI 文字增強",
       "toasts": {
         "switchedCloud": {
-          "description": "文字增強將使用 RT0Wisper 雲端服務。",
-          "title": "已切換至 RT0Wisper Cloud"
+          "description": "文字增強將使用 only-whispers 雲端服務。",
+          "title": "已切換至 only-whispers Cloud"
         },
         "switchedCustom": {
           "description": "設定你自己的供應商和 API Key。",
@@ -1976,7 +1976,7 @@
       "appearance": {
         "auto": "自動",
         "dark": "深色",
-        "description": "控制 RT0Wisper 的外觀",
+        "description": "控制 only-whispers 的外觀",
         "light": "淺色",
         "theme": "主題",
         "themeDescription": "選擇淺色、深色或跟隨系統",
@@ -2004,8 +2004,8 @@
         "linuxPttSetupDescription": "您的使用者需要存取鍵盤輸入裝置的權限。",
         "linuxPttSetupNote": "執行指令後，請登出並重新登入。",
         "hyprlandConfigWriteWarningTitle": "Hyprland 按鍵綁定不會保留",
-        "hyprlandConfigWriteWarningDescription": "RT0Wisper 無法寫入 {{path}}，因此重新載入 Hyprland 設定後按鍵綁定不會保留。請確認該檔案存在且可寫入。",
-        "hyprlandUnbindDescription": "在 Hyprland 上，RT0Wisper 會佔用所選快捷鍵。當 RT0Wisper 註冊該快捷鍵時，任何使用相同按鍵組合的既有 Hyprland 綁定都會被解除。"
+        "hyprlandConfigWriteWarningDescription": "only-whispers 無法寫入 {{path}}，因此重新載入 Hyprland 設定後按鍵綁定不會保留。請確認該檔案存在且可寫入。",
+        "hyprlandUnbindDescription": "在 Hyprland 上，only-whispers 會佔用所選快捷鍵。當 only-whispers 註冊該快捷鍵時，任何使用相同按鍵組合的既有 Hyprland 綁定都會被解除。"
       },
       "meetingHotkey": {
         "title": "會議模式快捷鍵",
@@ -2033,7 +2033,7 @@
       },
       "notifications": {
         "title": "通知",
-        "description": "設定 RT0Wisper 可以顯示哪些通知",
+        "description": "設定 only-whispers 可以顯示哪些通知",
         "disableAll": "停用所有通知",
         "disableAllDescription": "靜音除錯誤訊息外的所有內容",
         "meetingDetection": "會議偵測",
@@ -2050,14 +2050,14 @@
       },
       "startup": {
         "launchAtLogin": "登入時啟動",
-        "launchAtLoginDescription": "登入時在背景啟動 RT0Wisper",
+        "launchAtLoginDescription": "登入時在背景啟動 only-whispers",
         "title": "啟動",
-        "description": "控制 RT0Wisper 啟動時的行為",
+        "description": "控制 only-whispers 啟動時的行為",
         "startMinimized": "啟動時最小化",
         "startMinimizedDescription": "啟動時不顯示控制面板視窗",
         "needsApproval": {
           "title": "需要在系統設定中允許",
-          "description": "macOS 已將 RT0Wisper 註冊為登入項目，但仍在等待你在「登入項目」中允許它。",
+          "description": "macOS 已將 only-whispers 註冊為登入項目，但仍在等待你在「登入項目」中允許它。",
           "action": "開啟登入項目"
         }
       },
@@ -2109,7 +2109,7 @@
           "group": {
             "step1Title": "將你的使用者新增至 input 群組",
             "step2Title": "登出並重新登入",
-            "step2Desc": "群組變更僅在新工作階段後生效。從桌面登出，重新登入，然後重新開啟 RT0Wisper。"
+            "step2Desc": "群組變更僅在新工作階段後生效。從桌面登出，重新登入，然後重新開啟 only-whispers。"
           },
           "service": {
             "step1Title": "建立服務目錄",
@@ -2133,7 +2133,7 @@
           "manualTitle": "將以下內容加入你的設定",
           "manualDesc": "自行設定後重新建置。",
           "flakeTitle": "透過我們的 flake 安裝？",
-          "flakeDesc": "若你從 flake 安裝 RT0Wisper，programs.openwhispr.enable 會自動啟用 ydotool、uinput 模組及所需的群組成員資格。",
+          "flakeDesc": "若你從 flake 安裝 only-whispers，programs.openwhispr.enable 會自動啟用 ydotool、uinput 模組及所需的群組成員資格。",
           "rebuildNote": "執行 sudo nixos-rebuild switch，然後登出並重新登入，使群組變更與 /dev/uinput 規則生效。將 <you> 替換為你的使用者名稱。"
         },
         "wlCopyDesc": "此桌面上 Wayland 應用程式讀取貼上文字所用的剪貼簿工具"
@@ -2169,7 +2169,7 @@
           },
           "installUpdate": {
             "confirmText": "安裝並重新啟動",
-            "description": "RT0Wisper 將重新啟動以套用更新。",
+            "description": "only-whispers 將重新啟動以套用更新。",
             "title": "安裝更新"
           },
           "noUpdates": {
@@ -2201,13 +2201,13 @@
     "permissions": {
       "accessibilityDescription": "轉錄後自動貼上文字所需的權限",
       "accessibilityTitle": "輔助使用",
-      "description": "測試和管理 RT0Wisper 正常運作所需的系統權限",
+      "description": "測試和管理 only-whispers 正常運作所需的系統權限",
       "microphoneDescription": "錄製您的聲音用於聽寫和轉錄",
       "microphoneTitle": "麥克風",
       "resetAccessibility": {
-        "description": "這將從輔助使用權限中移除 RT0Wisper。你需要在「系統設定 > 隱私權與安全性 > 輔助使用」中重新授權。",
+        "description": "這將從輔助使用權限中移除 only-whispers。你需要在「系統設定 > 隱私權與安全性 > 輔助使用」中重新授權。",
         "label": "重設輔助使用權限",
-        "rowDescription": "重新安裝或重新建置應用程式後，透過在系統設定中移除並重新加入 RT0Wisper 來修復問題",
+        "rowDescription": "重新安裝或重新建置應用程式後，透過在系統設定中移除並重新加入 only-whispers 來修復問題",
         "title": "重設輔助使用權限"
       },
       "optional": "可選",
@@ -2236,7 +2236,7 @@
       "leaderboardRequiresAccount": "登入後即可管理排行榜參與狀態。",
       "leaderboardRequiresHistory": "加入排行榜前，請先開啟資料保留。",
       "usageAnalytics": "使用分析",
-      "usageAnalyticsDescription": "分享匿名的效能指標，協助我們改善 RT0Wisper。我們絕不會傳送轉錄內容——只有計時和錯誤資料。",
+      "usageAnalyticsDescription": "分享匿名的效能指標，協助我們改善 only-whispers。我們絕不會傳送轉錄內容——只有計時和錯誤資料。",
       "dataRetention": "資料保留",
       "dataRetentionDescription": "將轉錄和音訊本地儲存至歷史記錄。停用後，轉錄內容會被貼上但不會被儲存。",
       "transcriptRetention": "轉錄保留",
@@ -2292,9 +2292,9 @@
     "transcription": {
       "customSetup": "自訂設定",
       "customSetupDescription": "使用你自己的供應商和 API Key。",
-      "description": "選擇 RT0Wisper 轉錄語音的方式",
+      "description": "選擇 only-whispers 轉錄語音的方式",
       "modes": {
-        "openwhispr": "RT0Wisper Cloud",
+        "openwhispr": "only-whispers Cloud",
         "providers": "雲端供應商",
         "local": "本機",
         "selfHosted": "自架主機",
@@ -2305,13 +2305,13 @@
         "enterprise": "企業雲端",
         "enterpriseDesc": "音訊會傳送到貴組織自己的雲端。"
       },
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "openwhisprCloudDescription": "準確可靠，無需設定。",
       "title": "語音轉文字",
       "toasts": {
         "switchedCloud": {
-          "description": "轉錄將使用 RT0Wisper 雲端服務。",
-          "title": "已切換至 RT0Wisper Cloud"
+          "description": "轉錄將使用 only-whispers 雲端服務。",
+          "title": "已切換至 only-whispers Cloud"
         },
         "switchedCustom": {
           "description": "設定你自己的供應商和 API Key。",
@@ -2397,7 +2397,7 @@
         }
       },
       "meetingEnterpriseOnly": "貴組織僅允許企業雲端轉錄，尚不支援會議錄音。",
-      "meetingCloudSignedOut": "未登入時，無法使用 RT0Wisper Cloud 開始筆記錄音。請在上方選擇其他引擎。"
+      "meetingCloudSignedOut": "未登入時，無法使用 only-whispers Cloud 開始筆記錄音。請在上方選擇其他引擎。"
     },
     "intelligence": {
       "gpuDevice": {
@@ -2847,7 +2847,7 @@
     },
     "tryAgain": "重試",
     "card": {
-      "brand": "RT0Wisper",
+      "brand": "only-whispers",
       "signalId": "Signal ID",
       "audioSignature": "您的音訊簽名",
       "stop": "停止",
@@ -2999,7 +2999,7 @@
     },
     "structureIntro": {
       "title": "筆記存放在哪裡",
-      "description": "RT0Wisper 將個人想法與協作內容分開，讓合適的人看到合適的筆記。",
+      "description": "only-whispers 將個人想法與協作內容分開，讓合適的人看到合適的筆記。",
       "personal": {
         "title": "個人空間",
         "description": "只有你能看到這裡的資料夾和筆記。"
@@ -3159,7 +3159,7 @@
       "newFolder": "新增資料夾",
       "folderName": "資料夾名稱",
       "create": "建立",
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "custom": "自訂",
       "selectFolder": "選擇資料夾",
       "transcriptionFailed": "轉錄失敗",
@@ -3171,15 +3171,15 @@
       "fileTooLarge": "此檔案超過 500 MB 的大小限制。",
       "largeFileNote": "大型檔案將被分割並平行轉錄。",
       "chunkProgress": "正在轉錄第 {{completed}} 部分，共 {{total}} 部分...",
-      "paidPlanRequired": "超過 25 MB 的檔案需要付費方案才能使用雲端轉錄。大型檔案透過 RT0Wisper Cloud 處理，確保可靠、高品質的結果。",
+      "paidPlanRequired": "超過 25 MB 的檔案需要付費方案才能使用雲端轉錄。大型檔案透過 only-whispers Cloud 處理，確保可靠、高品質的結果。",
       "byokTooLarge": "第三方 API 金鑰僅支援 {{size}} MB 以內的檔案。",
-      "byokTooLargeDetail": "超過 {{size}} MB 的檔案由 RT0Wisper Cloud 負責分割、平行處理和重組——無需依賴第三方服務限制，即可獲得可靠的結果。",
-      "byokTooLargeNeedsAccount": "建立帳戶並升級至付費方案，即可使用 RT0Wisper Cloud 轉錄更大的檔案。",
-      "byokTooLargeNeedsUpgrade": "升級至付費方案，即可使用 RT0Wisper Cloud 轉錄更大的檔案。",
-      "switchToCloudForLargeFiles": "切換到 RT0Wisper Cloud 來轉錄此檔案。",
+      "byokTooLargeDetail": "超過 {{size}} MB 的檔案由 only-whispers Cloud 負責分割、平行處理和重組——無需依賴第三方服務限制，即可獲得可靠的結果。",
+      "byokTooLargeNeedsAccount": "建立帳戶並升級至付費方案，即可使用 only-whispers Cloud 轉錄更大的檔案。",
+      "byokTooLargeNeedsUpgrade": "升級至付費方案，即可使用 only-whispers Cloud 轉錄更大的檔案。",
+      "switchToCloudForLargeFiles": "切換到 only-whispers Cloud 來轉錄此檔案。",
       "createAccount": "建立帳戶",
       "upgrade": "升級",
-      "switchToCloud": "RT0Wisper Cloud",
+      "switchToCloud": "only-whispers Cloud",
       "orDivider": "或",
       "urlPlaceholder": "貼上 YouTube 或音訊 URL",
       "urlDownloading": "正在下載音訊...",
@@ -3238,7 +3238,7 @@
       },
       "systemAudioStopped": {
         "title": "會議音訊已停止",
-        "description": "RT0Wisper 已無法擷取其他與會者的聲音。請停止錄製後重新開始，或檢查您的音訊輸出裝置。"
+        "description": "only-whispers 已無法擷取其他與會者的聲音。請停止錄製後重新開始，或檢查您的音訊輸出裝置。"
       },
       "systemAudioQuiet": {
         "title": "會議音訊已靜默",
@@ -3528,7 +3528,7 @@
     "clearAll": "全部清除",
     "clearTitle": "清空字典？",
     "clearDescription": "這將移除自訂字典中的所有詞彙。此操作無法復原。",
-    "addPlaceholder": "用逗號分隔新增多個詞——RT0Wisper、Supabase、ARR",
+    "addPlaceholder": "用逗號分隔新增多個詞——only-whispers、Supabase、ARR",
     "add": "新增",
     "importWords": "匯入詞語",
     "importPlaceholder": "貼上以逗號或換行分隔的詞語...",
@@ -3558,7 +3558,7 @@
       "duplicate": "已存在使用此觸發詞的片段",
       "emptyTitle": "同樣的話，只說",
       "emptyTitleAccent": "一遍",
-      "emptyDescription": "說出觸發詞，RT0Wisper 會把它替換為你儲存的內容：連結、開場白、簽名、提示詞。",
+      "emptyDescription": "說出觸發詞，only-whispers 會把它替換為你儲存的內容：連結、開場白、簽名、提示詞。",
       "new": "建立片段",
       "examples": {
         "linkedinTrigger": "我的 LinkedIn",
@@ -3650,7 +3650,7 @@
       "emptyStrip_one": "還有 {{count}} 位隊友尚未加入排行榜。加入後即可開始排名。",
       "emptyStrip_other": "還有 {{count}} 位隊友尚未加入排行榜。加入後即可開始排名。",
       "copyNudge": "複製提醒",
-      "nudgeText": "請在 RT0Wisper → Insights 中加入排行榜，這樣我們就能查看團隊排行榜。",
+      "nudgeText": "請在 only-whispers → Insights 中加入排行榜，這樣我們就能查看團隊排行榜。",
       "nudgeCopied": "提醒已複製",
       "nudgeCopyError": "無法複製提醒",
       "joinTitle": "查看你在 {{scope}} 中的排名",
@@ -3686,7 +3686,7 @@
         "desktop_words": "桌面版字數",
         "mobile_words": "行動版字數"
       },
-      "shareText": "看看我在 RT0Wisper 上的排名。",
+      "shareText": "看看我在 only-whispers 上的排名。",
       "shareTitle": "分享排行榜",
       "shareDescription": "複製或下載此卡片，也可以在開啟社群貼文編輯器前先複製。",
       "copyImage": "複製圖片",
@@ -3762,13 +3762,13 @@
     "submitBug": "提交 Bug"
   },
   "postMigration": {
-    "title": "歡迎回到 RT0Wisper",
+    "title": "歡迎回到 only-whispers",
     "description": "您的筆記與設定已從先前版本保留下來。不過 macOS 會將此視為一款全新的應用程式，因此需要您重新授予部分權限。",
     "done": "完成",
     "remindLater": "稍後提醒我"
   },
   "rt0Setup": {
-    "title": "設定 RT0Wisper",
+    "title": "設定 only-whispers",
     "description": "按住快速鍵說話,整潔的文字就會出現在任何應用程式中。新增兩項即可開始。",
     "mistralKey": "Mistral API 金鑰(語音轉文字)",
     "getMistralKey": "在 Mistral admin 取得金鑰",
@@ -3792,11 +3792,11 @@
     "ready": "GPU 加速已就緒",
     "activating": "正在啟動 GPU...",
     "activationFailed": "GPU 加速無法使用",
-    "activationFailedDescription": "RT0Wisper 已切換為 CPU 轉錄。",
-    "reasoningActivationFailedDescription": "RT0Wisper 已切換為 CPU 處理。",
+    "activationFailedDescription": "only-whispers 已切換為 CPU 轉錄。",
+    "reasoningActivationFailedDescription": "only-whispers 已切換為 CPU 處理。",
     "retryActivation": "重試 GPU 加速",
     "redownloadNeeded": "需要重新下載 GPU 加速包",
-    "redownloadNeededDescription": "此版本的 RT0Wisper 無法使用已安裝的 GPU 加速包。請重新下載以重新啟用 GPU 加速。",
+    "redownloadNeededDescription": "此版本的 only-whispers 無法使用已安裝的 GPU 加速包。請重新下載以重新啟用 GPU 加速。",
     "redownloadButton": "重新下載 GPU 加速包",
     "downloadFailed": "無法下載 GPU 加速包。",
     "remove": "移除",
@@ -3817,11 +3817,11 @@
       "undo": "復原",
       "accessibilityMissing": {
         "title": "需要輔助使用權限",
-        "description": "RT0Wisper 需要輔助使用權限來偵測快捷鍵和貼上文字。請在控制面板中啟用。"
+        "description": "only-whispers 需要輔助使用權限來偵測快捷鍵和貼上文字。請在控制面板中啟用。"
       },
       "gpuFallback": {
         "title": "GPU 加速無法使用",
-        "description": "RT0Wisper 已切換為 CPU 轉錄。",
+        "description": "only-whispers 已切換為 CPU 轉錄。",
         "retry": "重試 GPU"
       },
       "gpuPackMigration": {
@@ -3868,7 +3868,7 @@
       "visionModelDescription": "將附有截圖的指令改由另一個支援影像的模型處理。",
       "permissionTitle": "螢幕錄製",
       "permissionDescription": "macOS 需要螢幕錄製權限才能擷取螢幕。",
-      "relaunchHint": "螢幕錄製權限是在 RT0Wisper 執行期間授予的。請結束並重新開啟 RT0Wisper 以開始擷取螢幕截圖。"
+      "relaunchHint": "螢幕錄製權限是在 only-whispers 執行期間授予的。請結束並重新開啟 only-whispers 以開始擷取螢幕截圖。"
     },
     "prompt": {
       "title": "助理提示詞",
@@ -3943,12 +3943,12 @@
       "openNote": "開啟筆記",
       "unknownTool": "未知工具：{{name}}",
       "invalidArgs": "{{name}} 的工具參數無效",
-      "search_openwhispr_helpName": "搜尋 RT0Wisper 說明",
-      "read_openwhispr_helpName": "閱讀 RT0Wisper 說明",
-      "get_openwhispr_contextName": "讀取 RT0Wisper 設定",
-      "search_openwhispr_helpStatus": "正在搜尋 RT0Wisper 說明...",
-      "read_openwhispr_helpStatus": "正在閱讀 RT0Wisper 說明...",
-      "get_openwhispr_contextStatus": "正在讀取 RT0Wisper 設定..."
+      "search_openwhispr_helpName": "搜尋 only-whispers 說明",
+      "read_openwhispr_helpName": "閱讀 only-whispers 說明",
+      "get_openwhispr_contextName": "讀取 only-whispers 設定",
+      "search_openwhispr_helpStatus": "正在搜尋 only-whispers 說明...",
+      "read_openwhispr_helpStatus": "正在閱讀 only-whispers 說明...",
+      "get_openwhispr_contextStatus": "正在讀取 only-whispers 設定..."
     }
   },
   "assistant": {
@@ -3988,7 +3988,7 @@
       "disconnectConfirm": "中斷 {{email}} 的連接？",
       "disconnectDescription": "將不再從此日曆記錄會議筆記。",
       "systemAudioRequired": "需要系統音訊權限",
-      "systemAudioDescription": "要轉錄會議，RT0Wisper 需要系統音訊權限來錄製其他參與者的音訊。我們絕不會錄製您的螢幕。您將被引導至系統設定以啟用此權限。",
+      "systemAudioDescription": "要轉錄會議，only-whispers 需要系統音訊權限來錄製其他參與者的音訊。我們絕不會錄製您的螢幕。您將被引導至系統設定以啟用此權限。",
       "openSettings": "打開系統設定",
       "connectFailed": "連線失敗",
       "connectFailedDescription": "連線 Google Calendar 時發生錯誤。請再試一次。"
@@ -4016,10 +4016,10 @@
       "disconnectConfirm": "中斷 Apple 日曆的連接？",
       "disconnectDescription": "將不再從 Apple 日曆記錄會議筆記。",
       "permissionDenied": "需要日曆存取權限",
-      "permissionDeniedDescription": "RT0Wisper 需要日曆存取權限來偵測會議。請在系統設定的「隱私權與安全性」→「日曆」中啟用 RT0Wisper。",
+      "permissionDeniedDescription": "only-whispers 需要日曆存取權限來偵測會議。請在系統設定的「隱私權與安全性」→「日曆」中啟用 only-whispers。",
       "openSettings": "打開系統設定",
       "connectFailed": "連線失敗",
-      "connectFailedDescription": "連線 Calendar.app 時發生錯誤。請重新啟動 RT0Wisper 後再試一次。"
+      "connectFailedDescription": "連線 Calendar.app 時發生錯誤。請重新啟動 only-whispers 後再試一次。"
     },
     "api": {
       "description": "管理用於程式存取的 API 金鑰",
@@ -4029,13 +4029,13 @@
     },
     "mcp": {
       "description": "在 Claude、ChatGPT 和 Cursor 中與你的筆記一起聊天、搜尋和工作。",
-      "step1": "在你的 AI 工具中，使用公開 URL 新增 RT0Wisper MCP",
-      "proRequired": "升級到付費方案，以將 RT0Wisper 連接到 Claude、ChatGPT 和 Cursor。",
+      "step1": "在你的 AI 工具中，使用公開 URL 新增 only-whispers MCP",
+      "proRequired": "升級到付費方案，以將 only-whispers 連接到 Claude、ChatGPT 和 Cursor。",
       "worksWith": "支援",
       "copyUrl": "複製 MCP URL",
       "copied": "已複製",
       "oauthTitle": "透過 OAuth 登入",
-      "oauthDescription": "在支援 OAuth 的用戶端中新增伺服器 URL，然後登入 RT0Wisper 並授權存取。不需要 API 金鑰。",
+      "oauthDescription": "在支援 OAuth 的用戶端中新增伺服器 URL，然後登入 only-whispers 並授權存取。不需要 API 金鑰。",
       "apiKeyTitle": "使用 API 金鑰",
       "apiKeyDescription": "對於支援請求標頭的用戶端，請建立具有所需權限的個人 API 金鑰，並使用以下標頭。"
     },
@@ -4046,7 +4046,7 @@
       "local": {
         "label": "本機",
         "freeBadge": "免費",
-        "description": "直接讀取你的本機筆記。無需登入或 API 金鑰 — RT0Wisper 執行時即可使用。"
+        "description": "直接讀取你的本機筆記。無需登入或 API 金鑰 — only-whispers 執行時即可使用。"
       },
       "cloud": {
         "label": "雲端",
@@ -4066,7 +4066,7 @@
       "upgrade": "升級"
     },
     "notABot": {
-      "description": "RT0Wisper 直接從您的系統擷取音訊 — 它不會以參與者身分加入您的會議。只需連接日曆，正常記錄筆記即可。"
+      "description": "only-whispers 直接從您的系統擷取音訊 — 它不會以參與者身分加入您的會議。只需連接日曆，正常記錄筆記即可。"
     },
     "nav": {
       "label": "整合分區",
@@ -4121,7 +4121,7 @@
         "reconnect_needed": "需要在設定中重新連接 Slack。",
         "connection_changed": "傳送前 Slack 連線發生了變化，因此未傳送任何內容。",
         "rate_limited": "Slack 忙碌中，請稍後再試。",
-        "missing_scope": "RT0Wisper 沒有權限在那裡發佈。請在設定中重新連接 Slack。",
+        "missing_scope": "only-whispers 沒有權限在那裡發佈。請在設定中重新連接 Slack。",
         "msg_too_long": "訊息對 Slack 來說太長了（格式化後最多 12,000 個字元）。",
         "no_text": "訊息是空的。",
         "network": "無法連線到 Slack，未傳送任何內容。",
@@ -4136,9 +4136,9 @@
           "connection_changed": "發佈前 GitHub 連線發生了變化，因此未發佈任何內容。",
           "credential_save_failed": "無法在這台電腦上儲存 GitHub 登入資訊，未發佈任何內容。請再試一次。",
           "generic": "發生問題，未在 GitHub 上發佈任何內容。",
-          "not_installed": "此存放庫未安裝 RT0Wisper GitHub App。請在設定中新增。未發佈任何內容。",
-          "repo_unlisted": "無法確認此存放庫是否已安裝 RT0Wisper GitHub App。請檢查存放庫名稱。未發佈任何內容。",
-          "no_repositories": "尚未為 RT0Wisper GitHub App 選擇存放庫。請在設定中選擇。未發佈任何內容。",
+          "not_installed": "此存放庫未安裝 only-whispers GitHub App。請在設定中新增。未發佈任何內容。",
+          "repo_unlisted": "無法確認此存放庫是否已安裝 only-whispers GitHub App。請檢查存放庫名稱。未發佈任何內容。",
+          "no_repositories": "尚未為 only-whispers GitHub App 選擇存放庫。請在設定中選擇。未發佈任何內容。",
           "forbidden": "您沒有在此存放庫中執行此操作的權限，未發佈任何內容。",
           "not_found": "找不到該 Issue 或提取要求，未發佈任何內容。",
           "issues_disabled": "此存放庫已關閉 Issue，未發佈任何內容。",
@@ -4183,7 +4183,7 @@
           "wrong_workspace": "該議題位於另一個 Linear 工作區，未傳送任何內容。",
           "invalid_reference": "這不是 Linear 議題，未傳送任何內容。",
           "refused": "Linear 拒絕了請求，未傳送任何內容。",
-          "unknown_action": "RT0Wisper 無法在 Linear 中執行此操作，未傳送任何內容。",
+          "unknown_action": "only-whispers 無法在 Linear 中執行此操作，未傳送任何內容。",
           "generic": "發生問題，未向 Linear 傳送任何內容。"
         }
       },
@@ -4281,19 +4281,19 @@
         "oauth_denied": "由於未獲得授權，Slack 未連接。",
         "oauth_timeout": "連接耗時過長，請重試。",
         "oauth_state_mismatch": "該登入連結已過期，請重試。",
-        "ports_busy": "另一個應用程式正在使用 RT0Wisper 連接所需的連接埠。請關閉它後重試。",
+        "ports_busy": "另一個應用程式正在使用 only-whispers 連接所需的連接埠。請關閉它後重試。",
         "token_exchange_failed": "Slack 未完成連接，請重試。",
         "not_configured": "此版本中 Slack 不可用。",
         "connection_changed": "連接過程中您的帳戶或 Slack 連接發生了變化，請重試。",
-        "signed_out": "請登入 RT0Wisper 以連接 Slack。",
+        "signed_out": "請登入 only-whispers 以連接 Slack。",
         "policy_blocked": "您的組織已關閉連接器。",
         "policy_unavailable": "無法檢查您的組織設定，請重試。"
       },
       "browser": {
         "connectedTitle": "Slack 已連接",
-        "connectedBody": "您可以關閉此分頁並返回 RT0Wisper。",
+        "connectedBody": "您可以關閉此分頁並返回 only-whispers。",
         "failedTitle": "Slack 未連接",
-        "failedBody": "請返回 RT0Wisper 重試。"
+        "failedBody": "請返回 only-whispers 重試。"
       }
     },
     "github": {
@@ -4308,7 +4308,7 @@
       "connectedAs_unknown": "已以 {{account}} 身分連接",
       "needsReconnect": "需要重新連接 GitHub。",
       "reviewOnGithub": "在 GitHub 上查看",
-      "disconnectedHint": "已在這台電腦上中斷連接。在您於 GitHub 上移除之前，GitHub 會保留 RT0Wisper 的授權。",
+      "disconnectedHint": "已在這台電腦上中斷連接。在您於 GitHub 上移除之前，GitHub 會保留 only-whispers 的授權。",
       "errors": {
         "connect_failed": "無法連接 GitHub，請重試。",
         "disconnect_failed": "無法中斷 GitHub 連接，請重試。",
@@ -4316,7 +4316,7 @@
         "token_exchange_failed": "GitHub 未完成連接，請重試。",
         "not_configured": "此版本中 GitHub 不可用。",
         "connection_changed": "連接過程中您的帳戶或 GitHub 連接發生了變化，請重試。",
-        "signed_out": "請登入 RT0Wisper 以連接 GitHub。",
+        "signed_out": "請登入 only-whispers 以連接 GitHub。",
         "policy_blocked": "您的組織已關閉連接器。",
         "policy_unavailable": "無法檢查您的組織設定，請重試。",
         "code_expired": "代碼已過期，請重試。",
@@ -4342,32 +4342,32 @@
       "connect": "連接",
       "reconnect": "重新連接",
       "disconnect": "中斷連接",
-      "connecting": "請在瀏覽器中完成連接… 如果 Google 顯示存取已遭封鎖，需要您機構的 Google 管理員允許 RT0Wisper。",
+      "connecting": "請在瀏覽器中完成連接… 如果 Google 顯示存取已遭封鎖，需要您機構的 Google 管理員允許 only-whispers。",
       "connectedAs": "已以 {{account}} 身分連接",
       "needsReconnect": "需要重新連接 Gmail。",
-      "grantKept": "已中斷連線。Google 日曆使用相同的 Google 權限，因此在您也中斷 Google 日曆的連線之前，RT0Wisper 仍會顯示在您的 Google 帳戶中。",
+      "grantKept": "已中斷連線。Google 日曆使用相同的 Google 權限，因此在您也中斷 Google 日曆的連線之前，only-whispers 仍會顯示在您的 Google 帳戶中。",
       "errors": {
         "connect_failed": "無法連接 Gmail，請重試。",
         "disconnect_failed": "無法中斷 Gmail 連接，請重試。",
         "oauth_denied": "由於未獲得授權，Gmail 未連接。",
-        "oauth_timeout": "連接耗時過長。如果 Google 顯示存取已遭封鎖，請要求您機構的 Google 管理員允許 RT0Wisper；否則請重試。",
+        "oauth_timeout": "連接耗時過長。如果 Google 顯示存取已遭封鎖，請要求您機構的 Google 管理員允許 only-whispers；否則請重試。",
         "oauth_state_mismatch": "該登入連結已過期，請重試。",
-        "ports_busy": "另一個應用程式正在使用 RT0Wisper 連接所需的連接埠。請關閉它後重試。",
+        "ports_busy": "另一個應用程式正在使用 only-whispers 連接所需的連接埠。請關閉它後重試。",
         "token_exchange_failed": "Google 未完成連接，請重試。",
         "not_configured": "此版本中 Gmail 不可用。",
         "connection_changed": "連接過程中您的帳戶或 Gmail 連接發生了變化，請重試。",
-        "signed_out": "請登入 RT0Wisper 以連接 Gmail。",
+        "signed_out": "請登入 only-whispers 以連接 Gmail。",
         "policy_blocked": "您的組織已關閉連接器。",
         "policy_unavailable": "無法檢查您的組織設定，請重試。",
         "permission_not_granted": "由於未授予傳送郵件的權限，Gmail 未連接。請重新連接並保持勾選該權限。",
         "email_not_verified": "Google 尚未驗證此帳戶的電子郵件地址，因此 Gmail 未連接。",
-        "domain_policy": "您機構的 Google 管理員已封鎖此應用程式。請他們允許 RT0Wisper。"
+        "domain_policy": "您機構的 Google 管理員已封鎖此應用程式。請他們允許 only-whispers。"
       },
       "browser": {
         "connectedTitle": "Gmail 已連接",
-        "connectedBody": "您可以關閉此分頁並返回 RT0Wisper。",
+        "connectedBody": "您可以關閉此分頁並返回 only-whispers。",
         "failedTitle": "Gmail 未連接",
-        "failedBody": "請返回 RT0Wisper 重試。"
+        "failedBody": "請返回 only-whispers 重試。"
       }
     },
     "linear": {
@@ -4385,20 +4385,20 @@
         "oauth_denied": "由於未獲得授權，Linear 未連接。",
         "oauth_timeout": "連接耗時過長，請重試。",
         "oauth_state_mismatch": "該登入連結已過期，請重試。",
-        "ports_busy": "另一個應用程式正在使用 RT0Wisper 連接所需的連接埠。請關閉它後重試。",
+        "ports_busy": "另一個應用程式正在使用 only-whispers 連接所需的連接埠。請關閉它後重試。",
         "token_exchange_failed": "Linear 未完成連接，請重試。",
         "not_configured": "此版本中 Linear 不可用。",
         "connection_changed": "連接過程中您的帳戶或 Linear 連接發生了變化，請重試。",
-        "signed_out": "請登入 RT0Wisper 以連接 Linear。",
+        "signed_out": "請登入 only-whispers 以連接 Linear。",
         "policy_blocked": "您的組織已關閉連接器。",
         "policy_unavailable": "無法檢查您的組織設定，請重試。",
         "permission_not_granted": "由於未授予全部權限，Linear 未連接。請重新連接並允許所有權限。"
       },
       "browser": {
         "connectedTitle": "Linear 已連接",
-        "connectedBody": "您可以關閉此分頁並返回 RT0Wisper。",
+        "connectedBody": "您可以關閉此分頁並返回 only-whispers。",
         "failedTitle": "Linear 未連接",
-        "failedBody": "請返回 RT0Wisper 重試。"
+        "failedBody": "請返回 only-whispers 重試。"
       },
       "notes": {
         "priority": {
@@ -4478,8 +4478,8 @@
           "connection_changed": "GitHub 連線已變更。",
           "credential_save_failed": "無法在這台電腦上儲存 GitHub 登入資訊。",
           "generic": "在 GitHub 上操作未成功。",
-          "not_installed": "那裡未安裝 RT0Wisper GitHub App。",
-          "repo_unlisted": "無法確認那裡是否已安裝 RT0Wisper GitHub App。",
+          "not_installed": "那裡未安裝 only-whispers GitHub App。",
+          "repo_unlisted": "無法確認那裡是否已安裝 only-whispers GitHub App。",
           "no_repositories": "尚未選擇 GitHub 存放庫。",
           "forbidden": "在該存放庫中沒有權限。",
           "not_found": "找不到該 Issue 或提取要求。",
@@ -4579,7 +4579,7 @@
     "systemAudioRequired": "需要系統音訊權限來錄製其他參與者的音訊。",
     "openSettings": "打開系統設定",
     "connectCalendar": "連接您的日曆",
-    "connectCalendarDescription": "無需離開 RT0Wisper 即可查看並加入您的會議。",
+    "connectCalendarDescription": "無需離開 only-whispers 即可查看並加入您的會議。",
     "connectCalendarButton": "連接日曆"
   },
   "notesView": {
@@ -4634,7 +4634,7 @@
         "invitationActions": "邀請操作",
         "resendSent": "邀請已傳送",
         "resendThrottled": "邀請剛剛已傳送，請一分鐘後再試。",
-        "syncPrompt": "分享後，這則筆記會在你的 RT0Wisper 雲端保留一份副本。在你選擇分享對象之前，只有你能看到它。",
+        "syncPrompt": "分享後，這則筆記會在你的 only-whispers 雲端保留一份副本。在你選擇分享對象之前，只有你能看到它。",
         "syncAndShare": "同步筆記",
         "visibility": {
           "label": "可見性",
@@ -4696,12 +4696,12 @@
   },
   "permissionsGate": {
     "title": "需要權限",
-    "description": "RT0Wisper 需要一些權限才能在此電腦上正常運作。",
+    "description": "only-whispers 需要一些權限才能在此電腦上正常運作。",
     "continue": "繼續"
   },
   "apiKeysSection": {
     "title": "API 金鑰",
-    "description": "建立金鑰以程式化方式存取 RT0Wisper API。",
+    "description": "建立金鑰以程式化方式存取 only-whispers API。",
     "empty": "尚無 API 金鑰",
     "createButton": "建立 API 金鑰",
     "create": {
@@ -4819,7 +4819,7 @@
     },
     "join": {
       "title": "加入你的團隊",
-      "domainTitle": "你的團隊已在 RT0Wisper",
+      "domainTitle": "你的團隊已在 only-whispers",
       "description": "這些工作區中有與你相同電子郵件網域的成員。",
       "invitedDescription": "有人邀請你加入一個工作區。",
       "invitedBy": "{{inviter}} 邀請你擔任{{role}}",
@@ -5028,20 +5028,20 @@
       }
     },
     "setup": {
-      "introTitle": "讓 RT0Wisper\n照你說話的方式寫",
+      "introTitle": "讓 only-whispers\n照你說話的方式寫",
       "introDescription": "為不同的應用程式設定你的語氣和風格。",
       "personalize": "開始個人化",
-      "cleanupOffTitle": "讓 RT0Wisper\n學會你的風格",
+      "cleanupOffTitle": "讓 only-whispers\n學會你的風格",
       "cleanupOffDescription": "開啟文字整理，再為不同的應用程式設定你的語氣和風格。",
       "stepDescription": "選出最像你的範例。",
       "progress": "第 {{current}} 步，共 {{total}} 步",
       "finish": "完成"
     },
     "banner": {
-      "title": "教 RT0Wisper 學會你的寫法",
+      "title": "教 only-whispers 學會你的寫法",
       "description": "為工作、朋友以及兩者之間的一切設定你偏好的語氣。",
       "start": "立即開始",
-      "cleanupOffTitle": "讓 RT0Wisper 學會你的風格",
+      "cleanupOffTitle": "讓 only-whispers 學會你的風格",
       "cleanupOffDescription": "開啟文字整理，為訊息、郵件和其他地方選一種語氣。",
       "notNow": "暫時不要",
       "decoration": "你的文字應該聽起來就像你。無論你寫什麼，寫給誰。"

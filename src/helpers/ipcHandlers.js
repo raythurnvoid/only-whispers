@@ -1029,7 +1029,7 @@ class IPCHandlers {
         filters: [{ name: "Audio and Video Files", extensions: UPLOAD_AUDIO_EXTENSIONS }],
       });
       if (picked.canceled || !picked.filePaths.length) return { success: false };
-      const webmPath = path.join(os.tmpdir(), `rt0wisper-upload-${Date.now()}.webm`);
+      const webmPath = path.join(os.tmpdir(), `only-whispers-upload-${Date.now()}.webm`);
       try {
         await require("./ffmpegUtils").convertToWebm(picked.filePaths[0], webmPath);
         const saved = this.databaseManager.saveTranscription("", null, {

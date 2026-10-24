@@ -1,5 +1,5 @@
 {
-  "name": "rt0wisper",
+  "name": "only-whispers",
   "version": "0.1.0",
   "description": "Hold a key, speak, and get clean text in any app. Mistral Voxtral speech-to-text with ChatGPT Luna cleanup.",
   "main": "main.js",

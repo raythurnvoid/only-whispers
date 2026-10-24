@@ -186,7 +186,7 @@ test("Windows without its key listener reports Hold unavailable", async () => {
   );
 
   assert.equal(info.supportsPushToTalk, false);
-  assert.equal(info.pushToTalkUnavailableReason, "RT0Wisper's key listener isn't available.");
+  assert.equal(info.pushToTalkUnavailableReason, "only-whispers's key listener isn't available.");
   assert.equal(info.linuxInputAccessDenied, false);
 });
 

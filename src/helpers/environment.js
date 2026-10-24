@@ -431,7 +431,7 @@ class EnvironmentManager {
   }
 
   getFloatingIconAutoHide() {
-    // RT0Wisper hides the idle pill by default; only an explicit "false" keeps it up.
+    // only-whispers hides the idle pill by default; only an explicit "false" keeps it up.
     return this._getKey("FLOATING_ICON_AUTO_HIDE") !== "false";
   }
 
@@ -454,7 +454,7 @@ class EnvironmentManager {
   getPanelStartPosition() {
     const v = this._getKey("PANEL_START_POSITION");
     if (v === "bottom-right" || v === "center" || v === "bottom-left") return v;
-    // RT0Wisper docks the pill at the bottom center by default.
+    // only-whispers docks the pill at the bottom center by default.
     return "center";
   }
 

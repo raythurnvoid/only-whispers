@@ -1,6 +1,6 @@
 import type { InferenceMode } from "../types/electron";
 
-// RT0Wisper offers one setup: Mistral Voxtral for speech-to-text and OpenAI Luna
+// only-whispers offers one setup: Mistral Voxtral for speech-to-text and OpenAI Luna
 // (on the ChatGPT plan) for cleanup. Settings hide every other mode, provider and model.
 const PROVIDERS = { transcription: ["mistral"], llm: ["openai"] };
 const MODELS: Record<string, string[]> = {

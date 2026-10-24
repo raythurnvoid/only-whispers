@@ -122,7 +122,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const toast = React.useCallback(
     (props: Omit<ToastProps, "id">): string => {
       const id = Math.random().toString(36).substring(2, 11);
-      // RT0Wisper: the dictation widget shows no error cards. It just hides, and
+      // only-whispers: the dictation widget shows no error cards. It just hides, and
       // the error goes to the error log on the Logs page.
       if (props.variant === "destructive" && isDictationPanelWindow()) {
         logger.error(

@@ -671,7 +671,7 @@ export default function ReasoningModelSelector({
                 />
               ) : (
                 <>
-                  {/* RT0Wisper runs OpenAI on the ChatGPT plan only, so it asks for no key. */}
+                  {/* only-whispers runs OpenAI on the ChatGPT plan only, so it asks for no key. */}
                   {hostedKey && displayedCloudProvider !== "openai" && (
                     <div className="space-y-2" onFocus={editing.onFocus} onBlur={editing.onBlur}>
                       {displayedCloudProvider === "corti" && (

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/assets/logo.svg" alt="RT0Wisper" width="120" />
+  <img src="src/assets/logo.svg" alt="only-whispers" width="120" />
 </p>
 
-<h1 align="center">RT0Wisper</h1>
+<h1 align="center">only-whispers</h1>
 
 <p align="center">
   Hold a key, speak, and get clean text in any app.<br/>
@@ -13,9 +13,9 @@
 
 ## Install (Windows)
 
-1. Download **[RT0Wisper-Setup.exe](https://github.com/raythurnvoid/only-whispers/releases/latest/download/RT0Wisper-Setup.exe)** from the [latest release](https://github.com/raythurnvoid/only-whispers/releases/latest).
+1. Download **[only-whispers-Setup.exe](https://github.com/raythurnvoid/only-whispers/releases/latest/download/only-whispers-Setup.exe)** from the [latest release](https://github.com/raythurnvoid/only-whispers/releases/latest).
 2. Run it. The installer is not signed, so Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**.
-3. Open RT0Wisper and follow the setup screen (see [Setup](#setup)).
+3. Open only-whispers and follow the setup screen (see [Setup](#setup)).
 
 ## How it works
 
@@ -62,7 +62,7 @@ pnpm dev
 
 `pnpm dev` starts the app with hot reload. The first run also downloads small native helpers (hotkey listener, paste helper), so it needs internet.
 
-Quit the installed RT0Wisper first, so the two copies don't both react to the hotkey. If the dev app shows the setup screen, add the Mistral key and sign in with ChatGPT again.
+Quit the installed only-whispers first, so the two copies don't both react to the hotkey. If the dev app shows the setup screen, add the Mistral key and sign in with ChatGPT again.
 
 Useful commands:
 
@@ -76,13 +76,13 @@ Useful commands:
 ## Publish a new installer
 
 1. Build it: `pnpm run build:win`.
-2. Upload it as the latest release. Keep the asset name `RT0Wisper-Setup.exe`, so the download link above keeps working:
+2. Upload it as the latest release. Keep the asset name `only-whispers-Setup.exe`, so the download link above keeps working:
 
 ```bash
-cp "dist/RT0Wisper Setup 0.1.0.exe" dist/RT0Wisper-Setup.exe
-git tag rt0wisper-v0.1.0
-git push origin rt0wisper-v0.1.0
-gh release create rt0wisper-v0.1.0 dist/RT0Wisper-Setup.exe --repo raythurnvoid/only-whispers --verify-tag --title "RT0Wisper 0.1.0" --latest
+cp "dist/only-whispers Setup 0.1.0.exe" dist/only-whispers-Setup.exe
+git tag only-whispers-v0.1.0
+git push origin only-whispers-v0.1.0
+gh release create only-whispers-v0.1.0 dist/only-whispers-Setup.exe --repo raythurnvoid/only-whispers --verify-tag --title "only-whispers 0.1.0" --latest
 ```
 
 Change the version and the tag to match `package.json`. Keep `--repo`: this clone also has the OpenWhispr `upstream` remote, and without `--repo` the GitHub CLI may pick that repo.
@@ -97,6 +97,6 @@ Select some text, hold the hotkey, and say "Hey Wisper, make this more formal". 
 
 ## Credits
 
-RT0Wisper is a fork of [OpenWhispr](https://github.com/OpenWhispr/openwhispr) (MIT License). Thank you to the OpenWhispr team. See [LICENSE](LICENSE).
+only-whispers is a fork of [OpenWhispr](https://github.com/OpenWhispr/openwhispr) (MIT License). Thank you to the OpenWhispr team. See [LICENSE](LICENSE).
 
 The "Sign in with ChatGPT" flow is based on [OpenCode](https://github.com/anomalyco/opencode) (MIT License).

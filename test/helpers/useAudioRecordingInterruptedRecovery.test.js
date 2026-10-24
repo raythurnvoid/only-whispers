@@ -67,6 +67,6 @@ test("the mount effect recovers interrupted recordings with the translated messa
   });
 
   assert.deepEqual(recoveries, [
-    "Recovered after RT0Wisper closed before this dictation finished.",
+    "Recovered after only-whispers closed before this dictation finished.",
   ]);
 });

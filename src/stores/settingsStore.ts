@@ -1446,7 +1446,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   audioCuesEnabled: readBoolean("audioCuesEnabled", true),
   pauseMediaOnDictation: readBoolean("pauseMediaOnDictation", false),
   muteAppsOnDictation: readBoolean("muteAppsOnDictation", true),
-  // RT0Wisper shows the pill only while dictating unless "Always visible" is on.
+  // only-whispers shows the pill only while dictating unless "Always visible" is on.
   floatingIconAutoHide: readBoolean("floatingIconAutoHide", true),
   startMinimized: readBoolean("startMinimized", false),
   ...(() => {

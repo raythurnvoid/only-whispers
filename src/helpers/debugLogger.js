@@ -238,7 +238,7 @@ class DebugLogger {
     }
   }
 
-  // RT0Wisper: warnings and errors always go to logs/errors.log (one JSON entry
+  // only-whispers: warnings and errors always go to logs/errors.log (one JSON entry
   // per line), whatever the log level, so the Logs page can list them.
   getErrorLogPath() {
     return path.join(app.getPath("userData"), "logs", "errors.log");

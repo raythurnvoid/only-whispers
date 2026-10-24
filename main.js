@@ -49,7 +49,7 @@ const DEFAULT_OAUTH_PROTOCOL_BY_CHANNEL = {
   staging: "openwhispr-staging",
   production: "openwhispr",
 };
-const BASE_WINDOWS_APP_ID = "com.raythurnvoid.rt0wisper";
+const BASE_WINDOWS_APP_ID = "com.raythurnvoid.only-whispers";
 const DEFAULT_AUTH_BRIDGE_PORT = 5199;
 
 function isElectronBinaryExec() {
@@ -266,8 +266,8 @@ if (!gotSingleInstanceLock) {
 const isLiveWindow = (window) => window && !window.isDestroyed();
 
 // Ensure macOS menus use the proper casing for the app name
-if (process.platform === "darwin" && app.getName() !== "RT0Wisper") {
-  app.setName("RT0Wisper");
+if (process.platform === "darwin" && app.getName() !== "only-whispers") {
+  app.setName("only-whispers");
 }
 
 // Add global error handling for uncaught exceptions

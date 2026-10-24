@@ -4,7 +4,7 @@
       "sectionTitle": "Langue",
       "sectionDescription": "Configurez séparément la langue de l'interface et de la transcription",
       "uiLabel": "Langue de l'interface",
-      "uiDescription": "Choisissez la langue utilisée dans l'interface RT0Wisper",
+      "uiDescription": "Choisissez la langue utilisée dans l'interface only-whispers",
       "transcriptionLabel": "Langue de transcription",
       "transcriptionDescription": "Choisissez la langue que vous parlez pour une transcription plus précise",
       "chineseScriptLabel": "Écriture chinoise (dictée)",
@@ -64,12 +64,12 @@
     },
     "openControlPanel": "Ouvrir le panneau de contrôle",
     "hideControlPanel": "Masquer le panneau de contrôle",
-    "quit": "Quitter RT0Wisper",
-    "tooltip": "RT0Wisper - Dictée vocale"
+    "quit": "Quitter only-whispers",
+    "tooltip": "only-whispers - Dictée vocale"
   },
   "menu": {
-    "appLabel": "RT0Wisper",
-    "quit": "Quitter RT0Wisper",
+    "appLabel": "only-whispers",
+    "quit": "Quitter only-whispers",
     "speech": "Parole",
     "settings": "Réglages…",
     "help": "Aide",
@@ -87,8 +87,8 @@
       "message": "Impossible d'ouvrir le lien dans votre navigateur :\n{{url}}\n\nErreur : {{error}}"
     },
     "loadFailure": {
-      "title": "Échec du chargement d'RT0Wisper",
-      "message": "RT0Wisper n'a pas pu charger son interface.",
+      "title": "Échec du chargement d'only-whispers",
+      "message": "only-whispers n'a pas pu charger son interface.",
       "detail": {
         "window": "Fenêtre : {{windowName}}",
         "error": "Erreur {{errorCode}} : {{errorDescription}}",
@@ -99,17 +99,17 @@
   },
   "startup": {
     "error": {
-      "title": "Erreur de démarrage RT0Wisper",
+      "title": "Erreur de démarrage only-whispers",
       "message": "Échec du démarrage de l'application :\n\n{{error}}\n\nVeuillez signaler ce problème."
     },
     "globeHotkey": {
       "title": "Raccourci Globe indisponible",
-      "message": "RT0Wisper n'a pas pu activer la touche Globe.",
+      "message": "only-whispers n'a pas pu activer la touche Globe.",
       "details": {
         "unknown": "Erreur inconnue lors du démarrage de l'écouteur Globe.",
         "fallback": "Le raccourci Globe restera désactivé ; les raccourcis actuels continueront de fonctionner.",
         "devHint": "Exécutez `npm run compile:globe` puis reconstruisez l'application pour régénérer le binaire.",
-        "reinstallHint": "Réinstallez RT0Wisper ou contactez le support si le problème persiste."
+        "reinstallHint": "Réinstallez only-whispers ou contactez le support si le problème persiste."
       }
     }
   },
@@ -164,7 +164,7 @@
     "close": "Fermer"
   },
   "windows": {
-    "pttUnavailable": "L'écouteur de touches d'RT0Wisper n'est pas disponible."
+    "pttUnavailable": "L'écouteur de touches d'only-whispers n'est pas disponible."
   },
   "common": {
     "continue": "Continuer",
@@ -220,7 +220,7 @@
   "onboarding": {
     "rehaul": {
       "permissions": {
-        "title": "Configurez RT0Wisper en 3 minutes",
+        "title": "Configurez only-whispers en 3 minutes",
         "microphoneDescription": "N’écoute que pendant l’enregistrement.",
         "accessibilityDescription": "Colle le texte dans vos apps.",
         "systemAudioTitle": "Audio Système",
@@ -233,7 +233,7 @@
         "title": "Quelles langues parlez-vous ?",
         "titleLineOne": "Quelles langues",
         "titleLineTwo": "parlez-vous ?",
-        "description": "Sélectionnez toutes les langues concernées. Cela aide RT0Wisper à reconnaître plus précisément les changements de langue."
+        "description": "Sélectionnez toutes les langues concernées. Cela aide only-whispers à reconnaître plus précisément les changements de langue."
       },
       "dictationHotkey": {
         "title": "Choisissez votre raccourci de dictée",
@@ -243,10 +243,10 @@
         "activation": "Appuyer ou maintenir ?"
       },
       "assistantHotkey": {
-        "title": "Configurer RT0Wisper Assistant",
+        "title": "Configurer only-whispers Assistant",
         "titleLineOne": "Configurez",
-        "titleLineTwo": "RT0Wisper Assistant",
-        "description": "Formulez une demande. RT0Wisper Assistant rédige le résultat pour vous."
+        "titleLineTwo": "only-whispers Assistant",
+        "description": "Formulez une demande. only-whispers Assistant rédige le résultat pour vous."
       },
       "hotkey": {
         "capture": "Appuyez sur la touche que vous souhaitez utiliser",
@@ -258,15 +258,15 @@
         "title": "Essayez votre première dictée",
         "titleLineOne": "Essayez votre",
         "titleLineTwo": "première dictée",
-        "description": "Appuyez sur {{hotkey}} et parlez. RT0Wisper transformera votre voix en texte.",
-        "founder": "Bonjour, je suis Gabe, le fondateur. Merci d’essayer RT0Wisper !",
-        "prompt": "Cliquez dans le champ ci-dessous, appuyez sur votre raccourci et dites-moi : qu’aimeriez-vous qu’RT0Wisper fasse pour vous ?",
-        "placeholder": "Cliquez ici, puis appuyez sur votre raccourci. RT0Wisper écrit dans n’importe quel champ de texte."
+        "description": "Appuyez sur {{hotkey}} et parlez. only-whispers transformera votre voix en texte.",
+        "founder": "Bonjour, je suis Gabe, le fondateur. Merci d’essayer only-whispers !",
+        "prompt": "Cliquez dans le champ ci-dessous, appuyez sur votre raccourci et dites-moi : qu’aimeriez-vous qu’only-whispers fasse pour vous ?",
+        "placeholder": "Cliquez ici, puis appuyez sur votre raccourci. only-whispers écrit dans n’importe quel champ de texte."
       },
       "assistantDemo": {
-        "title": "Découvrez RT0Wisper Assistant",
+        "title": "Découvrez only-whispers Assistant",
         "titleLineOne": "Découvrez",
-        "titleLineTwo": "RT0Wisper Assistant",
+        "titleLineTwo": "only-whispers Assistant",
         "email": {
           "subject": "Un café la semaine prochaine ?",
           "senderName": "Maria Alvarez",
@@ -300,13 +300,13 @@
         "typing": "Saisie en cours…"
       },
       "notes": {
-        "title": "Enregistrez vos réunions sans bot avec RT0Wisper Notes",
+        "title": "Enregistrez vos réunions sans bot avec only-whispers Notes",
         "titleLineOne": "Enregistrez vos réunions sans bot",
-        "titleLineTwoPrefix": "avec RT0Wisper",
+        "titleLineTwoPrefix": "avec only-whispers",
         "titleLineTwoBrand": "Notes",
-        "description": "RT0Wisper transforme votre conversation en notes claires. Aucun bot de réunion ne rejoint votre appel.",
+        "description": "only-whispers transforme votre conversation en notes claires. Aucun bot de réunion ne rejoint votre appel.",
         "hero": {
-          "description": "Enregistrez votre réunion et laissez RT0Wisper transformer la conversation en notes claires et organisées.",
+          "description": "Enregistrez votre réunion et laissez only-whispers transformer la conversation en notes claires et organisées.",
           "chat": "Discutez avec vos notes de réunion",
           "transcript": "Consultez la transcription complète",
           "speakers": "Voyez qui a dit quoi"
@@ -322,16 +322,16 @@
         }
       },
       "setupChoice": {
-        "title": "Choisissez votre configuration RT0Wisper",
+        "title": "Choisissez votre configuration only-whispers",
         "titleLineOne": "Choisissez votre",
-        "titleLineTwo": "configuration RT0Wisper",
+        "titleLineTwo": "configuration only-whispers",
         "description": "Choisissez l’option qui correspond à votre façon de travailler.",
         "unavailable": {
           "title": "Aucune option de configuration disponible",
           "description": "La politique de votre espace de travail n’autorise pas une configuration complète de la transcription et de l’IA. Contactez votre administrateur."
         },
         "cloud": {
-          "title": "RT0Wisper Cloud",
+          "title": "only-whispers Cloud",
           "description": "Bénéficiez de 2 000 mots gratuits par semaine. Vos réglages restent synchronisés entre vos appareils.",
           "continue": "Continuer gratuitement",
           "signIn": "Connectez-vous pour utiliser Cloud",
@@ -479,14 +479,14 @@
       "accessibilityTitle": "Accessibilité",
       "accessibilityDescription": "Saisit le texte final directement dans l'application où vous êtes : documents, e-mail, chat.",
       "testAndGrant": "Tester et autoriser",
-      "requiredForApp": "Nécessaire pour le bon fonctionnement d'RT0Wisper",
+      "requiredForApp": "Nécessaire pour le bon fonctionnement d'only-whispers",
       "microphoneRequired": "Accès microphone requis",
       "openSystemSettings": "Ouvrir les Réglages Système",
       "systemAudioTitle": "Audio Système",
       "systemAudioDescription": "Permet à l'enregistreur de réunion d'entendre vos interlocuteurs : réunions, cours, podcasts. Activable plus tard dans les Réglages.",
       "optional": "Facultatif",
       "recommended": "Recommandé",
-      "accessibilityTroubleshooting": "Dans Réglages Système → Accessibilité, désactivez le bouton d'RT0Wisper puis réactivez-le. Si RT0Wisper n'apparaît pas du tout dans la liste, cliquez sur + et ajoutez-le depuis le dossier Applications. Toujours bloqué ? Écrivez à support@openwhispr.com."
+      "accessibilityTroubleshooting": "Dans Réglages Système → Accessibilité, désactivez le bouton d'only-whispers puis réactivez-le. Si only-whispers n'apparaît pas du tout dans la liste, cliquez sur + et ajoutez-le depuis le dossier Applications. Toujours bloqué ? Écrivez à support@openwhispr.com."
     },
     "transcription": {
       "title": "Configuration de la transcription",
@@ -506,18 +506,18 @@
       "textareaPlaceholder": "Cliquez ici puis utilisez votre raccourci pour dicter..."
     },
     "connectivity": {
-      "title": "Impossible d'atteindre RT0Wisper Cloud depuis ce réseau",
+      "title": "Impossible d'atteindre only-whispers Cloud depuis ce réseau",
       "body": "{{cause}} Vous pouvez basculer sur le moteur local, ou continuer et réessayer plus tard.",
       "useLocal": "Utiliser le moteur local",
       "continue": "Continuer quand même"
     },
     "useCase": {
-      "title": "Comment utiliserez-vous RT0Wisper ?",
+      "title": "Comment utiliserez-vous only-whispers ?",
       "titleLineOne": "Comment utiliserez-vous",
-      "titleLineTwo": "RT0Wisper ?",
+      "titleLineTwo": "only-whispers ?",
       "description": "Choisissez tout ce qui s'applique. Nous adapterons votre configuration.",
       "noteLabel": "Autre chose à nous dire ?",
-      "notePlaceholder": "Dites-nous comment vous comptez utiliser RT0Wisper (facultatif)",
+      "notePlaceholder": "Dites-nous comment vous comptez utiliser only-whispers (facultatif)",
       "proceedToSetup": "Continuer la configuration",
       "options": {
         "dictation": {
@@ -550,13 +550,13 @@
     "meeting": {
       "title": "Notes de réunion",
       "description": "Capturez et résumez vos réunions",
-      "autoDetect": "RT0Wisper détecte automatiquement quand vous êtes en réunion et vous propose de démarrer des notes — rien n'est enregistré sans vous.",
+      "autoDetect": "only-whispers détecte automatiquement quand vous êtes en réunion et vous propose de démarrer des notes — rien n'est enregistré sans vous.",
       "hotkeyLabel": "Raccourci réunion",
       "hotkeyHint": "Facultatif — appuyez dessus pendant une réunion pour démarrer une note instantanément."
     },
     "finish": {
       "title": "Tout est prêt",
-      "cloudDescription": "Vous êtes sur RT0Wisper Cloud : rapide, précis, zéro conservation des données et 2 000 mots gratuits par semaine. Vous préférez tout garder sur votre appareil ? Passez au traitement local dans les Réglages.",
+      "cloudDescription": "Vous êtes sur only-whispers Cloud : rapide, précis, zéro conservation des données et 2 000 mots gratuits par semaine. Vous préférez tout garder sur votre appareil ? Passez au traitement local dans les Réglages.",
       "localDescription": "Vous êtes configuré avec le traitement local ou votre propre clé. Ajustez le traitement de votre audio à tout moment dans les Réglages.",
       "cleanupNote": "Le nettoyage de texte par IA utilise des réglages par défaut raisonnables. Vous pouvez l'ajuster dans les Réglages.",
       "openSettings": "Ouvrir les Réglages",
@@ -591,20 +591,20 @@
       "return": "Revenir à la configuration",
       "missingApp": "Ou sélectionnez l’app avec +",
       "failed": "Impossible de vérifier l’accès.",
-      "microphone": "Activez RT0Wisper dans Microphone.",
-      "accessibility": "Glissez RT0Wisper dans Accessibilité, puis activez-le.",
-      "systemAudio": "Activez RT0Wisper sous Enregistrement audio du système uniquement.",
-      "screenContext": "Glissez RT0Wisper dans Enregistrement de l’écran et de l’audio système, puis activez-le.",
+      "microphone": "Activez only-whispers dans Microphone.",
+      "accessibility": "Glissez only-whispers dans Accessibilité, puis activez-le.",
+      "systemAudio": "Activez only-whispers sous Enregistrement audio du système uniquement.",
+      "screenContext": "Glissez only-whispers dans Enregistrement de l’écran et de l’audio système, puis activez-le.",
       "settings": "Réglages",
       "check": "Vérifier",
       "restart": "Relancer l’app",
-      "restartRequired": "Redémarrez RT0Wisper pour appliquer l’accès à l’écran."
+      "restartRequired": "Redémarrez only-whispers pour appliquer l’accès à l’écran."
     }
   },
   "streaming": {
     "errors": {
       "cloudUnreachable": {
-        "title": "Impossible d'atteindre RT0Wisper Cloud",
+        "title": "Impossible d'atteindre only-whispers Cloud",
         "generic": "La requête réseau a échoué. Vérifiez votre connexion.",
         "dnsBlocked": "Le DNS ne résout pas openwhispr.com — un bloqueur de publicités ou un filtre le bloque peut-être.",
         "refused": "La connexion a été refusée — probablement un pare-feu ou un VPN.",
@@ -617,13 +617,13 @@
   "controlPanel": {
     "updateRequiredByOrg": {
       "title": "Mise à jour requise",
-      "description": "Votre organisation exige RT0Wisper {{version}} ou une version plus récente. Veuillez mettre à jour l'application."
+      "description": "Votre organisation exige only-whispers {{version}} ou une version plus récente. Veuillez mettre à jour l'application."
     },
     "update": {
       "readyTitle": "Mise à jour prête à installer",
       "readyDescription": "Cliquez sur « Installer la mise à jour » pour redémarrer avec la dernière version.",
       "installTitle": "Installer la mise à jour",
-      "installDescription": "RT0Wisper va redémarrer pour appliquer la mise à jour. Le travail en cours sera sauvegardé.",
+      "installDescription": "only-whispers va redémarrer pour appliquer la mise à jour. Le travail en cours sera sauvegardé.",
       "couldNotInstallTitle": "Impossible d'installer la mise à jour",
       "couldNotInstallDescription": "Une erreur est survenue. Veuillez réessayer.",
       "couldNotDownloadTitle": "Impossible de télécharger la mise à jour",
@@ -638,7 +638,7 @@
     },
     "accessibilityMissing": {
       "title": "Autorisations d'accessibilité nécessaires",
-      "description": "Nous avons détecté qu'RT0Wisper a besoin des autorisations d'accessibilité pour fonctionner correctement. Veuillez les activer ci-dessous."
+      "description": "Nous avons détecté qu'only-whispers a besoin des autorisations d'accessibilité pour fonctionner correctement. Veuillez les activer ci-dessous."
     },
     "billing": {
       "pastDueTitle": "Nous n'avons pas pu traiter votre paiement",
@@ -736,7 +736,7 @@
     },
     "cloudNudge": {
       "title": "Vous êtes connecté",
-      "description": "La dictée utilise toujours votre propre configuration. Vous pouvez passer à RT0Wisper Cloud à tout moment.",
+      "description": "La dictée utilise toujours votre propre configuration. Vous pouvez passer à only-whispers Cloud à tout moment.",
       "action": "Ouvrir les Réglages"
     }
   },
@@ -848,7 +848,7 @@
           "modelNotFound": "AWS Bedrock n’a pas trouvé le modèle sélectionné dans la région {{region}}. Vérifiez l’ID du modèle et sa disponibilité dans cette région.",
           "configurationRejected": "AWS Bedrock a refusé la configuration du modèle pour la région {{region}}. Vérifiez l’ID du modèle, le profil d’inférence et la région.",
           "notConfigured": "AWS Bedrock n’est pas configuré correctement. Vérifiez la région et les identifiants AWS.",
-          "serviceUnavailable": "AWS Bedrock est temporairement indisponible en raison d’une forte demande. Il s’agit d’un problème du service AWS, et non d’une panne d’RT0Wisper. Réessayez dans quelques minutes.",
+          "serviceUnavailable": "AWS Bedrock est temporairement indisponible en raison d’une forte demande. Il s’agit d’un problème du service AWS, et non d’une panne d’only-whispers. Réessayez dans quelques minutes.",
           "throttled": "AWS Bedrock limite temporairement les requêtes car il en reçoit trop. Patientez un instant et réessayez. Si le problème persiste, demandez à votre administrateur AWS de vérifier l’utilisation et les quotas Bedrock.",
           "timeout": "AWS Bedrock n’a pas répondu à temps. Réessayez. Si le problème persiste, vérifiez votre connexion Internet et l’état du service AWS Bedrock.",
           "network": "AWS Bedrock est inaccessible. Vérifiez votre connexion Internet et réessayez.",
@@ -933,7 +933,7 @@
   },
   "hooks": {
     "audioRecording": {
-      "cleanupSignedOut": "Le nettoyage IA utilise RT0Wisper Cloud, mais vous n'êtes pas connecté.",
+      "cleanupSignedOut": "Le nettoyage IA utilise only-whispers Cloud, mais vous n'êtes pas connecté.",
       "cleanupUnconfigured": "Le nettoyage IA est activé, mais aucun modèle de nettoyage n'est configuré.",
       "errorTitles": {
         "sessionExpired": "Session expirée",
@@ -968,7 +968,7 @@
         "description": "Une partie de l'enregistrement n'a pas pu être transcrite."
       },
       "errorDescriptions": {
-        "sessionExpired": "Votre session RT0Wisper Cloud est indisponible. Reconnectez-vous depuis Paramètres.",
+        "sessionExpired": "Votre session only-whispers Cloud est indisponible. Reconnectez-vous depuis Paramètres.",
         "offline": "Vous êtes hors ligne. La transcription cloud nécessite une connexion Internet.",
         "dailyLimitReached": "Vous avez atteint votre limite de transcription du jour. Réessayez demain ou améliorez votre forfait.",
         "providerRateLimited": "Votre fournisseur de transcription a limité la requête. Patientez un instant et réessayez.",
@@ -1005,22 +1005,22 @@
         "notAppliedTitle": "Modification de la sélection non appliquée",
         "changed": "Le texte sélectionné ou l’application cible a changé pendant le traitement. Rien n’a été remplacé.",
         "expired": "La modification a expiré. Sélectionnez de nouveau le texte et réessayez.",
-        "pasteFailed": "RT0Wisper a généré la modification, mais n’a pas pu remplacer le texte sélectionné.",
-        "modifiersHeld": "RT0Wisper a généré la modification, mais une touche de modification (comme Ctrl ou Maj) était encore enfoncée, elle n'a donc pas été appliquée. La modification est dans le presse-papiers.",
-        "modifiersHeldClipboardFailed": "RT0Wisper a généré la modification, mais une touche de modification (comme Ctrl ou Maj) était encore enfoncée, elle n'a donc pas été appliquée, et elle n'a pas pu être copiée dans le presse-papiers non plus.",
-        "unavailable": "RT0Wisper n’a pas pu lire la sélection en toute sécurité. Vérifiez les autorisations d’accessibilité ou d’automatisation.",
+        "pasteFailed": "only-whispers a généré la modification, mais n’a pas pu remplacer le texte sélectionné.",
+        "modifiersHeld": "only-whispers a généré la modification, mais une touche de modification (comme Ctrl ou Maj) était encore enfoncée, elle n'a donc pas été appliquée. La modification est dans le presse-papiers.",
+        "modifiersHeldClipboardFailed": "only-whispers a généré la modification, mais une touche de modification (comme Ctrl ou Maj) était encore enfoncée, elle n'a donc pas été appliquée, et elle n'a pas pu être copiée dans le presse-papiers non plus.",
+        "unavailable": "only-whispers n’a pas pu lire la sélection en toute sécurité. Vérifiez les autorisations d’accessibilité ou d’automatisation.",
         "tooLarge": "La sélection est trop grande. Sélectionnez au maximum 6 000 caractères.",
         "reasoningFailed": "L’IA n’a pas pu terminer la modification. Le texte d’origine n’a pas été modifié.",
         "invalidResponse": "L’IA a renvoyé une réponse de modification invalide. Rien n’a été remplacé. Sélectionnez le texte et réessayez.",
         "emptyResponse": "L’IA a renvoyé une modification vide. Rien n’a été remplacé. Essayez une instruction plus précise.",
         "truncatedResponse": "L’IA s’est arrêtée avant de terminer la modification. Rien n’a été remplacé. Essayez de sélectionner moins de texte.",
-        "wlCopyMissing": "RT0Wisper a généré la modification, mais sur ce bureau les applications Wayland ne peuvent lire le texte collé que via wl-copy. Installez wl-clipboard pour appliquer les modifications.",
-        "wlCopyFailed": "RT0Wisper a généré la modification, mais wl-copy n'a pas pu la copier pour les applications Wayland, elle n'a donc pas été appliquée."
+        "wlCopyMissing": "only-whispers a généré la modification, mais sur ce bureau les applications Wayland ne peuvent lire le texte collé que via wl-copy. Installez wl-clipboard pour appliquer les modifications.",
+        "wlCopyFailed": "only-whispers a généré la modification, mais wl-copy n'a pas pu la copier pour les applications Wayland, elle n'a donc pas été appliquée."
       },
       "pastePermission": {
         "title": "Autoriser le collage automatique",
-        "description": "Activez RT0Wisper dans Réglages Système → Confidentialité et sécurité → Accessibilité.",
-        "settingsFailed": "Impossible d’ouvrir les réglages. Ouvrez Réglages Système → Confidentialité et sécurité → Accessibilité et activez RT0Wisper.",
+        "description": "Activez only-whispers dans Réglages Système → Confidentialité et sécurité → Accessibilité.",
+        "settingsFailed": "Impossible d’ouvrir les réglages. Ouvrez Réglages Système → Confidentialité et sécurité → Accessibilité et activez only-whispers.",
         "manualPaste": "Copiez votre texte ci-dessous, puis appuyez sur {{shortcut}} pour le coller.",
         "openSettings": "Ouvrir les réglages",
         "copyToClipboard": "Copier le texte",
@@ -1029,7 +1029,7 @@
       "pasteFailed": {
         "title": "Collage automatique impossible"
       },
-      "interruptedRecordingRecovered": "Récupérée après la fermeture d'RT0Wisper avant la fin de cette dictée.",
+      "interruptedRecordingRecovered": "Récupérée après la fermeture d'only-whispers avant la fin de cette dictée.",
       "waylandClipboard": {
         "title": "Transcription non collée",
         "wlCopyMissing": "Sur ce bureau, les applications Wayland ne peuvent lire le texte collé que via wl-copy. Installez wl-clipboard pour coller vos dictées.",
@@ -1106,7 +1106,7 @@
       "micErrors": {
         "accessFailed": "L'accès au microphone a échoué. Veuillez réessayer.",
         "noMicrophones": "Aucun micro détecté. Connectez ou sélectionnez un micro dans {{settingsPath}}.",
-        "permissionDenied": "Autorisation refusée. Ouvrez {{privacyPath}} et autorisez RT0Wisper.",
+        "permissionDenied": "Autorisation refusée. Ouvrez {{privacyPath}} et autorisez only-whispers.",
         "couldNotStart": "Impossible de démarrer le micro sélectionné. Choisissez une entrée dans {{settingsPath}} puis relancez le test.",
         "noActiveInput": "Aucune entrée audio active trouvée. Choisissez un micro dans {{settingsPath}}.",
         "unknown": "Accès au micro échoué : {{error}}. Choisissez un autre appareil et réessayez.",
@@ -1135,8 +1135,8 @@
         "accessibilityNeeded": "Accordez les permissions d'accessibilité dans les paramètres système pour activer le collage automatique.",
         "windowsReady": "Windows ne demande pas de permissions spéciales pour le collage automatique. Tout est prêt !",
         "linuxReadyWithMethod": "Le collage automatique est disponible via {{method}}. Tout est prêt !",
-        "waylandClipboardMode": "Le collage automatique n'est pas disponible dans cette session Wayland. RT0Wisper copiera le texte dans le presse-papiers et vous pourrez coller avec Ctrl+V.",
-        "optionalPasteTool": "Pour le collage automatique, installez {{tool}} :\n\n{{installCmd}}{{waylandNote}}\n\nSans cela, vous pouvez quand même utiliser RT0Wisper : le texte sera copié dans le presse-papiers et vous pourrez coller avec Ctrl+V."
+        "waylandClipboardMode": "Le collage automatique n'est pas disponible dans cette session Wayland. only-whispers copiera le texte dans le presse-papiers et vous pourrez coller avec Ctrl+V.",
+        "optionalPasteTool": "Pour le collage automatique, installez {{tool}} :\n\n{{installCmd}}{{waylandNote}}\n\nSans cela, vous pouvez quand même utiliser only-whispers : le texte sera copié dans le presse-papiers et vous pourrez coller avec Ctrl+V."
       },
       "alerts": {
         "accessibilityNeeded": "Permissions d'accessibilité requises ! Veuillez les accorder dans les paramètres système."
@@ -1149,7 +1149,7 @@
         "defaultPasteTool": "xdotool",
         "xdotoolXwayland": "xdotool (apps XWayland)"
       },
-      "accessibilityTestText": "Test d'accessibilité RT0Wisper",
+      "accessibilityTestText": "Test d'accessibilité only-whispers",
       "warning": {
         "messages": {
           "macos": "Vérifiez les réglages Son pour choisir votre périphérique d'entrée",
@@ -1226,7 +1226,7 @@
       "emailRequired": "Saisissez votre e-mail professionnel pour utiliser le SSO.",
       "failed": "Échec de l’authentification unique. Veuillez réessayer.",
       "companySignInTitle": "Utiliser la connexion de votre entreprise",
-      "requiredDescription": "{{domain}} exige le SSO pour RT0Wisper.",
+      "requiredDescription": "{{domain}} exige le SSO pour only-whispers.",
       "availableDescription": "Votre compte {{domain}} est prêt pour le SSO de l'entreprise.",
       "useEmailInstead": "Utiliser plutôt l'e-mail et le mot de passe"
     },
@@ -1238,7 +1238,7 @@
       "protocolUnavailable": "Connexion par navigateur indisponible — réenregistrez le protocole openwhispr:// dans les paramètres Applications par défaut du système."
     },
     "welcomeSubtitle": "Le pouvoir de votre voix. À vos conditions.",
-    "welcomeTitle": "Bienvenue sur RT0Wisper",
+    "welcomeTitle": "Bienvenue sur only-whispers",
     "sessionExpired": "Session expirée. Veuillez relancer le processus d'inscription."
   },
   "calendar": {
@@ -1280,7 +1280,7 @@
     "systemAudioRequired": "L'autorisation Audio Système est nécessaire pour capturer l'audio des autres participants.",
     "openSettings": "Ouvrir les Réglages Système",
     "connectCalendar": "Connectez votre calendrier",
-    "connectCalendarDescription": "Consultez vos réunions et rejoignez-les sans quitter RT0Wisper.",
+    "connectCalendarDescription": "Consultez vos réunions et rejoignez-les sans quitter only-whispers.",
     "connectCalendarButton": "Connecter le calendrier"
   },
   "cleanupPrompt": "Correction",
@@ -1351,7 +1351,7 @@
   },
   "apiKeysSection": {
     "title": "Clés API",
-    "description": "Créez des clés pour accéder à l'API RT0Wisper de manière programmatique.",
+    "description": "Créez des clés pour accéder à l'API only-whispers de manière programmatique.",
     "empty": "Aucune clé API pour le moment",
     "createButton": "Créer une clé API",
     "create": {
@@ -1556,15 +1556,15 @@
     "recheckChecking": "Vérification...",
     "title": "Collage automatique",
     "usingMethodPrefix": "Utilisation de",
-    "waylandClipboardDescription": "Le collage automatique n'est pas disponible dans cette session Wayland. RT0Wisper copiera le texte dans le presse-papiers et vous pourrez coller manuellement avec Ctrl+V.",
+    "waylandClipboardDescription": "Le collage automatique n'est pas disponible dans cette session Wayland. only-whispers copiera le texte dans le presse-papiers et vous pourrez coller manuellement avec Ctrl+V.",
     "waylandClipboardTitle": "Mode presse-papiers sur Wayland",
     "windowsReady": "Windows prend en charge le collage automatique nativement. Aucune configuration requise !",
-    "withoutToolPrefix": "Sans cet outil, RT0Wisper copiera le texte dans le presse-papiers. Vous pourrez ensuite coller manuellement avec Ctrl+V.",
+    "withoutToolPrefix": "Sans cet outil, only-whispers copiera le texte dans le presse-papiers. Vous pourrez ensuite coller manuellement avec Ctrl+V.",
     "wtypeCosmicTerminalsDescription": "Sous COSMIC, les terminaux comme Warp ne reçoivent le texte collé que via wtype. Les autres applications collent déjà sans lui.",
     "wtypeFallbackDescription": "wtype est la méthode de collage automatique recommandée pour ce compositeur wlroots. Une solution de repli est disponible, mais elle peut être moins fiable.",
     "xwaylandAppsOnly": "le collage automatique fonctionne uniquement pour les apps XWayland",
     "wlClipboardTitle": "Installez wl-clipboard pour coller dans les applications Wayland",
-    "wlClipboardDescription": "Sur ce bureau, les applications Wayland ne peuvent lire le texte copié par RT0Wisper que via wl-copy. Pour y coller votre dictée, installez wl-clipboard :"
+    "wlClipboardDescription": "Sur ce bureau, les applications Wayland ne peuvent lire le texte copié par only-whispers que via wl-copy. Pour y coller votre dictée, installez wl-clipboard :"
   },
   "promptStudio": {
     "common": {
@@ -1613,7 +1613,7 @@
       "none": "Aucun",
       "outputLabel": "Sortie",
       "processing": "Traitement...",
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "providerLabel": "Fournisseur",
       "run": "Lancer le test",
       "customEndpoint": "Endpoint personnalisé",
@@ -1946,10 +1946,10 @@
         "title": "Nous n'avons pas pu traiter votre paiement"
       },
       "planDescriptions": {
-        "freeUsage": "{{used}} / {{limit}} mots sur RT0Wisper Cloud cette semaine",
+        "freeUsage": "{{used}} / {{limit}} mots sur only-whispers Cloud cette semaine",
         "byokUnlimited": "Vos propres clés API et les modèles locaux restent utilisables sans limite.",
         "nextBilling": "Prochaine facturation : {{date}}",
-        "pastDue": "{{used}} / {{limit}} mots sur RT0Wisper Cloud cette semaine - mettez à jour le paiement pour restaurer Pro",
+        "pastDue": "{{used}} / {{limit}} mots sur only-whispers Cloud cette semaine - mettez à jour le paiement pour restaurer Pro",
         "trial": "{{days}} jours restants - transcriptions illimitées",
         "unlimited": "Illimité",
         "accessUntil": "Accès jusqu'au {{date}}",
@@ -1969,7 +1969,7 @@
           "price": "$0",
           "period": "pour toujours",
           "features": [
-            "## RT0Wisper Cloud",
+            "## only-whispers Cloud",
             "2 000 mots/semaine de transcription",
             "5 heures d'enregistrements de réunions/mois",
             "## Toujours gratuit",
@@ -2067,7 +2067,7 @@
       "title": "Compte",
       "toasts": {
         "approachingLimit": {
-          "description": "Vous avez utilisé {{used}} mots sur {{limit}} dans RT0Wisper Cloud cette semaine. Passez à Pro pour une utilisation illimitée.",
+          "description": "Vous avez utilisé {{used}} mots sur {{limit}} dans only-whispers Cloud cette semaine. Passez à Pro pour une utilisation illimitée.",
           "title": "Limite de mots cloud bientôt atteinte"
         }
       },
@@ -2087,7 +2087,7 @@
         "button": "Supprimer mon compte",
         "deleting": "Suppression...",
         "title": "Supprimer votre compte ?",
-        "description": "Cela supprime définitivement votre compte RT0Wisper et vos données personnelles. Le contenu des espaces de travail et les données des autres utilisateurs locaux restent sur cet appareil.",
+        "description": "Cela supprime définitivement votre compte only-whispers et vos données personnelles. Le contenu des espaces de travail et les données des autres utilisateurs locaux restent sur cet appareil.",
         "confirmText": "Supprimer le compte",
         "eraseDeviceLabel": "Effacer aussi toutes les données de cet appareil",
         "eraseDeviceDescription": "Supprime les notes et caches d’espaces de tous les utilisateurs locaux, les modèles téléchargés, paramètres, calendriers, identifiants et enregistrements.",
@@ -2165,7 +2165,7 @@
       "enableTextCleanup": "Activer la correction de texte",
       "enableTextCleanupDescription": "L'IA supprime les mots de remplissage, corrige la grammaire et la ponctuation",
       "modes": {
-        "openwhispr": "RT0Wisper Cloud",
+        "openwhispr": "only-whispers Cloud",
         "providers": "Apportez votre propre clé",
         "local": "Local",
         "selfHosted": "Auto-hébergé",
@@ -2176,13 +2176,13 @@
         "selfHostedDesc": "Votre serveur sur votre réseau.",
         "enterpriseDesc": "Utilisez le compte cloud de votre organisation (AWS, Azure, GCP)."
       },
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "openwhisprCloudDescription": "Résultats fiables. Aucune configuration requise.",
       "title": "Amélioration du texte par IA",
       "toasts": {
         "switchedCloud": {
-          "description": "L'amélioration de texte utilisera le service cloud RT0Wisper.",
-          "title": "Basculé vers RT0Wisper Cloud"
+          "description": "L'amélioration de texte utilisera le service cloud only-whispers.",
+          "title": "Basculé vers only-whispers Cloud"
         },
         "switchedCustom": {
           "description": "Configurez votre propre fournisseur et clé API.",
@@ -2270,7 +2270,7 @@
       "appearance": {
         "auto": "Auto",
         "dark": "Sombre",
-        "description": "Contrôlez l'apparence d'RT0Wisper",
+        "description": "Contrôlez l'apparence d'only-whispers",
         "light": "Clair",
         "theme": "Thème",
         "themeDescription": "Choisissez clair, sombre ou suivre le système",
@@ -2298,8 +2298,8 @@
         "linuxPttSetupDescription": "Votre utilisateur a besoin d'accéder aux périphériques de saisie clavier.",
         "linuxPttSetupNote": "Après avoir exécuté la commande, déconnectez-vous et reconnectez-vous.",
         "hyprlandConfigWriteWarningTitle": "Les raccourcis Hyprland ne seront pas conservés",
-        "hyprlandConfigWriteWarningDescription": "RT0Wisper ne peut pas écrire dans {{path}} ; les raccourcis ne survivront donc pas à un rechargement de la configuration Hyprland. Vérifiez que le fichier existe et qu'il est accessible en écriture.",
-        "hyprlandUnbindDescription": "Sous Hyprland, RT0Wisper réserve le raccourci sélectionné. Tout raccourci Hyprland existant utilisant la même combinaison de touches sera supprimé quand RT0Wisper enregistrera son raccourci."
+        "hyprlandConfigWriteWarningDescription": "only-whispers ne peut pas écrire dans {{path}} ; les raccourcis ne survivront donc pas à un rechargement de la configuration Hyprland. Vérifiez que le fichier existe et qu'il est accessible en écriture.",
+        "hyprlandUnbindDescription": "Sous Hyprland, only-whispers réserve le raccourci sélectionné. Tout raccourci Hyprland existant utilisant la même combinaison de touches sera supprimé quand only-whispers enregistrera son raccourci."
       },
       "meetingHotkey": {
         "title": "Raccourci mode réunion",
@@ -2327,7 +2327,7 @@
       },
       "notifications": {
         "title": "Notifications",
-        "description": "Choisissez les notifications qu'RT0Wisper peut afficher",
+        "description": "Choisissez les notifications qu'only-whispers peut afficher",
         "disableAll": "Désactiver toutes les notifications",
         "disableAllDescription": "Tout couper sauf les messages d'erreur",
         "meetingDetection": "Détection de réunion",
@@ -2344,14 +2344,14 @@
       },
       "startup": {
         "launchAtLogin": "Lancer au démarrage",
-        "launchAtLoginDescription": "Lancer RT0Wisper en arrière-plan à l'ouverture de session",
+        "launchAtLoginDescription": "Lancer only-whispers en arrière-plan à l'ouverture de session",
         "title": "Démarrage",
-        "description": "Contrôlez le comportement d'RT0Wisper au lancement",
+        "description": "Contrôlez le comportement d'only-whispers au lancement",
         "startMinimized": "Démarrer réduit",
         "startMinimizedDescription": "Lancer sans afficher la fenêtre du panneau de contrôle",
         "needsApproval": {
           "title": "Autorisation requise dans Réglages Système",
-          "description": "macOS a enregistré RT0Wisper comme élément d'ouverture, mais attend que vous l'autorisiez dans Éléments d'ouverture.",
+          "description": "macOS a enregistré only-whispers comme élément d'ouverture, mais attend que vous l'autorisiez dans Éléments d'ouverture.",
           "action": "Ouvrir Éléments d'ouverture"
         }
       },
@@ -2403,7 +2403,7 @@
           "group": {
             "step1Title": "Ajouter votre utilisateur au groupe input",
             "step2Title": "Se déconnecter et se reconnecter",
-            "step2Desc": "Les modifications de groupe ne prennent effet qu'après une nouvelle session. Déconnectez-vous de votre bureau, reconnectez-vous et rouvrez RT0Wisper."
+            "step2Desc": "Les modifications de groupe ne prennent effet qu'après une nouvelle session. Déconnectez-vous de votre bureau, reconnectez-vous et rouvrez only-whispers."
           },
           "service": {
             "step1Title": "Créer le répertoire du service",
@@ -2427,7 +2427,7 @@
           "manualTitle": "Ajoutez ceci à votre configuration",
           "manualDesc": "Configurez-le vous-même, puis reconstruisez.",
           "flakeTitle": "Vous installez via notre flake ?",
-          "flakeDesc": "Si vous installez RT0Wisper depuis le flake, programs.openwhispr.enable active ydotool, le module uinput et les appartenances aux groupes pour vous.",
+          "flakeDesc": "Si vous installez only-whispers depuis le flake, programs.openwhispr.enable active ydotool, le module uinput et les appartenances aux groupes pour vous.",
           "rebuildNote": "Exécutez sudo nixos-rebuild switch, puis déconnectez-vous et reconnectez-vous pour que le changement de groupe et la règle /dev/uinput prennent effet. Remplacez <you> par votre nom d'utilisateur."
         },
         "wlCopyDesc": "Outil de presse-papiers dans lequel les applications Wayland lisent le texte collé sur ce bureau"
@@ -2463,7 +2463,7 @@
           },
           "installUpdate": {
             "confirmText": "Installer et redémarrer",
-            "description": "RT0Wisper va redémarrer pour appliquer la mise à jour.",
+            "description": "only-whispers va redémarrer pour appliquer la mise à jour.",
             "title": "Installer la mise à jour"
           },
           "noUpdates": {
@@ -2495,13 +2495,13 @@
     "permissions": {
       "accessibilityDescription": "Requis pour que le collage automatique fonctionne après la transcription",
       "accessibilityTitle": "Accessibilité",
-      "description": "Testez et gérez les permissions système requises pour le bon fonctionnement d'RT0Wisper",
+      "description": "Testez et gérez les permissions système requises pour le bon fonctionnement d'only-whispers",
       "microphoneDescription": "Capture votre voix pour la dictée et la transcription",
       "microphoneTitle": "Microphone",
       "resetAccessibility": {
-        "description": "Cela supprimera RT0Wisper des permissions d'accessibilité. Vous devrez accorder l'accès à nouveau dans Paramètres système > Confidentialité et sécurité > Accessibilité.",
+        "description": "Cela supprimera only-whispers des permissions d'accessibilité. Vous devrez accorder l'accès à nouveau dans Paramètres système > Confidentialité et sécurité > Accessibilité.",
         "label": "Réinitialiser les permissions d'accessibilité",
-        "rowDescription": "Corrigez les problèmes après une réinstallation ou une recompilation en supprimant puis en rajoutant RT0Wisper dans les paramètres système",
+        "rowDescription": "Corrigez les problèmes après une réinstallation ou une recompilation en supprimant puis en rajoutant only-whispers dans les paramètres système",
         "title": "Réinitialiser les permissions d'accessibilité"
       },
       "optional": "Facultatif",
@@ -2530,7 +2530,7 @@
       "leaderboardRequiresAccount": "Connectez-vous pour gérer votre participation aux classements.",
       "leaderboardRequiresHistory": "Activez la conservation des données avant de rejoindre les classements.",
       "usageAnalytics": "Analyse d'utilisation",
-      "usageAnalyticsDescription": "Aidez-nous à améliorer RT0Wisper en partageant des métriques de performance anonymes. Nous n'envoyons jamais le contenu de vos transcriptions — uniquement des données de performance et d'erreurs.",
+      "usageAnalyticsDescription": "Aidez-nous à améliorer only-whispers en partageant des métriques de performance anonymes. Nous n'envoyons jamais le contenu de vos transcriptions — uniquement des données de performance et d'erreurs.",
       "audioRetention": "Conservation de l'audio",
       "audioRetentionDescription": "Stocke l'audio de dictée localement pour la retranscription et le téléchargement. Les fichiers sont automatiquement supprimés après la période de conservation. L'audio des réunions n'est jamais stocké.",
       "audioRetentionDisabled": "Désactivé",
@@ -2586,9 +2586,9 @@
     "transcription": {
       "customSetup": "Configuration personnalisée",
       "customSetupDescription": "Utilisez votre propre fournisseur et clé API.",
-      "description": "Choisissez comment RT0Wisper transcrit votre voix",
+      "description": "Choisissez comment only-whispers transcrit votre voix",
       "modes": {
-        "openwhispr": "RT0Wisper Cloud",
+        "openwhispr": "only-whispers Cloud",
         "providers": "Fournisseurs cloud",
         "local": "Local",
         "selfHosted": "Auto-hébergé",
@@ -2599,13 +2599,13 @@
         "enterprise": "Cloud d'entreprise",
         "enterpriseDesc": "L'audio est envoyé vers le cloud de votre organisation."
       },
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "openwhisprCloudDescription": "Résultats fiables. Aucune configuration requise.",
       "title": "Reconnaissance vocale",
       "toasts": {
         "switchedCloud": {
-          "description": "La transcription utilisera le service cloud RT0Wisper.",
-          "title": "Basculé vers RT0Wisper Cloud"
+          "description": "La transcription utilisera le service cloud only-whispers.",
+          "title": "Basculé vers only-whispers Cloud"
         },
         "switchedCustom": {
           "description": "Configurez votre propre fournisseur et clé API.",
@@ -2691,7 +2691,7 @@
         }
       },
       "meetingEnterpriseOnly": "Votre organisation n'autorise que la transcription cloud d'entreprise, qui ne couvre pas encore l'enregistrement des réunions.",
-      "meetingCloudSignedOut": "Les enregistrements de notes ne peuvent pas démarrer avec RT0Wisper Cloud tant que vous êtes déconnecté. Choisissez un autre moteur ci-dessus."
+      "meetingCloudSignedOut": "Les enregistrements de notes ne peuvent pas démarrer avec only-whispers Cloud tant que vous êtes déconnecté. Choisissez un autre moteur ci-dessus."
     },
     "intelligence": {
       "gpuDevice": {
@@ -2958,7 +2958,7 @@
       "emptyStrip_one": "{{count}} coéquipier n'a pas encore rejoint le classement. Le classement commencera ensuite.",
       "emptyStrip_other": "{{count}} coéquipiers n'ont pas encore rejoint le classement. Le classement commencera ensuite.",
       "copyNudge": "Copier un rappel",
-      "nudgeText": "Rejoignez le classement dans RT0Wisper → Insights pour que nous puissions voir le classement de l'équipe.",
+      "nudgeText": "Rejoignez le classement dans only-whispers → Insights pour que nous puissions voir le classement de l'équipe.",
       "nudgeCopied": "Rappel copié",
       "nudgeCopyError": "Impossible de copier le rappel",
       "joinTitle": "Découvrez votre classement dans {{scope}}",
@@ -2994,7 +2994,7 @@
         "desktop_words": "Mots sur ordinateur",
         "mobile_words": "Mots sur mobile"
       },
-      "shareText": "Découvrez mon classement sur RT0Wisper.",
+      "shareText": "Découvrez mon classement sur only-whispers.",
       "shareTitle": "Partager le classement",
       "shareDescription": "Copiez ou téléchargez cette carte, ou copiez-la avant d’ouvrir un éditeur de publication.",
       "copyImage": "Copier l’image",
@@ -3078,7 +3078,7 @@
     },
     "join": {
       "title": "Rejoignez votre équipe",
-      "domainTitle": "Votre équipe est déjà sur RT0Wisper",
+      "domainTitle": "Votre équipe est déjà sur only-whispers",
       "description": "Ces espaces de travail comptent quelqu'un de votre domaine e-mail.",
       "invitedDescription": "Vous avez été invité à un espace de travail.",
       "invitedBy": "Invité par {{inviter}} en tant que {{role}}",
@@ -3204,7 +3204,7 @@
     },
     "tryAgain": "Réessayer",
     "card": {
-      "brand": "RT0Wisper",
+      "brand": "only-whispers",
       "signalId": "Signal ID",
       "audioSignature": "Votre signature audio",
       "stop": "Arrêter",
@@ -3351,7 +3351,7 @@
     },
     "structureIntro": {
       "title": "Où se trouvent vos notes",
-      "description": "RT0Wisper sépare les idées privées du travail partagé afin que les bonnes personnes voient les bonnes notes.",
+      "description": "only-whispers sépare les idées privées du travail partagé afin que les bonnes personnes voient les bonnes notes.",
       "personal": {
         "title": "Espace personnel",
         "description": "Vous seul pouvez voir les dossiers et les notes qui s'y trouvent."
@@ -3511,7 +3511,7 @@
       "newFolder": "Nouveau dossier",
       "folderName": "Nom du dossier",
       "create": "Créer",
-      "openwhisprCloud": "RT0Wisper Cloud",
+      "openwhisprCloud": "only-whispers Cloud",
       "custom": "Personnalisé",
       "selectFolder": "Sélectionner un dossier",
       "transcriptionFailed": "Échec de la transcription",
@@ -3521,17 +3521,17 @@
       "noProviderDescription": "Ajoutez une clé API ou téléchargez un modèle local pour commencer à transcrire.",
       "noProviderAction": "Ouvrir les paramètres de transcription",
       "fileTooLarge": "Ce fichier dépasse la limite de 500 MB.",
-      "paidPlanRequired": "La transcription cloud pour les fichiers de plus de 25 Mo nécessite un abonnement payant. Les fichiers volumineux sont traités avec RT0Wisper Cloud pour des résultats fiables et de haute qualité.",
+      "paidPlanRequired": "La transcription cloud pour les fichiers de plus de 25 Mo nécessite un abonnement payant. Les fichiers volumineux sont traités avec only-whispers Cloud pour des résultats fiables et de haute qualité.",
       "largeFileNote": "Les fichiers volumineux sont découpés et transcrits en parallèle.",
       "chunkProgress": "Transcription de la partie {{completed}} sur {{total}}...",
       "byokTooLarge": "Les clés API tierces ne prennent en charge que les fichiers jusqu'à {{size}} Mo.",
-      "byokTooLargeDetail": "Pour les fichiers de plus de {{size}} Mo, RT0Wisper Cloud gère le découpage, le traitement parallèle et le réassemblage — pour des résultats fiables sans dépendre des limites des fournisseurs tiers.",
-      "byokTooLargeNeedsAccount": "Créez un compte et passez à un abonnement payant pour transcrire des fichiers plus volumineux avec RT0Wisper Cloud.",
-      "byokTooLargeNeedsUpgrade": "Passez à un abonnement payant pour transcrire des fichiers plus volumineux avec RT0Wisper Cloud.",
-      "switchToCloudForLargeFiles": "Passez à RT0Wisper Cloud pour transcrire ce fichier.",
+      "byokTooLargeDetail": "Pour les fichiers de plus de {{size}} Mo, only-whispers Cloud gère le découpage, le traitement parallèle et le réassemblage — pour des résultats fiables sans dépendre des limites des fournisseurs tiers.",
+      "byokTooLargeNeedsAccount": "Créez un compte et passez à un abonnement payant pour transcrire des fichiers plus volumineux avec only-whispers Cloud.",
+      "byokTooLargeNeedsUpgrade": "Passez à un abonnement payant pour transcrire des fichiers plus volumineux avec only-whispers Cloud.",
+      "switchToCloudForLargeFiles": "Passez à only-whispers Cloud pour transcrire ce fichier.",
       "createAccount": "Créer un compte",
       "upgrade": "Mettre à niveau",
-      "switchToCloud": "RT0Wisper Cloud",
+      "switchToCloud": "only-whispers Cloud",
       "orDivider": "ou",
       "urlPlaceholder": "Collez une URL YouTube ou audio",
       "urlDownloading": "Téléchargement de l'audio...",
@@ -3590,7 +3590,7 @@
       },
       "systemAudioStopped": {
         "title": "Son de la réunion arrêté",
-        "description": "RT0Wisper ne capte plus les autres participants. Arrêtez l'enregistrement puis relancez-le, ou vérifiez votre périphérique de sortie audio."
+        "description": "only-whispers ne capte plus les autres participants. Arrêtez l'enregistrement puis relancez-le, ou vérifiez votre périphérique de sortie audio."
       },
       "systemAudioQuiet": {
         "title": "L'audio de la réunion est devenu silencieux",
@@ -3878,7 +3878,7 @@
     "clearTitle": "Vider le dictionnaire ?",
     "clearDescription": "Cela supprimera tous les mots de votre dictionnaire personnalisé. Cette action est irréversible.",
     "addWord": "Ajouter un mot",
-    "addPlaceholder": "Ajoutez des mots séparés par des virgules — RT0Wisper, Supabase, John Snow, ARR",
+    "addPlaceholder": "Ajoutez des mots séparés par des virgules — only-whispers, Supabase, John Snow, ARR",
     "removeWord": "Supprimer {{word}}",
     "clearAll": "Tout effacer",
     "add": "Ajouter",
@@ -3910,7 +3910,7 @@
       "duplicate": "Un snippet avec ce déclencheur existe déjà",
       "emptyTitle": "Ce que vous ne devriez pas avoir à dire",
       "emptyTitleAccent": "deux fois",
-      "emptyDescription": "Prononcez un mot déclencheur et RT0Wisper le remplace par ce que vous avez enregistré : URL, intros, signatures, prompts.",
+      "emptyDescription": "Prononcez un mot déclencheur et only-whispers le remplace par ce que vous avez enregistré : URL, intros, signatures, prompts.",
       "new": "Nouveau snippet",
       "examples": {
         "linkedinTrigger": "Mon LinkedIn",
@@ -3932,13 +3932,13 @@
     "submitBug": "Signaler un bug"
   },
   "postMigration": {
-    "title": "Bon retour sur RT0Wisper",
+    "title": "Bon retour sur only-whispers",
     "description": "Vos notes et vos paramètres ont été conservés depuis la version précédente. macOS considère toutefois cette installation comme une nouvelle app, il faudra donc accorder à nouveau quelques permissions.",
     "done": "Terminé",
     "remindLater": "Me le rappeler plus tard"
   },
   "rt0Setup": {
-    "title": "Configurer RT0Wisper",
+    "title": "Configurer only-whispers",
     "description": "Maintenez la touche, parlez, et un texte propre apparaît dans n'importe quelle app. Ajoutez deux éléments pour commencer.",
     "mistralKey": "Clé API Mistral (parole en texte)",
     "getMistralKey": "Obtenir une clé dans Mistral admin",
@@ -3962,11 +3962,11 @@
     "ready": "Accélération GPU prête",
     "activating": "Activation du GPU...",
     "activationFailed": "Accélération GPU indisponible",
-    "activationFailedDescription": "RT0Wisper est passé à la transcription par CPU.",
-    "reasoningActivationFailedDescription": "RT0Wisper est passé au traitement par CPU.",
+    "activationFailedDescription": "only-whispers est passé à la transcription par CPU.",
+    "reasoningActivationFailedDescription": "only-whispers est passé au traitement par CPU.",
     "retryActivation": "Réessayer l'accélération GPU",
     "redownloadNeeded": "Le pack GPU doit être retéléchargé",
-    "redownloadNeededDescription": "Cette version d'RT0Wisper ne peut pas utiliser votre pack GPU installé. Retéléchargez-le pour réactiver l'accélération GPU.",
+    "redownloadNeededDescription": "Cette version d'only-whispers ne peut pas utiliser votre pack GPU installé. Retéléchargez-le pour réactiver l'accélération GPU.",
     "redownloadButton": "Retélécharger le pack GPU",
     "downloadFailed": "Impossible de télécharger le pack GPU.",
     "remove": "Supprimer",
@@ -3987,11 +3987,11 @@
       "undo": "Annuler",
       "accessibilityMissing": {
         "title": "Autorisations d'accessibilité requises",
-        "description": "RT0Wisper a besoin des autorisations d'accessibilité pour détecter votre raccourci et coller du texte. Veuillez les activer dans le Panneau de configuration."
+        "description": "only-whispers a besoin des autorisations d'accessibilité pour détecter votre raccourci et coller du texte. Veuillez les activer dans le Panneau de configuration."
       },
       "gpuFallback": {
         "title": "Accélération GPU indisponible",
-        "description": "RT0Wisper est passé à la transcription par CPU.",
+        "description": "only-whispers est passé à la transcription par CPU.",
         "retry": "Réessayer le GPU"
       },
       "gpuPackMigration": {
@@ -4038,7 +4038,7 @@
       "visionModelDescription": "Envoie les commandes incluant une capture vers un autre modèle capable de vision.",
       "permissionTitle": "Enregistrement de l'écran",
       "permissionDescription": "macOS exige l'autorisation d'enregistrement de l'écran pour capturer votre écran.",
-      "relaunchHint": "L'enregistrement d'écran a été autorisé pendant qu'RT0Wisper était en cours d'exécution. Quittez et rouvrez RT0Wisper pour commencer à capturer des captures d'écran."
+      "relaunchHint": "L'enregistrement d'écran a été autorisé pendant qu'only-whispers était en cours d'exécution. Quittez et rouvrez only-whispers pour commencer à capturer des captures d'écran."
     },
     "prompt": {
       "title": "Invite de l'assistant",
@@ -4113,12 +4113,12 @@
       "openNote": "Ouvrir la note",
       "unknownTool": "Outil inconnu : {{name}}",
       "invalidArgs": "Arguments d'outil invalides pour {{name}}",
-      "search_openwhispr_helpName": "Rechercher dans l’aide RT0Wisper",
-      "read_openwhispr_helpName": "Lire l’aide RT0Wisper",
-      "get_openwhispr_contextName": "Lire les paramètres RT0Wisper",
-      "search_openwhispr_helpStatus": "Recherche dans l’aide RT0Wisper...",
-      "read_openwhispr_helpStatus": "Lecture de l’aide RT0Wisper...",
-      "get_openwhispr_contextStatus": "Lecture des paramètres RT0Wisper..."
+      "search_openwhispr_helpName": "Rechercher dans l’aide only-whispers",
+      "read_openwhispr_helpName": "Lire l’aide only-whispers",
+      "get_openwhispr_contextName": "Lire les paramètres only-whispers",
+      "search_openwhispr_helpStatus": "Recherche dans l’aide only-whispers...",
+      "read_openwhispr_helpStatus": "Lecture de l’aide only-whispers...",
+      "get_openwhispr_contextStatus": "Lecture des paramètres only-whispers..."
     }
   },
   "assistant": {
@@ -4158,7 +4158,7 @@
       "disconnectConfirm": "Déconnecter {{email}} ?",
       "disconnectDescription": "Les notes de réunion ne seront plus enregistrées depuis ce calendrier.",
       "systemAudioRequired": "Autorisation Audio Système requise",
-      "systemAudioDescription": "Pour transcrire les réunions, RT0Wisper a besoin de l'autorisation Audio Système pour capturer l'audio des autres participants. Nous n'enregistrons jamais votre écran. Vous serez dirigé vers les Réglages Système pour l'activer.",
+      "systemAudioDescription": "Pour transcrire les réunions, only-whispers a besoin de l'autorisation Audio Système pour capturer l'audio des autres participants. Nous n'enregistrons jamais votre écran. Vous serez dirigé vers les Réglages Système pour l'activer.",
       "openSettings": "Ouvrir les Réglages Système",
       "connectFailed": "Échec de la connexion",
       "connectFailedDescription": "Une erreur s'est produite lors de la connexion à Google Calendar. Veuillez réessayer."
@@ -4186,10 +4186,10 @@
       "disconnectConfirm": "Déconnecter le Calendrier Apple ?",
       "disconnectDescription": "Les notes de réunion ne seront plus enregistrées depuis votre Calendrier Apple.",
       "permissionDenied": "Accès au calendrier requis",
-      "permissionDeniedDescription": "RT0Wisper a besoin d'accéder au calendrier pour détecter les réunions. Activez RT0Wisper dans Réglages Système, sous Confidentialité et sécurité → Calendriers.",
+      "permissionDeniedDescription": "only-whispers a besoin d'accéder au calendrier pour détecter les réunions. Activez only-whispers dans Réglages Système, sous Confidentialité et sécurité → Calendriers.",
       "openSettings": "Ouvrir les Réglages Système",
       "connectFailed": "Échec de la connexion",
-      "connectFailedDescription": "Une erreur s'est produite lors de la connexion à Calendar.app. Redémarrez RT0Wisper et réessayez."
+      "connectFailedDescription": "Une erreur s'est produite lors de la connexion à Calendar.app. Redémarrez only-whispers et réessayez."
     },
     "api": {
       "description": "Gérez les clés API pour un accès programmatique",
@@ -4199,13 +4199,13 @@
     },
     "mcp": {
       "description": "Discutez, recherchez et travaillez avec vos notes dans Claude, ChatGPT et Cursor.",
-      "step1": "Dans votre outil d'IA, ajoutez RT0Wisper MCP avec l'URL publique",
-      "proRequired": "Passez à un plan payant pour connecter RT0Wisper à Claude, ChatGPT et Cursor.",
+      "step1": "Dans votre outil d'IA, ajoutez only-whispers MCP avec l'URL publique",
+      "proRequired": "Passez à un plan payant pour connecter only-whispers à Claude, ChatGPT et Cursor.",
       "worksWith": "Fonctionne avec",
       "copyUrl": "Copier l'URL MCP",
       "copied": "Copié",
       "oauthTitle": "Se connecter avec OAuth",
-      "oauthDescription": "Dans un client compatible OAuth, ajoutez l’URL du serveur, puis connectez-vous à RT0Wisper et autorisez l’accès. Aucune clé API requise.",
+      "oauthDescription": "Dans un client compatible OAuth, ajoutez l’URL du serveur, puis connectez-vous à only-whispers et autorisez l’accès. Aucune clé API requise.",
       "apiKeyTitle": "Utiliser une clé API",
       "apiKeyDescription": "Pour les clients acceptant les en-têtes de requête, créez une clé API personnelle avec les autorisations nécessaires et utilisez l’en-tête ci-dessous."
     },
@@ -4216,7 +4216,7 @@
       "local": {
         "label": "Local",
         "freeBadge": "Gratuit",
-        "description": "Lisez vos notes locales directement. Aucun compte ni clé API — fonctionne tant qu'RT0Wisper est ouvert."
+        "description": "Lisez vos notes locales directement. Aucun compte ni clé API — fonctionne tant qu'only-whispers est ouvert."
       },
       "cloud": {
         "label": "Cloud",
@@ -4236,7 +4236,7 @@
       "upgrade": "Passer au supérieur"
     },
     "notABot": {
-      "description": "RT0Wisper capture l'audio directement depuis votre système — il ne rejoint jamais vos réunions en tant que participant. Connectez simplement votre calendrier et prenez vos notes normalement."
+      "description": "only-whispers capture l'audio directement depuis votre système — il ne rejoint jamais vos réunions en tant que participant. Connectez simplement votre calendrier et prenez vos notes normalement."
     },
     "nav": {
       "label": "Sections des intégrations",
@@ -4291,7 +4291,7 @@
         "reconnect_needed": "Slack doit être reconnecté dans les Paramètres.",
         "connection_changed": "La connexion Slack a changé avant l'envoi, donc rien n'a été envoyé.",
         "rate_limited": "Slack est occupé. Réessayez sous peu.",
-        "missing_scope": "RT0Wisper n'a pas la permission de publier là-bas. Reconnectez Slack dans les Paramètres.",
+        "missing_scope": "only-whispers n'a pas la permission de publier là-bas. Reconnectez Slack dans les Paramètres.",
         "msg_too_long": "Le message est trop long pour Slack (12 000 caractères maximum, une fois formaté).",
         "no_text": "Le message est vide.",
         "network": "Slack est injoignable. Rien n'a été envoyé.",
@@ -4306,9 +4306,9 @@
           "connection_changed": "La connexion GitHub a changé avant la publication, donc rien n'a été publié.",
           "credential_save_failed": "La connexion GitHub n'a pas pu être enregistrée sur cet ordinateur. Rien n'a été publié. Réessayez.",
           "generic": "Un problème est survenu. Rien n'a été publié sur GitHub.",
-          "not_installed": "L'application GitHub RT0Wisper n'est pas installée sur ce dépôt. Ajoutez-la dans les Paramètres. Rien n'a été publié.",
-          "repo_unlisted": "Impossible de confirmer que l'application GitHub RT0Wisper est installée sur ce dépôt. Vérifiez le nom du dépôt. Rien n'a été publié.",
-          "no_repositories": "Aucun dépôt n'est encore choisi pour l'application GitHub RT0Wisper. Choisissez-les dans les Paramètres. Rien n'a été publié.",
+          "not_installed": "L'application GitHub only-whispers n'est pas installée sur ce dépôt. Ajoutez-la dans les Paramètres. Rien n'a été publié.",
+          "repo_unlisted": "Impossible de confirmer que l'application GitHub only-whispers est installée sur ce dépôt. Vérifiez le nom du dépôt. Rien n'a été publié.",
+          "no_repositories": "Aucun dépôt n'est encore choisi pour l'application GitHub only-whispers. Choisissez-les dans les Paramètres. Rien n'a été publié.",
           "forbidden": "Vous n'avez pas l'autorisation de faire cela dans ce dépôt. Rien n'a été publié.",
           "not_found": "L'issue ou la pull request est introuvable. Rien n'a été publié.",
           "issues_disabled": "Les issues sont désactivées dans ce dépôt. Rien n'a été publié.",
@@ -4353,7 +4353,7 @@
           "wrong_workspace": "Ce ticket se trouve dans un autre espace de travail Linear. Rien n'a été envoyé.",
           "invalid_reference": "Ce n'est pas un ticket Linear. Rien n'a été envoyé.",
           "refused": "Linear a refusé la demande. Rien n'a été envoyé.",
-          "unknown_action": "RT0Wisper ne peut pas faire cela dans Linear. Rien n'a été envoyé.",
+          "unknown_action": "only-whispers ne peut pas faire cela dans Linear. Rien n'a été envoyé.",
           "generic": "Un problème est survenu. Rien n'a été envoyé à Linear."
         }
       },
@@ -4451,19 +4451,19 @@
         "oauth_denied": "Slack n'a pas été connecté car l'accès n'a pas été autorisé.",
         "oauth_timeout": "La connexion a pris trop de temps. Réessayez.",
         "oauth_state_mismatch": "Ce lien de connexion était périmé. Réessayez.",
-        "ports_busy": "Une autre application utilise les ports dont RT0Wisper a besoin pour se connecter. Fermez-la et réessayez.",
+        "ports_busy": "Une autre application utilise les ports dont only-whispers a besoin pour se connecter. Fermez-la et réessayez.",
         "token_exchange_failed": "Slack n'a pas terminé la connexion. Réessayez.",
         "not_configured": "Slack n'est pas disponible dans cette version.",
         "connection_changed": "Votre compte ou la connexion Slack a changé pendant la connexion. Réessayez.",
-        "signed_out": "Connectez-vous à RT0Wisper pour connecter Slack.",
+        "signed_out": "Connectez-vous à only-whispers pour connecter Slack.",
         "policy_blocked": "Votre organisation a désactivé les connecteurs.",
         "policy_unavailable": "Impossible de vérifier les paramètres de votre organisation. Réessayez."
       },
       "browser": {
         "connectedTitle": "Slack est connecté",
-        "connectedBody": "Vous pouvez fermer cet onglet et retourner à RT0Wisper.",
+        "connectedBody": "Vous pouvez fermer cet onglet et retourner à only-whispers.",
         "failedTitle": "Slack n'a pas été connecté",
-        "failedBody": "Retournez à RT0Wisper pour réessayer."
+        "failedBody": "Retournez à only-whispers pour réessayer."
       }
     },
     "github": {
@@ -4478,7 +4478,7 @@
       "connectedAs_unknown": "Connecté en tant que {{account}}",
       "needsReconnect": "GitHub doit être reconnecté.",
       "reviewOnGithub": "Vérifier sur GitHub",
-      "disconnectedHint": "Déconnecté de cet ordinateur. GitHub conserve l'autorisation d'RT0Wisper jusqu'à ce que vous la retiriez sur GitHub.",
+      "disconnectedHint": "Déconnecté de cet ordinateur. GitHub conserve l'autorisation d'only-whispers jusqu'à ce que vous la retiriez sur GitHub.",
       "errors": {
         "connect_failed": "Impossible de connecter GitHub. Réessayez.",
         "disconnect_failed": "Impossible de déconnecter GitHub. Réessayez.",
@@ -4486,7 +4486,7 @@
         "token_exchange_failed": "GitHub n'a pas terminé la connexion. Réessayez.",
         "not_configured": "GitHub n'est pas disponible dans cette version.",
         "connection_changed": "Votre compte ou la connexion GitHub a changé pendant la connexion. Réessayez.",
-        "signed_out": "Connectez-vous à RT0Wisper pour connecter GitHub.",
+        "signed_out": "Connectez-vous à only-whispers pour connecter GitHub.",
         "policy_blocked": "Votre organisation a désactivé les connecteurs.",
         "policy_unavailable": "Impossible de vérifier les paramètres de votre organisation. Réessayez.",
         "code_expired": "Le code a expiré. Réessayez.",
@@ -4512,32 +4512,32 @@
       "connect": "Connecter",
       "reconnect": "Reconnecter",
       "disconnect": "Déconnecter",
-      "connecting": "Terminez la connexion dans votre navigateur… Si Google indique que l'accès est bloqué, l'administrateur Google de votre organisation doit autoriser RT0Wisper.",
+      "connecting": "Terminez la connexion dans votre navigateur… Si Google indique que l'accès est bloqué, l'administrateur Google de votre organisation doit autoriser only-whispers.",
       "connectedAs": "Connecté en tant que {{account}}",
       "needsReconnect": "Gmail doit être reconnecté.",
-      "grantKept": "Déconnecté. Google Agenda utilise la même autorisation Google : RT0Wisper reste donc listé dans votre compte Google jusqu'à ce que vous déconnectiez aussi Google Agenda.",
+      "grantKept": "Déconnecté. Google Agenda utilise la même autorisation Google : only-whispers reste donc listé dans votre compte Google jusqu'à ce que vous déconnectiez aussi Google Agenda.",
       "errors": {
         "connect_failed": "Impossible de connecter Gmail. Réessayez.",
         "disconnect_failed": "Impossible de déconnecter Gmail. Réessayez.",
         "oauth_denied": "Gmail n'a pas été connecté car l'accès n'a pas été autorisé.",
-        "oauth_timeout": "La connexion a pris trop de temps. Si Google a indiqué que l'accès est bloqué, demandez à l'administrateur Google de votre organisation d'autoriser RT0Wisper. Sinon, réessayez.",
+        "oauth_timeout": "La connexion a pris trop de temps. Si Google a indiqué que l'accès est bloqué, demandez à l'administrateur Google de votre organisation d'autoriser only-whispers. Sinon, réessayez.",
         "oauth_state_mismatch": "Ce lien de connexion était périmé. Réessayez.",
-        "ports_busy": "Une autre application utilise les ports dont RT0Wisper a besoin pour se connecter. Fermez-la et réessayez.",
+        "ports_busy": "Une autre application utilise les ports dont only-whispers a besoin pour se connecter. Fermez-la et réessayez.",
         "token_exchange_failed": "Google n'a pas terminé la connexion. Réessayez.",
         "not_configured": "Gmail n'est pas disponible dans cette version.",
         "connection_changed": "Votre compte ou la connexion Gmail a changé pendant la connexion. Réessayez.",
-        "signed_out": "Connectez-vous à RT0Wisper pour connecter Gmail.",
+        "signed_out": "Connectez-vous à only-whispers pour connecter Gmail.",
         "policy_blocked": "Votre organisation a désactivé les connecteurs.",
         "policy_unavailable": "Impossible de vérifier les paramètres de votre organisation. Réessayez.",
         "permission_not_granted": "Gmail n'a pas été connecté car l'autorisation d'envoyer des e-mails n'a pas été accordée. Reconnectez-vous en laissant cette autorisation cochée.",
         "email_not_verified": "Google n'a pas vérifié l'adresse e-mail de ce compte, Gmail n'a donc pas été connecté.",
-        "domain_policy": "L'administrateur Google de votre organisation a bloqué cette application. Demandez-lui d'autoriser RT0Wisper."
+        "domain_policy": "L'administrateur Google de votre organisation a bloqué cette application. Demandez-lui d'autoriser only-whispers."
       },
       "browser": {
         "connectedTitle": "Gmail est connecté",
-        "connectedBody": "Vous pouvez fermer cet onglet et retourner à RT0Wisper.",
+        "connectedBody": "Vous pouvez fermer cet onglet et retourner à only-whispers.",
         "failedTitle": "Gmail n'a pas été connecté",
-        "failedBody": "Retournez à RT0Wisper pour réessayer."
+        "failedBody": "Retournez à only-whispers pour réessayer."
       }
     },
     "linear": {
@@ -4555,20 +4555,20 @@
         "oauth_denied": "Linear n'a pas été connecté car l'accès n'a pas été autorisé.",
         "oauth_timeout": "La connexion a pris trop de temps. Réessayez.",
         "oauth_state_mismatch": "Ce lien de connexion était périmé. Réessayez.",
-        "ports_busy": "Une autre application utilise les ports dont RT0Wisper a besoin pour se connecter. Fermez-la et réessayez.",
+        "ports_busy": "Une autre application utilise les ports dont only-whispers a besoin pour se connecter. Fermez-la et réessayez.",
         "token_exchange_failed": "Linear n'a pas terminé la connexion. Réessayez.",
         "not_configured": "Linear n'est pas disponible dans cette version.",
         "connection_changed": "Votre compte ou la connexion Linear a changé pendant la connexion. Réessayez.",
-        "signed_out": "Connectez-vous à RT0Wisper pour connecter Linear.",
+        "signed_out": "Connectez-vous à only-whispers pour connecter Linear.",
         "policy_blocked": "Votre organisation a désactivé les connecteurs.",
         "policy_unavailable": "Impossible de vérifier les paramètres de votre organisation. Réessayez.",
         "permission_not_granted": "Linear n'a pas été connecté car toutes les autorisations n'ont pas été accordées. Reconnectez-vous et autorisez-les toutes."
       },
       "browser": {
         "connectedTitle": "Linear est connecté",
-        "connectedBody": "Vous pouvez fermer cet onglet et retourner à RT0Wisper.",
+        "connectedBody": "Vous pouvez fermer cet onglet et retourner à only-whispers.",
         "failedTitle": "Linear n'a pas été connecté",
-        "failedBody": "Retournez à RT0Wisper pour réessayer."
+        "failedBody": "Retournez à only-whispers pour réessayer."
       },
       "notes": {
         "priority": {
@@ -4648,8 +4648,8 @@
           "connection_changed": "La connexion GitHub a changé.",
           "credential_save_failed": "Impossible d'enregistrer la connexion GitHub sur cet ordinateur.",
           "generic": "Cela n'a pas fonctionné sur GitHub.",
-          "not_installed": "L'application GitHub RT0Wisper n'y est pas installée.",
-          "repo_unlisted": "Impossible de confirmer que l'application GitHub RT0Wisper y est installée.",
+          "not_installed": "L'application GitHub only-whispers n'y est pas installée.",
+          "repo_unlisted": "Impossible de confirmer que l'application GitHub only-whispers y est installée.",
           "no_repositories": "Aucun dépôt GitHub choisi pour l'instant.",
           "forbidden": "Aucune autorisation dans ce dépôt.",
           "not_found": "Issue ou pull request introuvable.",
@@ -4762,7 +4762,7 @@
         "invitationActions": "Actions de l'invitation",
         "resendSent": "Invitation envoyée",
         "resendThrottled": "Invitation envoyée récemment. Réessayez dans une minute.",
-        "syncPrompt": "Le partage conserve une copie de cette note dans votre cloud RT0Wisper. Vous seul pouvez la voir tant que vous n'avez pas choisi avec qui la partager.",
+        "syncPrompt": "Le partage conserve une copie de cette note dans votre cloud only-whispers. Vous seul pouvez la voir tant que vous n'avez pas choisi avec qui la partager.",
         "syncAndShare": "Synchroniser la note",
         "visibility": {
           "label": "Visibilité",
@@ -4824,7 +4824,7 @@
   },
   "permissionsGate": {
     "title": "Autorisations requises",
-    "description": "RT0Wisper a besoin de quelques autorisations pour fonctionner sur cet ordinateur.",
+    "description": "only-whispers a besoin de quelques autorisations pour fonctionner sur cet ordinateur.",
     "continue": "Continuer"
   },
   "embeddedChat": {
@@ -5028,20 +5028,20 @@
       }
     },
     "setup": {
-      "introTitle": "Faites écrire RT0Wisper\ncomme vous parlez",
+      "introTitle": "Faites écrire only-whispers\ncomme vous parlez",
       "introDescription": "Définissez votre ton et votre style selon les apps.",
       "personalize": "Personnaliser",
-      "cleanupOffTitle": "Apprenez votre style\nà RT0Wisper",
+      "cleanupOffTitle": "Apprenez votre style\nà only-whispers",
       "cleanupOffDescription": "Activez la correction de texte, puis définissez votre ton et votre style selon les apps.",
       "stepDescription": "Choisissez l'exemple qui vous ressemble le plus.",
       "progress": "Étape {{current}} sur {{total}}",
       "finish": "Terminer"
     },
     "banner": {
-      "title": "Apprenez à RT0Wisper comment vous écrivez",
+      "title": "Apprenez à only-whispers comment vous écrivez",
       "description": "Choisissez votre ton préféré pour le travail, les amis et tout ce qu'il y a entre les deux.",
       "start": "Commencer",
-      "cleanupOffTitle": "Apprenez votre style à RT0Wisper",
+      "cleanupOffTitle": "Apprenez votre style à only-whispers",
       "cleanupOffDescription": "Activez la correction de texte et choisissez un ton pour chaque app.",
       "notNow": "Pas maintenant",
       "decoration": "Vos mots devraient vous ressembler. Quoi que vous écriviez, pour qui que ce soit."

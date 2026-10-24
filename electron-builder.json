@@ -1,12 +1,12 @@
 {
-  "appId": "com.raythurnvoid.rt0wisper",
+  "appId": "com.raythurnvoid.only-whispers",
   "afterPack": "scripts/afterPack.js",
   "extraMetadata": {
     "windowsTrayIdentity": true
   },
-  "productName": "RT0Wisper",
+  "productName": "only-whispers",
   "protocols": {
-    "name": "RT0Wisper Protocol",
+    "name": "only-whispers Protocol",
     "schemes": ["openwhispr"]
   },
   "directories": {
@@ -240,7 +240,7 @@
     "include": "resources/nsis/installer.nsh"
   },
   "dmg": {
-    "title": "RT0Wisper",
+    "title": "only-whispers",
     "icon": "src/assets/icon.icns",
     "window": {
       "width": 540,
@@ -250,7 +250,7 @@
   "publish": {
     "provider": "github",
     "owner": "raythurnvoid",
-    "repo": "RT0Wisper",
+    "repo": "only-whispers",
     "private": false,
     "releaseType": "draft"
   }
