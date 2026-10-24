@@ -12,7 +12,7 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 - No feature branches and no pull requests.
 - No commit message format. Write a short, simple message.
 - Build or release only when the user asks. Build: `pnpm run build:win`.
-- Release: bump `version` in `package.json`, commit and push, then `$env:GH_TOKEN = gh auth token; vp env exec pnpm run release:win`. It publishes a GitHub release on `raythurnvoid/only-whispers` with the installer and `latest.yml`, which installed apps read to auto-update (`src/updater.js`: checks 3 s after launch and every 4 hours, downloads in the background, installs on quit; the control panel shows a toast to restart now). The build is unsigned for now.
+- Release: bump `version` in `package.json`, commit and push, then `vp env exec pnpm run release:win` (`scripts/release-win.js`: makes a draft release, builds and uploads into it, then publishes it; the token comes from `gh auth token`). It publishes a GitHub release on `raythurnvoid/only-whispers` with the installer and `latest.yml`, which installed apps read to auto-update (`src/updater.js`: checks 3 s after launch and every 4 hours, downloads in the background, installs on quit; the control panel shows a toast to restart now). The build is unsigned for now.
 - Use pnpm only (never npm, npx or bun). Run Node tools through Vite Plus: `vp env exec pnpm ...`.
 
 ## Project Overview

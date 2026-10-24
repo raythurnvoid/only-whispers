@@ -312,7 +312,9 @@ const NUMERIC_SETTINGS = new Set([
   "transcriptRetentionDays",
 ]);
 
-const LANGUAGE_MIGRATIONS: Record<string, string> = { zh: "zh-CN" };
+// Dictation is English only (there is no language picker), so "auto" from an
+// older setup becomes "en": auto detection sometimes heard Italian or German.
+const LANGUAGE_MIGRATIONS: Record<string, string> = { zh: "zh-CN", auto: "en" };
 
 function migratePreferredLanguage() {
   if (!isBrowser) return;
@@ -1326,7 +1328,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   allowOpenAIFallback: readBoolean("allowOpenAIFallback", false),
   allowLocalFallback: readBoolean("allowLocalFallback", false),
   fallbackWhisperModel: readString("fallbackWhisperModel", "base"),
-  preferredLanguage: readString("preferredLanguage", "auto"),
+  preferredLanguage: readString("preferredLanguage", "en"),
   chineseScriptPreference: normalizeChineseScriptPreference(
     readString("chineseScriptPreference", "as-transcribed")
   ),

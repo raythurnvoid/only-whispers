@@ -174,6 +174,30 @@ class WindowManager {
     });
   }
 
+  // Electron shows no right-click menu by default, so text fields get the usual
+  // Cut / Copy / Paste menu. A page that handles right-click itself (and calls
+  // preventDefault) never reaches this event.
+  registerEditContextMenu(window) {
+    window.webContents.on("context-menu", (_event, params) => {
+      let template;
+      if (params.isEditable) {
+        const flags = params.editFlags;
+        template = [
+          { role: "cut", enabled: flags.canCut },
+          { role: "copy", enabled: flags.canCopy },
+          { role: "paste", enabled: flags.canPaste },
+          { type: "separator" },
+          { role: "selectAll", enabled: flags.canSelectAll },
+        ];
+      } else if (params.selectionText?.trim()) {
+        template = [{ role: "copy" }];
+      } else {
+        return;
+      }
+      Menu.buildFromTemplate(template).popup({ window });
+    });
+  }
+
   _updateMainContentProtection() {
     if (!this.mainWindow || this.mainWindow.isDestroyed()) return;
     this.mainWindow.setContentProtection(
@@ -1375,6 +1399,7 @@ class WindowManager {
     this._onboardingWindowState = null;
 
     this.registerExternalLinkHandlers(this.controlPanelWindow, true);
+    this.registerEditContextMenu(this.controlPanelWindow);
 
     // Nothing else shows this window: ready-to-show deliberately doesn't, so the
     // renderer can pick the onboarding size first and avoid a visible
