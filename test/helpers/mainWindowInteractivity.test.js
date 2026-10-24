@@ -4,6 +4,7 @@ const Module = require("node:module");
 const { EventEmitter } = require("node:events");
 let applyInputRegion;
 let focusInputRegion;
+let cursor = { x: 0, y: 0 };
 
 // Load the real WindowManager with the module surface it touches at require
 // time. setMainWindowInteractivity only reads `this.mainWindow`, so the tests
@@ -15,6 +16,7 @@ Module._load = function loadWindowManagerWithStubs(request, parent, isMain) {
       app: { on: () => undefined },
       screen: {
         getPrimaryDisplay: () => ({}),
+        getCursorScreenPoint: () => cursor,
         on: () => undefined,
       },
       BrowserWindow: class {},
@@ -147,42 +149,78 @@ test("Linux reports visibility and restores capture only after a failed shape wr
   }
 });
 
-test("Linux native visibility reports hide, show, minimize and restore to the renderer", () => {
+test("Windows lets clicks through everywhere but the pill", async () => {
   const original = Object.getOwnPropertyDescriptor(process, "platform");
-  Object.defineProperty(process, "platform", { value: "linux", configurable: true });
-  const win = new EventEmitter();
-  let visible = true;
-  let minimized = false;
-  const notifications = [];
-  win.isVisible = () => visible;
-  win.isMinimized = () => minimized;
-  win.webContents = Object.assign(new EventEmitter(), {
-    send: (...args) => notifications.push(args),
-  });
+  Object.defineProperty(process, "platform", { value: "win32", configurable: true });
   try {
-    WindowManager.prototype.registerMainWindowEvents.call({
-      mainWindow: win,
-      enforceMainWindowOnTop: () => {},
-    });
-    win.emit("ready-to-show");
-    visible = false;
-    win.emit("hide");
-    visible = true;
-    win.emit("show");
-    minimized = true;
-    win.emit("minimize");
-    minimized = false;
-    win.emit("restore");
-    assert.deepEqual(notifications, [
-      ["main-window-visibility-changed", false],
-      ["main-window-visibility-changed", true],
-      ["main-window-visibility-changed", false],
-      ["main-window-visibility-changed", true],
+    const win = {
+      ...fakeWindow(),
+      isVisible: () => true,
+      isMinimized: () => false,
+      getContentBounds: () => ({ x: 100, y: 200, width: 300, height: 120 }),
+    };
+    const manager = Object.assign(Object.create(WindowManager.prototype), { mainWindow: win });
+    const pill = { x: 120, y: 40, width: 60, height: 40, viewportWidth: 300, viewportHeight: 120 };
+
+    cursor = { x: 110, y: 210 }; // inside the window, beside the pill
+    assert.equal(await manager.setMainWindowInputRegion(pill), true);
+    cursor = { x: 250, y: 260 }; // on the pill
+    await manager.setMainWindowInputRegion(pill);
+    await manager.setMainWindowInputRegion(pill);
+    cursor = { x: 290, y: 260 }; // just past its right edge
+    await manager.setMainWindowInputRegion(pill);
+    await manager.setMainWindowInputRegion(null); // a menu or panel takes the whole window
+
+    // Repeated samples in the same state change nothing.
+    assert.deepEqual(win.calls, [
+      { ignore: true, options: undefined },
+      INTERACTIVE,
+      { ignore: true, options: undefined },
+      INTERACTIVE,
     ]);
   } finally {
     Object.defineProperty(process, "platform", original);
   }
 });
+
+for (const platform of ["linux", "win32"]) {
+  test(`${platform} native visibility reports hide, show, minimize and restore to the renderer`, () => {
+    const original = Object.getOwnPropertyDescriptor(process, "platform");
+    Object.defineProperty(process, "platform", { value: platform, configurable: true });
+    const win = new EventEmitter();
+    let visible = true;
+    let minimized = false;
+    const notifications = [];
+    win.isVisible = () => visible;
+    win.isMinimized = () => minimized;
+    win.webContents = Object.assign(new EventEmitter(), {
+      send: (...args) => notifications.push(args),
+    });
+    try {
+      WindowManager.prototype.registerMainWindowEvents.call({
+        mainWindow: win,
+        enforceMainWindowOnTop: () => {},
+      });
+      win.emit("ready-to-show");
+      visible = false;
+      win.emit("hide");
+      visible = true;
+      win.emit("show");
+      minimized = true;
+      win.emit("minimize");
+      minimized = false;
+      win.emit("restore");
+      assert.deepEqual(notifications, [
+        ["main-window-visibility-changed", false],
+        ["main-window-visibility-changed", true],
+        ["main-window-visibility-changed", false],
+        ["main-window-visibility-changed", true],
+      ]);
+    } finally {
+      Object.defineProperty(process, "platform", original);
+    }
+  });
+}
 
 test("a failed Linux keyboard focus request settles quietly", async () => {
   const win = { ...fakeWindow(), isVisible: () => true, isMinimized: () => false };

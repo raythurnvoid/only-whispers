@@ -290,7 +290,8 @@ class WindowManager {
     }
 
     if (process.platform === "win32") {
-      // Windows click-through forwarding is unreliable for this floating panel.
+      // Click-through on Windows follows the pill's input region instead
+      // (setMainWindowInputRegion); this only sets the starting state.
       this.mainWindow.setIgnoreMouseEvents(false);
       return;
     }
@@ -327,6 +328,27 @@ class WindowManager {
 
   async setMainWindowInputRegion(region) {
     const win = this.mainWindow;
+    if (process.platform === "win32" && win && !win.isDestroyed()) {
+      // Windows has no input shaping, so each renderer sample checks the cursor
+      // against the pill: only the pill takes clicks, the rest of the window
+      // lets them through. No { forward: true }: that adds a system-wide mouse
+      // hook, and the samples already cover hover.
+      const bounds = win.getContentBounds();
+      const cursor = screen.getCursorScreenPoint();
+      const x = cursor.x - bounds.x;
+      const y = cursor.y - bounds.y;
+      const capture =
+        !region ||
+        (x >= region.x &&
+          x < region.x + region.width &&
+          y >= region.y &&
+          y < region.y + region.height);
+      if (capture !== this._windowsMainWindowCapture) {
+        this._windowsMainWindowCapture = capture;
+        win.setIgnoreMouseEvents(!capture);
+      }
+      return win.isVisible() && !win.isMinimized();
+    }
     if (process.platform !== "linux" || !win || win.isDestroyed()) return false;
     try {
       await this._mainWindowInputRegion().set(region);
@@ -2089,10 +2111,10 @@ class WindowManager {
       return;
     }
 
-    if (process.platform === "linux") {
+    if (process.platform === "linux" || process.platform === "win32") {
       const win = this.mainWindow;
       // backgroundThrottling:false keeps document.visibilityState visible even
-      // after hide(). Native visibility owns the Linux input-region updates.
+      // after hide(). Native visibility owns the input-region updates.
       for (const event of ["show", "hide", "minimize", "restore"]) {
         win.on(event, () => {
           win.webContents.send(
@@ -2101,6 +2123,10 @@ class WindowManager {
           );
         });
       }
+    }
+
+    if (process.platform === "linux") {
+      const win = this.mainWindow;
       // A click never focuses the pill, so returning to an open assistant
       // panel from another app has to take focus again. isFocused() follows X
       // focus, so this misses a compositor that hands the keyboard to a native
