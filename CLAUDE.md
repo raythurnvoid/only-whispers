@@ -597,6 +597,7 @@ Native Windows support for true push-to-talk functionality using low-level keybo
 
 - A press released within 250 ms is a tap. The recording keeps running for 350 ms; a second press in that time locks it, so releases are ignored and the next press stops it. A lone tap is cancelled, not transcribed
 - A locked recording the pill already stopped is dropped on the next press, which then starts a new push. A locked stop never reports `dictation-force-stopped`, since no keys are held
+- Main sends `dictation-push-locked` (true at the lock, false when it ends), and the pill draws a thin ring while a recording runs hands-free (locked, or Tap mode); a held recording keeps the plain pill (`handsFree` on `VoicePill`, styles in `dictation-panel.css`)
 
 ### 13. Custom Dictionary
 

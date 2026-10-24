@@ -616,6 +616,7 @@ declare global {
       onDictationForceStopped?: (
         callback: (payload?: { reason?: "timeout" | "reset" | "manual" }) => void
       ) => () => void;
+      onDictationPushLocked?: (callback: (locked: boolean) => void) => () => void;
       dictationLifecycleStateChanged: (
         state: "idle" | "preparing" | "recording" | "processing",
         inputKind?: "dictation" | "assistant"

@@ -76,6 +76,8 @@ export default function App() {
   const floatingIconAutoHide = useSettingsStore((s) => s.floatingIconAutoHide);
   const panelStartPosition = useSettingsStore((s) => s.panelStartPosition);
   const useCleanupModel = useSettingsStore((s) => s.useCleanupModel);
+  const activationMode = useSettingsStore((s) => s.activationMode);
+  const [pushLocked, setPushLocked] = useState(false);
   const prevAutoHideRef = useRef(floatingIconAutoHide);
   const [voiceHorizontalDirection, setVoiceHorizontalDirection] = useState(() =>
     resolveVoiceHorizontalDirection(panelStartPosition)
@@ -291,6 +293,15 @@ export default function App() {
   const voicePillOwnsActivity = !assistant.open || assistant.closing || isAssistantVoice;
   const voicePillIsRecording = isRecording && voicePillOwnsActivity;
   const voicePillIsProcessing = (isProcessing || isStopping) && voicePillOwnsActivity;
+  // Hands-free recordings (double-tap lock, or Tap mode) get a ring on the pill;
+  // a held recording keeps the plain pill.
+  const handsFree = voicePillIsRecording
+    ? pushLocked
+      ? "locked"
+      : activationMode === "tap"
+        ? "tap"
+        : null
+    : null;
   const voiceActivity = resolveVoiceActivityPresentation({
     isRecording: voicePillIsRecording,
     // Mic warm-up is an acknowledged press, not work on a transcript. Keeping
@@ -358,6 +369,11 @@ export default function App() {
       localStorage.setItem("floatingIconAutoHide", String(enabled));
       useSettingsStore.setState({ floatingIconAutoHide: enabled });
     });
+    return () => unsubscribe?.();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = window.electronAPI?.onDictationPushLocked?.(setPushLocked);
     return () => unsubscribe?.();
   }, []);
 
@@ -722,6 +738,7 @@ export default function App() {
               isDragging={isDragging}
               horizontalDirection={voiceHorizontalDirection}
               dictationStatus={dictationStatus}
+              handsFree={handsFree}
               role={pillIsInteractive ? "button" : "status"}
               tabIndex={pillIsInteractive ? 0 : undefined}
               aria-label={

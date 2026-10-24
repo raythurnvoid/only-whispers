@@ -39,6 +39,9 @@ interface VoicePillProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"
   /** Set for plain dictation: one fixed-size pill with the model's icon, a
    *  short status label and a mini waveform. Null keeps the original pill. */
   dictationStatus?: DictationPillStatus | null;
+  /** Shows a ring while recording hands-free: "locked" by a double tap (with a
+   *  short snap) or "tap" mode. Null while the key is held. */
+  handsFree?: "locked" | "tap" | null;
 }
 
 // Mini waveform for the dictation status pill. "Voxtral is listening" is
@@ -89,6 +92,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
     isDragging = false,
     horizontalDirection = "right",
     dictationStatus = null,
+    handsFree = null,
     className,
     style,
     ...props
@@ -156,6 +160,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
       data-agent-mode={agentMode || undefined}
       data-agent-beam-active={(agentMode && isThinking) || undefined}
       data-expand-chevron={showExpandChevron || undefined}
+      data-hands-free={handsFree || undefined}
       {...props}
     >
       <div

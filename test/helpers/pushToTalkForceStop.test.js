@@ -109,19 +109,28 @@ test("a double tap locks the recording until the next press", (t) => {
   t.mock.timers.enable({ apis: ["setTimeout", "Date"] });
   t.after(() => t.mock.timers.reset());
 
-  const { manager, channels } = startPush(t);
+  const { manager, sent, channels } = startPush(t);
   manager.isDictating = () => true;
   manager.handleWindowsPushKeyUp("Control+Space");
   t.mock.timers.tick(100);
   manager.startWindowsPushToTalk("Control+Space");
   manager.handleWindowsPushKeyUp("Control+Space");
   t.mock.timers.tick(5_000);
-  assert.deepEqual(channels(), ["prepare-dictation", "start-dictation"]);
+  // The pill hears about the lock so it can show its ring.
+  assert.deepEqual(channels(), ["prepare-dictation", "start-dictation", "dictation-push-locked"]);
+  assert.equal(sent.at(-1).payload, true);
 
   manager.startWindowsPushToTalk("Control+Space");
   manager.handleWindowsPushKeyUp("Control+Space");
 
-  assert.deepEqual(channels(), ["prepare-dictation", "start-dictation", "stop-dictation"]);
+  assert.deepEqual(channels(), [
+    "prepare-dictation",
+    "start-dictation",
+    "dictation-push-locked",
+    "dictation-push-locked",
+    "stop-dictation",
+  ]);
+  assert.equal(sent.at(-2).payload, false);
 });
 
 test("a lone tap is cancelled instead of transcribed", (t) => {
@@ -152,7 +161,33 @@ test("a press after the pill stopped a locked recording starts a new push", (t) 
   t.mock.timers.tick(1_000);
   manager.startWindowsPushToTalk("Control+Space");
 
-  assert.deepEqual(channels(), ["prepare-dictation", "start-dictation", "prepare-dictation"]);
+  assert.deepEqual(channels(), [
+    "prepare-dictation",
+    "start-dictation",
+    "dictation-push-locked",
+    "dictation-push-locked",
+    "prepare-dictation",
+  ]);
+});
+
+// A reset ends a locked push without a press, so the pill must drop its ring too.
+test("a reset while locked tells the pill the lock ended", (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout", "Date"] });
+  t.after(() => t.mock.timers.reset());
+
+  const { manager, sent, channels } = startPush(t);
+  manager.handleWindowsPushKeyUp("Control+Space");
+  manager.startWindowsPushToTalk("Control+Space");
+  manager.resetWindowsPushState();
+
+  assert.deepEqual(channels(), [
+    "prepare-dictation",
+    "start-dictation",
+    "dictation-push-locked",
+    "dictation-push-locked",
+    "stop-dictation",
+  ]);
+  assert.equal(sent.at(-2).payload, false);
 });
 
 // The safety ceiling ends the push while the trigger keys are still physically

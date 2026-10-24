@@ -732,6 +732,13 @@ class WindowManager {
     }
   }
 
+  // Lets the pill show that a double tap locked the recording.
+  _notifyPushLocked(locked) {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+      this.mainWindow.webContents.send("dictation-push-locked", locked);
+    }
+  }
+
   forceStopMacCompoundPush(reason = "manual") {
     if (!this.macCompoundPushState) {
       return;
@@ -805,6 +812,7 @@ class WindowManager {
     if (state?.locked) {
       clearTimeout(state.safetyTimeoutId);
       this.winPushState = null;
+      this._notifyPushLocked(false);
       // Not dictating means the pill already stopped it; this press starts anew.
       if (this.isDictating()) {
         this.sendStopDictation();
@@ -814,6 +822,7 @@ class WindowManager {
       clearTimeout(state.tapTimeoutId);
       state.tapped = false;
       state.locked = true;
+      this._notifyPushLocked(true);
       return;
     }
     if (this.winPushState?.active || this.isDictationProcessing()) {
@@ -885,6 +894,7 @@ class WindowManager {
     clearTimeout(state.safetyTimeoutId);
     clearTimeout(state.tapTimeoutId);
     this.winPushState = null;
+    if (state.locked) this._notifyPushLocked(false);
 
     if (state.tapped) {
       // A lone tap: drop it instead of transcribing a split second of audio.

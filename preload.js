@@ -106,6 +106,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     "dictation-force-stopped",
     (callback) => (_event, payload) => callback(payload)
   ),
+  onDictationPushLocked: registerListener(
+    "dictation-push-locked",
+    (callback) => (_event, locked) => callback(locked)
+  ),
   dictationLifecycleStateChanged: (state, inputKind) =>
     ipcRenderer.send("dictation-lifecycle-state-changed", state, inputKind),
   dictationAudioLevelChanged: (level) => ipcRenderer.send("dictation-audio-level-changed", level),
