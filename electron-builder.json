@@ -2,7 +2,7 @@
   "appId": "com.raythurnvoid.only-whispers",
   "afterPack": "scripts/afterPack.js",
   "extraMetadata": {
-    "windowsTrayIdentity": true
+    "windowsTrayIdentity": false
   },
   "productName": "only-whispers",
   "protocols": {
@@ -31,6 +31,7 @@
     "src/types/**/*",
     "src/utils.js",
     "src/utils/**/*",
+    "src/updater.js",
     "src/components.json",
     "!node_modules/.cache/**/*",
     "!src/node_modules/**/*",
@@ -252,6 +253,6 @@
     "owner": "raythurnvoid",
     "repo": "only-whispers",
     "private": false,
-    "releaseType": "draft"
+    "releaseType": "release"
   }
 }

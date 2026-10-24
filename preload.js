@@ -287,6 +287,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setAssistantPanelBusy: (busy) => ipcRenderer.invoke("set-assistant-panel-busy", busy),
 
   getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+  getDownloadedUpdate: () => ipcRenderer.invoke("get-downloaded-update"),
+  installUpdate: () => ipcRenderer.invoke("install-update"),
+  onUpdateDownloaded: registerListener(
+    "update-downloaded",
+    (callback) => (_event, payload) => callback(payload)
+  ),
   getOAuthProtocol: () => ipcRenderer.invoke("get-oauth-protocol"),
   markBundleMigrated: () => ipcRenderer.invoke("mark-bundle-migrated"),
 

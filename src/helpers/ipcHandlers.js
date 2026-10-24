@@ -183,6 +183,7 @@ class IPCHandlers {
     this.databaseManager = managers.databaseManager;
     this.clipboardManager = managers.clipboardManager;
     this.windowManager = managers.windowManager;
+    this.updateManager = managers.updateManager;
     this.windowsKeyManager = managers.windowsKeyManager;
     this.linuxKeyManager = managers.linuxKeyManager;
     this.textEditMonitor = managers.textEditMonitor;
@@ -3690,6 +3691,13 @@ class IPCHandlers {
     ipcMain.handle("clear-error-log", () => debugLogger.clearErrorLog());
 
     ipcMain.handle("get-app-version", () => ({ version: app.getVersion() }));
+
+    ipcMain.handle(
+      "get-downloaded-update",
+      () => this.updateManager?.getDownloadedVersion() ?? null
+    );
+
+    ipcMain.handle("install-update", () => this.updateManager?.installUpdate() ?? false);
 
     ipcMain.handle("get-oauth-protocol", () => this.oauthProtocol);
 

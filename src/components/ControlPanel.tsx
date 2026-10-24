@@ -143,6 +143,29 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     return () => cleanup?.();
   }, [toast, t]);
 
+  // A downloaded update installs on quit anyway; the toast lets the user restart now.
+  useEffect(() => {
+    const showUpdateReady = () =>
+      toast({
+        title: t("controlPanel.update.readyTitle"),
+        description: t("controlPanel.update.readyDescription"),
+        duration: 0,
+        actions: [
+          {
+            label: t("controlPanel.update.installButton"),
+            onClick: () => {
+              window.electronAPI?.installUpdate?.();
+            },
+          },
+        ],
+      });
+    window.electronAPI?.getDownloadedUpdate?.().then((version) => {
+      if (version) showUpdateReady();
+    });
+    const cleanup = window.electronAPI?.onUpdateDownloaded?.(showUpdateReady);
+    return () => cleanup?.();
+  }, [toast, t]);
+
   const copyToClipboard = useCallback(
     async (text: string) => {
       try {

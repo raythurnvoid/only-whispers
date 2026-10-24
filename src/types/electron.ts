@@ -985,6 +985,10 @@ declare global {
       setAssistantPanelBusy: (busy: boolean) => Promise<{ success: boolean }>;
 
       getAppVersion: () => Promise<AppVersionResult>;
+      /** Version of an update downloaded and waiting to install, or null. */
+      getDownloadedUpdate?: () => Promise<string | null>;
+      installUpdate?: () => Promise<boolean>;
+      onUpdateDownloaded?: (callback: (payload: { version: string | null }) => void) => () => void;
       getOAuthProtocol: () => Promise<string>;
       markBundleMigrated: () => Promise<void>;
 
