@@ -44,5 +44,8 @@ root.render(
 );
 
 if (import.meta.hot) {
+  // This module runs again on each hot update. Unmount the old tree first, or
+  // every update leaves one more live app behind (each one saving every dictation).
+  import.meta.hot.dispose(() => root.unmount());
   import.meta.hot.accept();
 }
