@@ -166,7 +166,7 @@ export default function HistoryView({
                 variant="default"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => onOpenSettings("intelligence")}
+                onClick={() => onOpenSettings("llms")}
               >
                 {t("controlPanel.aiCta.enable")}
               </Button>
@@ -239,7 +239,7 @@ export default function HistoryView({
                         onDelete={deleteTranscription}
                         onShowAudioInFolder={onShowAudioInFolder}
                         onRetryTranscription={onRetryTranscription}
-                        onOpenSettings={(section) => onOpenSettings(section ?? "transcription")}
+                        onOpenSettings={onOpenSettings}
                       />
                     ))}
                   </div>

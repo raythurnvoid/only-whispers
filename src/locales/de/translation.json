@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "Kontrollzentrum anzeigen",
+    "showControlPanel": "Only Whispers öffnen",
     "quit": "Only Whispers beenden",
-    "tooltip": "only-whispers – Sprachdiktat"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "Sprachrekorder",
-    "controlPanelTitle": "Kontrollzentrum"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "Bedienungshilfen-Berechtigungen benötigt",
-      "description": "Wir haben festgestellt, dass only-whispers Bedienungshilfen-Berechtigungen benötigt, um korrekt zu funktionieren. Bitte aktivieren Sie diese unten."
+      "description": "Only Whispers braucht die Bedienungshilfen-Berechtigung zum Einfügen. Aktivieren Sie sie unten."
     },
     "history": {
       "couldNotLoadTitle": "Verlauf konnte nicht geladen werden",
@@ -229,18 +229,13 @@
       "audioNotFound": "Audiodatei nicht gefunden oder abgelaufen",
       "noAiProcessing": "Auf diese Transkription wurde keine KI-Verarbeitung angewendet",
       "transcriptionFailed": "Transkription fehlgeschlagen",
-      "failedCtaSettings": "Richten Sie Ihren Transkriptionsanbieter ein",
-      "failedCtaAndRetry": "und klicken Sie dann auf Wiederholen",
-      "failedCtaSettingsOnly": "Richten Sie Ihren Transkriptionsanbieter in den Einstellungen ein",
-      "failedCtaAiSettings": "Prüfen Sie das Modell des Sprachassistenten in den Einstellungen",
+      "failedCtaSettings": "Einstellungen → KI-Modelle öffnen",
+      "failedCtaAndRetry": "und auf „Erneut transkribieren“ klicken.",
       "editFailedTranscriptKept": "Bearbeitung nicht angewendet · Transkript behalten",
-      "failedLimitReached": "Tageslimit erreicht",
-      "failedOffline": "Offline",
       "rawTranscript": "Rohtranskript",
       "clearAll": "Alle löschen",
       "clearAllTitle": "Alle Transkriptionen löschen",
-      "clearAllDescription": "Alle Transkriptionen, Audiodateien und Insights-Zähler werden dauerhaft von diesem Gerät und aus Ihrem Konto entfernt.",
-      "clearAllDescriptionDevice": "Alle Transkriptionen, Audiodateien und Insights-Zähler werden dauerhaft von diesem Gerät entfernt. Bereits mit einem Konto synchronisierte Zähler bleiben davon unberührt.",
+      "clearAllDescriptionDevice": "Alle Transkriptionen und Audiodateien werden dauerhaft von diesem Gerät entfernt.",
       "clearAllSuccess": "Verlauf gelöscht",
       "clearAllErrorTitle": "Verlauf konnte nicht gelöscht werden",
       "clearAllErrorDescription": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -261,9 +256,9 @@
       "uploadError": "Audio konnte nicht hochgeladen werden"
     },
     "aiCta": {
-      "title": "Verbessern Sie Ihre Transkriptionen mit KI",
-      "description": "Korrigiert automatisch Grammatik, Zeichensetzung und Formatierung, während Sie sprechen.",
-      "enable": "KI-Verbesserung aktivieren"
+      "title": "Textbereinigung ist aus",
+      "description": "Schalten Sie sie ein, um Füllwörter zu entfernen und Grammatik und Satzzeichen zu korrigieren.",
+      "enable": "KI-Modelle öffnen"
     },
     "loading": "Laden..."
   },
@@ -454,7 +449,7 @@
         "providerRateLimited": "Dein Transkriptionsanbieter hat die Anfrage begrenzt. Warte kurz und versuch es erneut.",
         "agentReasoningFailed": "Ihr Sprachassistent konnte den Befehl nicht verarbeiten – stattdessen wurde das unbearbeitete Transkript eingefügt.",
         "screenContextSkipped": "Der Screenshot konnte nicht gesendet werden, daher lief Ihr Befehl ohne Bildschirmkontext.",
-        "providerKeyMissing": "Für Ihren Transkriptionsanbieter ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → Sprache zu Text hinzu.",
+        "providerKeyMissing": "Für {{provider}} ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → KI-Modelle hinzu.",
         "cleanupTruncated": "Dem KI-Modell ging der Platz aus, bevor es dein Diktat fertig bereinigt hatte.",
         "cleanupDuplicated": "Die KI-Bereinigung hat das Transkript wiederholt. Der Originaltext wurde beibehalten.",
         "cleanupEmptyReply": "Das KI-Modell lieferte eine leere Antwort statt des bereinigten Diktats."
@@ -1179,7 +1174,7 @@
     "clearTitle": "Wörterbuch leeren?",
     "clearDescription": "Dadurch werden alle Wörter aus deinem benutzerdefinierten Wörterbuch entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "addWord": "Wort hinzufügen",
-    "addPlaceholder": "Wörter durch Kommas getrennt hinzufügen – only-whispers, Supabase, John Snow, ARR",
+    "addPlaceholder": "Wörter durch Kommas getrennt hinzufügen – Only Whispers, Supabase, John Snow, ARR",
     "removeWord": "{{word}} entfernen",
     "clearAll": "Alle löschen",
     "add": "Hinzufügen",
@@ -1190,41 +1185,13 @@
     "wordsReady_other": "{{count}} Wörter bereit",
     "import": "Importieren",
     "yourDictionary": "Dein Wörterbuch",
-    "promptLimitNotice": "Dein Wörterbuch umfasst {{chars}} Zeichen. Groq- und Whisper-Modelle lesen davon nur die letzten paar hundert Zeichen – eine kürzere Liste funktioniert dort besser. Andere Modelle erhalten die vollständige Liste.",
     "exportDictionary": "Wörterbuch exportieren",
     "exportFailed": "Export fehlgeschlagen",
     "editWord": "{{word}} bearbeiten",
     "noMatches": "Keine Treffer — Enter drücken, um \"{{word}}\" hinzuzufügen",
-    "tabDictionary": "Wörterbuch",
-    "tabSnippets": "Snippets",
-    "snippets": {
-      "title": "Snippets",
-      "edit": "{{trigger}} bearbeiten",
-      "remove": "{{trigger}} entfernen",
-      "editTitle": "Snippet bearbeiten",
-      "dialogDescription": "Wenn du den Auslöser sprichst, wird er durch deinen gespeicherten Text ersetzt.",
-      "triggerLabel": "Auslöser",
-      "triggerPlaceholder": "z. B. mein Kalender",
-      "replacementLabel": "Ersetzung",
-      "replacementPlaceholder": "Text, der beim Sprechen des Auslösers eingefügt wird …",
-      "create": "Snippet erstellen",
-      "duplicate": "Ein Snippet mit diesem Auslöser existiert bereits",
-      "emptyTitle": "Sag es nur",
-      "emptyTitleAccent": "einmal",
-      "emptyDescription": "Sprich ein Auslösewort und only-whispers ersetzt es durch deinen gespeicherten Text – Links, Intros, Grußformeln, Prompts.",
-      "new": "Neues Snippet",
-      "examples": {
-        "linkedinTrigger": "Mein LinkedIn",
-        "linkedinText": "linkedin.com/in/du",
-        "signoffTrigger": "Grußformel",
-        "signoffText": "Viele Grüße, Alex · alex@example.com"
-      },
-      "addPlaceholder": "Auslöser-Phrase hinzufügen – „mein Kalender“, „mein LinkedIn“"
-    },
     "emptyTitle": "Füge Wörter zu deinem Wörterbuch hinzu",
-    "emptyDescription": "Füge Wörter hinzu, die {{agentName}} immer richtig erkennen soll: Namen, Tools, Abkürzungen.",
-    "addFirstWord": "Füge dein erstes Wort hinzu",
-    "agentDefault": "Standardmäßig enthalten"
+    "emptyDescription": "Füge Wörter hinzu, die Only Whispers immer richtig erkennen soll: Namen, Tools, Abkürzungen.",
+    "addFirstWord": "Füge dein erstes Wort hinzu"
   },
   "appSetup": {
     "title": "Only Whispers einrichten",
@@ -1293,9 +1260,7 @@
     "commandMenu": {
       "stopListening": "Aufnahme beenden",
       "startListening": "Aufnahme starten",
-      "hideForNow": "Vorerst ausblenden",
-      "askAssistant": "Assistent fragen",
-      "busyRecording": "Beende zuerst die laufende Aufnahme"
+      "hideForNow": "Vorerst ausblenden"
     }
   },
   "dictationAgent": {
@@ -1395,9 +1360,8 @@
       "newConversation": "Neue Unterhaltung",
       "copyToClipboard": "In die Zwischenablage kopieren",
       "suggestions": {
-        "summarizeNotes": "Meine letzten Notizen zusammenfassen",
-        "calendar": "Was steht in meinem Kalender?",
-        "draft": "Hilf mir, etwas zu entwerfen"
+        "draft": "Hilf mir, etwas zu entwerfen",
+        "dictionary": "Füge ein Wort zu meinem Wörterbuch hinzu"
       }
     },
     "toolActivity": {
@@ -1437,7 +1401,7 @@
     "unreachable": "{{provider}} konnte nicht erreicht werden. Überprüfen Sie Ihre Verbindung.",
     "noResponse": "Keine Antwort von {{provider}} erhalten. Überprüfen Sie Ihren API-Schlüssel und Ihre Verbindung.",
     "unknown": "{{provider}} hat einen unerwarteten Fehler zurückgegeben.",
-    "keyMissing": "Für {{provider}} ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → Sprachmodelle hinzu.",
+    "keyMissing": "Für {{provider}} ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → KI-Modelle hinzu.",
     "selfHosted": {
       "authFailed": "Ihr Server hat den API-Schlüssel abgelehnt.",
       "accessDenied": "Ihr Server hat den Zugriff verweigert. Der Schlüssel deckt dieses Modell möglicherweise nicht ab.",
@@ -1540,7 +1504,7 @@
     }
   },
   "logsView": {
-    "description": "Warnungen und Fehler aus Diktat und App, neueste zuerst. Das Widget zeigt sie nicht an.",
+    "description": "Warnungen und Fehler der App, neueste zuerst.",
     "refresh": "Aktualisieren",
     "openFolder": "Protokollordner öffnen",
     "clear": "Leeren",

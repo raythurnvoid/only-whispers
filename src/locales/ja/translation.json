@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "コントロールパネルを表示",
+    "showControlPanel": "Only Whispers を開く",
     "quit": "Only Whispers を終了",
-    "tooltip": "only-whispers - 音声ディクテーション"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "ボイスレコーダー",
-    "controlPanelTitle": "コントロールパネル"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "アクセシビリティの許可が必要です",
-      "description": "only-whispers が正しく動作するにはアクセシビリティの許可が必要です。以下で有効にしてください。"
+      "description": "Only Whispers が貼り付けを行うには、アクセシビリティの許可が必要です。下で有効にしてください。"
     },
     "history": {
       "couldNotLoadTitle": "履歴を読み込めませんでした",
@@ -214,17 +214,12 @@
         "yesterday": "昨日"
       },
       "transcriptionFailed": "文字起こしに失敗しました",
-      "failedCtaSettings": "文字起こしプロバイダーを設定してください",
-      "failedCtaAndRetry": "その後、再試行をクリックしてください",
-      "failedCtaSettingsOnly": "設定で文字起こしプロバイダーを設定してください",
-      "failedCtaAiSettings": "設定で音声アシスタントのモデルを確認してください",
+      "failedCtaSettings": "設定 → AIモデル を開く",
+      "failedCtaAndRetry": "その後「再文字起こし」を押してください。",
       "editFailedTranscriptKept": "編集は適用されませんでした · 文字起こしは保存済み",
-      "failedLimitReached": "1日の上限に達しました",
-      "failedOffline": "オフラインです",
       "clearAll": "すべて削除",
       "clearAllTitle": "すべての文字起こしを削除",
-      "clearAllDescription": "すべての文字起こし、音声ファイル、Insights のカウントが、このデバイスとアカウントから完全に削除されます。",
-      "clearAllDescriptionDevice": "すべての文字起こし、音声ファイル、Insights のカウントが、このデバイスから完全に削除されます。アカウントに同期済みのカウントには影響しません。",
+      "clearAllDescriptionDevice": "すべての文字起こしと音声ファイルが、このデバイスから完全に削除されます。",
       "clearAllSuccess": "履歴を削除しました",
       "clearAllErrorTitle": "履歴を削除できませんでした",
       "clearAllErrorDescription": "問題が発生しました。もう一度お試しください。",
@@ -261,9 +256,9 @@
       "uploadError": "音声をアップロードできませんでした"
     },
     "aiCta": {
-      "title": "AI で文字起こしを向上させましょう",
-      "description": "話しながら文法、句読点、書式を自動的に修正します。",
-      "enable": "AI 補正を有効にする"
+      "title": "テキスト補正はオフです",
+      "description": "オンにすると、つなぎ言葉を削除し、文法と句読点を直します。",
+      "enable": "AIモデルを開く"
     },
     "loading": "読み込み中..."
   },
@@ -454,7 +449,7 @@
         "providerRateLimited": "文字起こしプロバイダーがリクエストを制限しました。しばらく待ってからもう一度お試しください。",
         "agentReasoningFailed": "音声アシスタントがコマンドを処理できなかったため、未処理の文字起こしを挿入しました。",
         "screenContextSkipped": "スクリーンショットを送信できなかったため、画面コンテキストなしでコマンドを実行しました。",
-        "providerKeyMissing": "文字起こしプロバイダーのAPIキーが設定されていません。設定 → 音声テキスト変換 から追加してください。",
+        "providerKeyMissing": "{{provider}} のAPIキーが設定されていません。設定 → AIモデル から追加してください。",
         "cleanupTruncated": "AI モデルの出力が上限に達し、ディクテーションのクリーンアップが完了しませんでした。",
         "cleanupDuplicated": "AI クリーンアップが文字起こしを繰り返しました。元のテキストを保持しました。",
         "cleanupEmptyReply": "AI モデルが空の応答を返したため、クリーンアップされたテキストがありません。"
@@ -1173,7 +1168,7 @@
     "clearAll": "すべてクリア",
     "clearTitle": "辞書をクリアしますか？",
     "clearDescription": "カスタム辞書のすべての単語が削除されます。この操作は元に戻せません。",
-    "addPlaceholder": "カンマ区切りで単語を追加 — only-whispers、Supabase、ARR など",
+    "addPlaceholder": "カンマ区切りで単語を追加 — Only Whispers、Supabase、ARR など",
     "add": "追加",
     "importWords": "単語をインポート",
     "importPlaceholder": "カンマまたは改行区切りの単語を貼り付け...",
@@ -1181,42 +1176,14 @@
     "wordsReady_other": "{{count}} 個の単語が準備完了",
     "import": "インポート",
     "yourDictionary": "あなたの辞書",
-    "promptLimitNotice": "辞書は現在{{chars}}文字です。GroqとWhisperのモデルはその末尾の数百文字しか読み取らないため、リストは短いほうが効果的です。その他のモデルには全リストが送信されます。",
     "exportDictionary": "辞書をエクスポート",
     "exportFailed": "エクスポートに失敗しました",
     "editWord": "{{word}} を編集",
     "wordsReady_one": "{{count}} 個の単語が準備完了",
     "noMatches": "一致なし — Enter キーで「{{word}}」を追加",
-    "tabDictionary": "辞書",
-    "tabSnippets": "スニペット",
-    "snippets": {
-      "title": "スニペット",
-      "edit": "{{trigger}}を編集",
-      "remove": "{{trigger}}を削除",
-      "editTitle": "スニペットを編集",
-      "dialogDescription": "トリガーを話すと、保存したテキストに置き換わります。",
-      "triggerLabel": "トリガー",
-      "triggerPlaceholder": "例: カレンダーリンク",
-      "replacementLabel": "置換テキスト",
-      "replacementPlaceholder": "トリガーを話したときに挿入されるテキスト…",
-      "create": "スニペットを作成",
-      "duplicate": "このトリガーのスニペットは既に存在します",
-      "emptyTitle": "同じことを言うのは",
-      "emptyTitleAccent": "一度だけ",
-      "emptyDescription": "トリガーワードを話すと、only-whispersが保存した内容に置き換えます。URL、自己紹介、署名、プロンプトなど。",
-      "new": "新規スニペット",
-      "examples": {
-        "linkedinTrigger": "私のLinkedIn",
-        "linkedinText": "linkedin.com/in/you",
-        "signoffTrigger": "署名",
-        "signoffText": "よろしくお願いします。Alex · alex@example.com"
-      },
-      "addPlaceholder": "トリガーフレーズを追加 — 「カレンダーリンク」「署名」など"
-    },
     "emptyTitle": "辞書に単語を追加しましょう",
-    "emptyDescription": "{{agentName}}に正しく認識してほしい言葉を追加しましょう。名前、ツール、略語など。",
-    "addFirstWord": "最初の単語を追加",
-    "agentDefault": "デフォルトで追加済み"
+    "emptyDescription": "Only Whispers に正しく認識してほしい言葉を追加しましょう。名前、ツール、略語など。",
+    "addFirstWord": "最初の単語を追加"
   },
   "sidebar": {
     "home": "ホーム",
@@ -1293,9 +1260,7 @@
     "commandMenu": {
       "stopListening": "録音を停止",
       "startListening": "録音を開始",
-      "hideForNow": "一時的に非表示",
-      "askAssistant": "アシスタントに質問",
-      "busyRecording": "先に録音を終了してください"
+      "hideForNow": "一時的に非表示"
     }
   },
   "dictationAgent": {
@@ -1395,9 +1360,8 @@
       "newConversation": "新しい会話",
       "copyToClipboard": "クリップボードにコピー",
       "suggestions": {
-        "summarizeNotes": "最近のノートを要約して",
-        "calendar": "カレンダーの予定を教えて",
-        "draft": "文章の下書きを手伝って"
+        "draft": "文章の下書きを手伝って",
+        "dictionary": "辞書に単語を追加して"
       }
     },
     "toolActivity": {
@@ -1437,7 +1401,7 @@
     "unreachable": "{{provider}} に接続できませんでした。接続を確認してください。",
     "noResponse": "{{provider}} から応答がありませんでした。APIキーと接続を確認してください。",
     "unknown": "{{provider}} から予期しないエラーが返されました。",
-    "keyMissing": "{{provider}} のAPIキーが設定されていません。設定 → 言語モデル から追加してください。",
+    "keyMissing": "{{provider}} のAPIキーが設定されていません。設定 → AIモデル から追加してください。",
     "selfHosted": {
       "authFailed": "サーバーがAPIキーを拒否しました。",
       "accessDenied": "サーバーがアクセスを拒否しました。キーがこのモデルに対応していない可能性があります。",
@@ -1540,7 +1504,7 @@
     }
   },
   "logsView": {
-    "description": "音声入力とアプリの警告とエラー（新しい順）。ウィジェットには表示されません。",
+    "description": "アプリの警告とエラー（新しい順）。",
     "refresh": "更新",
     "openFolder": "ログフォルダを開く",
     "clear": "消去",

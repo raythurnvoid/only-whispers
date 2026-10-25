@@ -8,7 +8,7 @@ import { CARD_SURFACE_CLASS } from "./ui/surfaces";
 
 type ErrorLogEntry = Awaited<ReturnType<Window["electronAPI"]["getErrorLog"]>>[number];
 
-/** Warnings and errors from logs/errors.log, newest first. The dictation widget shows none. */
+/** Warnings and errors from logs/errors.log, newest first. */
 export default function LogsView() {
   const { t } = useTranslation();
   const [entries, setEntries] = useState<ErrorLogEntry[]>([]);

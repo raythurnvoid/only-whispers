@@ -6,10 +6,10 @@ interface AssistantEmptyStateProps {
   onSelectSuggestion: (suggestion: string) => void;
 }
 
+// Only things the assistant's tools can do: write text and edit the dictionary.
 const SUGGESTION_KEYS = [
-  "assistant.panel.suggestions.summarizeNotes",
-  "assistant.panel.suggestions.calendar",
   "assistant.panel.suggestions.draft",
+  "assistant.panel.suggestions.dictionary",
 ] as const;
 
 export function AssistantEmptyState({

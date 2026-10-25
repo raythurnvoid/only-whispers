@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "Show Control Panel",
+    "showControlPanel": "Open Only Whispers",
     "quit": "Quit Only Whispers",
-    "tooltip": "only-whispers - Voice Dictation"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "Voice Recorder",
-    "controlPanelTitle": "Control Panel"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "Accessibility permissions needed",
-      "description": "We've detected that only-whispers needs accessibility permissions to work properly. Please enable them below."
+      "description": "Only Whispers needs accessibility permission to paste. Turn it on below."
     },
     "history": {
       "couldNotLoadTitle": "Couldn't load your history",
@@ -229,18 +229,13 @@
       "audioNotFound": "Audio file not found or expired",
       "noAiProcessing": "No AI processing was applied to this transcription",
       "transcriptionFailed": "Transcription failed",
-      "failedCtaSettings": "Set up your transcription provider",
-      "failedCtaAndRetry": "then click retry",
-      "failedCtaSettingsOnly": "Set up your transcription provider in Settings",
-      "failedCtaAiSettings": "Check your Voice Assistant model in Settings",
+      "failedCtaSettings": "Open Settings → AI Models",
+      "failedCtaAndRetry": "and press Re-transcribe.",
       "editFailedTranscriptKept": "Edit not applied · transcript kept",
-      "failedLimitReached": "Daily limit reached",
-      "failedOffline": "You're offline",
       "rawTranscript": "Raw Transcript",
       "clearAll": "Clear all",
       "clearAllTitle": "Clear All Transcriptions",
-      "clearAllDescription": "All transcriptions, audio files, and Insights counters will be permanently removed from this device and your account.",
-      "clearAllDescriptionDevice": "All transcriptions, audio files, and Insights counters will be permanently removed from this device. Counters already synced to an account are not affected.",
+      "clearAllDescriptionDevice": "All transcriptions and audio files will be permanently removed from this device.",
       "clearAllSuccess": "History cleared",
       "clearAllErrorTitle": "Couldn't clear history",
       "clearAllErrorDescription": "Something went wrong. Please try again.",
@@ -261,9 +256,9 @@
       "uploadError": "Could not upload the audio"
     },
     "aiCta": {
-      "title": "Enhance your transcriptions with AI",
-      "description": "Automatically fix grammar, punctuation, and formatting as you speak.",
-      "enable": "Enable AI Enhancement"
+      "title": "Text cleanup is off",
+      "description": "Turn it on to remove filler words and fix grammar and punctuation.",
+      "enable": "Open AI Models"
     },
     "loading": "Loading..."
   },
@@ -454,7 +449,7 @@
         "providerRateLimited": "Your transcription provider rate-limited the request. Wait a moment and try again.",
         "agentReasoningFailed": "Your voice assistant couldn't process the command — the raw transcript was inserted instead.",
         "screenContextSkipped": "The screenshot couldn't be sent, so your command ran without screen context.",
-        "providerKeyMissing": "No API key is set for your transcription provider. Add it in Settings → Speech to Text.",
+        "providerKeyMissing": "No API key is set for {{provider}}. Add it in Settings → AI Models.",
         "cleanupTruncated": "The AI model ran out of room before it finished cleaning up your dictation.",
         "cleanupDuplicated": "AI cleanup repeated the transcript. The original text was kept.",
         "cleanupEmptyReply": "The AI model returned an empty reply instead of the cleaned-up dictation."
@@ -1179,7 +1174,7 @@
     "clearTitle": "Clear dictionary?",
     "clearDescription": "This will remove all words from your custom dictionary. This action cannot be undone.",
     "addWord": "Add word",
-    "addPlaceholder": "Add words separated by commas — only-whispers, Supabase, John Snow, ARR",
+    "addPlaceholder": "Add words separated by commas — Only Whispers, Supabase, John Snow, ARR",
     "removeWord": "Remove {{word}}",
     "clearAll": "Clear all",
     "add": "Add",
@@ -1190,41 +1185,13 @@
     "wordsReady_other": "{{count}} words ready",
     "import": "Import",
     "yourDictionary": "Your dictionary",
-    "promptLimitNotice": "Your dictionary is {{chars}} characters. Groq and Whisper models read only the last few hundred characters of it, so a shorter list works better there. Other models get the full list.",
     "exportDictionary": "Export dictionary",
     "exportFailed": "Export failed",
     "editWord": "Edit {{word}}",
     "noMatches": "No matches — press Enter to add \"{{word}}\"",
-    "tabDictionary": "Dictionary",
-    "tabSnippets": "Snippets",
-    "snippets": {
-      "title": "Snippets",
-      "edit": "Edit {{trigger}}",
-      "remove": "Remove {{trigger}}",
-      "editTitle": "Edit snippet",
-      "dialogDescription": "When you speak the trigger, it's replaced with your saved text.",
-      "triggerLabel": "Trigger",
-      "triggerPlaceholder": "e.g. cal link",
-      "replacementLabel": "Replacement",
-      "replacementPlaceholder": "Text to insert when you say the trigger…",
-      "create": "Create snippet",
-      "duplicate": "A snippet with this trigger already exists",
-      "emptyTitle": "Stuff you shouldn't have to say",
-      "emptyTitleAccent": "twice",
-      "emptyDescription": "Speak a trigger word and only-whispers replaces it with whatever you saved — URLs, intros, sign-offs, prompts.",
-      "new": "New snippet",
-      "examples": {
-        "linkedinTrigger": "My LinkedIn",
-        "linkedinText": "linkedin.com/in/you",
-        "signoffTrigger": "Sign off",
-        "signoffText": "Best, Alex · alex@example.com"
-      },
-      "addPlaceholder": "Add a trigger phrase — \"investor ask\", \"cal link\""
-    },
     "emptyTitle": "Add words to your dictionary",
-    "emptyDescription": "Add words for {{agentName}} to always get right: names, tools, acronyms.",
-    "addFirstWord": "Add your first word",
-    "agentDefault": "Added by default"
+    "emptyDescription": "Add words Only Whispers should always get right: names, tools, acronyms.",
+    "addFirstWord": "Add your first word"
   },
   "appSetup": {
     "title": "Set up Only Whispers",
@@ -1293,9 +1260,7 @@
     "commandMenu": {
       "stopListening": "Stop listening",
       "startListening": "Start listening",
-      "hideForNow": "Hide for now",
-      "askAssistant": "Ask assistant",
-      "busyRecording": "Finish the current dictation first"
+      "hideForNow": "Hide for now"
     }
   },
   "dictationAgent": {
@@ -1395,9 +1360,8 @@
       "newConversation": "New conversation",
       "copyToClipboard": "Copy to clipboard",
       "suggestions": {
-        "summarizeNotes": "Summarize my recent notes",
-        "calendar": "What is on my calendar?",
-        "draft": "Help me draft something"
+        "draft": "Help me draft something",
+        "dictionary": "Add a word to my dictionary"
       }
     },
     "toolActivity": {
@@ -1437,7 +1401,7 @@
     "unreachable": "Couldn't reach {{provider}}. Check your connection.",
     "noResponse": "Couldn't get a response from {{provider}}. Check your API key and connection.",
     "unknown": "{{provider}} returned an unexpected error.",
-    "keyMissing": "No API key is set for {{provider}}. Add it in Settings → Language Models.",
+    "keyMissing": "No API key is set for {{provider}}. Add it in Settings → AI Models.",
     "selfHosted": {
       "authFailed": "Your server rejected the API key.",
       "accessDenied": "Your server denied access. The key may not include this model.",
@@ -1540,7 +1504,7 @@
     }
   },
   "logsView": {
-    "description": "Warnings and errors from dictation and the app, newest first. The widget does not show them.",
+    "description": "Warnings and errors from the app, newest first.",
     "refresh": "Refresh",
     "openFolder": "Open logs folder",
     "clear": "Clear",

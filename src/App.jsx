@@ -15,7 +15,6 @@ import { useMainProcessNotifications } from "./hooks/useMainProcessNotifications
 import { useListeningEntrancePhase } from "./hooks/useListeningEntrancePhase";
 import { useWindowResizeCompensation } from "./hooks/useWindowResizeCompensation";
 import { useSettingsStore } from "./stores/settingsStore";
-import { useTrayQuickActions } from "./hooks/useTrayQuickActions";
 import { usePalazzoTheme } from "./hooks/usePalazzoTheme";
 import { VoicePill } from "./components/dictation/VoicePill";
 import { AssistantPanel } from "./components/dictation/AssistantPanel";
@@ -178,11 +177,7 @@ export default function App() {
     recordingControlsRef,
     onPanelOpened,
   });
-  const {
-    noteDictationError,
-    openRef: assistantOpenRef,
-    openPanel: openAssistantPanel,
-  } = assistant;
+  const { noteDictationError, openRef: assistantOpenRef } = assistant;
 
   const handleDictationError = React.useCallback(
     (options = {}) => {
@@ -392,26 +387,6 @@ export default function App() {
     });
     return () => unsubscribe?.();
   }, [isRecording, isPreparing, isProcessing, cancelRecording, cancelProcessing]);
-
-  // Every tray refusal surfaces the pill first, so the message is visible even
-  // when the pill was hidden. useTrayQuickActions decides when one is needed.
-  const refuse = useCallback(
-    (messageKey) => {
-      void window.electronAPI?.showDictationPanel?.();
-      toast({ title: t(messageKey), variant: "default" });
-    },
-    [toast, t]
-  );
-
-  const closeCommandMenu = useCallback(() => setIsCommandMenuOpen(false), []);
-
-  useTrayQuickActions({
-    isRecording,
-    liveTranscriptMounted: liveTranscript.mounted,
-    closeCommandMenu,
-    openAssistantPanel,
-    refuse,
-  });
 
   const autoHideIdle =
     floatingIconAutoHide &&
