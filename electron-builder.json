@@ -104,7 +104,6 @@
       "from": "resources/bin/",
       "to": "bin/",
       "filter": [
-        "llama-server-*",
         "macos-globe-listener",
         "macos-fast-paste",
         "macos-mic-listener",

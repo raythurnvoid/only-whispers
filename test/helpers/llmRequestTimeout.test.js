@@ -17,13 +17,6 @@ test("streaming LLM requests use a 60-second idle timeout", async () => {
   assert.equal(getLlmRequestTimeoutSeconds({ streaming: true }), 60);
 });
 
-test("local and self-hosted streams get a longer wait for the first bytes", async () => {
-  const { getLlmStreamingFirstByteTimeoutSeconds } = await load();
-
-  assert.equal(getLlmStreamingFirstByteTimeoutSeconds(), 60);
-  assert.equal(getLlmStreamingFirstByteTimeoutSeconds({ selfHosted: true }), 600);
-});
-
 test("a deadline error carries the timeout code and the seconds it waited", async () => {
   const { llmRequestTimeoutError, LLM_REQUEST_TIMEOUT_CODE } = await load();
 

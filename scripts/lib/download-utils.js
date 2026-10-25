@@ -1,6 +1,5 @@
 const https = require("https");
 const fs = require("fs");
-const path = require("path");
 const { execSync } = require("child_process");
 
 const REQUEST_TIMEOUT = 30000;
@@ -334,135 +333,16 @@ async function extractArchive(archivePath, destDir) {
   }
 }
 
-function findBinaryInDir(dir, binaryName, maxDepth = 5, currentDepth = 0) {
-  if (currentDepth >= maxDepth) return null;
-
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      const found = findBinaryInDir(fullPath, binaryName, maxDepth, currentDepth + 1);
-      if (found) return found;
-    } else if (entry.name === binaryName) {
-      return fullPath;
-    }
-  }
-
-  return null;
-}
-
-function parseArgs() {
-  const args = process.argv;
-  let targetPlatform = process.env.TARGET_PLATFORM || process.platform;
-  let targetArch = process.env.TARGET_ARCH || process.arch;
-
-  // CLI args override env vars
-  const platformIndex = args.indexOf("--platform");
-  if (platformIndex !== -1 && args[platformIndex + 1]) {
-    targetPlatform = args[platformIndex + 1];
-  }
-
-  const archIndex = args.indexOf("--arch");
-  if (archIndex !== -1 && args[archIndex + 1]) {
-    targetArch = args[archIndex + 1];
-  }
-
-  return {
-    targetPlatform,
-    targetArch,
-    platformArch: `${targetPlatform}-${targetArch}`,
-    isCurrent: args.includes("--current"),
-    isAll: args.includes("--all"),
-    isForce: args.includes("--force"),
-    shouldCleanup:
-      args.includes("--clean") ||
-      process.env.CI === "true" ||
-      process.env.GITHUB_ACTIONS === "true",
-  };
-}
-
 function setExecutable(filePath) {
   if (process.platform !== "win32") {
     fs.chmodSync(filePath, 0o755);
   }
 }
 
-function matchesPattern(filename, pattern) {
-  if (pattern === "*.dylib") {
-    return filename.endsWith(".dylib");
-  } else if (pattern === "*.dll") {
-    return filename.endsWith(".dll");
-  } else if (pattern === "*.so*") {
-    return /\.so(\.\d+)*$/.test(filename) || filename.endsWith(".so");
-  }
-  return false;
-}
-
-function findLibrariesInDir(dir, pattern, options = {}, currentDepth = 0) {
-  const { maxDepth = 5, ignoreReadErrors = false } = options;
-  if (currentDepth >= maxDepth) return [];
-
-  const results = [];
-  let entries;
-  try {
-    entries = fs.readdirSync(dir, { withFileTypes: true });
-  } catch (error) {
-    if (ignoreReadErrors) return [];
-    throw error;
-  }
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      results.push(...findLibrariesInDir(fullPath, pattern, options, currentDepth + 1));
-    } else if (matchesPattern(entry.name, pattern)) {
-      results.push(fullPath);
-    }
-  }
-
-  return results;
-}
-
-function copyLibraries(extractDir, destDir, pattern) {
-  const copied = [];
-  for (const libPath of findLibrariesInDir(extractDir, pattern)) {
-    const libName = path.basename(libPath);
-    const destPath = path.join(destDir, libName);
-    fs.copyFileSync(libPath, destPath);
-    setExecutable(destPath);
-    copied.push(libName);
-  }
-  return copied;
-}
-
-function cleanupFiles(binDir, prefix, keepPrefix) {
-  const keepPrefixes = Array.isArray(keepPrefix) ? keepPrefix : [keepPrefix];
-  // Never delete shared libraries; only platform binaries. The b9763 split ships
-  // llama-server-impl.dll, which shares the "llama-server" prefix and must survive.
-  const isLibrary = (f) => /\.(dll|dylib)$/i.test(f) || /\.so(\.\d+)*$/.test(f);
-  const files = fs.readdirSync(binDir).filter((f) => f.startsWith(prefix));
-  files.forEach((file) => {
-    if (!keepPrefixes.some((keep) => file.startsWith(keep)) && !isLibrary(file)) {
-      const filePath = path.join(binDir, file);
-      console.log(`Removing old binary: ${file}`);
-      fs.unlinkSync(filePath);
-    }
-  });
-}
-
 module.exports = {
-  copyLibraries,
   downloadFile,
   extractArchive,
   extractZip,
   fetchLatestRelease,
-  findBinaryInDir,
-  findLibrariesInDir,
-  matchesPattern,
-  parseArgs,
   setExecutable,
-  cleanupFiles,
 };

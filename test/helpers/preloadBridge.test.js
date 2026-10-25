@@ -82,14 +82,6 @@ test("the Agent companion owns only its scoped window bridges", async () => {
   );
 });
 
-test("enterprise reasoning cancellation is forwarded to the main process", () => {
-  const { api, sends } = loadPreloadApi();
-
-  api.cancelEnterpriseReasoning();
-
-  assert.deepEqual(sends, [["enterprise-reasoning-cancel"]]);
-});
-
 test("prepare-dictation forwards the input kind without the Electron event", () => {
   const { api, listeners } = loadPreloadApi();
   const received = [];

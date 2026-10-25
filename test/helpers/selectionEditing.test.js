@@ -112,59 +112,14 @@ test("the marker contract is exact, unique, and never demonstrated with a traili
   }
 });
 
-test("local JSON replacement preserves document bytes and rejects ambiguous envelopes", async () => {
-  const { extractLocalSelectionEditReplacement } = await load();
-  const replacement = '  "quoted" \\path\n<think>literal document</think> ☕\t\r\n';
-  assert.equal(
-    extractLocalSelectionEditReplacement(` \n${JSON.stringify({ replacement })}\t`),
-    replacement
-  );
-  for (const response of [
-    null,
-    123,
-    "null",
-    "[]",
-    '"text"',
-    "{}",
-    '{"replacement":null}',
-    '{"replacement":123}',
-    '{"replacement":[]}',
-    '{"replacement":"first","replacement":"second"}',
-    '{"replacement":"first","replace\\u006dent":"second"}',
-    '{"replacement":"ok","extra":true}',
-    '{"replacement":"ok"}junk',
-    '```json\n{"replacement":"ok"}\n```',
-    '<think>reason</think>{"replacement":"ok"}',
-    '{"replacement":"unfinished}',
-    '{"replacement":"bad\\q"}',
-  ]) {
-    assert.throws(() => extractLocalSelectionEditReplacement(response), {
-      code: "SELECTION_EDIT_INVALID_RESPONSE",
-    });
-  }
-  for (const response of ["", " \n", '{"replacement":""}', '{"replacement":" \\t\\n"}']) {
-    assert.throws(() => extractLocalSelectionEditReplacement(response), {
-      code: "SELECTION_EDIT_EMPTY_RESPONSE",
-    });
-  }
+test("the edit prompt tells the model to hand a question about the selection back", async () => {
+  const { SELECTION_QUESTION_MARKER, buildSelectionEditSystemPrompt } = await load();
+  const prompt = buildSelectionEditSystemPrompt("", "__ONLY_WHISPERS_SELECTION_COMPLETE_test__");
+  assert.ok(prompt.includes(SELECTION_QUESTION_MARKER));
+  assert.match(prompt, /explain/);
 });
 
-test("both edit prompts tell the model to hand a question about the selection back", async () => {
-  const {
-    SELECTION_QUESTION_MARKER,
-    buildSelectionEditSystemPrompt,
-    buildLocalSelectionEditSystemPrompt,
-  } = await load();
-  const cloud = buildSelectionEditSystemPrompt("", "__ONLY_WHISPERS_SELECTION_COMPLETE_test__");
-  const local = buildLocalSelectionEditSystemPrompt();
-  for (const prompt of [cloud, local]) {
-    assert.ok(prompt.includes(SELECTION_QUESTION_MARKER));
-    assert.match(prompt, /explain/);
-  }
-  assert.ok(local.includes(JSON.stringify({ replacement: SELECTION_QUESTION_MARKER })));
-});
-
-test("a question verdict is recognised in every shape the edit paths return it", async () => {
+test("a question verdict is recognised with or without the completion marker", async () => {
   const { SELECTION_QUESTION_MARKER: question, isSelectionQuestionResponse } = await load();
   const marker = "__ONLY_WHISPERS_SELECTION_COMPLETE_test__";
   for (const response of [
@@ -172,8 +127,6 @@ test("a question verdict is recognised in every shape the edit paths return it",
     ` ${question}\n${marker}`,
     // A model that forgets the completion marker still means the same thing.
     question,
-    JSON.stringify({ replacement: question }),
-    ` ${JSON.stringify({ replacement: ` ${question} ` })}\n`,
   ]) {
     assert.equal(isSelectionQuestionResponse(response, marker), true, response);
   }
@@ -188,20 +141,4 @@ test("a question verdict is recognised in every shape the edit paths return it",
   ]) {
     assert.equal(isSelectionQuestionResponse(response, marker), false, String(response));
   }
-});
-
-test("a local edit takes a tone sentence as a style preference beside the custom prompt", async () => {
-  const { buildLocalSelectionEditSystemPrompt } = await load();
-  const prompt = buildLocalSelectionEditSystemPrompt({
-    customPrompt: "Keep it short.",
-    toneSentence: "If the instruction asks you to rewrite, use the Work messages style.",
-  });
-  assert.match(
-    prompt,
-    /style preferences[^\n]*:\nKeep it short\.\nIf the instruction asks you to rewrite, use the Work messages style\.\n/
-  );
-  assert.equal(
-    buildLocalSelectionEditSystemPrompt({ toneSentence: "" }),
-    buildLocalSelectionEditSystemPrompt()
-  );
 });

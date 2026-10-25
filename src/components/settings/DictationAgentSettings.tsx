@@ -11,7 +11,6 @@ import { Button } from "../ui/button";
 import { SettingsPanel, SettingsPanelRow, SettingsRow, SectionHeader } from "../ui/SettingsSection";
 import PermissionCard from "../ui/PermissionCard";
 import PromptStudio from "../ui/PromptStudio";
-import InferenceConfigEditor from "./InferenceConfigEditor";
 
 export default function DictationAgentSettings() {
   const { t } = useTranslation();
@@ -148,8 +147,6 @@ export default function DictationAgentSettings() {
         </SettingsPanelRow>
       </SettingsPanel>
 
-      {useDictationAgent && <InferenceConfigEditor scope="dictationAgent" />}
-
       {/* Screen context is a voice-agent sub-feature. */}
       {useDictationAgent && (
         <div className="border-t border-border/70 pt-6 space-y-3">
@@ -202,9 +199,6 @@ export default function DictationAgentSettings() {
             <p className="text-[11px] text-warning/80 leading-snug">
               {t("dictationAgent.screenContext.relaunchHint")}
             </p>
-          )}
-          {screenContextActive && useDictationAgentVisionModel && (
-            <InferenceConfigEditor scope="dictationAgentVision" allowedModes={["providers"]} />
           )}
         </div>
       )}

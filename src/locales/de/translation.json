@@ -92,19 +92,12 @@
     "continue": "Weiter",
     "retry": "Erneut versuchen",
     "back": "Zurück",
-    "reset": "Zurücksetzen",
-    "refresh": "Aktualisieren",
-    "download": "Herunterladen",
     "cancel": "Abbrechen",
-    "recommended": "Empfohlen",
     "active": "Aktiv",
-    "managedByOrg": "Von Ihrer Organisation verwaltet",
     "signInRequired": "Anmeldung erforderlich",
     "signIn": "Anmelden",
-    "apiKey": "API-Schlüssel",
     "loading": "Laden...",
     "unknown": "Unbekannt",
-    "availableModels": "Verfügbare Modelle",
     "hold": "Halten",
     "tap": "Tippen",
     "close": "Schließen",
@@ -127,8 +120,6 @@
       "provider": {
         "apiKey": "API-Schlüssel",
         "apiKeyPlaceholder": "API-Schlüssel einfügen",
-        "testing": "Test läuft…",
-        "connected": "Verbunden",
         "connectionFailed": "Die Verbindung konnte nicht überprüft werden.",
         "unverified": "Konnte nicht überprüft werden: {{reason}}",
         "errors": {
@@ -173,11 +164,7 @@
     "errors": {
       "cloudUnreachable": {
         "title": "Transkriptionsdienst nicht erreichbar",
-        "generic": "Die Netzwerkanfrage ist fehlgeschlagen. Prüfen Sie Ihre Verbindung.",
-        "dnsBlocked": "DNS findet die Adresse des Dienstes nicht — ein Werbeblocker oder Filter blockiert sie möglicherweise.",
-        "refused": "Verbindung wurde abgelehnt — wahrscheinlich eine Firewall oder ein VPN.",
-        "timeout": "Netzwerk-Zeitüberschreitung — VPN, Captive Portal oder instabile Verbindung.",
-        "tls": "TLS-Handshake fehlgeschlagen — prüfen Sie Ihre Systemuhr oder einen Unternehmens-Proxy."
+        "generic": "Die Netzwerkanfrage ist fehlgeschlagen. Prüfen Sie Ihre Verbindung."
       }
     }
   },
@@ -268,115 +255,7 @@
     "loading": "Laden..."
   },
   "reasoning": {
-    "mode": {
-      "cloud": "Cloud",
-      "local": "Lokal",
-      "localDescription": "Läuft auf Ihrem Gerät. Volle Privatsphäre, funktioniert offline.",
-      "cloudDescription": "Leistungsstarke Modelle über API. Schnell und leistungsfähig, erfordert Internet."
-    },
-    "custom": {
-      "endpointWithProtocol": "Geben Sie eine vollständige Basis-URL mit Protokoll ein (z. B. https://server/v1).",
-      "httpsRequired": "HTTPS erforderlich (HTTP nur im lokalen Netzwerk erlaubt).",
-      "endpointInvalid": "Der benutzerdefinierte Endpunkt ist ungültig oder nicht konfiguriert. Prüfe die Endpunkt-URL unter Einstellungen → KI-Modelle.",
-      "endpointUnauthorized": "Der Endpoint hat die Anfrage abgelehnt (401/403). Fügen Sie einen API-Schlüssel hinzu oder passen Sie die Server-Authentifizierung an.",
-      "endpointTitle": "Endpoint-URL",
-      "endpointExamples": "Beispiele:",
-      "apiKeyOptional": "API-Schlüssel (optional)",
-      "apiKeyHelp": "Optional. Wird als Bearer-Token zur Authentifizierung gesendet. Getrennt von Ihrem OpenAI-API-Schlüssel.",
-      "applyAndRefresh": "Anwenden & aktualisieren",
-      "queryPrefix": "Wir fragen",
-      "querySuffix": "nach verfügbaren Modellen ab.",
-      "modelsReloadHint": "Modelle werden neu geladen, wenn Sie das URL-Feld verlassen oder auf 'Anwenden & aktualisieren' klicken.",
-      "enterEndpoint": "Geben Sie oben eine Endpoint-URL ein, um Modelle zu laden.",
-      "fetchingModels": "Modellliste wird vom Endpoint geladen...",
-      "noModels": "Keine Modelle zurückgegeben. Prüfen Sie die Endpoint-URL.",
-      "providerName": "Benutzerdefiniert",
-      "ownerLabel": "Anbieter: {{owner}}",
-      "unableToLoadModels": "Modelle konnten nicht vom Endpoint geladen werden.",
-      "searchPlaceholder": "Modelle suchen…",
-      "selectedGroup": "Ausgewählt",
-      "otherGroup": "Sonstige",
-      "noSearchResults": "Keine Modelle für „{{query}}“",
-      "selectModelHint": "Noch kein Modell ausgewählt — wählen Sie eines aus der Liste unten.",
-      "keyRequiredHint": "Für die Inferenz ist ein API-Schlüssel erforderlich — fügen Sie einen hinzu, um diesen Anbieter zu nutzen."
-    },
-    "effort": {
-      "title": "Denkaufwand",
-      "description": "Wie viel das Modell nachdenkt, bevor es antwortet.",
-      "descriptionWithDefault": "Wie viel das Modell nachdenkt, bevor es antwortet. Auto verwendet die Standardeinstellung des Anbieters ({{value}}).",
-      "auto": "Auto",
-      "options": {
-        "none": "Keiner",
-        "minimal": "Minimal",
-        "low": "Niedrig",
-        "medium": "Mittel",
-        "high": "Hoch",
-        "xhigh": "Sehr hoch",
-        "max": "Maximal"
-      }
-    },
-    "getApiKey": "API-Schlüssel holen ->",
-    "selectModel": "Modell auswählen",
-    "availableModels": "Verfügbare Modelle",
-    "disableThinking": {
-      "label": "Denkausgabe deaktivieren",
-      "help": "Überspringt Reasoning-Token für eine sauberere Ausgabe. Empfohlen für Bereinigung. Einige Server ignorieren diesen Hinweis."
-    },
-    "keepModelLoaded": {
-      "label": "Modell geladen lassen",
-      "help": "Bleibt im Speicher, statt nach 5 Minuten Inaktivität entladen zu werden, sodass bei der nächsten Anfrage der Kaltstart entfällt. Gilt für alle Funktionen mit lokalem Modell."
-    },
-    "selfHosted": {
-      "endpointHelp": "Zeige auf einen OpenAI-kompatiblen Server in deinem lokalen Netzwerk (z. B. Ollama, LM Studio, vLLM oder llama-server)."
-    },
     "enterprise": {
-      "testConnection": "Verbindung testen",
-      "testing": "Wird getestet…",
-      "testSuccess": "Verbunden",
-      "testFailed": "Verbindung fehlgeschlagen",
-      "authMode": "Authentifizierung",
-      "ssoProfile": "SSO-Profil",
-      "accessKeys": "Zugriffsschlüssel",
-      "adc": "Application Default Credentials",
-      "apiKeyMode": "API-Schlüssel",
-      "region": "Region",
-      "profile": "Profilname",
-      "accessKeyId": "Access Key ID",
-      "secretAccessKey": "Secret Access Key",
-      "sessionToken": "Session Token (optional)",
-      "endpoint": "Endpoint-URL",
-      "deploymentName": "Deployment-Name",
-      "apiVersion": "API-Version",
-      "projectId": "Projekt-ID",
-      "location": "Standort",
-      "customModelId": "Eigene Modell-ID",
-      "customModelPlaceholder": "Modell-ID oder Deployment-Name eingeben",
-      "suggestedModels": "Empfohlene Modelle",
-      "browseModels": "Alle Modelle durchsuchen",
-      "loadingModels": "Modelle werden geladen...",
-      "allModels": "Alle Modelle in {{region}}",
-      "modelListError": "Modelle konnten nicht geladen werden.",
-      "bedrock": {
-        "ssoHelp": "Verwendet Ihre AWS-CLI-SSO-Konfiguration. Stellen Sie sicher, dass Sie 'aws sso login' ausgeführt haben."
-      },
-      "errors": {
-        "bedrock": {
-          "ssoExpired": "Die AWS-SSO-Sitzung ist abgelaufen.",
-          "credentialsRejected": "Die AWS-Anmeldedaten wurden abgelehnt. Prüfe Zugriffsschlüssel-ID, Geheimnis und Sitzungstoken.",
-          "accessDenied": "AWS Bedrock hat diese Anfrage abgelehnt. Bitte deinen AWS-Administrator um die Berechtigung, das ausgewählte Modell in der Region {{region}} aufzurufen.",
-          "modelNotFound": "AWS Bedrock konnte das ausgewählte Modell in der Region {{region}} nicht finden. Prüfe die Modell-ID und ob das Modell dort verfügbar ist.",
-          "configurationRejected": "AWS Bedrock hat die Modellkonfiguration für die Region {{region}} abgelehnt. Prüfe Modell-ID, Inferenzprofil und Region.",
-          "notConfigured": "AWS Bedrock ist nicht richtig konfiguriert. Prüfe Region und AWS-Anmeldedaten.",
-          "serviceUnavailable": "AWS Bedrock ist wegen hoher Nachfrage vorübergehend nicht verfügbar. Dies ist ein Problem des AWS-Dienstes und kein only-whispers-Ausfall. Versuche es in einigen Minuten erneut.",
-          "throttled": "AWS Bedrock begrenzt Anfragen vorübergehend, weil zu viele eingehen. Warte kurz und versuche es erneut. Wenn das Problem anhält, bitte deinen AWS-Administrator, Bedrock-Nutzung und Kontingente zu prüfen.",
-          "timeout": "AWS Bedrock hat nicht rechtzeitig geantwortet. Versuche es erneut. Wenn das Problem anhält, prüfe deine Internetverbindung und den Status des AWS-Bedrock-Dienstes.",
-          "network": "AWS Bedrock konnte nicht erreicht werden. Prüfe deine Internetverbindung und versuche es erneut.",
-          "unknown": "AWS-Bedrock-Fehler: {{error}}",
-          "actions": {
-            "reauthenticate": "Führe den folgenden Befehl im Terminal aus, um dich erneut zu authentifizieren:"
-          }
-        }
-      },
       "technicalDetails": {
         "title": "Technische Details",
         "httpStatus": "HTTP-Status",
@@ -385,26 +264,7 @@
         "underlyingError": "Zugrunde liegender Fehler",
         "copy": "Technische Details kopieren",
         "copyCommand": "Wiederherstellungsbefehl kopieren"
-      },
-      "azure": {
-        "endpointHelp": "Endpoint-URL Ihrer Azure-OpenAI-Ressource (z. B. https://myresource.openai.azure.com).",
-        "deploymentHelp": "Name Ihres Modell-Deployments in Azure OpenAI."
-      },
-      "vertex": {
-        "adcHelp": "Verwendet Application Default Credentials. Führen Sie aus: gcloud auth application-default login",
-        "apikeyHelp": "API-Schlüssel für Vertex AI Express Mode aus Google AI Studio."
       }
-    },
-    "modelRetiredTitle": "Modell nicht mehr verfügbar",
-    "groq": {
-      "modelRetired": "Groq hat {{from}} eingestellt. Zu {{to}} gewechselt."
-    },
-    "tinfoil": {
-      "modelRetired": "Tinfoil hat {{from}} eingestellt. Zu {{to}} gewechselt.",
-      "refreshingModels": "Modelle werden aktualisiert…"
-    },
-    "corti": {
-      "euOnly": "Corti-Modelle sind nur in der EU-Region verfügbar."
     },
     "chatgpt": {
       "title": "ChatGPT-Abo",
@@ -413,12 +273,6 @@
       "signingIn": "Schließe die Anmeldung im Browser ab...",
       "signOut": "Abmelden",
       "signedInAs": "Angemeldet als {{email}}"
-    }
-  },
-  "transcription": {
-    "deleteModel": {
-      "title": "Modell löschen",
-      "description": "Möchten Sie dieses Modell wirklich löschen? Sie müssen es erneut herunterladen, wenn Sie es wieder verwenden möchten."
     }
   },
   "hooks": {
@@ -456,9 +310,7 @@
         "agentReasoningFailed": "Ihr Sprachassistent konnte den Befehl nicht verarbeiten – stattdessen wurde das unbearbeitete Transkript eingefügt.",
         "screenContextSkipped": "Der Screenshot konnte nicht gesendet werden, daher lief Ihr Befehl ohne Bildschirmkontext.",
         "providerKeyMissing": "Für Ihren Transkriptionsanbieter ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → Sprache zu Text hinzu.",
-        "cleanupTruncated": "Dem KI-Modell ging der Platz aus, bevor es dein Diktat fertig bereinigt hatte.",
-        "cleanupDuplicated": "Die KI-Bereinigung hat das Transkript wiederholt. Der Originaltext wurde beibehalten.",
-        "cleanupEmptyReply": "Das KI-Modell lieferte eine leere Antwort statt des bereinigten Diktats."
+        "cleanupDuplicated": "Die KI-Bereinigung hat das Transkript wiederholt. Der Originaltext wurde beibehalten."
       },
       "pushForceStopped": {
         "title": "Transkription nicht eingefügt",
@@ -526,41 +378,6 @@
       },
       "messages": {
         "nowUsing": "{{hotkey}} wird jetzt für das Diktat verwendet"
-      }
-    },
-    "modelDownload": {
-      "errors": {
-        "timeout": "Download-Zeitüberschreitung. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-        "notFound": "Download-Server konnte nicht erreicht werden. Prüfen Sie Ihre Internetverbindung.",
-        "corrupted": "Download war unvollständig oder beschädigt. Bitte versuchen Sie es erneut.",
-        "rateLimited": "Download-Server begrenzt Anfragen. Bitte warten Sie einige Minuten und versuchen Sie es erneut.",
-        "server": "Serverfehler ({{error}}). Bitte versuchen Sie es später erneut.",
-        "generic": "Download fehlgeschlagen: {{error}}",
-        "extractionFailed": "Modell heruntergeladen, aber Installation fehlgeschlagen. Klicken Sie auf „Herunterladen“, um die Installation ohne erneuten Download zu wiederholen.",
-        "tlsError": "Zertifikatsfehler — Ihr Netzwerk verwendet möglicherweise SSL-Inspektion, die Downloads blockiert. Versuchen Sie es über ein anderes Netzwerk.",
-        "unknown": "Unbekannter Fehler"
-      },
-      "downloadFailed": {
-        "title": "Download fehlgeschlagen"
-      },
-      "installationFailed": {
-        "title": "Installation fehlgeschlagen"
-      },
-      "downloadInProgress": {
-        "title": "Download läuft",
-        "description": "Bitte warten Sie, bis der aktuelle Download abgeschlossen ist, oder brechen Sie ihn zuerst ab."
-      },
-      "modelDeleted": {
-        "title": "Modell gelöscht",
-        "description": "Modell erfolgreich gelöscht!"
-      },
-      "deleteFailed": {
-        "title": "Löschen fehlgeschlagen",
-        "description": "Modell konnte nicht gelöscht werden: {{error}}"
-      },
-      "downloadCancelled": {
-        "title": "Download abgebrochen",
-        "description": "Der Download wurde abgebrochen."
       }
     },
     "permissions": {
@@ -809,14 +626,7 @@
       "enableTextCleanup": "Textbereinigung aktivieren",
       "enableTextCleanupDescription": "KI entfernt Füllwörter, korrigiert Grammatik und Zeichensetzung",
       "modes": {
-        "providers": "Eigenen Schlüssel nutzen",
-        "local": "Lokal",
-        "selfHosted": "Selbst gehostet",
-        "enterprise": "Enterprise",
-        "providersDesc": "Verwenden Sie Ihren eigenen API-Schlüssel, um Ihren bevorzugten LLM-Anbieter zu verbinden.",
-        "localDesc": "Modelle auf dem Gerät. Voll privat.",
-        "selfHostedDesc": "Eigener Server in Ihrem Netzwerk.",
-        "enterpriseDesc": "Nutzen Sie das Cloud-Konto Ihrer Organisation (AWS, Azure, GCP)."
+        "selfHosted": "Selbst gehostet"
       },
       "title": "KI-Modelle",
       "description": "Mistral wandelt deine Sprache in Text um. Dein ChatGPT-Abo bereinigt den Text."
@@ -967,8 +777,6 @@
     }
   },
   "models": {
-    "learnMore": "Mehr erfahren",
-    "noneAvailable": "Keine Modelle verfügbar",
     "descriptions": {
       "cohere": {
         "cohere_transcribe_03_2026": "Präzisestes lokales ASR (5,42 % durchschnittliche WER, 14 Sprachen). Keine automatische Spracherkennung"
@@ -1011,107 +819,7 @@
         "assemblyai_universal_3_5_pro": "Höchste Genauigkeit in Echtzeit, 18 Sprachen",
         "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: schnell, genau, 50+ Sprachen, 0,0035 $/Min.",
         "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: am genauesten, 50+ Sprachen, 0,004 $/Min."
-      },
-      "cloud": {
-        "openai_gpt_5_2": "Starkes Reasoning-Modell",
-        "openai_gpt_5_mini": "Schnell und kosteneffizient",
-        "openai_gpt_5_nano": "Ultraschnell, niedrige Latenz",
-        "openai_gpt_4_1": "Starke Basis, 1M Kontext",
-        "openai_gpt_4_1_mini": "Kleineres GPT-4.1-Modell",
-        "openai_gpt_4_1_nano": "GPT-4.1 mit der niedrigsten Latenz",
-        "anthropic_claude_fable_5_1": "Leistungsstärkstes Modell von Anthropic, Mythos-Klasse",
-        "anthropic_claude_fable_5": "Vorheriges Flaggschiff der Mythos-Klasse",
-        "anthropic_claude_opus_5_5": "Neuestes Opus-Modell für komplexes Reasoning, 1M Kontext",
-        "anthropic_claude_sonnet_5_5": "Neuestes Sonnet: schnell und leistungsfähig für die tägliche Arbeit, 1M Kontext",
-        "anthropic_claude_haiku_5_5": "Schnellstes und günstigstes Claude-Modell, 1M Kontext",
-        "anthropic_claude_sonnet_5": "Schnelles, leistungsfähiges Assistentenmodell zu geringeren Kosten",
-        "anthropic_claude_sonnet_4_6": "Ausgewogene Leistung",
-        "anthropic_claude_sonnet_4_5": "Vorherige Sonnet-Generation",
-        "anthropic_claude_haiku_4_5": "Schnell mit nahezu Frontier-Intelligenz",
-        "gemini_gemini_3_5_flash": "Neuestes schnelles, leistungsstarkes Gemini-Modell",
-        "gemini_gemini_3_5_flash_lite": "Schnellstes, kostengünstigstes 3.5-Modell",
-        "gemini_gemini_3_1_pro_preview": "Flaggschiff der nächsten Generation für komplexes Reasoning",
-        "gemini_gemini_3_1_flash_lite": "Leistung auf Frontier-Niveau zu geringen Kosten",
-        "gemini_gemini_3_flash_preview": "Ultraschnelles Modell der nächsten Generation mit hoher Leistungsfähigkeit",
-        "gemini_gemini_2_5_flash_lite": "Niedrigste Latenz und Kosten",
-        "gemini_gemma_4_31b_it": "Googles größtes Gemma 4, 31B dicht, 256K Kontext",
-        "gemini_gemma_4_26b_a4b_it": "Googles Gemma 4 MoE, 4B aktive Parameter, 256K Kontext",
-        "groq_openai_gpt_oss_120b": "OpenAIs Open-Source-Flaggschiff, 500 T/s",
-        "groq_qwen_qwen3_8_27b": "Schnelles Qwen-Modell, 450 T/s, 131K Kontext",
-        "groq_openai_gpt_oss_20b": "Schnelles Open-Source-Modell, 1000 T/s",
-        "openai_gpt_6_astra": "Leistungsstärkstes Modell von OpenAI für Coding und Forschung",
-        "openai_gpt_5_6_sol": "Flaggschiff-GPT-5.6 für komplexes Coding und Forschung",
-        "openai_gpt_5_6_terra": "Ausgewogenes GPT-5.6 für die tägliche Arbeit",
-        "openai_gpt_5_6_luna": "Schnellstes und günstigstes GPT-5.6",
-        "openai_gpt_5_5": "Frontier-Modell für komplexes Reasoning",
-        "anthropic_claude_opus_5": "Vorheriges Opus-Flaggschiff, 1M Kontext",
-        "anthropic_claude_opus_4_8": "Leistungsstarkes Opus-Modell für Ehrlichkeit und Zuverlässigkeit",
-        "anthropic_claude_opus_4_7": "Leistungsstarkes Opus-Modell",
-        "anthropic_claude_opus_4_6": "Vorherige Opus-Generation, 1M Kontext",
-        "anthropic_claude_opus_4_5": "Früheres Opus-Modell",
-        "tinfoil_glm_5_3": "Privates agentisches Coding-Modell in sicheren Enklaven, 1M Kontext",
-        "tinfoil_gemma4_31b": "Privates mehrsprachiges Reasoning-Modell mit Tool-Aufrufen, 256K Kontext",
-        "tinfoil_gpt_oss_120b": "Privates Open-Weight-Reasoning-Modell mit Tool-Nutzung, 131K Kontext",
-        "tinfoil_llama3_3_70b": "Privates Konversationsmodell mit Tool-Aufrufen, 128K Kontext",
-        "corti_corti_s1_instant": "Schnelles Gesundheitsmodell, ohne Reasoning-Spur",
-        "corti_corti_s1": "Leistungsfähigstes klinisches Modell mit Reasoning",
-        "corti_corti_s1_mini_instant": "Kompaktes Gesundheitsmodell, am schnellsten und günstigsten",
-        "corti_corti_s1_mini": "Kompaktes klinisches Modell mit Reasoning zum halben Preis"
-      },
-      "enterprise": {
-        "bedrock_claude_fable_5": "Leistungsstärkstes Claude-Modell. Ideal für die schwierigsten Assistenten-Aufgaben.",
-        "bedrock_claude_haiku_4_5": "Schnell und günstig. Ideal zum Bereinigen von Text.",
-        "bedrock_claude_sonnet_5": "Ausgewogen. Empfohlener Standard für Assistenten-Aufgaben.",
-        "bedrock_claude_opus_4_8": "Höchste Intelligenz. Für komplexe Assistenten-Aufgaben.",
-        "bedrock_gpt_oss_120b": "Offenes OpenAI-Modell. Starkes Reasoning zu geringen Kosten.",
-        "bedrock_deepseek_v3_2": "Offenes Frontier-Modell. Starker Wert für Assistenten-Aufgaben.",
-        "bedrock_qwen3_next_80b": "Sparsames offenes Modell. Schnell und mehrsprachig.",
-        "vertex_gemini_2_5_flash": "Fast multimodal model via Vertex",
-        "vertex_gemini_2_5_pro": "Advanced reasoning via Vertex"
-      },
-      "local": {
-        "qwen_qwen3_5_9b_q4_k_m": "Leistungsstarkes Hybridmodell",
-        "qwen_qwen3_5_4b_q4_k_m": "Ausgewogenes Qwen3.5 für allgemeine Nutzung",
-        "qwen_qwen3_5_2b_q4_k_m": "Kompaktes Qwen3.5 für schnelle Aufgaben",
-        "qwen_qwen3_8b_q4_k_m": "Neuestes Qwen3 mit Thinking-Mode-Unterstützung",
-        "qwen_qwen3_8b_q5_k_m": "Qwen3 mit höherer Qualität und Thinking-Mode",
-        "qwen_qwen3_4b_q4_k_m": "Kompaktes Qwen3 mit Reasoning-Fähigkeiten",
-        "qwen_qwen3_1_7b_q8_0": "Kleines, aber fähiges Qwen3-Modell",
-        "qwen_qwen3_32b_q4_k_m": "Leistungsstärkstes lokales Qwen3 mit tiefem Reasoning",
-        "qwen_qwen2_5_1_5b_instruct_q5_k_m": "Kleines Modell, gut für grundlegende Aufgaben",
-        "qwen_qwen2_5_3b_instruct_q5_k_m": "Ausgewogenes Modell für den allgemeinen Einsatz",
-        "qwen_qwen2_5_7b_instruct_q4_k_m": "Großes Modell mit hoher Qualität (Q4_K_M)",
-        "qwen_qwen2_5_7b_instruct_q5_k_m": "Großes Modell, hochwertiges Reasoning (Q5_K_M)",
-        "mistral_mistral_7b_instruct_v0_3_q4_k_m": "Schnelles und effizientes Instruction-Modell",
-        "mistral_mistral_7b_instruct_v0_3_q5_k_m": "Instruction-Modell mit höherer Qualität",
-        "mistral_nemo_12b_instruct_q4_k_m": "Mistrals 12B-Modell, starke mehrsprachige Leistung",
-        "llama_llama_3_2_1b_instruct_q4_k_m": "Winziges Modell für Edge-Geräte",
-        "llama_llama_3_2_3b_instruct_q4_k_m": "Kleines, aber fähiges mehrsprachiges Modell",
-        "llama_llama_3_1_8b_instruct_q4_k_m": "Leistungsstarkes Modell mit hoher Performance",
-        "openai_oss_gpt_oss_20b_mxfp4": "Open-Weight-Modell von OpenAI für Consumer-Hardware",
-        "gemma_gemma_3_4b_it_q4_k_m": "Googles Open-Weight-Modell, gutes Gleichgewicht aus Geschwindigkeit und Qualität",
-        "gemma_gemma_4_31b_it_q4_k_m": "Googles größtes Gemma 4, beste Qualität",
-        "gemma_gemma_4_31b_it_qat_q4_0": "Offizieller QAT-Build von Google, kleiner bei gleicher Qualität",
-        "gemma_gemma_4_26b_a4b_it_q4_k_m": "Googles MoE Gemma 4, schnell mit 4B aktiven Parametern",
-        "gemma_gemma_4_26b_a4b_it_qat_q4_0": "Offizieller QAT-MoE-Build von Google, kleiner bei gleicher Qualität",
-        "gemma_gemma_4_e4b_it_q4_k_m": "Googles neuestes multimodales Modell, starkes Reasoning",
-        "gemma_gemma_4_e4b_it_qat_q4_0": "Offizieller QAT-Build von Google, starkes Reasoning, kleinere Größe",
-        "gemma_gemma_4_e2b_it_q4_k_m": "Kompaktes Gemma 4 von Google, schnell und effizient",
-        "gemma_gemma_4_e2b_it_qat_q4_0": "Kompakter offizieller QAT-Build von Google, Qualität erhalten",
-        "gemma_gemma_3_12b_it_q4_k_m": "Googles Mittelklasse-Modell, starkes Reasoning",
-        "gemma_gemma_3_1b_it_q4_k_m": "Ultraschnelles Google-Modell, ideal für kurze Diktat-Bereinigung",
-        "liquidai_lfm2_5_1_2b_instruct_q4_k_m": "Effizientes On-Device-Modell von Liquid AI, hervorragende Anweisungsbefolgung",
-        "liquidai_lfm2_5_8b_a1b_q4_k_m": "MoE von Liquid AI, hohe Qualität mit nur 1,5B aktiven Parametern",
-        "liquidai_lfm2_2_6b_q4_k_m": "Ausgewogenes LFM2 für hochwertigere Bereinigung",
-        "liquidai_lfm2_5_350m_q8_0": "Ultraleichtes Modell für schnelle Diktatbereinigung",
-        "liquidai_lfm2_5_230m_q8_0": "Winziges Modell, sofortige Bereinigung auf bescheidener Hardware"
       }
-    },
-    "errors": {
-      "contextTooLarge": "Das ist zu lang, als dass {{model}} es auf diesem Computer lesen könnte. Es werden etwa {{needed}} Token Kontext benötigt, aber nur {{max}} passen in den Speicher. Versuchen Sie ein Cloud-Modell oder führen Sie die Aktion für eine kürzere Auswahl aus.",
-      "contextTooLargeGeneric": "Das ist zu lang, als dass {{model}} es auf diesem Computer lesen könnte. Versuchen Sie ein Cloud-Modell oder führen Sie die Aktion für eine kürzere Auswahl aus.",
-      "localServerUnavailable": "{{model}} konnte auf diesem Computer nicht gestartet werden. Versuchen Sie es erneut oder wechseln Sie zu einem Cloud-Modell.",
-      "localModelBusy": "Das lokale Modell bearbeitet noch eine andere Anfrage. Warten Sie, bis sie abgeschlossen ist, und versuchen Sie es dann erneut."
     }
   },
   "sidebar": {
@@ -1262,29 +970,6 @@
     "getMistralKey": "Schlüssel in Mistral admin erstellen",
     "start": "Diktieren starten"
   },
-  "apiKeyInput": {
-    "placeholder": "API-Schlüssel eingeben",
-    "label": "API-Schlüssel",
-    "save": "Speichern",
-    "cancelEdit": "Bearbeitung abbrechen",
-    "edit": "Bearbeiten",
-    "add": "Hinzufügen",
-    "editButton": "Bearbeiten",
-    "addButton": "Hinzufügen"
-  },
-  "gpu": {
-    "reasoningBanner": "KI-Verarbeitung mit GPU beschleunigen",
-    "enableButton": "GPU aktivieren",
-    "active": "GPU-Beschleunigung aktiv",
-    "ready": "GPU-Beschleunigung bereit",
-    "activating": "GPU wird aktiviert...",
-    "activationFailed": "GPU-Beschleunigung nicht verfügbar",
-    "reasoningActivationFailedDescription": "only-whispers verwendet die CPU-Verarbeitung.",
-    "retryActivation": "GPU-Beschleunigung erneut versuchen",
-    "remove": "Entfernen",
-    "dismiss": "Nicht jetzt",
-    "cancel": "Abbrechen"
-  },
   "app": {
     "toasts": {
       "hotkeyChanged": {
@@ -1297,10 +982,6 @@
       },
       "addedToDict": "{{words}} zu deinem Wörterbuch hinzugefügt",
       "undo": "Rückgängig",
-      "gpuPackMigration": {
-        "title": "GPU-Paket muss erneut heruntergeladen werden",
-        "description": "Diese Version kann dein bisheriges GPU-Paket ({{packs}}) nicht verwenden. Lade es in den Einstellungen erneut herunter, um die GPU-Beschleunigung wieder einzuschalten."
-      },
       "cleanupFailed": {
         "title": "Bereinigung fehlgeschlagen",
         "description": "Dein Diktat wurde ohne KI-Bereinigung eingefügt."

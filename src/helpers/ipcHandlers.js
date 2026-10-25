@@ -10,7 +10,6 @@ const { openExternalUrl } = require("./externalUrlOpener");
 const { BYOK_API_KEYS } = require("../config/secretKeys");
 const chatgptAuth = require("./chatgptAuth");
 const chatgptResponsesSocket = require("./chatgptResponsesSocket");
-const { extractAnthropicText, describeMissingAnthropicText } = require("./anthropicResponse");
 const { toPolicyFailure } = require("./policyResponseError");
 const { resolveSystemDefaultMicrophone } = require("./systemDefaultMicrophone");
 const { ipcErrorFields } = require("./ipcErrorFields");
@@ -35,16 +34,12 @@ const serializeIpcError =
     }
   };
 
-const { resolveLocalServerNeeds, shouldStopLocalServer } = require("./localServerPolicy");
 const { i18nMain, changeLanguage } = require("./i18nMain");
 const { getCortiToken } = require("./cortiAuth");
 const { ONBOARDING_DEMO_STATUSES } = require("./onboardingInputPolicy");
 const { focusWindowsHotkeyCaptureWindow } = require("./hotkeyCaptureFocus");
 const { MistralRealtimeStreaming, MISTRAL_REALTIME_MODEL } = require("./mistralRealtimeStreaming");
-const { getTinfoilChatModels } = require("./tinfoilCatalog");
 const AudioStorageManager = require("./audioStorage");
-const LocalModelDownloadStatus = require("./localModelDownloadStatus");
-const AgentStreamRequestRegistry = require("./agentStreamRequestRegistry");
 const { applySmartSpacing } = require("./smartSpacing");
 const { applyAutoLearnSetting } = require("./autoLearnSetting");
 const {
@@ -63,10 +58,6 @@ const AUTO_LEARN_DEBOUNCE_MS = 1500;
 
 const byokSizeCapError = (sizeCapBytes) =>
   `File too large. Maximum size for bring-your-own-key is ${Math.floor(sizeCapBytes / (1024 * 1024))} MB.`;
-
-// The enterprise "Test Connection" probe only needs one word back, but the
-// Azure Responses API rejects max_output_tokens below 16.
-const CONNECTION_TEST_MAX_OUTPUT_TOKENS = 16;
 
 const { describeCortiTokenFailure, testProviderConnection } = require("./providerConnectionTest");
 const { createConnectionCheckCache } = require("./connectionCheckCache");
@@ -161,11 +152,6 @@ async function postMultipart(
   }
 }
 
-// Cleanup toast wording for replies the main-process providers reject; mirror
-// TRUNCATED_/EMPTY_OUTPUT_MESSAGE_KEY in services/ai/chatRequestBody.ts (#2091).
-const CLEANUP_TRUNCATED_MESSAGE_KEY = "hooks.audioRecording.errorDescriptions.cleanupTruncated";
-const CLEANUP_EMPTY_REPLY_MESSAGE_KEY = "hooks.audioRecording.errorDescriptions.cleanupEmptyReply";
-
 class IPCHandlers {
   constructor(managers) {
     this.environmentManager = managers.environmentManager;
@@ -179,7 +165,6 @@ class IPCHandlers {
     this.selectionManager = managers.selectionManager;
     this.getTrayManager = managers.getTrayManager;
     this.sessionId = crypto.randomUUID();
-    this._enterpriseReasoningRequests = new AgentStreamRequestRegistry();
     this._dictationStreaming = null;
     this._dictationConnectPromise = null;
     this._dictationIdleTimer = null;
@@ -191,13 +176,11 @@ class IPCHandlers {
     this._activeRecordingPipeline = null;
     this._onboardingDemoSession = null;
     this.audioStorageManager = new AudioStorageManager();
-    this.localModelDownloadStatus = new LocalModelDownloadStatus();
     this._retentionCleanupInterval = null;
     this._retentionSettings = { ...DEFAULT_RETENTION_SETTINGS }; // Synced from renderer
     this._retentionSettingsSynced = false;
     this._setupTextEditMonitor();
     this._setupRetentionCleanup();
-    this._logDetectedGpus();
     // Warm the OS default mic answer before the first hotkey press (~2s on Windows).
     resolveSystemDefaultMicrophone();
     this.setupHandlers();
@@ -227,23 +210,6 @@ class IPCHandlers {
     if (this.textEditMonitor && this._textEditHandler) {
       this.textEditMonitor.removeListener("text-edited", this._textEditHandler);
       this._textEditHandler = null;
-    }
-  }
-
-  async _logDetectedGpus() {
-    const { listNvidiaGpus } = require("../utils/gpuDetection");
-    const gpus = await listNvidiaGpus();
-    if (gpus.length > 0) {
-      debugLogger.info(
-        "NVIDIA GPUs detected",
-        {
-          count: gpus.length,
-          devices: gpus.map((g) => `[${g.index}] ${g.name} (${g.vramMb}MB) ${g.uuid}`),
-        },
-        "gpu"
-      );
-    } else {
-      debugLogger.debug("No NVIDIA GPUs detected", {}, "gpu");
     }
   }
 
@@ -357,15 +323,6 @@ class IPCHandlers {
     }
   }
 
-  // The control panel shows the GPU pack notice. An app started to the tray
-  // creates none, so there the dictation panel shows it instead (#2554).
-  _gpuPackNoticeWindow() {
-    const { controlPanelWindow, mainWindow, startedMinimized } = this.windowManager;
-    if (controlPanelWindow && !controlPanelWindow.isDestroyed()) return controlPanelWindow;
-    if (startedMinimized && mainWindow && !mainWindow.isDestroyed()) return mainWindow;
-    return null;
-  }
-
   _syncStartupEnv(setVars, clearVars = []) {
     let changed = false;
     for (const [key, value] of Object.entries(setVars)) {
@@ -385,8 +342,7 @@ class IPCHandlers {
         set: Object.keys(setVars),
         cleared: clearVars.filter((k) => !process.env[k]),
       });
-      // A swallowed .env write failure here left GPU enablement flags silently
-      // out of sync with the packs on disk (#1340) — log which keys were lost.
+      // Log which keys were lost when the .env write fails (#1340).
       this.environmentManager.saveAllKeysToEnvFile().catch((err) => {
         debugLogger.error("Failed to persist startup env vars to .env", {
           set: Object.keys(setVars),
@@ -438,14 +394,7 @@ class IPCHandlers {
 
     ipcMain.handle("onboarding-set-active", (_event, active) => {
       if (typeof active !== "boolean") return false;
-      const result = this.windowManager.setOnboardingActive(active);
-      // The dictation panel can show the GPU pack notice only once the normal
-      // app is up: until then it stays hidden.
-      const noticeWindow = this._gpuPackNoticeWindow();
-      if (!active && noticeWindow && noticeWindow === this.windowManager.mainWindow) {
-        noticeWindow.webContents.send("gpu-pack-migration-notice-ready");
-      }
-      return result;
+      return this.windowManager.setOnboardingActive(active);
     });
 
     ipcMain.handle("onboarding-demo-publish", (_event, event) => {
@@ -1124,13 +1073,6 @@ class IPCHandlers {
       return { success: true };
     });
 
-    // One-time "GPU pack needs re-downloading" notice recorded before any
-    // window existed (#1606). Only the window that shows it can take it.
-    ipcMain.handle("take-gpu-pack-migration-notice", (event) => {
-      if (event.sender !== this._gpuPackNoticeWindow()?.webContents) return null;
-      return require("./gpuPackMigrationNotice").take();
-    });
-
     ipcMain.handle("update-hotkey", async (event, hotkey) => {
       return await this.windowManager.updateHotkey(hotkey);
     });
@@ -1398,114 +1340,6 @@ class IPCHandlers {
       }
     });
 
-    ipcMain.handle("model-get-all", async () => {
-      try {
-        debugLogger.debug("model-get-all called", undefined, "ipc");
-        const modelManager = require("./modelManagerBridge").default;
-        const models = await modelManager.getModelsWithStatus();
-        debugLogger.debug("Returning models", { count: models.length }, "ipc");
-        return models;
-      } catch (error) {
-        debugLogger.error("Error in model-get-all:", error);
-        throw error;
-      }
-    });
-
-    ipcMain.handle("model-get-active-downloads", async () => {
-      return this.localModelDownloadStatus.getActiveDownloads();
-    });
-
-    ipcMain.handle("model-download", async (event, modelId) => {
-      if (this.localModelDownloadStatus.has("llm", modelId)) {
-        return {
-          success: false,
-          error: "Model is already being downloaded",
-          code: "DOWNLOAD_IN_PROGRESS",
-          details: { modelId },
-        };
-      }
-      // Claim ownership before the manager's asynchronous filesystem preflight.
-      this.localModelDownloadStatus.start("llm", modelId);
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        const result = await modelManager.downloadModel(
-          modelId,
-          (progress, downloadedSize, totalSize) => {
-            const status = this.localModelDownloadStatus.update("llm", modelId, {
-              phase: "downloading",
-              progress,
-              downloadedBytes: downloadedSize,
-              totalBytes: totalSize,
-            });
-            this.windowManager.sendToControlPanel("model-download-progress", {
-              modelId,
-              type: "progress",
-              progress,
-              downloadedSize,
-              totalSize,
-              sequence: status.sequence,
-            });
-          }
-        );
-        const status = this.localModelDownloadStatus.finish("llm", modelId);
-        this.windowManager.sendToControlPanel("model-download-progress", {
-          modelId,
-          type: "complete",
-          progress: 100,
-          downloadedSize: status?.downloadedBytes,
-          totalSize: status?.totalBytes,
-          sequence: status?.sequence,
-        });
-        return { success: true, path: result };
-      } catch (error) {
-        const status = this.localModelDownloadStatus.finish("llm", modelId);
-        if (error.code !== "DOWNLOAD_IN_PROGRESS") {
-          this.windowManager.sendToControlPanel("model-download-progress", {
-            modelId,
-            type: "error",
-            error: error.message,
-            code: error.code,
-            details: error.details,
-            sequence: status?.sequence,
-          });
-        }
-        return {
-          success: false,
-          error: error.message,
-          code: error.code,
-          details: error.details,
-        };
-      }
-    });
-
-    ipcMain.handle("model-delete", async (event, modelId) => {
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        await modelManager.deleteModel(modelId);
-        return { success: true };
-      } catch (error) {
-        return {
-          success: false,
-          error: error.message,
-          code: error.code,
-          details: error.details,
-        };
-      }
-    });
-
-    ipcMain.handle("model-cancel-download", async (event, modelId) => {
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        const cancelled = modelManager.cancelDownload(modelId);
-        return { success: cancelled };
-      } catch (error) {
-        return {
-          success: false,
-          error: error.message,
-        };
-      }
-    });
-
     ipcMain.handle(
       "proxy-mistral-transcription",
       serializeIpcError(async (event, { audioBuffer, model, contextBias }) => {
@@ -1576,10 +1410,6 @@ class IPCHandlers {
       saveSecretKey("getCortiClientSecret", "saveCortiClientSecret", "cortiClientSecret")
     );
 
-    ipcMain.handle("get-tinfoil-chat-models", async () => {
-      return getTinfoilChatModels();
-    });
-
     ipcMain.handle("get-custom-transcription-key", async () => {
       return this.environmentManager.getCustomTranscriptionKey();
     });
@@ -1592,422 +1422,6 @@ class IPCHandlers {
         "customTranscriptionApiKey"
       )
     );
-
-    ipcMain.handle("get-cleanup-custom-key", async () => {
-      return this.environmentManager.getCleanupCustomKey();
-    });
-
-    ipcMain.handle(
-      "save-cleanup-custom-key",
-      saveSecretKey("getCleanupCustomKey", "saveCleanupCustomKey", "cleanupCustomApiKey")
-    );
-
-    ipcMain.handle("save-bedrock-region", async (event, value) => {
-      return this.environmentManager.saveBedrockRegion(value);
-    });
-    ipcMain.handle("save-bedrock-profile", async (event, value) => {
-      return this.environmentManager.saveBedrockProfile(value);
-    });
-    ipcMain.handle("get-bedrock-access-key-id", async () => {
-      return this.environmentManager.getBedrockAccessKeyId();
-    });
-    ipcMain.handle(
-      "save-bedrock-access-key-id",
-      saveSecretKey("getBedrockAccessKeyId", "saveBedrockAccessKeyId", "bedrockAccessKeyId")
-    );
-    ipcMain.handle("get-bedrock-secret-access-key", async () => {
-      return this.environmentManager.getBedrockSecretAccessKey();
-    });
-    ipcMain.handle(
-      "save-bedrock-secret-access-key",
-      saveSecretKey(
-        "getBedrockSecretAccessKey",
-        "saveBedrockSecretAccessKey",
-        "bedrockSecretAccessKey"
-      )
-    );
-    ipcMain.handle("get-bedrock-session-token", async () => {
-      return this.environmentManager.getBedrockSessionToken();
-    });
-    ipcMain.handle(
-      "save-bedrock-session-token",
-      saveSecretKey("getBedrockSessionToken", "saveBedrockSessionToken", "bedrockSessionToken")
-    );
-    ipcMain.handle("save-azure-endpoint", async (event, value) => {
-      return this.environmentManager.saveAzureEndpoint(value);
-    });
-    ipcMain.handle("get-azure-api-key", async () => {
-      return this.environmentManager.getAzureApiKey();
-    });
-    ipcMain.handle(
-      "save-azure-api-key",
-      saveSecretKey("getAzureApiKey", "saveAzureApiKey", "azureApiKey")
-    );
-    ipcMain.handle("save-azure-deployment", async (event, value) => {
-      return this.environmentManager.saveAzureDeployment(value);
-    });
-    ipcMain.handle("save-azure-api-version", async (event, value) => {
-      return this.environmentManager.saveAzureApiVersion(value);
-    });
-    ipcMain.handle("save-vertex-project", async (event, value) => {
-      return this.environmentManager.saveVertexProject(value);
-    });
-    ipcMain.handle("save-vertex-location", async (event, value) => {
-      return this.environmentManager.saveVertexLocation(value);
-    });
-    ipcMain.handle("get-vertex-api-key", async () => {
-      return this.environmentManager.getVertexApiKey();
-    });
-    ipcMain.handle(
-      "save-vertex-api-key",
-      saveSecretKey("getVertexApiKey", "saveVertexApiKey", "vertexApiKey")
-    );
-
-    // Enterprise provider test connection
-    ipcMain.handle("test-enterprise-connection", async (event, provider, config) => {
-      const {
-        mapEnterpriseError,
-        runAbortableOperation,
-        runBedrockRequest,
-        validateEnterpriseEndpoint,
-      } = require("./enterpriseProviderErrors");
-      let runtime;
-      try {
-        const { generateText } = require("ai");
-        const { getEnterpriseAIModel } = require("./enterpriseAiProviders");
-
-        const resolveModel = (abortSignal) =>
-          runAbortableOperation(async () => {
-            runtime = await resolveEnterpriseRuntime(
-              event,
-              provider,
-              config?.model || "test",
-              config
-            );
-            abortSignal?.throwIfAborted();
-            validateEnterpriseEndpoint(runtime.enterprise.azureEndpoint);
-            return getEnterpriseAIModel(
-              runtime.provider,
-              runtime.model,
-              runtime.apiKey,
-              runtime.enterprise
-            );
-          }, abortSignal);
-
-        if (provider === "bedrock") {
-          await runBedrockRequest(async () => {
-            const abortSignal = AbortSignal.timeout(config?.timeoutMs || 30_000);
-            const model = await resolveModel(abortSignal);
-            return generateText({
-              model,
-              prompt: "Say hello in one word.",
-              maxOutputTokens: CONNECTION_TEST_MAX_OUTPUT_TOKENS,
-              abortSignal,
-              maxRetries: 0,
-            });
-          });
-        } else {
-          const model = await resolveModel();
-          await generateText({
-            model,
-            prompt: "Say hello in one word.",
-            maxOutputTokens: CONNECTION_TEST_MAX_OUTPUT_TOKENS,
-          });
-        }
-
-        return { success: true };
-      } catch (err) {
-        const mappingConfig =
-          runtime?.provider === "bedrock" && runtime.enterprise?.bedrockRegion
-            ? { ...(config || {}), bedrockRegion: runtime.enterprise.bedrockRegion }
-            : config;
-        const mapped = mapEnterpriseError(provider, err, mappingConfig);
-        return {
-          success: false,
-          error: mapped.message,
-          messageKey: mapped.messageKey,
-          messageParams: mapped.messageParams,
-          action: mapped.action,
-          actionKey: mapped.actionKey,
-          copyCommand: mapped.copyCommand,
-          retryable: mapped.retryable,
-          technicalDetails: mapped.technicalDetails,
-        };
-      }
-    });
-
-    ipcMain.handle(
-      "process-enterprise-reasoning",
-      async (event, text, modelId, _agentName, config) => {
-        const {
-          isEnterpriseProvider,
-          mapEnterpriseError,
-          runAbortableOperation,
-          runBedrockRequest,
-          validateEnterpriseEndpoint,
-        } = require("./enterpriseProviderErrors");
-        const provider = config?.provider;
-        let runtime;
-        try {
-          if (!isEnterpriseProvider(provider)) {
-            throw new Error(`Unsupported enterprise provider: ${provider}`);
-          }
-          const isBedrockCleanup =
-            provider === "bedrock" && config?.inferenceScope === "dictationCleanup";
-          const sender = isBedrockCleanup ? event.sender : null;
-          const senderId = sender?.id;
-          const requestId = isBedrockCleanup ? crypto.randomUUID() : null;
-          const controller = isBedrockCleanup
-            ? this._enterpriseReasoningRequests.begin(senderId, requestId)
-            : null;
-          const cancelSenderRequests = () =>
-            this._enterpriseReasoningRequests.cancelSender(senderId);
-          try {
-            if (controller) {
-              sender.once("destroyed", cancelSenderRequests);
-              if (sender.isDestroyed()) controller.abort();
-            }
-            controller?.signal.throwIfAborted();
-
-            const { generateText } = require("ai");
-            const { getEnterpriseAIModel } = require("./enterpriseAiProviders");
-            const timeoutMs = config?.timeoutMs || 60000;
-            // Opus 4.7 / GPT-5 / o-series dropped `temperature`; renderer
-            // derives support from the model registry and we honor that here.
-            const useTemperature = config?.supportsTemperature !== false;
-            const resolveModel = (abortSignal) =>
-              runAbortableOperation(async () => {
-                runtime = await resolveEnterpriseRuntime(event, provider, modelId, config || {});
-                abortSignal?.throwIfAborted();
-                if (!runtime.model) throw new Error("No model specified for enterprise reasoning");
-                validateEnterpriseEndpoint(runtime.enterprise.azureEndpoint);
-                return getEnterpriseAIModel(
-                  runtime.provider,
-                  runtime.model,
-                  runtime.apiKey,
-                  runtime.enterprise
-                );
-              }, abortSignal);
-            const generate = (model, abortSignal, disableNestedRetries = false) => {
-              return generateText({
-                model,
-                system: config?.systemPrompt || "",
-                prompt: text,
-                maxOutputTokens: config?.maxTokens || 4096,
-                ...(useTemperature ? { temperature: config?.temperature ?? 0.3 } : {}),
-                abortSignal,
-                ...(disableNestedRetries ? { maxRetries: 0 } : {}),
-              });
-            };
-            let result;
-            if (isBedrockCleanup) {
-              result = await runBedrockRequest(
-                async () => {
-                  const abortSignal = AbortSignal.any([
-                    controller.signal,
-                    AbortSignal.timeout(timeoutMs),
-                  ]);
-                  const model = await resolveModel(abortSignal);
-                  return generate(model, abortSignal, true);
-                },
-                { signal: controller.signal }
-              );
-            } else {
-              const model = await resolveModel();
-              result = await generate(model, AbortSignal.timeout(timeoutMs));
-            }
-            const { text: generated, finishReason } = result;
-
-            if (
-              config?.requireCompleteOutput &&
-              ["length", "max-tokens", "max_tokens"].includes(finishReason)
-            ) {
-              throw Object.assign(new Error("Model output was truncated"), {
-                messageKey: CLEANUP_TRUNCATED_MESSAGE_KEY,
-              });
-            }
-
-            return { success: true, text: (generated || "").trim() };
-          } finally {
-            if (controller) {
-              sender.removeListener("destroyed", cancelSenderRequests);
-              this._enterpriseReasoningRequests.complete(senderId, requestId, controller);
-            }
-          }
-        } catch (err) {
-          debugLogger.error("Enterprise reasoning error:", err);
-          const mappingConfig =
-            runtime?.provider === "bedrock" && runtime.enterprise?.bedrockRegion
-              ? { ...(config || {}), bedrockRegion: runtime.enterprise.bedrockRegion }
-              : config || {};
-          const mapped = mapEnterpriseError(provider, err, mappingConfig);
-          return {
-            success: false,
-            error: mapped.message,
-            // mapEnterpriseError matches provider failures, so a truncation falls through
-            // to its generic mapping — keep the key the throw site set.
-            messageKey: err.messageKey || mapped.messageKey,
-            messageParams: mapped.messageParams,
-            action: mapped.action,
-            actionKey: mapped.actionKey,
-            copyCommand: mapped.copyCommand,
-            retryable: mapped.retryable,
-            technicalDetails: mapped.technicalDetails,
-          };
-        }
-      }
-    );
-
-    ipcMain.on("enterprise-reasoning-cancel", (event) => {
-      this._enterpriseReasoningRequests.cancelSender(event.sender.id);
-    });
-
-    // Runs doStream for the renderer's enterprise chat model shim; parts are
-    // relayed verbatim over enterprise-stream-part, ending with {done}/{error}.
-    this.enterpriseStreamAborts = new Map();
-    ipcMain.handle("enterprise-stream-start", async (event, payload) => {
-      const {
-        isEnterpriseProvider,
-        mapEnterpriseError,
-        validateEnterpriseEndpoint,
-      } = require("./enterpriseProviderErrors");
-      const { streamId, provider, modelId, config, options } = payload || {};
-      let runtime;
-      const send = (message) => {
-        if (!event.sender.isDestroyed()) {
-          event.sender.send("enterprise-stream-part", { streamId, ...message });
-        }
-      };
-      const abortController = new AbortController();
-      this.enterpriseStreamAborts.set(streamId, abortController);
-      // isDestroyed() stays false across reload/navigation, which wipes the
-      // renderer listeners — abort so the provider request isn't billed for
-      // a generation nobody receives.
-      const abortOnGone = (_event, _url, isInPlace, isMainFrame) => {
-        if (isMainFrame && !isInPlace) abortController.abort();
-      };
-      const abortOnDestroyed = () => abortController.abort();
-      event.sender.on("did-start-navigation", abortOnGone);
-      event.sender.once("destroyed", abortOnDestroyed);
-      try {
-        if (!streamId || !isEnterpriseProvider(provider)) {
-          throw new Error(`Unsupported enterprise provider: ${provider}`);
-        }
-        runtime = await resolveEnterpriseRuntime(event, provider, modelId, config || {});
-        if (!runtime.model) throw new Error("No model specified for enterprise streaming");
-        validateEnterpriseEndpoint(runtime.enterprise.azureEndpoint);
-
-        const { getEnterpriseAIModel } = require("./enterpriseAiProviders");
-        const model = await getEnterpriseAIModel(
-          runtime.provider,
-          runtime.model,
-          runtime.apiKey,
-          runtime.enterprise
-        );
-
-        const { stream } = await model.doStream({
-          ...options,
-          abortSignal: abortController.signal,
-        });
-        const reader = stream.getReader();
-        try {
-          for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (event.sender.isDestroyed()) {
-              abortController.abort();
-              break;
-            }
-            send({ part: value });
-          }
-        } finally {
-          reader.releaseLock();
-        }
-        send({ done: true });
-        return { success: true };
-      } catch (err) {
-        debugLogger.error("Enterprise stream error:", err);
-        const mappingConfig =
-          runtime?.provider === "bedrock" && runtime.enterprise?.bedrockRegion
-            ? { ...(config || {}), bedrockRegion: runtime.enterprise.bedrockRegion }
-            : config || {};
-        const mapped = mapEnterpriseError(provider, err, mappingConfig);
-        send({ error: mapped.message });
-        return { success: false, error: mapped.message };
-      } finally {
-        this.enterpriseStreamAborts.delete(streamId);
-        if (!event.sender.isDestroyed()) {
-          event.sender.removeListener("did-start-navigation", abortOnGone);
-          event.sender.removeListener("destroyed", abortOnDestroyed);
-        }
-      }
-    });
-
-    ipcMain.handle("enterprise-stream-cancel", async (event, streamId) => {
-      this.enterpriseStreamAborts.get(streamId)?.abort();
-      this.enterpriseStreamAborts.delete(streamId);
-    });
-
-    // Lists the text models the account serves in the selected region,
-    // resolved to invocable IDs (bare on-demand or geo-scoped profile IDs).
-    ipcMain.handle("bedrock-list-models", async (event, config) => {
-      const { mapEnterpriseError } = require("./enterpriseProviderErrors");
-      try {
-        const runtime = await resolveEnterpriseRuntime(
-          event,
-          "bedrock",
-          config?.model || "test",
-          config
-        );
-        const {
-          BedrockClient,
-          ListFoundationModelsCommand,
-          paginateListInferenceProfiles,
-        } = require("@aws-sdk/client-bedrock");
-        const { normalizeBedrockCatalog } = require("./bedrockCatalog");
-
-        const region = runtime.enterprise.bedrockRegion || "us-east-1";
-        let credentials;
-        if (runtime.enterprise.bedrockProfile) {
-          const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
-          credentials = fromNodeProviderChain({ profile: runtime.enterprise.bedrockProfile });
-        } else if (
-          runtime.enterprise.bedrockAccessKeyId &&
-          runtime.enterprise.bedrockSecretAccessKey
-        ) {
-          credentials = {
-            accessKeyId: runtime.enterprise.bedrockAccessKeyId,
-            secretAccessKey: runtime.enterprise.bedrockSecretAccessKey,
-            sessionToken: runtime.enterprise.bedrockSessionToken || undefined,
-          };
-        }
-        const client = new BedrockClient({ region, ...(credentials ? { credentials } : {}) });
-
-        const [foundationModels, profileSummaries] = await Promise.all([
-          client.send(new ListFoundationModelsCommand({ byOutputModality: "TEXT" })),
-          (async () => {
-            const summaries = [];
-            const paginator = paginateListInferenceProfiles(
-              { client },
-              { typeEquals: "SYSTEM_DEFINED" }
-            );
-            for await (const page of paginator) {
-              summaries.push(...(page.inferenceProfileSummaries || []));
-            }
-            return summaries;
-          })(),
-        ]);
-
-        return {
-          success: true,
-          models: normalizeBedrockCatalog(foundationModels.modelSummaries, profileSummaries),
-        };
-      } catch (err) {
-        debugLogger.error("Bedrock model listing error:", err);
-        const mapped = mapEnterpriseError("bedrock", err, config || {});
-        return { success: false, error: mapped.message };
-      }
-    });
 
     ipcMain.handle("get-dictation-key", async () => {
       return this.environmentManager.getDictationKey();
@@ -2049,7 +1463,7 @@ class IPCHandlers {
       return this.environmentManager.saveAllKeysToEnvFile();
     });
 
-    ipcMain.handle("sync-startup-preferences", async (event, prefs) => {
+    ipcMain.handle("sync-startup-preferences", async () => {
       const setVars = {};
       const clearVars = [];
 
@@ -2060,324 +1474,18 @@ class IPCHandlers {
       // the read fallback is removed (~2 releases after this lands).
       clearVars.push("REASONING_PROVIDER", "LOCAL_REASONING_MODEL");
 
-      const modelManager = require("./modelManagerBridge").default;
-      modelManager.serverManager.setKeepResident(prefs.keepLocalModelLoaded === true);
-
-      const localServer = resolveLocalServerNeeds(prefs);
-
-      if (localServer.cleanup) {
-        setVars.CLEANUP_PROVIDER = "local";
-        setVars.LOCAL_CLEANUP_MODEL = localServer.cleanup;
-      } else {
-        clearVars.push("CLEANUP_PROVIDER", "LOCAL_CLEANUP_MODEL");
-      }
-
-      if (localServer.dictationAgent) {
-        setVars.DICTATION_AGENT_PROVIDER = "local";
-        setVars.LOCAL_DICTATION_AGENT_MODEL = localServer.dictationAgent;
-      } else {
-        clearVars.push("DICTATION_AGENT_PROVIDER", "LOCAL_DICTATION_AGENT_MODEL");
-      }
-
-      // Stop the shared llama-server only when no scope still needs the model
-      // it holds, so the active scopes keep their server when another leaves.
-      if (shouldStopLocalServer(localServer, modelManager.currentServerModelId)) {
-        if (modelManager.getServerStatus().running) {
-          debugLogger.debug("Stopping llama-server: no scope needs its model", {
-            loadedModel: modelManager.currentServerModelId,
-            neededModels: localServer.models,
-          });
-        }
-        modelManager.stopServer().catch((err) => {
-          debugLogger.error("Failed to stop llama-server", { error: err.message });
-        });
-      }
+      // Local cleanup models are gone too; clear the startup pre-warm keys and
+      // GPU pack flags that older builds saved.
+      clearVars.push(
+        "CLEANUP_PROVIDER",
+        "LOCAL_CLEANUP_MODEL",
+        "DICTATION_AGENT_PROVIDER",
+        "LOCAL_DICTATION_AGENT_MODEL",
+        "LLAMA_GPU_BACKEND",
+        "LLAMA_VULKAN_ENABLED"
+      );
 
       this._syncStartupEnv(setVars, clearVars);
-    });
-
-    ipcMain.handle("process-local-reasoning", async (event, text, modelId, _agentName, config) => {
-      try {
-        const LocalReasoningService = require("../services/localReasoningBridge").default;
-        const result = await LocalReasoningService.processText(text, modelId, config);
-        return { success: true, text: result };
-      } catch (error) {
-        // code/details carry the machine-readable failure across to the
-        // renderer, which owns the translation keys. Flattening to a bare
-        // string is how llama.cpp JSON used to reach users (#2142).
-        return {
-          success: false,
-          error: error.message,
-          code: error.code,
-          details: error.details,
-        };
-      }
-    });
-
-    ipcMain.handle("cancel-local-reasoning", (event, requestId) => {
-      require("../services/localReasoningBridge").default.cancel(requestId);
-    });
-
-    ipcMain.handle(
-      "process-anthropic-reasoning",
-      async (event, text, modelId, _agentName, config) => {
-        try {
-          const apiKey = this.environmentManager.getAnthropicKey();
-
-          if (!apiKey) {
-            throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, {
-              provider: "Anthropic",
-              surface: "llm",
-            });
-          }
-
-          const systemPrompt = config?.systemPrompt || "";
-          const userPrompt = text;
-
-          if (!modelId) {
-            throw new Error("No model specified for Anthropic API call");
-          }
-
-          const screenContext = config?.screenContext;
-          const userContent = screenContext
-            ? [
-                { type: "text", text: userPrompt },
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: screenContext.mediaType,
-                    data: screenContext.data,
-                  },
-                },
-              ]
-            : userPrompt;
-
-          // Claude models from Opus 4.7 onward reject `temperature` with a 400;
-          // the renderer derives support from the model registry.
-          const useTemperature = config?.supportsTemperature === true;
-          const requestBody = {
-            model: modelId,
-            messages: [{ role: "user", content: userContent }],
-            system: systemPrompt,
-            max_tokens: config?.maxTokens || Math.max(100, Math.min(text.length * 2, 4096)),
-            ...(useTemperature ? { temperature: config?.temperature ?? 0.3 } : {}),
-          };
-
-          const response = await proxyFetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-API-Key": apiKey,
-              "anthropic-version": "2023-06-01",
-            },
-            body: JSON.stringify(requestBody),
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            debugLogger.warn("Anthropic API error", {
-              status: response.status,
-              body: redactProviderBody(errorText),
-            });
-            return {
-              success: false,
-              ...ipcErrorFields(
-                providerHttpError({
-                  provider: "Anthropic",
-                  model: modelId,
-                  status: response.status,
-                  body: errorText,
-                  headers: response.headers,
-                  surface: "llm",
-                })
-              ),
-            };
-          }
-
-          const data = await response.json();
-          if (config?.requireCompleteOutput && data.stop_reason === "max_tokens") {
-            throw Object.assign(new Error("Model output was truncated"), {
-              messageKey: CLEANUP_TRUNCATED_MESSAGE_KEY,
-            });
-          }
-          const outputText = extractAnthropicText(data);
-          if (outputText === null) {
-            throw Object.assign(new Error(describeMissingAnthropicText(data)), {
-              messageKey: CLEANUP_EMPTY_REPLY_MESSAGE_KEY,
-            });
-          }
-          return { success: true, text: outputText };
-        } catch (error) {
-          debugLogger.error("Anthropic reasoning error:", error);
-          // A network failure rejects proxyFetch before any response.
-          return {
-            success: false,
-            ...ipcErrorFields(
-              asProviderError(error, { provider: "Anthropic", model: modelId, surface: "llm" })
-            ),
-          };
-        }
-      }
-    );
-
-    ipcMain.handle("check-local-reasoning-available", async () => {
-      try {
-        const LocalReasoningService = require("../services/localReasoningBridge").default;
-        return await LocalReasoningService.isAvailable();
-      } catch (error) {
-        return false;
-      }
-    });
-
-    ipcMain.handle("llama-server-start", async (event, modelId) => {
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        modelManager.ensureInitialized();
-        const modelInfo = modelManager.findModelById(modelId);
-        if (!modelInfo) {
-          return { success: false, error: `Model "${modelId}" not found` };
-        }
-
-        const modelPath = require("path").join(modelManager.modelsDir, modelInfo.model.fileName);
-
-        await modelManager.serverManager.start(
-          modelPath,
-          await modelManager.serverStartOptions(modelInfo)
-        );
-        modelManager.currentServerModelId = modelId;
-
-        this.environmentManager.saveAllKeysToEnvFile().catch(() => {});
-        return { success: true, port: modelManager.serverManager.port };
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("llama-server-status", async () => {
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        return modelManager.getServerStatus();
-      } catch (error) {
-        return { available: false, running: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("llama-gpu-reset", async () => {
-      try {
-        const modelManager = require("./modelManagerBridge").default;
-        const previousModelId = modelManager.currentServerModelId;
-        modelManager.serverManager.resetGpuDetection();
-        await modelManager.stopServer();
-
-        // Restart server with previous model so Vulkan binary is picked up
-        if (previousModelId) {
-          modelManager.prewarmServer(previousModelId).catch(() => {});
-        }
-
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("detect-vulkan-gpu", async () => {
-      try {
-        const { detectVulkanGpu } = require("../utils/vulkanDetection");
-        return await detectVulkanGpu();
-      } catch (error) {
-        return { available: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("get-llama-vulkan-status", async () => {
-      try {
-        if (!this._llamaVulkanManager) {
-          const LlamaVulkanManager = require("./llamaVulkanManager");
-          this._llamaVulkanManager = new LlamaVulkanManager();
-        }
-        return this._llamaVulkanManager.getStatus();
-      } catch (error) {
-        return { supported: false, downloaded: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("download-llama-vulkan-binary", async (event) => {
-      try {
-        if (!this._llamaVulkanManager) {
-          const LlamaVulkanManager = require("./llamaVulkanManager");
-          this._llamaVulkanManager = new LlamaVulkanManager();
-        }
-
-        // Stop Vulkan server before downloading to release file locks on DLLs (Windows EBUSY)
-        const modelManager = require("./modelManagerBridge").default;
-        if (modelManager.serverManager.activeBackend === "vulkan") {
-          await modelManager.stopServer().catch((err) => {
-            debugLogger.warn("Failed to stop Vulkan server before download", {
-              error: err.message,
-            });
-          });
-        }
-
-        const result = await this._llamaVulkanManager.download((downloaded, total) => {
-          if (!event.sender.isDestroyed()) {
-            event.sender.send("llama-vulkan-download-progress", {
-              downloaded,
-              total,
-              percentage: total > 0 ? Math.round((downloaded / total) * 100) : 0,
-            });
-          }
-        });
-
-        if (result.success) {
-          process.env.LLAMA_VULKAN_ENABLED = "true";
-          delete process.env.LLAMA_GPU_BACKEND;
-          modelManager.serverManager.cachedServerBinaryPaths = null;
-          await this.environmentManager.saveAllKeysToEnvFile().catch(() => {});
-          // Stop server so next inference picks up the new Vulkan binary
-          await modelManager.stopServer().catch(() => {});
-        }
-
-        return result;
-      } catch (error) {
-        debugLogger.error("Vulkan binary download failed", {
-          error: error.message,
-          stack: error.stack,
-        });
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle("cancel-llama-vulkan-download", async () => {
-      if (this._llamaVulkanManager) {
-        return { success: this._llamaVulkanManager.cancelDownload() };
-      }
-      return { success: false };
-    });
-
-    ipcMain.handle("delete-llama-vulkan-binary", async () => {
-      try {
-        if (!this._llamaVulkanManager) {
-          const LlamaVulkanManager = require("./llamaVulkanManager");
-          this._llamaVulkanManager = new LlamaVulkanManager();
-        }
-
-        const modelManager = require("./modelManagerBridge").default;
-        if (modelManager.serverManager.activeBackend === "vulkan") {
-          await modelManager.stopServer();
-        }
-
-        const result = await this._llamaVulkanManager.deleteBinary();
-
-        delete process.env.LLAMA_VULKAN_ENABLED;
-        delete process.env.LLAMA_GPU_BACKEND;
-        modelManager.serverManager.cachedServerBinaryPaths = null;
-        this.environmentManager.saveAllKeysToEnvFile().catch(() => {});
-
-        return result;
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
     });
 
     ipcMain.handle("get-log-level", async () => {
@@ -2597,12 +1705,6 @@ class IPCHandlers {
     // Honors system proxy via Electron's net stack. useSessionCookies:false so
     // Electron doesn't auto-attach jar cookies on top of our explicit headers.
     const proxyFetch = (url, init = {}) => net.fetch(url, { ...init, useSessionCookies: false });
-    const resolveEnterpriseRuntime = async (event, provider, model, config = {}) => ({
-      provider,
-      model,
-      apiKey: config.apiKey || "",
-      enterprise: require("./enterpriseProviderErrors").pickEnterpriseConfig(config),
-    });
 
     ipcMain.handle("retry-transcription", async (event, id, settings) => {
       const buffer = this.audioStorageManager.getAudioBuffer(id);

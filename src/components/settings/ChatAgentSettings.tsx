@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { SectionHeader } from "../ui/SettingsSection";
-import InferenceConfigEditor from "./InferenceConfigEditor";
 
 export default function ChatAgentSettings() {
   const { t } = useTranslation();
@@ -10,8 +9,6 @@ export default function ChatAgentSettings() {
 
   return (
     <div className="space-y-6">
-      <InferenceConfigEditor scope="chatIntelligence" />
-
       <div>
         <SectionHeader
           title={t("agentMode.settings.systemPrompt")}

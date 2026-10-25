@@ -9,12 +9,6 @@ const bindings = [
     ["corti-client-id", "cortiClientId", "saveCortiClientId"],
     ["corti-client-secret", "cortiClientSecret", "saveCortiClientSecret"],
     ["custom-transcription-key", "customTranscriptionApiKey", "saveCustomTranscriptionKey"],
-    ["cleanup-custom-key", "cleanupCustomApiKey", "saveCleanupCustomKey"],
-    ["bedrock-access-key-id", "bedrockAccessKeyId", "saveBedrockAccessKeyId"],
-    ["bedrock-secret-access-key", "bedrockSecretAccessKey", "saveBedrockSecretAccessKey"],
-    ["bedrock-session-token", "bedrockSessionToken", "saveBedrockSessionToken"],
-    ["azure-api-key", "azureApiKey", "saveAzureApiKey"],
-    ["vertex-api-key", "vertexApiKey", "saveVertexApiKey"],
   ].map(([channel, storeKey, save]) => ({
     channel: `save-${channel}`,
     storeKey,

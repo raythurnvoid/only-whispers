@@ -34,9 +34,7 @@
         "agentReasoningFailed": "لم يتمكن المساعد الصوتي من معالجة الأمر — تم إدراج النص المفرَّغ الخام بدلًا من ذلك.",
         "screenContextSkipped": "تعذر إرسال لقطة الشاشة، لذا تم تشغيل أمرك بدون سياق الشاشة.",
         "providerKeyMissing": "لم يتم تعيين مفتاح API لمزود التفريغ الخاص بك. أضفه في الإعدادات ← تحويل الكلام إلى نص (Speech to Text).",
-        "cleanupTruncated": "نفدت مساحة الإخراج لدى نموذج الذكاء الاصطناعي قبل أن يُكمل تنقيح إملائك.",
-        "cleanupDuplicated": "كرر تنقيح الذكاء الاصطناعي النص. تم الاحتفاظ بالنص الأصلي.",
-        "cleanupEmptyReply": "أرجع نموذج الذكاء الاصطناعي ردًا فارغًا بدلًا من الإملاء المنقَّح."
+        "cleanupDuplicated": "كرر تنقيح الذكاء الاصطناعي النص. تم الاحتفاظ بالنص الأصلي."
       },
       "selectionEditing": {
         "notAppliedTitle": "لم يتم تطبيق تعديل التحديد",
@@ -106,41 +104,6 @@
         "nowUsing": "يتم الآن استخدام {{hotkey}} للإملاء"
       }
     },
-    "modelDownload": {
-      "errors": {
-        "timeout": "انتهت مهلة التنزيل. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
-        "notFound": "تعذر الوصول إلى خادم التنزيل. تحقق من اتصالك بالإنترنت.",
-        "corrupted": "كان التنزيل غير مكتمل أو تالفًا. يرجى المحاولة مرة أخرى.",
-        "rateLimited": "يقوم خادم التنزيل بتقييد المعدل. يرجى الانتظار بضع دقائق والمحاولة مرة أخرى.",
-        "server": "خطأ في الخادم ({{error}}). يرجى المحاولة مرة أخرى لاحقًا.",
-        "generic": "فشل التنزيل: {{error}}",
-        "extractionFailed": "تم تنزيل النموذج ولكن فشل التثبيت. انقر فوق تنزيل لإعادة محاولة التثبيت دون إعادة التنزيل.",
-        "tlsError": "خطأ في الشهادة — قد تستخدم شبكتك فحص SSL الذي يحظر التنزيلات. حاول التنزيل من شبكة مختلفة.",
-        "unknown": "خطأ غير معروف"
-      },
-      "downloadFailed": {
-        "title": "فشل التنزيل"
-      },
-      "installationFailed": {
-        "title": "فشل التثبيت"
-      },
-      "downloadInProgress": {
-        "title": "التنزيل قيد التقدم",
-        "description": "يرجى الانتظار حتى يكتمل التنزيل الحالي أو قم بإلغائه أولًا."
-      },
-      "modelDeleted": {
-        "title": "تم حذف النموذج",
-        "description": "تم حذف النموذج بنجاح!"
-      },
-      "deleteFailed": {
-        "title": "فشل الحذف",
-        "description": "فشل حذف النموذج: {{error}}"
-      },
-      "downloadCancelled": {
-        "title": "تم إلغاء التنزيل",
-        "description": "تم إلغاء التنزيل."
-      }
-    },
     "permissions": {
       "paths": {
         "windowsMicrophone": "الإعدادات ← الخصوصية ← الميكروفون",
@@ -185,8 +148,6 @@
     }
   },
   "models": {
-    "learnMore": "اعرف المزيد",
-    "noneAvailable": "لا توجد نماذج متاحة",
     "descriptions": {
       "cohere": {
         "cohere_transcribe_03_2026": "أدق نموذج محلي للتعرف على الكلام (متوسط معدل خطأ الكلمة 5.42%، 14 لغة). بدون اكتشاف تلقائي للغة"
@@ -229,219 +190,11 @@
         "assemblyai_universal_3_5_pro": "أعلى دقة في الوقت الفعلي، 18 لغة",
         "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: سريع ودقيق، أكثر من 50 لغة، 0.0035$/دقيقة",
         "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: الأكثر دقة، أكثر من 50 لغة، 0.004$/دقيقة"
-      },
-      "cloud": {
-        "openai_gpt_5_2": "نموذج استنتاج قوي",
-        "openai_gpt_5_mini": "سريع وفعال من حيث التكلفة",
-        "openai_gpt_5_nano": "فائق السرعة، زمن انتقال منخفض",
-        "openai_gpt_4_1": "أساس قوي، سياق 1 مليون",
-        "openai_gpt_4_1_mini": "نموذج GPT-4.1 أصغر",
-        "openai_gpt_4_1_nano": "GPT-4.1 بأقل زمن انتقال",
-        "anthropic_claude_fable_5_1": "نموذج Anthropic الأكثر قدرة، فئة Mythos",
-        "anthropic_claude_fable_5": "الرائد السابق من فئة Mythos",
-        "anthropic_claude_opus_5_5": "أحدث نموذج Opus للاستنتاج المعقد، سياق 1 مليون",
-        "anthropic_claude_sonnet_5_5": "أحدث Sonnet: سريع وقادر للعمل اليومي، سياق 1 مليون",
-        "anthropic_claude_haiku_5_5": "أسرع نموذج Claude وأقلّه تكلفة، سياق 1 مليون",
-        "anthropic_claude_sonnet_5": "نموذج مساعد سريع وقادر بتكلفة أقل",
-        "anthropic_claude_sonnet_4_6": "أداء متوازن",
-        "anthropic_claude_sonnet_4_5": "جيل Sonnet السابق",
-        "anthropic_claude_haiku_4_5": "سريع بذكاء يقترب من مستوى النماذج الرائدة",
-        "gemini_gemini_3_5_flash": "أحدث نموذج Gemini سريع وعالي القدرة",
-        "gemini_gemini_3_5_flash_lite": "نموذج 3.5 الأسرع والأكثر فعالية من حيث التكلفة",
-        "gemini_gemini_3_1_pro_preview": "نموذج رائد من الجيل التالي للاستنتاج المعقد",
-        "gemini_gemini_3_1_flash_lite": "أداء من الدرجة الأولى بتكلفة منخفضة",
-        "gemini_gemini_3_flash_preview": "نموذج من الجيل التالي فائق السرعة وعالي القدرة",
-        "gemini_gemini_2_5_flash_lite": "أقل زمن انتقال وتكلفة",
-        "gemini_gemma_4_31b_it": "أكبر نموذج Gemma 4 من Google، نموذج كثيف بحجم 31B، سياق 256K",
-        "gemini_gemma_4_26b_a4b_it": "نموذج Gemma 4 MoE من Google، بمعلمات نشطة 4B، سياق 256K",
-        "groq_openai_gpt_oss_120b": "نموذج OpenAI مفتوح المصدر الرائد، 500 رمز/ثانية",
-        "groq_qwen_qwen3_8_27b": "نموذج Qwen سريع، 450 رمز/ثانية، سياق 131K",
-        "groq_openai_gpt_oss_20b": "نموذج سريع مفتوح المصدر، 1000 رمز/ثانية",
-        "openai_gpt_6_astra": "نموذج OpenAI الأكثر قدرة للبرمجة والبحث",
-        "openai_gpt_5_6_sol": "GPT-5.6 الرائد للبرمجة والبحوث المعقدة",
-        "openai_gpt_5_6_terra": "GPT-5.6 متوازن للعمل اليومي",
-        "openai_gpt_5_6_luna": "GPT-5.6 الأسرع والأقل تكلفة",
-        "openai_gpt_5_5": "نموذج رائد للاستنتاج المعقد",
-        "anthropic_claude_opus_5": "نموذج Opus الرائد السابق، سياق 1 مليون",
-        "anthropic_claude_opus_4_8": "نموذج Opus قوي مضبوط من أجل الصدق والموثوقية",
-        "anthropic_claude_opus_4_7": "نموذج Opus قوي",
-        "anthropic_claude_opus_4_6": "جيل Opus السابق، سياق 1 مليون",
-        "anthropic_claude_opus_4_5": "نموذج Opus أقدم",
-        "tinfoil_gemma4_31b": "نموذج استنتاج خاص متعدد اللغات مع استدعاء الأدوات، سياق 256K",
-        "tinfoil_gpt_oss_120b": "نموذج استنتاج خاص مفتوح الوزن مع استخدام الأدوات، سياق 131K",
-        "tinfoil_llama3_3_70b": "نموذج محادثة خاص مع استدعاء الأدوات، سياق 128K",
-        "corti_corti_s1_instant": "نموذج رعاية صحية سريع، بدون تتبع الاستنتاج",
-        "corti_corti_s1": "النموذج السريري الأكثر قدرة مع الاستنتاج",
-        "corti_corti_s1_mini_instant": "نموذج رعاية صحية مدمج، الأسرع والأقل تكلفة",
-        "corti_corti_s1_mini": "نموذج سريري مدمج مع استنتاج بنصف السعر",
-        "tinfoil_glm_5_3": "نموذج خاص للهندسة البرمجية بقدرات وكيلية في بيئات معزولة وآمنة، سياق 1M"
-      },
-      "enterprise": {
-        "bedrock_claude_fable_5": "نموذج Claude الأكثر قدرة. الأفضل لأصعب مهام المساعد.",
-        "bedrock_claude_haiku_4_5": "سريع ورخيص. خيار افتراضي رائع لتنظيف النص.",
-        "bedrock_claude_sonnet_5": "نموذج موثوق متوازن للاستخدام اليومي. أفضل خيار افتراضي لمهام المساعد.",
-        "bedrock_claude_opus_4_8": "أقصى درجات الذكاء. الأفضل لمهام المساعد المعقدة.",
-        "bedrock_gpt_oss_120b": "نموذج OpenAI مفتوح الوزن. استنتاج قوي بتكلفة منخفضة.",
-        "bedrock_deepseek_v3_2": "نموذج رائد مفتوح الوزن. قيمة رائعة لمهام المساعد.",
-        "bedrock_qwen3_next_80b": "نموذج متناثر مفتوح الوزن. سريع ومتعدد اللغات.",
-        "vertex_gemini_2_5_flash": "نموذج متعدد الوسائط سريع عبر Vertex",
-        "vertex_gemini_2_5_pro": "استنتاج متقدم عبر Vertex"
-      },
-      "local": {
-        "qwen_qwen3_5_9b_q4_k_m": "نموذج هجين قوي",
-        "qwen_qwen3_5_4b_q4_k_m": "نموذج Qwen3.5 متوازن للاستخدام العام",
-        "qwen_qwen3_5_2b_q4_k_m": "نموذج Qwen3.5 صغير للمهام السريعة",
-        "qwen_qwen3_8b_q4_k_m": "أحدث إصدار من Qwen3 مع دعم وضع التفكير",
-        "qwen_qwen3_8b_q5_k_m": "نموذج Qwen3 بجودة أعلى مع وضع التفكير",
-        "qwen_qwen3_4b_q4_k_m": "نموذج Qwen3 مدمج مع قدرات استنتاج",
-        "qwen_qwen3_1_7b_q8_0": "نموذج Qwen3 صغير ولكنه قادر",
-        "qwen_qwen3_32b_q4_k_m": "أقوى نموذج Qwen3 محلي باستنتاج عميق",
-        "qwen_qwen2_5_1_5b_instruct_q5_k_m": "نموذج صغير، جيد للمهام الأساسية",
-        "qwen_qwen2_5_3b_instruct_q5_k_m": "نموذج متوازن للاستخدام العام",
-        "qwen_qwen2_5_7b_instruct_q4_k_m": "نموذج كبير بجودة عالية (Q4_K_M)",
-        "qwen_qwen2_5_7b_instruct_q5_k_m": "نموذج كبير، استنتاج عالي الجودة (Q5_K_M)",
-        "mistral_mistral_7b_instruct_v0_3_q4_k_m": "نموذج تعليمات سريع وفعال",
-        "mistral_mistral_7b_instruct_v0_3_q5_k_m": "نموذج تعليمات بجودة أعلى",
-        "mistral_nemo_12b_instruct_q4_k_m": "نموذج Mistral بحجم 12B، أداء قوي متعدد اللغات",
-        "llama_llama_3_2_1b_instruct_q4_k_m": "نموذج صغير جدًا لأجهزة الحافة",
-        "llama_llama_3_2_3b_instruct_q4_k_m": "نموذج صغير ولكنه قادر ومتعدد اللغات",
-        "llama_llama_3_1_8b_instruct_q4_k_m": "نموذج قوي بأداء رائع",
-        "openai_oss_gpt_oss_20b_mxfp4": "نموذج مفتوح الوزن من OpenAI لأجهزة المستهلكين",
-        "gemma_gemma_3_4b_it_q4_k_m": "نموذج مفتوح الوزن من Google، توازن رائع بين السرعة والجودة",
-        "gemma_gemma_4_31b_it_q4_k_m": "أكبر نموذج Gemma 4 من Google، أفضل جودة",
-        "gemma_gemma_4_31b_it_qat_q4_0": "إصدار QAT الرسمي من Google، أصغر حجمًا مع الحفاظ على الجودة",
-        "gemma_gemma_4_26b_a4b_it_q4_k_m": "نموذج MoE Gemma 4 من Google، سريع مع معلمات نشطة 4B",
-        "gemma_gemma_4_26b_a4b_it_qat_q4_0": "إصدار QAT MoE الرسمي من Google، أصغر حجمًا مع الحفاظ على الجودة",
-        "gemma_gemma_4_e4b_it_q4_k_m": "أحدث نموذج متعدد الوسائط من Google، استنتاج قوي",
-        "gemma_gemma_4_e4b_it_qat_q4_0": "إصدار QAT الرسمي من Google، استنتاج قوي، حجم أصغر",
-        "gemma_gemma_4_e2b_it_q4_k_m": "نموذج Gemma 4 المدمج من Google، سريع وفعال",
-        "gemma_gemma_4_e2b_it_qat_q4_0": "إصدار QAT المدمج الرسمي من Google، مع الحفاظ على الجودة",
-        "gemma_gemma_3_12b_it_q4_k_m": "نموذج متوسط المدى من Google، استنتاج قوي",
-        "gemma_gemma_3_1b_it_q4_k_m": "نموذج Google فائق السرعة، الأفضل لتنظيف الإملاء القصير",
-        "liquidai_lfm2_5_1_2b_instruct_q4_k_m": "نموذج فعال على الجهاز من Liquid AI، اتباع ممتاز للتعليمات",
-        "liquidai_lfm2_5_8b_a1b_q4_k_m": "نموذج MoE من Liquid AI، جودة عالية مع معلمات نشطة 1.5B فقط",
-        "liquidai_lfm2_2_6b_q4_k_m": "نموذج LFM2 متوازن لتنظيف بجودة أعلى",
-        "liquidai_lfm2_5_350m_q8_0": "نموذج خفيف للغاية للتنظيف السريع للإملاء",
-        "liquidai_lfm2_5_230m_q8_0": "نموذج صغير جدًا، تنظيف فوري على الأجهزة المتواضعة"
       }
-    },
-    "errors": {
-      "contextTooLarge": "هذا أطول من أن يقرأه {{model}} على هذا الكمبيوتر. عدد الرموز المطلوبة من السياق: نحو {{needed}}، لكن ما يتسع في الذاكرة: {{max}} فقط. جرّب نموذجًا سحابيًا، أو نفّذ الإجراء على تحديد أقصر.",
-      "contextTooLargeGeneric": "هذا أطول من أن يقرأه {{model}} على هذا الكمبيوتر. جرّب نموذجًا سحابيًا، أو نفّذ الإجراء على تحديد أقصر.",
-      "localServerUnavailable": "تعذّر تشغيل {{model}} على هذا الكمبيوتر. حاول مرة أخرى، أو بدّل إلى نموذج سحابي.",
-      "localModelBusy": "لا يزال النموذج المحلي يعالج طلبًا آخر. انتظر حتى ينتهي، ثم حاول مرة أخرى."
     }
   },
   "reasoning": {
-    "mode": {
-      "cloud": "سحابي (Cloud)",
-      "local": "محلي (Local)",
-      "localDescription": "يعمل على جهازك. خصوصية تامة، يعمل بدون إنترنت.",
-      "cloudDescription": "نماذج متقدمة عبر API. سريعة وقادرة، وتتطلب اتصالًا بالإنترنت."
-    },
-    "custom": {
-      "endpointWithProtocol": "أدخل عنوان URL أساسي كامل يتضمن البروتوكول (على سبيل المثال، https://server/v1).",
-      "httpsRequired": "يتطلب HTTPS (يُسمح بـ HTTP للشبكة المحلية فقط).",
-      "endpointInvalid": "نقطة النهاية المخصصة غير صالحة أو غير مهيأة. تحقق من عنوان URL لنقطة النهاية في الإعدادات ← نماذج الذكاء الاصطناعي (AI Models).",
-      "endpointUnauthorized": "رفضت نقطة النهاية الطلب (401/403). أضف مفتاح API أو اضبط إعدادات مصادقة الخادم.",
-      "endpointTitle": "عنوان URL لنقطة النهاية",
-      "endpointExamples": "أمثلة:",
-      "apiKeyOptional": "مفتاح API (اختياري)",
-      "apiKeyHelp": "اختياري. يتم إرساله كرمز Bearer للمصادقة. هذا منفصل عن مفتاح OpenAI API الخاص بك.",
-      "applyAndRefresh": "تطبيق وتحديث",
-      "queryPrefix": "سنستعلم من",
-      "querySuffix": "عن النماذج المتاحة.",
-      "modelsReloadHint": "سيتم إعادة تحميل النماذج عند النقر بعيدًا عن حقل عنوان URL أو النقر فوق \"تطبيق وتحديث\".",
-      "enterEndpoint": "أدخل عنوان URL لنقطة النهاية أعلاه لتحميل النماذج.",
-      "fetchingModels": "جاري جلب قائمة النماذج من نقطة النهاية...",
-      "noModels": "لم يتم إرجاع أي نماذج. تحقق من عنوان URL لنقطة النهاية.",
-      "providerName": "مخصص",
-      "ownerLabel": "المالك: {{owner}}",
-      "unableToLoadModels": "تعذر تحميل النماذج من نقطة النهاية.",
-      "searchPlaceholder": "البحث عن النماذج...",
-      "selectedGroup": "المحدد",
-      "otherGroup": "أخرى",
-      "noSearchResults": "لا توجد نماذج تتطابق مع \"{{query}}\"",
-      "selectModelHint": "لم يتم تحديد أي نموذج بعد — اختر واحدًا من القائمة أدناه.",
-      "keyRequiredHint": "مفتاح API مطلوب للاستدلال — أضف واحدًا لاستخدام هذا المزود."
-    },
-    "effort": {
-      "title": "مستوى الاستدلال",
-      "description": "مقدار تفكير النموذج قبل أن يجيب.",
-      "descriptionWithDefault": "مقدار تفكير النموذج قبل أن يجيب. يستخدم الوضع التلقائي الإعداد الافتراضي للمزوّد ({{value}}).",
-      "auto": "تلقائي",
-      "options": {
-        "none": "بلا",
-        "minimal": "أدنى",
-        "low": "منخفض",
-        "medium": "متوسط",
-        "high": "مرتفع",
-        "xhigh": "مرتفع جدًا",
-        "max": "أقصى"
-      }
-    },
-    "getApiKey": "احصل على مفتاح API الخاص بك ←",
-    "selectModel": "تحديد النموذج",
-    "availableModels": "النماذج المتاحة",
-    "disableThinking": {
-      "label": "تعطيل مخرجات التفكير",
-      "help": "يتخطى رموز الاستنتاج للحصول على مخرجات أنظف. موصى به للتنظيف. تتجاهل بعض الخوادم هذا التلميح."
-    },
-    "keepModelLoaded": {
-      "label": "إبقاء النموذج محمّلاً",
-      "help": "يبقى في الذاكرة بدلًا من إزالته بعد 5 دقائق من عدم النشاط، فيتجنّب الطلب التالي البدء البارد. ينطبق على كل الميزات التي تستخدم نموذجًا محليًا."
-    },
-    "selfHosted": {
-      "endpointHelp": "أدخل عنوان خادم متوافق مع OpenAI على شبكتك المحلية (مثل Ollama أو LM Studio أو vLLM أو llama-server)."
-    },
     "enterprise": {
-      "testConnection": "اختبار الاتصال",
-      "testing": "جاري الاختبار...",
-      "testSuccess": "متصل",
-      "testFailed": "فشل الاتصال",
-      "authMode": "المصادقة",
-      "ssoProfile": "ملف تعريف SSO",
-      "accessKeys": "مفاتيح الوصول",
-      "adc": "بيانات الاعتماد الافتراضية للتطبيق (ADC)",
-      "apiKeyMode": "مفتاح API",
-      "region": "المنطقة (Region)",
-      "profile": "اسم ملف التعريف (Profile Name)",
-      "accessKeyId": "معرف مفتاح الوصول (Access Key ID)",
-      "secretAccessKey": "مفتاح الوصول السري (Secret Access Key)",
-      "sessionToken": "رمز الجلسة (اختياري)",
-      "endpoint": "عنوان URL لنقطة النهاية",
-      "deploymentName": "اسم النشر (Deployment Name)",
-      "apiVersion": "إصدار API",
-      "projectId": "معرف المشروع (Project ID)",
-      "location": "الموقع (Location)",
-      "customModelId": "معرف النموذج المخصص",
-      "customModelPlaceholder": "أدخل معرف النموذج أو اسم النشر",
-      "suggestedModels": "النماذج المقترحة",
-      "browseModels": "تصفح جميع النماذج",
-      "loadingModels": "جاري جلب النماذج...",
-      "allModels": "جميع النماذج في {{region}}",
-      "modelListError": "تعذر تحميل النماذج.",
-      "bedrock": {
-        "ssoHelp": "يستخدم تكوين AWS CLI SSO الخاص بك. تأكد من أنك قمت بتشغيل 'aws sso login'."
-      },
-      "errors": {
-        "bedrock": {
-          "ssoExpired": "انتهت صلاحية جلسة AWS SSO.",
-          "credentialsRejected": "رفضت AWS بيانات الاعتماد. تحقق من معرّف مفتاح الوصول والمفتاح السري ورمز الجلسة.",
-          "accessDenied": "رفضت AWS Bedrock هذا الطلب. اطلب من مسؤول AWS منح إذن لاستدعاء النموذج المحدد في المنطقة {{region}}.",
-          "modelNotFound": "تعذر على AWS Bedrock العثور على النموذج المحدد في المنطقة {{region}}. تحقق من معرّف النموذج ومن توفره في تلك المنطقة.",
-          "configurationRejected": "رفضت AWS Bedrock تهيئة النموذج للمنطقة {{region}}. تحقق من معرّف النموذج وملف تعريف الاستدلال والمنطقة.",
-          "notConfigured": "لم يتم تكوين AWS Bedrock بشكل صحيح. تحقق من المنطقة وبيانات اعتماد AWS.",
-          "serviceUnavailable": "خدمة AWS Bedrock غير متاحة مؤقتًا بسبب ارتفاع الطلب. هذه مشكلة في خدمة AWS وليست انقطاعًا في only-whispers. يُرجى المحاولة مرة أخرى بعد بضع دقائق.",
-          "throttled": "تقيّد AWS Bedrock الطلبات مؤقتًا لأنها تتلقى عددًا كبيرًا منها. انتظر لحظة وحاول مرة أخرى. إذا استمر ذلك، فاطلب من مسؤول AWS التحقق من استخدام Bedrock وحصصها.",
-          "timeout": "لم تستجب AWS Bedrock ضمن المهلة. حاول مرة أخرى. إذا استمر ذلك، فتحقق من اتصالك بالإنترنت وحالة خدمة AWS Bedrock.",
-          "network": "تعذر الوصول إلى AWS Bedrock. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
-          "unknown": "خطأ في AWS Bedrock: {{error}}",
-          "actions": {
-            "reauthenticate": "شغّل الأمر أدناه في الطرفية (terminal) لإعادة المصادقة:"
-          }
-        }
-      },
       "technicalDetails": {
         "title": "التفاصيل التقنية",
         "httpStatus": "حالة HTTP",
@@ -450,26 +203,7 @@
         "underlyingError": "الخطأ الأساسي",
         "copy": "نسخ التفاصيل التقنية",
         "copyCommand": "نسخ أمر الاسترداد"
-      },
-      "azure": {
-        "endpointHelp": "نقطة نهاية مورد Azure OpenAI الخاصة بك (على سبيل المثال، https://myresource.openai.azure.com).",
-        "deploymentHelp": "اسم نشر النموذج الخاص بك في Azure OpenAI."
-      },
-      "vertex": {
-        "adcHelp": "يستخدم بيانات الاعتماد الافتراضية للتطبيق. قم بتشغيل: gcloud auth application-default login",
-        "apikeyHelp": "مفتاح Vertex AI Express Mode API من Google AI Studio."
       }
-    },
-    "modelRetiredTitle": "النموذج لم يعد متاحًا",
-    "groq": {
-      "modelRetired": "قام Groq بإيقاف {{from}}. تم التبديل إلى {{to}}."
-    },
-    "tinfoil": {
-      "modelRetired": "قام Tinfoil بإيقاف {{from}}. تم التبديل إلى {{to}}.",
-      "refreshingModels": "جاري تحديث النماذج..."
-    },
-    "corti": {
-      "euOnly": "نماذج Corti متوفرة فقط في منطقة الاتحاد الأوروبي."
     },
     "chatgpt": {
       "title": "خطة ChatGPT",
@@ -781,10 +515,6 @@
       },
       "addedToDict": "تمت إضافة {{words}} إلى قاموسك",
       "undo": "تراجع",
-      "gpuPackMigration": {
-        "title": "تحتاج حزمة GPU إلى إعادة التنزيل",
-        "description": "لا يمكن لهذا الإصدار استخدام حزمة GPU السابقة ({{packs}}). أعد تنزيلها من الإعدادات لإعادة تشغيل تسريع GPU."
-      },
       "cleanupFailed": {
         "title": "فشل التنقيح",
         "description": "تم لصق الإملاء الأصلي دون تنقيح بالذكاء الاصطناعي."
@@ -905,8 +635,6 @@
       "provider": {
         "apiKey": "مفتاح API",
         "apiKeyPlaceholder": "الصق مفتاح API الخاص بك",
-        "testing": "جاري الاختبار...",
-        "connected": "متصل",
         "connectionFailed": "تعذر التحقق من الاتصال.",
         "unverified": "تعذر التحقق: {{reason}}",
         "errors": {
@@ -973,14 +701,7 @@
       "enableTextCleanup": "تمكين تنظيف النص",
       "enableTextCleanupDescription": "استخدم الذكاء الاصطناعي لإزالة كلمات الحشو، وإصلاح القواعد، وتنسيق علامات الترقيم",
       "modes": {
-        "providers": "إحضار مفتاحك الخاص",
-        "local": "محلي",
-        "selfHosted": "مستضاف ذاتيًا",
-        "enterprise": "مؤسسي",
-        "providersDesc": "استخدم مفتاح API الخاص بك للاتصال بمزود LLM المفضل لديك.",
-        "localDesc": "نماذج على الجهاز. خاصة بالكامل.",
-        "selfHostedDesc": "خادمك الخاص على شبكتك.",
-        "enterpriseDesc": "استخدم الحساب السحابي لمؤسستك (AWS، Azure، GCP)."
+        "selfHosted": "مستضاف ذاتيًا"
       },
       "title": "نماذج الذكاء الاصطناعي",
       "description": "يحوّل Mistral كلامك إلى نص، وتنظّف خطة ChatGPT النص."
@@ -1223,19 +944,12 @@
     "continue": "متابعة",
     "retry": "إعادة المحاولة",
     "back": "رجوع",
-    "reset": "إعادة تعيين",
-    "refresh": "تحديث",
-    "download": "تنزيل",
     "cancel": "إلغاء",
-    "recommended": "موصى به",
     "active": "نشط",
-    "managedByOrg": "مُدار بواسطة مؤسستك",
     "signInRequired": "تسجيل الدخول مطلوب",
     "signIn": "تسجيل الدخول",
-    "apiKey": "مفتاح API",
     "loading": "جاري التحميل...",
     "unknown": "غير معروف",
-    "availableModels": "النماذج المتاحة",
     "hold": "استمرار الضغط",
     "tap": "نقر",
     "close": "إغلاق",
@@ -1250,18 +964,8 @@
     "errors": {
       "cloudUnreachable": {
         "title": "تعذر الوصول إلى خدمة التفريغ",
-        "generic": "فشل طلب الشبكة. تحقق من اتصالك.",
-        "dnsBlocked": "لا يستطيع DNS العثور على عنوان الخدمة — قد يقوم مانع الإعلانات أو مرشح بحظره.",
-        "refused": "تم رفض الاتصال — على الأرجح بسبب جدار حماية أو VPN.",
-        "timeout": "انتهت مهلة الشبكة — بسبب VPN أو صفحة تسجيل دخول للشبكة (captive portal) أو اتصال غير مستقر.",
-        "tls": "فشلت مصافحة TLS — تحقق من ساعة نظامك أو وجود وكيل شبكة خاص بالشركة."
+        "generic": "فشل طلب الشبكة. تحقق من اتصالك."
       }
-    }
-  },
-  "transcription": {
-    "deleteModel": {
-      "title": "حذف النموذج",
-      "description": "هل أنت متأكد من أنك تريد حذف هذا النموذج؟ ستحتاج إلى إعادة تنزيله إذا أردت استخدامه مرة أخرى."
     }
   },
   "cleanupPrompt": "التنظيف",
@@ -1396,29 +1100,6 @@
     "mistralKey": "مفتاح Mistral API (تحويل الكلام إلى نص)",
     "getMistralKey": "احصل على مفتاح من Mistral admin",
     "start": "ابدأ الإملاء"
-  },
-  "apiKeyInput": {
-    "placeholder": "الصق مفتاح API الخاص بك",
-    "label": "مفتاح API",
-    "save": "حفظ مفتاح API",
-    "cancelEdit": "إلغاء التعديل",
-    "edit": "تعديل مفتاح API",
-    "add": "إضافة مفتاح API",
-    "editButton": "تعديل",
-    "addButton": "إضافة"
-  },
-  "gpu": {
-    "reasoningBanner": "اجعل معالجة الذكاء الاصطناعي أسرع باستخدام تسريع GPU",
-    "enableButton": "تفعيل GPU",
-    "active": "تسريع GPU نشط",
-    "ready": "تسريع GPU جاهز",
-    "activating": "جاري تفعيل GPU...",
-    "activationFailed": "تسريع GPU غير متاح",
-    "reasoningActivationFailedDescription": "انتقل only-whispers إلى استخدام وحدة المعالجة المركزية (CPU) للمعالجة.",
-    "retryActivation": "إعادة محاولة تفعيل GPU",
-    "remove": "إزالة",
-    "dismiss": "ليس الآن",
-    "cancel": "إلغاء"
   },
   "assistant": {
     "panel": {

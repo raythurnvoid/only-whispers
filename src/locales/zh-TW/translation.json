@@ -92,19 +92,12 @@
     "continue": "繼續",
     "retry": "重試",
     "back": "返回",
-    "reset": "重設",
-    "refresh": "重新整理",
-    "download": "下載",
     "cancel": "取消",
-    "recommended": "推薦",
     "active": "使用中",
-    "managedByOrg": "由您的組織管理",
     "signInRequired": "需要登入",
     "signIn": "登入",
-    "apiKey": "API Key",
     "loading": "載入中...",
     "unknown": "未知",
-    "availableModels": "可用模型",
     "hold": "按住",
     "tap": "點按",
     "close": "關閉",
@@ -127,8 +120,6 @@
       "provider": {
         "apiKey": "API 金鑰",
         "apiKeyPlaceholder": "貼上你的 API Key",
-        "testing": "測試中…",
-        "connected": "已連接",
         "connectionFailed": "無法驗證這個連線。",
         "unverified": "無法驗證：{{reason}}",
         "errors": {
@@ -173,11 +164,7 @@
     "errors": {
       "cloudUnreachable": {
         "title": "無法連線到轉錄服務",
-        "generic": "網路請求失敗，請檢查你的連線。",
-        "dnsBlocked": "DNS 找不到該服務的位址 — 廣告封鎖器或過濾器可能阻擋了它。",
-        "refused": "連線被拒絕 — 可能是防火牆或 VPN。",
-        "timeout": "網路逾時 — VPN、強制入口頁或連線不穩定。",
-        "tls": "TLS 交握失敗 — 請檢查系統時鐘或企業 Proxy。"
+        "generic": "網路請求失敗，請檢查你的連線。"
       }
     }
   },
@@ -268,115 +255,7 @@
     "loading": "載入中..."
   },
   "reasoning": {
-    "mode": {
-      "cloud": "雲端",
-      "local": "本機",
-      "localDescription": "在你的裝置上執行。完全私密，可離線使用。",
-      "cloudDescription": "透過 API 使用進階模型。快速且強大，需要網路。"
-    },
-    "custom": {
-      "endpointWithProtocol": "請輸入包含通訊協定的完整 URL（例如 https://server/v1）。",
-      "httpsRequired": "需使用 HTTPS（僅限本機網路可使用 HTTP）。",
-      "endpointInvalid": "自訂端點無效或未設定。請在設定 → AI 模型中檢查端點 URL。",
-      "endpointUnauthorized": "端點拒絕了請求（401/403）。請新增 API Key 或調整伺服器驗證設定。",
-      "endpointTitle": "端點 URL",
-      "endpointExamples": "範例：",
-      "apiKeyOptional": "API Key（選填）",
-      "apiKeyHelp": "選填。作為 Bearer token 傳送以進行驗證。這與你的 OpenAI API Key 無關。",
-      "applyAndRefresh": "套用並重新整理",
-      "queryPrefix": "我們將查詢",
-      "querySuffix": "以取得可用模型。",
-      "modelsReloadHint": "離開 URL 欄位或點擊「套用並重新整理」後，模型清單將重新載入。",
-      "enterEndpoint": "請在上方輸入端點 URL 以載入模型。",
-      "fetchingModels": "正在從端點取得模型清單...",
-      "noModels": "沒有取得任何模型。請檢查端點 URL。",
-      "providerName": "自訂",
-      "ownerLabel": "擁有者：{{owner}}",
-      "unableToLoadModels": "無法從端點載入模型。",
-      "searchPlaceholder": "搜尋模型…",
-      "selectedGroup": "已選擇",
-      "otherGroup": "其他",
-      "noSearchResults": "沒有與「{{query}}」相符的模型",
-      "selectModelHint": "尚未選擇模型 — 請從下方清單中選擇一個。",
-      "keyRequiredHint": "推論需要 API 金鑰 — 請新增金鑰以使用此供應商。"
-    },
-    "effort": {
-      "title": "推理強度",
-      "description": "模型在回答前思考的程度。",
-      "descriptionWithDefault": "模型在回答前思考的程度。「自動」使用服務商的預設設定（{{value}}）。",
-      "auto": "自動",
-      "options": {
-        "none": "無",
-        "minimal": "極低",
-        "low": "低",
-        "medium": "中",
-        "high": "高",
-        "xhigh": "極高",
-        "max": "最大"
-      }
-    },
-    "getApiKey": "取得 API Key ->",
-    "selectModel": "選擇模型",
-    "availableModels": "可用模型",
-    "disableThinking": {
-      "label": "停用思考輸出",
-      "help": "略過推理權杖以獲得更乾淨的輸出。建議用於清理。某些伺服器會忽略此提示。"
-    },
-    "keepModelLoaded": {
-      "label": "保持模型載入",
-      "help": "閒置 5 分鐘後仍保留在記憶體中，不會卸載，下一次請求無需冷啟動。適用於所有使用本機模型的功能。"
-    },
-    "selfHosted": {
-      "endpointHelp": "指向本地網路中相容 OpenAI 的伺服器（例如 Ollama、LM Studio、vLLM 或 llama-server）。"
-    },
     "enterprise": {
-      "testConnection": "測試連線",
-      "testing": "測試中…",
-      "testSuccess": "已連線",
-      "testFailed": "連線失敗",
-      "authMode": "驗證方式",
-      "ssoProfile": "SSO 設定檔",
-      "accessKeys": "存取金鑰",
-      "adc": "Application Default Credentials",
-      "apiKeyMode": "API 金鑰",
-      "region": "區域",
-      "profile": "設定檔名稱",
-      "accessKeyId": "Access Key ID",
-      "secretAccessKey": "Secret Access Key",
-      "sessionToken": "Session Token（選用）",
-      "endpoint": "端點 URL",
-      "deploymentName": "部署名稱",
-      "apiVersion": "API 版本",
-      "projectId": "專案 ID",
-      "location": "位置",
-      "customModelId": "自訂模型 ID",
-      "customModelPlaceholder": "輸入模型 ID 或部署名稱",
-      "suggestedModels": "建議模型",
-      "browseModels": "瀏覽全部模型",
-      "loadingModels": "正在取得模型...",
-      "allModels": "{{region}} 的全部模型",
-      "modelListError": "無法載入模型。",
-      "bedrock": {
-        "ssoHelp": "使用你的 AWS CLI SSO 設定。請確保已執行 'aws sso login'。"
-      },
-      "errors": {
-        "bedrock": {
-          "ssoExpired": "AWS SSO 工作階段已過期。",
-          "credentialsRejected": "AWS 拒絕了這些憑證。請檢查存取金鑰 ID、密鑰和工作階段權杖。",
-          "accessDenied": "AWS Bedrock 拒絕了此請求。請讓 AWS 管理員授予在區域 {{region}} 中呼叫所選模型的權限。",
-          "modelNotFound": "AWS Bedrock 在區域 {{region}} 中找不到所選模型。請檢查模型 ID，以及該模型是否在此區域提供。",
-          "configurationRejected": "AWS Bedrock 拒絕了區域 {{region}} 的模型設定。請檢查模型 ID、推論設定檔和區域。",
-          "notConfigured": "AWS Bedrock 設定不正確。請檢查區域和 AWS 憑證。",
-          "serviceUnavailable": "由於需求過高，AWS Bedrock 暫時無法使用。這是 AWS 服務問題，並非 only-whispers 中斷。請幾分鐘後再試。",
-          "throttled": "由於收到太多請求，AWS Bedrock 正在暫時限制請求。請稍候再試。如果問題持續，請讓 AWS 管理員檢查 Bedrock 使用量和配額。",
-          "timeout": "AWS Bedrock 未及時回應。請重試。如果問題持續，請檢查網際網路連線和 AWS Bedrock 服務狀態。",
-          "network": "無法連線到 AWS Bedrock。請檢查網際網路連線並重試。",
-          "unknown": "AWS Bedrock 錯誤：{{error}}",
-          "actions": {
-            "reauthenticate": "請在終端機中執行以下命令以重新驗證身分："
-          }
-        }
-      },
       "technicalDetails": {
         "title": "技術詳細資料",
         "httpStatus": "HTTP 狀態",
@@ -385,26 +264,7 @@
         "underlyingError": "底層錯誤",
         "copy": "複製技術詳細資料",
         "copyCommand": "複製復原命令"
-      },
-      "azure": {
-        "endpointHelp": "你的 Azure OpenAI 資源端點（例如 https://myresource.openai.azure.com）。",
-        "deploymentHelp": "Azure OpenAI 中的模型部署名稱。"
-      },
-      "vertex": {
-        "adcHelp": "使用 Application Default Credentials。請執行：gcloud auth application-default login",
-        "apikeyHelp": "從 Google AI Studio 取得的 Vertex AI Express Mode API 金鑰。"
       }
-    },
-    "modelRetiredTitle": "模型已無法使用",
-    "groq": {
-      "modelRetired": "Groq 已停用 {{from}}，已切換至 {{to}}。"
-    },
-    "tinfoil": {
-      "modelRetired": "Tinfoil 已停用 {{from}}，已切換至 {{to}}。",
-      "refreshingModels": "正在重新整理模型…"
-    },
-    "corti": {
-      "euOnly": "Corti 模型僅在歐盟地區可用。"
     },
     "chatgpt": {
       "title": "ChatGPT 方案",
@@ -413,12 +273,6 @@
       "signingIn": "請在瀏覽器中完成登入...",
       "signOut": "登出",
       "signedInAs": "已登入為 {{email}}"
-    }
-  },
-  "transcription": {
-    "deleteModel": {
-      "title": "刪除模型",
-      "description": "確定要刪除此模型嗎？如果之後要使用，需要重新下載。"
     }
   },
   "hooks": {
@@ -456,9 +310,7 @@
         "agentReasoningFailed": "語音助理無法處理該指令，已改為插入原始逐字稿。",
         "screenContextSkipped": "截圖無法傳送，因此已在沒有螢幕內容的情況下執行你的指令。",
         "providerKeyMissing": "尚未為您的轉錄服務商設定 API 金鑰。請在「設定 → 語音轉文字」中新增。",
-        "cleanupTruncated": "AI 模型的輸出長度達到上限，未能完成聽寫清理。",
-        "cleanupDuplicated": "AI 清理重複了轉錄內容。已保留原始文字。",
-        "cleanupEmptyReply": "AI 模型傳回空白回應，沒有產生清理後的文字。"
+        "cleanupDuplicated": "AI 清理重複了轉錄內容。已保留原始文字。"
       },
       "pushForceStopped": {
         "title": "轉錄內容未貼上",
@@ -526,41 +378,6 @@
       },
       "messages": {
         "nowUsing": "現在使用 {{hotkey}} 進行語音輸入"
-      }
-    },
-    "modelDownload": {
-      "errors": {
-        "timeout": "下載逾時。請檢查網路連線後再試。",
-        "notFound": "無法連線到下載伺服器。請檢查你的網路連線。",
-        "corrupted": "下載不完整或檔案損毀。請再試一次。",
-        "rateLimited": "下載伺服器正在限制流量。請稍候幾分鐘後再試。",
-        "server": "伺服器錯誤（{{error}}）。請稍後再試。",
-        "generic": "下載失敗：{{error}}",
-        "extractionFailed": "模型已下載，但安裝失敗。點擊下載可重試安裝，無需重新下載。",
-        "tlsError": "憑證錯誤 — 您的網路可能使用了阻擋下載的SSL檢查。請嘗試從其他網路下載。",
-        "unknown": "未知錯誤"
-      },
-      "downloadFailed": {
-        "title": "下載失敗"
-      },
-      "installationFailed": {
-        "title": "安裝失敗"
-      },
-      "downloadInProgress": {
-        "title": "下載進行中",
-        "description": "請等待目前的下載完成，或先取消它。"
-      },
-      "modelDeleted": {
-        "title": "模型已刪除",
-        "description": "模型已成功刪除！"
-      },
-      "deleteFailed": {
-        "title": "刪除失敗",
-        "description": "無法刪除模型：{{error}}"
-      },
-      "downloadCancelled": {
-        "title": "下載已取消",
-        "description": "下載已被取消。"
       }
     },
     "permissions": {
@@ -809,14 +626,7 @@
       "enableTextCleanup": "啟用文字整理",
       "enableTextCleanupDescription": "AI 移除語助詞，修正文法和標點",
       "modes": {
-        "providers": "自備金鑰",
-        "local": "本機",
-        "selfHosted": "自架主機",
-        "providersDesc": "使用你自己的 API Key 連接你慣用的 LLM 服務商。",
-        "localDesc": "裝置端模型，完全私密。",
-        "selfHostedDesc": "你的伺服器，在你的網路上。",
-        "enterprise": "企業級",
-        "enterpriseDesc": "使用你組織的雲端帳號（AWS、Azure、GCP）。"
+        "selfHosted": "自架主機"
       },
       "title": "AI 模型",
       "description": "Mistral 將你的語音轉為文字,你的 ChatGPT 方案負責整理文字。"
@@ -967,8 +777,6 @@
     }
   },
   "models": {
-    "learnMore": "瞭解更多",
-    "noneAvailable": "沒有可用的模型",
     "descriptions": {
       "cohere": {
         "cohere_transcribe_03_2026": "最準確的本地語音辨識(平均 WER 5.42%,支援 14 種語言)。不支援自動語言偵測"
@@ -1008,110 +816,10 @@
         "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3:快速、準確,支援 50 多種語言,$0.0035/分鐘",
         "mistral_voxtral_small_transcribe_3_0": "Voxtral 3:最準確,支援 50 多種語言,$0.004/分鐘"
       },
-      "cloud": {
-        "openai_gpt_5_2": "強大的推理模型",
-        "openai_gpt_5_mini": "快速且經濟實惠",
-        "openai_gpt_5_nano": "超快速，低延遲",
-        "openai_gpt_4_1": "穩健基礎，1M 上下文",
-        "openai_gpt_4_1_mini": "較小的 GPT-4.1 模型",
-        "openai_gpt_4_1_nano": "最低延遲的 GPT-4.1",
-        "anthropic_claude_fable_5_1": "Anthropic 最強大的模型，Mythos 級",
-        "anthropic_claude_fable_5": "上一代 Mythos 級旗艦模型",
-        "anthropic_claude_opus_5_5": "最新 Opus 模型，適合複雜推理，1M 上下文",
-        "anthropic_claude_sonnet_5_5": "最新 Sonnet：快速強大，適合日常工作，1M 上下文",
-        "anthropic_claude_haiku_5_5": "速度最快、成本最低的 Claude 模型，1M 上下文",
-        "anthropic_claude_sonnet_5": "快速且強大的助理模型，成本更低",
-        "anthropic_claude_sonnet_4_6": "均衡表現",
-        "anthropic_claude_sonnet_4_5": "上一代 Sonnet 模型",
-        "anthropic_claude_haiku_4_5": "快速且接近頂尖智慧",
-        "gemini_gemini_3_5_flash": "最新、快速且高性能的 Gemini 模型",
-        "gemini_gemini_3_5_flash_lite": "最快、最經濟的 3.5 模型",
-        "gemini_gemini_3_1_pro_preview": "新一代旗艦模型，擅長複雜推理",
-        "gemini_gemini_3_1_flash_lite": "前沿級性能，成本更低",
-        "gemini_gemini_3_flash_preview": "超快速、高性能的新一代模型",
-        "gemini_gemini_2_5_flash_lite": "最低延遲和成本",
-        "gemini_gemma_4_31b_it": "Google 最大的 Gemma 4，31B 稠密，256K 上下文",
-        "gemini_gemma_4_26b_a4b_it": "Google Gemma 4 MoE，4B 活躍參數，256K 上下文",
-        "groq_openai_gpt_oss_120b": "OpenAI 開源旗艦，500 T/sec",
-        "groq_qwen_qwen3_8_27b": "快速 Qwen 模型，450 T/sec，131K 上下文",
-        "groq_openai_gpt_oss_20b": "快速開源模型，1000 T/sec",
-        "openai_gpt_6_astra": "OpenAI 最強大的模型，適用於編碼與研究",
-        "openai_gpt_5_6_sol": "旗艦 GPT-5.6，適用於複雜編碼與研究",
-        "openai_gpt_5_6_terra": "均衡的 GPT-5.6，適合日常工作",
-        "openai_gpt_5_6_luna": "速度最快、成本最低的 GPT-5.6",
-        "openai_gpt_5_5": "複雜推理前沿模型",
-        "anthropic_claude_opus_5": "上一代 Opus 旗艦模型，1M 上下文",
-        "anthropic_claude_opus_4_8": "強大的 Opus 模型，注重誠實與可靠",
-        "anthropic_claude_opus_4_7": "強大的 Opus 模型",
-        "anthropic_claude_opus_4_6": "上一代 Opus 模型，1M 上下文",
-        "anthropic_claude_opus_4_5": "較早的 Opus 模型",
-        "tinfoil_glm_5_3": "安全飛地中的私密智能體程式設計模型，1M 上下文",
-        "tinfoil_gemma4_31b": "支援工具呼叫的私密多語言推理模型，256K 上下文",
-        "tinfoil_gpt_oss_120b": "支援工具使用的私密開放權重推理模型，131K 上下文",
-        "tinfoil_llama3_3_70b": "支援工具呼叫的私密對話模型，128K 上下文",
-        "corti_corti_s1_instant": "快速醫療模型，無推理過程",
-        "corti_corti_s1": "功能最強的臨床模型，帶推理",
-        "corti_corti_s1_mini_instant": "精簡型醫療模型，最快且成本最低",
-        "corti_corti_s1_mini": "精簡型臨床模型，半價提供推理"
-      },
-      "enterprise": {
-        "bedrock_claude_fable_5": "最強大的 Claude 模型。最適合最具挑戰性的助理任務。",
-        "bedrock_claude_haiku_4_5": "快速且低成本。適合文字清理。",
-        "bedrock_claude_sonnet_5": "均衡效能。建議作為助理任務的預設模型。",
-        "bedrock_claude_opus_4_8": "最高智能。適用於複雜的助理任務。",
-        "bedrock_gpt_oss_120b": "OpenAI 開放權重模型。低成本下的強大推理能力。",
-        "bedrock_deepseek_v3_2": "開放權重前沿模型。助理任務的高性價比之選。",
-        "bedrock_qwen3_next_80b": "稀疏開放權重模型。快速且多語言。",
-        "vertex_gemini_2_5_flash": "透過 Vertex 提供的快速多模態模型",
-        "vertex_gemini_2_5_pro": "透過 Vertex 提供的進階推理模型"
-      },
-      "local": {
-        "qwen_qwen3_5_9b_q4_k_m": "強大的混合模型",
-        "qwen_qwen3_5_4b_q4_k_m": "均衡的 Qwen3.5，通用用途",
-        "qwen_qwen3_5_2b_q4_k_m": "精巧的 Qwen3.5，快速任務",
-        "qwen_qwen3_8b_q4_k_m": "最新 Qwen3，支援思考模式",
-        "qwen_qwen3_8b_q5_k_m": "更高品質 Qwen3，支援思考模式",
-        "qwen_qwen3_4b_q4_k_m": "精巧 Qwen3，具推理能力",
-        "qwen_qwen3_1_7b_q8_0": "小巧但有能力的 Qwen3 模型",
-        "qwen_qwen3_32b_q4_k_m": "最強大的本機 Qwen3，深度推理",
-        "qwen_qwen2_5_1_5b_instruct_q5_k_m": "小型模型，適合基本任務",
-        "qwen_qwen2_5_3b_instruct_q5_k_m": "均衡模型，通用型",
-        "qwen_qwen2_5_7b_instruct_q4_k_m": "大型模型，高品質（Q4_K_M）",
-        "qwen_qwen2_5_7b_instruct_q5_k_m": "大型模型，高品質推理（Q5_K_M）",
-        "mistral_mistral_7b_instruct_v0_3_q4_k_m": "快速且高效的指令模型",
-        "mistral_mistral_7b_instruct_v0_3_q5_k_m": "更高品質的指令模型",
-        "mistral_nemo_12b_instruct_q4_k_m": "Mistral 12B 模型，優秀的多語言性能",
-        "llama_llama_3_2_1b_instruct_q4_k_m": "極小型模型，適合邊緣裝置",
-        "llama_llama_3_2_3b_instruct_q4_k_m": "小巧但有能力的多語言模型",
-        "llama_llama_3_1_8b_instruct_q4_k_m": "強大的高效能模型",
-        "openai_oss_gpt_oss_20b_mxfp4": "OpenAI 開放權重模型，適用於消費級硬體",
-        "gemma_gemma_3_4b_it_q4_k_m": "Google 開放權重模型，速度與品質的絕佳平衡",
-        "gemma_gemma_4_31b_it_q4_k_m": "Google 最大的 Gemma 4，最佳品質",
-        "gemma_gemma_4_31b_it_qat_q4_0": "Google 官方 QAT 建置，體積更小且品質不減",
-        "gemma_gemma_4_26b_a4b_it_q4_k_m": "Google MoE Gemma 4，4B 活躍參數，速度快",
-        "gemma_gemma_4_26b_a4b_it_qat_q4_0": "Google 官方 QAT MoE 建置，體積更小且品質不減",
-        "gemma_gemma_4_e4b_it_q4_k_m": "Google 最新多模態模型，強大推理能力",
-        "gemma_gemma_4_e4b_it_qat_q4_0": "Google 官方 QAT 建置，強大推理能力，體積更小",
-        "gemma_gemma_4_e2b_it_q4_k_m": "Google 緊湊型 Gemma 4，快速高效",
-        "gemma_gemma_4_e2b_it_qat_q4_0": "Google 官方緊湊型 QAT 建置，品質不減",
-        "gemma_gemma_3_12b_it_q4_k_m": "Google 中型模型，強推理能力",
-        "gemma_gemma_3_1b_it_q4_k_m": "超快 Google 模型，最適合短語音清理",
-        "liquidai_lfm2_5_1_2b_instruct_q4_k_m": "Liquid AI 高效端側模型，指令遵循出色",
-        "liquidai_lfm2_5_8b_a1b_q4_k_m": "Liquid AI 的 MoE 模型，僅 1.5B 啟用參數即可實現高品質",
-        "liquidai_lfm2_2_6b_q4_k_m": "更高品質清理的均衡 LFM2 模型",
-        "liquidai_lfm2_5_350m_q8_0": "超輕量模型，快速清理聽寫文字",
-        "liquidai_lfm2_5_230m_q8_0": "微型模型，低階硬體也能即時清理"
-      },
       "diarization": {
         "segmentation": "用於說話者分離的語音邊界偵測",
         "embedding_en": "用於說話者辨識的聲紋提取"
       }
-    },
-    "errors": {
-      "contextTooLarge": "內容過長，{{model}} 無法在這台電腦上讀取。大約需要 {{needed}} 個上下文 token，但記憶體只能容納 {{max}} 個。請改用雲端模型，或對更短的選取範圍執行該動作。",
-      "contextTooLargeGeneric": "內容過長，{{model}} 無法在這台電腦上讀取。請改用雲端模型，或對更短的選取範圍執行該動作。",
-      "localServerUnavailable": "無法在這台電腦上啟動 {{model}}。請重試，或改用雲端模型。",
-      "localModelBusy": "本機模型仍在處理另一個請求。請等待其完成後再試。"
     }
   },
   "notes": {
@@ -1262,29 +970,6 @@
     "getMistralKey": "在 Mistral admin 取得金鑰",
     "start": "開始聽寫"
   },
-  "apiKeyInput": {
-    "placeholder": "輸入你的 API Key",
-    "label": "API Key",
-    "save": "儲存",
-    "cancelEdit": "取消編輯",
-    "edit": "編輯",
-    "add": "新增",
-    "editButton": "編輯金鑰",
-    "addButton": "新增金鑰"
-  },
-  "gpu": {
-    "reasoningBanner": "使用 GPU 加速 AI 處理",
-    "enableButton": "啟用 GPU",
-    "active": "GPU 加速已啟用",
-    "ready": "GPU 加速已就緒",
-    "activating": "正在啟動 GPU...",
-    "activationFailed": "GPU 加速無法使用",
-    "reasoningActivationFailedDescription": "only-whispers 已切換為 CPU 處理。",
-    "retryActivation": "重試 GPU 加速",
-    "remove": "移除",
-    "dismiss": "暫時不要",
-    "cancel": "取消"
-  },
   "app": {
     "toasts": {
       "hotkeyChanged": {
@@ -1297,10 +982,6 @@
       },
       "addedToDict": "已將 {{words}} 加入到你的詞典",
       "undo": "復原",
-      "gpuPackMigration": {
-        "title": "需要重新下載 GPU 加速包",
-        "description": "此版本無法使用先前的 GPU 加速包（{{packs}}）。請在設定中重新下載以重新啟用 GPU 加速。"
-      },
       "cleanupFailed": {
         "title": "清理失敗",
         "description": "你的聽寫已直接貼上，未經 AI 清理。"

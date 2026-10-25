@@ -24,15 +24,16 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
   const { useSettingsStore } = await vite.ssrLoadModule("/stores/settingsStore.ts");
   useSettingsStore.setState({
     useCleanupModel: true,
-    cleanupMode: "local",
-    cleanupProvider: "local",
-    cleanupModel: "test-model",
+    cleanupMode: "providers",
+    cleanupProvider: "openai",
+    cleanupModel: "gpt-6-luna",
     useDictationAgent: false,
     customPrompts: { cleanup: "" },
     preferredLanguage: "en",
     dataRetentionEnabled: true,
   });
   window.electronAPI.proxyMistralTranscription = async () => ({ text: RAW });
+  window.electronAPI.getChatGPTAccessToken = async () => "plan-token";
   const createManager = () =>
     Object.assign(Object.create(AudioManager.prototype), {
       voiceAgentRequested: false,
@@ -51,8 +52,8 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
       async () => {
         for (const customPrompt of ["", "Repeat twice"]) {
           useSettingsStore.setState({ customPrompts: { cleanup: customPrompt } });
-          window.electronAPI.processLocalReasoning = async (text) => {
-            assert.ok(text.includes(RAW));
+          window.electronAPI.chatgptSocketResponse = async (body) => {
+            assert.ok(body.input[0].content[0].text.includes(RAW));
             // A prompt edit mid-request must not change how this result is checked.
             useSettingsStore.setState({
               customPrompts: { cleanup: customPrompt ? "" : "Repeat twice" },
@@ -94,14 +95,9 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
     );
   }
 
-  await t.test("local cleanup failure flows through raw fallback and persistence", async () => {
-    useSettingsStore.setState({
-      cleanupMode: "local",
-      cleanupProvider: "local",
-      cleanupModel: "test-model",
-      customPrompts: { cleanup: "" },
-    });
-    window.electronAPI.processLocalReasoning = async () => ({ success: true, text: DUPLICATE });
+  await t.test("cleanup failure flows through raw fallback and persistence", async () => {
+    useSettingsStore.setState({ customPrompts: { cleanup: "" } });
+    window.electronAPI.chatgptSocketResponse = async () => ({ success: true, text: DUPLICATE });
     const manager = createManager();
     const result = await manager.processTranscriptionCore(RAW, "local");
     assert.equal(result, RAW);

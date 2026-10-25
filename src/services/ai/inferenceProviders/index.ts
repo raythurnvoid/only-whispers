@@ -1,28 +1,9 @@
 import type { InferenceProvider } from "./types";
-import { anthropicProvider } from "./anthropic";
-import { geminiProvider } from "./gemini";
-import { groqProvider } from "./groq";
-import { localProvider } from "./local";
-import { enterpriseProvider } from "./enterprise";
-import { lanProvider } from "./lan";
 import { openaiProvider } from "./openai";
-import { tinfoilProvider } from "./tinfoil";
-import { cortiProvider } from "./corti";
 
+// OpenAI on the user's ChatGPT plan is the only cleanup provider.
 export const PROVIDER_REGISTRY: Readonly<Record<string, InferenceProvider>> = Object.freeze({
   openai: openaiProvider,
-  custom: openaiProvider,
-  openrouter: openaiProvider,
-  anthropic: anthropicProvider,
-  gemini: geminiProvider,
-  groq: groqProvider,
-  tinfoil: tinfoilProvider,
-  corti: cortiProvider,
-  local: localProvider,
-  bedrock: enterpriseProvider,
-  azure: enterpriseProvider,
-  vertex: enterpriseProvider,
-  lan: lanProvider,
 });
 
 export type { InferenceProvider, ProviderContext, ProviderCallParams } from "./types";

@@ -60,8 +60,9 @@ test("cleanup on with no model warns once it is shown, and again after a fix bre
 
   // A reachable model runs cleanup and forgets the warning, so the same broken
   // setup warns again once the model is gone.
-  setSettings({ cleanupMode: "local", cleanupProvider: "local", cleanupModel: "test-model" });
-  window.electronAPI.processLocalReasoning = async () => ({ success: true, text: "Cleaned." });
+  setSettings({ cleanupModel: "gpt-6-luna" });
+  window.electronAPI.getChatGPTAccessToken = async () => "plan-token";
+  window.electronAPI.chatgptSocketResponse = async () => ({ success: true, text: "Cleaned." });
   assert.equal(await manager.processTranscriptionCore("fixed now", "local"), "Cleaned.");
   assert.equal(manager._takePendingResultExtras().cleanupFailure, undefined);
   setSettings({ cleanupMode: "providers", cleanupProvider: "openai", cleanupModel: "" });
@@ -95,10 +96,6 @@ test("a BYOK cleanup model with no API key reports the missing key", async (t) =
   assert.deepEqual(failure.messageParams, { provider: "OpenAI" });
   assert.equal(failure.surface, "llm");
   assert.equal(failure.settingsTarget, "llms");
-
-  // A local model needs no key, so it is never reported as one missing.
-  setSettings({ cleanupMode: "local", cleanupProvider: "local", cleanupModel: "test-model" });
-  assert.equal(await dictate(manager, "local model words"), undefined);
 });
 
 test("the batch and streaming paths warn when they skip an unreachable cleanup", async (t) => {

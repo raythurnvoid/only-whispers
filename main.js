@@ -182,7 +182,6 @@ const LinuxKeyManager = require("./src/helpers/linuxKeyManager");
 const TextEditMonitor = require("./src/helpers/textEditMonitor");
 const SelectionManager = require("./src/helpers/selectionManager");
 const { PermissionGuideManager } = require("./src/helpers/permissionGuideManager");
-const { migrateLegacyBinDir, detectOrphanedGpuPacks } = require("./src/helpers/gpuBinaryManager");
 const { i18nMain, changeLanguage } = require("./src/helpers/i18nMain");
 const { ensureYdotool } = require("./src/helpers/ensureYdotool");
 const sidecarRegistry = require("./src/helpers/sidecarRegistry");
@@ -293,28 +292,6 @@ function initializeCoreManagers() {
   hotkeyManager = windowManager.hotkeyManager;
   databaseManager = new DatabaseManager();
   clipboardManager = new ClipboardManager();
-  if (process.platform !== "darwin") {
-    // Heal installs from before GPU packs got per-pack directories; must run
-    // before startup pre-warm resolves any GPU binary path.
-    const LlamaVulkanManager = require("./src/helpers/llamaVulkanManager");
-    const llamaVulkanManager = new LlamaVulkanManager();
-    const clearedPacks = migrateLegacyBinDir([llamaVulkanManager]);
-    if (clearedPacks.length > 0) {
-      // No window exists yet — persist the notice; the window that shows it
-      // as a toast takes it (#1606, #2554).
-      require("./src/helpers/gpuPackMigrationNotice").record(clearedPacks);
-    }
-    // The 1.8.3 migration deleted lib-carrying packs without recording that
-    // notice, leaving those users on a silent CPU fallback: an enabled flag
-    // with no pack on disk only happens via such data loss. recordOnce gates
-    // each pack to one notice so a dismissed toast doesn't return every launch.
-    const orphanedPacks = detectOrphanedGpuPacks([
-      { manager: llamaVulkanManager, enabledEnvVar: "LLAMA_VULKAN_ENABLED" },
-    ]);
-    if (orphanedPacks.length > 0) {
-      require("./src/helpers/gpuPackMigrationNotice").recordOnce(orphanedPacks);
-    }
-  }
   updateManager = new UpdateManager();
   updateManager.setWindowManager(windowManager);
   windowsKeyManager = new WindowsKeyManager();
@@ -347,11 +324,6 @@ function initializeCoreManagers() {
     selectionManager,
     getTrayManager: () => trayManager,
   });
-}
-
-function registerSidecars() {
-  const modelManager = require("./src/helpers/modelManagerBridge").default;
-  sidecarRegistry.register("llama", () => modelManager.stopServer());
 }
 
 // Phase 2: Non-critical setup after windows are visible
@@ -450,7 +422,6 @@ async function startApp() {
   // Phase 1: Core managers + IPC handlers before windows
   initializeCoreManagers();
   await environmentManager.init();
-  registerSidecars();
 
   await windowManager.setActivationModeCache(environmentManager.getActivationMode());
   windowManager.setFloatingIconAutoHide(environmentManager.getFloatingIconAutoHide());
@@ -536,29 +507,6 @@ async function startApp() {
     // Restore a Globe preference marker left by a crash without starting any
     // Accessibility-protected event monitors during onboarding.
     await globeKeyManager.restoreLeftoverSystemPreference();
-  }
-
-  // TODO: drop legacy REASONING_PROVIDER / LOCAL_REASONING_MODEL fallbacks after 2 releases.
-  const cleanupProvider = process.env.CLEANUP_PROVIDER || process.env.REASONING_PROVIDER;
-  const cleanupLocalModel = process.env.LOCAL_CLEANUP_MODEL || process.env.LOCAL_REASONING_MODEL;
-  if (cleanupProvider === "local" && cleanupLocalModel) {
-    const modelManager = require("./src/helpers/modelManagerBridge").default;
-    modelManager.prewarmServer(cleanupLocalModel).catch((err) => {
-      debugLogger.debug("llama-server pre-warm error (non-fatal)", { error: err.message });
-    });
-  }
-
-  if (
-    process.env.DICTATION_AGENT_PROVIDER === "local" &&
-    process.env.LOCAL_DICTATION_AGENT_MODEL &&
-    process.env.LOCAL_DICTATION_AGENT_MODEL !== cleanupLocalModel
-  ) {
-    const modelManager = require("./src/helpers/modelManagerBridge").default;
-    modelManager.prewarmServer(process.env.LOCAL_DICTATION_AGENT_MODEL).catch((err) => {
-      debugLogger.debug("dictation-agent llama-server pre-warm error (non-fatal)", {
-        error: err.message,
-      });
-    });
   }
 
   if (process.platform === "win32") {

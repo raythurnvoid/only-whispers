@@ -42,10 +42,10 @@ test("fan-out routes provider, model and mode to all three scopes", async () => 
   }
 });
 
-// A self-hosted endpoint is only reachable from a scope that carries its url
-// and key; mirroring provider/model alone left scopes pointing at a
+// A self-hosted endpoint is only reachable from a scope that carries its url;
+// mirroring provider/model alone left scopes pointing at a
 // "self-hosted" mode with no host behind it.
-test("fan-out mirrors the endpoint url and key alongside the routing", async () => {
+test("fan-out mirrors the endpoint url alongside the routing", async () => {
   const { buildReasoningScopePatches } = await load();
   const { dictationCleanup, dictationAgent } = buildReasoningScopePatches(
     {
@@ -54,7 +54,6 @@ test("fan-out mirrors the endpoint url and key alongside the routing", async () 
       cleanupCloudMode: "byok",
       cleanupCloudBaseUrl: "",
       cleanupRemoteUrl: "https://llm.lan:8080/v1",
-      cleanupCustomApiKey: "lan-key",
     },
     "self-hosted"
   );
@@ -67,7 +66,6 @@ test("fan-out mirrors the endpoint url and key alongside the routing", async () 
     cloudMode: "byok",
     cloudBaseUrl: "",
     remoteUrl: "https://llm.lan:8080/v1",
-    customApiKey: "lan-key",
   });
 });
 
@@ -85,41 +83,4 @@ test("fan-out with partial settings only mirrors the provided routing fields", a
   for (const scope of [dictationAgent, chatIntelligence]) {
     assert.deepEqual(scope, { mode: "providers" });
   }
-});
-
-test("a scope inherits the fallback key when it inherits the endpoint", async () => {
-  const { inheritsFallbackEndpoint } = await load();
-  assert.equal(inheritsFallbackEndpoint({ mode: "self-hosted" }, "self-hosted"), true);
-});
-
-test("a scope on its own remote url keeps its own key", async () => {
-  const { inheritsFallbackEndpoint } = await load();
-  assert.equal(
-    inheritsFallbackEndpoint(
-      { mode: "self-hosted", remoteUrl: "http://host:8080/v1" },
-      "self-hosted"
-    ),
-    false
-  );
-});
-
-test("a scope on its own cloud base url keeps its own key", async () => {
-  const { inheritsFallbackEndpoint } = await load();
-  assert.equal(
-    inheritsFallbackEndpoint(
-      { mode: "providers", cloudBaseUrl: "https://api.example.com/v1" },
-      "providers"
-    ),
-    false
-  );
-});
-
-test("a differing mode never borrows the key (regression: key sent to the wrong host)", async () => {
-  const { inheritsFallbackEndpoint } = await load();
-  assert.equal(inheritsFallbackEndpoint({ mode: "providers" }, "self-hosted"), false);
-});
-
-test("no fallback scope means nothing to inherit", async () => {
-  const { inheritsFallbackEndpoint } = await load();
-  assert.equal(inheritsFallbackEndpoint({ mode: "providers" }, undefined), false);
 });

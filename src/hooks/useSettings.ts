@@ -1,10 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from "react";
-import { useShallow } from "zustand/react/shallow";
-import {
-  useSettingsStore,
-  initializeSettings,
-  selectLocalServerPrefs,
-} from "../stores/settingsStore";
+import { useSettingsStore, initializeSettings } from "../stores/settingsStore";
 import logger from "../utils/logger";
 import { useLocalStorage } from "./useLocalStorage";
 import type {
@@ -78,20 +73,14 @@ export interface MicrophoneSettings {
 
 export interface ApiKeySettings {
   openaiApiKey: string;
-  anthropicApiKey: string;
-  geminiApiKey: string;
   groqApiKey: string;
   xaiApiKey: string;
   mistralApiKey: string;
-  openrouterApiKey: string;
   cortiClientId: string;
   cortiClientSecret: string;
-  cortiApiKey: string;
-  tinfoilApiKey: string;
   deepgramApiKey: string;
   assemblyaiApiKey: string;
   customTranscriptionApiKey: string;
-  cleanupCustomApiKey: string;
 }
 
 export interface PrivacySettings {
@@ -115,7 +104,6 @@ export interface ChatAgentSettings {
   chatAgentMode: InferenceMode;
   chatAgentCloudBaseUrl: string;
   chatAgentRemoteUrl: string;
-  chatAgentCustomApiKey: string;
 }
 
 function useSettingsInternal() {
@@ -202,11 +190,7 @@ function useSettingsInternal() {
     parakeetModel,
     cohereModel,
     preferredLanguage,
-    keepLocalModelLoaded,
   } = store;
-  // Every window runs this sync, and the main process stops the shared
-  // llama-server from it, so it must see every scope's resolved local model.
-  const localServerPrefs = useSettingsStore(useShallow(selectLocalServerPrefs));
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.electronAPI?.syncStartupPreferences) return;
@@ -223,8 +207,6 @@ function useSettingsInternal() {
         localTranscriptionProvider,
         model: model || undefined,
         language: preferredLanguage || undefined,
-        ...localServerPrefs,
-        keepLocalModelLoaded,
       })
       .catch((err) =>
         logger.warn(
@@ -240,8 +222,6 @@ function useSettingsInternal() {
     parakeetModel,
     cohereModel,
     preferredLanguage,
-    localServerPrefs,
-    keepLocalModelLoaded,
   ]);
 
   return {
@@ -278,13 +258,9 @@ function useSettingsInternal() {
     cleanupModel: store.cleanupModel,
     cleanupProvider: store.cleanupProvider,
     openaiApiKey: store.openaiApiKey,
-    anthropicApiKey: store.anthropicApiKey,
-    geminiApiKey: store.geminiApiKey,
     groqApiKey: store.groqApiKey,
     xaiApiKey: store.xaiApiKey,
     mistralApiKey: store.mistralApiKey,
-    openrouterApiKey: store.openrouterApiKey,
-    tinfoilApiKey: store.tinfoilApiKey,
     deepgramApiKey: store.deepgramApiKey,
     assemblyaiApiKey: store.assemblyaiApiKey,
     dictationKey: store.dictationKey,
@@ -317,14 +293,10 @@ function useSettingsInternal() {
     setCleanupModel: store.setCleanupModel,
     setCleanupProvider: store.setCleanupProvider,
     setOpenaiApiKey: store.setOpenaiApiKey,
-    setAnthropicApiKey: store.setAnthropicApiKey,
-    setGeminiApiKey: store.setGeminiApiKey,
     setGroqApiKey: store.setGroqApiKey,
     setMistralApiKey: store.setMistralApiKey,
     customTranscriptionApiKey: store.customTranscriptionApiKey,
     setCustomTranscriptionApiKey: store.setCustomTranscriptionApiKey,
-    cleanupCustomApiKey: store.cleanupCustomApiKey,
-    setCleanupCustomApiKey: store.setCleanupCustomApiKey,
     setDictationKey: store.setDictationKey,
     setVoiceAgentKey: store.setVoiceAgentKey,
     onboardingUseCases: store.onboardingUseCases,

@@ -2,7 +2,7 @@ import type { ProviderCallParams } from "./inferenceProviders/types";
 import { API_ENDPOINTS, buildApiUrl } from "../../config/constants";
 import { wrapCleanupTranscript } from "../../config/prompts";
 import logger from "../../utils/logger";
-import { responsesReasoningEffort } from "./chatRequestBody";
+import { chosenReasoningEffort } from "../../models/reasoningEffort";
 import { abortOnCancel, isRequestCancelled, requestCancelledError } from "./requestCancellation";
 import {
   getLlmRequestTimeoutSeconds,
@@ -49,8 +49,7 @@ async function streamPlanResponse(
   const userText = config.systemPrompt ? text : wrapCleanupTranscript(text);
   // "Auto" sends no effort, and the server then uses "medium". Cleanup must be fast,
   // so turn reasoning off unless the user picked a level in Settings.
-  const effort =
-    responsesReasoningEffort(model, "openai", config, API_ENDPOINTS.OPENAI_BASE) ?? "none";
+  const effort = chosenReasoningEffort(model, config) ?? "none";
   const body = {
     model,
     instructions: config.systemPrompt || ctx.getSystemPrompt(agentName, config.toneStyle),
