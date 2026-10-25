@@ -8,7 +8,7 @@ const { installInteractiveDom, findElement } = require("../lib/interactiveDom");
 
 // A failed history row keeps the transcript when only a step after
 // transcription failed (#2676): it shows and copies the text, and its header
-// and settings hint name the failed edit rather than transcription.
+// names the failed edit rather than transcription.
 const TRANSCRIPT = "Nova, this is a long note about the quarterly plan.";
 
 const row = (overrides = {}) => ({
@@ -73,22 +73,21 @@ test("a failed row renders its kept transcript and names the failed edit", async
   }
 });
 
-test("a kept-transcript row's key error points at the Voice Assistant settings", async (t) => {
+test("a key error points at the AI Models settings, and asks for a retry only with audio", async (t) => {
   const TranscriptionItem = await loadTranscriptionItem(t);
 
   const kept = render(
     TranscriptionItem,
     row({ text: TRANSCRIPT, raw_text: TRANSCRIPT, error_code: "PROVIDER_AUTH_FAILED" })
   );
-  assert.match(kept, /controlPanel\.history\.failedCtaAiSettings/);
-  assert.doesNotMatch(kept, /controlPanel\.history\.failedCtaSettings"/);
-  assert.doesNotMatch(kept, /failedCtaAndRetry/);
+  assert.match(kept, /controlPanel\.history\.failedCtaSettings/);
+  assert.match(kept, /controlPanel\.history\.failedCtaAndRetry/);
   // The hints stay above the transcript, which can run to thousands of words.
-  assert.ok(kept.indexOf("failedCtaAiSettings") < kept.indexOf(TRANSCRIPT));
+  assert.ok(kept.indexOf("failedCtaSettings") < kept.indexOf(TRANSCRIPT));
 
-  const empty = render(TranscriptionItem, row({ error_code: "PROVIDER_AUTH_FAILED" }));
-  assert.match(empty, /controlPanel\.history\.failedCtaSettings/);
-  assert.doesNotMatch(empty, /failedCtaAiSettings/);
+  const noAudio = render(TranscriptionItem, row({ has_audio: 0, error_code: "API_KEY_MISSING" }));
+  assert.match(noAudio, /controlPanel\.history\.failedCtaSettings/);
+  assert.doesNotMatch(noAudio, /failedCtaAndRetry/);
 });
 
 test("copy and the settings hint act on the kept transcript row", async (t) => {
@@ -101,7 +100,7 @@ test("copy and the settings hint act on the kept transcript row", async (t) => {
   await React.act(async () =>
     root.render(
       React.createElement(TranscriptionItem, {
-        item: row({ text: TRANSCRIPT, raw_text: TRANSCRIPT, error_code: "INVALID_KEY" }),
+        item: row({ text: TRANSCRIPT, raw_text: TRANSCRIPT, error_code: "PROVIDER_AUTH_FAILED" }),
         onCopy: (text) => copied.push(text),
         onDelete() {},
         onOpenSettings: (section) => opened.push(section),
@@ -119,8 +118,8 @@ test("copy and the settings hint act on the kept transcript row", async (t) => {
   await click(button((el) => el.getAttribute("aria-label") === "controlPanel.history.copyText"));
   assert.deepEqual(copied, [TRANSCRIPT]);
 
-  await click(button((el) => el.textContent === "controlPanel.history.failedCtaAiSettings"));
-  assert.deepEqual(opened, ["dictationAgent"]);
+  await click(button((el) => el.textContent === "controlPanel.history.failedCtaSettings"));
+  assert.deepEqual(opened, ["llms"]);
 
   await React.act(async () => root.unmount());
 });

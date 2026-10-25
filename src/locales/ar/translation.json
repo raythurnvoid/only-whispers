@@ -33,7 +33,7 @@
         "providerRateLimited": "قام مزود التفريغ بتقييد معدل الطلب. انتظر لحظة وحاول مرة أخرى.",
         "agentReasoningFailed": "لم يتمكن المساعد الصوتي من معالجة الأمر — تم إدراج النص المفرَّغ الخام بدلًا من ذلك.",
         "screenContextSkipped": "تعذر إرسال لقطة الشاشة، لذا تم تشغيل أمرك بدون سياق الشاشة.",
-        "providerKeyMissing": "لم يتم تعيين مفتاح API لمزود التفريغ الخاص بك. أضفه في الإعدادات ← تحويل الكلام إلى نص (Speech to Text).",
+        "providerKeyMissing": "لا يوجد مفتاح API مضبوط لـ {{provider}}. أضفه في الإعدادات ← نماذج الذكاء الاصطناعي.",
         "cleanupTruncated": "نفدت مساحة الإخراج لدى نموذج الذكاء الاصطناعي قبل أن يُكمل تنقيح إملائك.",
         "cleanupDuplicated": "كرر تنقيح الذكاء الاصطناعي النص. تم الاحتفاظ بالنص الأصلي.",
         "cleanupEmptyReply": "أرجع نموذج الذكاء الاصطناعي ردًا فارغًا بدلًا من الإملاء المنقَّح."
@@ -488,7 +488,7 @@
     },
     "accessibilityMissing": {
       "title": "أذونات تسهيلات الاستخدام مطلوبة",
-      "description": "لقد اكتشفنا أن only-whispers يحتاج إلى أذونات تسهيلات الاستخدام للعمل بشكل صحيح. يرجى تمكينها أدناه."
+      "description": "يحتاج Only Whispers إلى إذن تسهيلات الاستخدام للّصق. فعّله أدناه."
     },
     "history": {
       "couldNotLoadTitle": "تعذر تحميل سجلك",
@@ -528,17 +528,12 @@
       "audioNotFound": "الملف الصوتي غير موجود أو انتهت صلاحيته",
       "noAiProcessing": "لم يتم تطبيق أي معالجة بالذكاء الاصطناعي على هذا النص المفرَّغ",
       "transcriptionFailed": "فشل التفريغ",
-      "failedCtaSettings": "قم بإعداد مزود التفريغ الخاص بك",
-      "failedCtaAndRetry": "ثم انقر فوق إعادة المحاولة",
-      "failedCtaSettingsOnly": "قم بإعداد مزود التفريغ الخاص بك في الإعدادات",
-      "failedCtaAiSettings": "تحقق من نموذج المساعد الصوتي في الإعدادات",
+      "failedCtaSettings": "افتح الإعدادات ← نماذج الذكاء الاصطناعي",
+      "failedCtaAndRetry": "ثم اضغط «إعادة التفريغ».",
       "editFailedTranscriptKept": "لم يُطبَّق التعديل · تم الاحتفاظ بالنص المفرَّغ",
-      "failedLimitReached": "تم الوصول إلى الحد اليومي",
-      "failedOffline": "أنت غير متصل بالإنترنت",
       "rawTranscript": "النص المفرَّغ الخام",
       "clearAll": "مسح الكل",
       "clearAllTitle": "مسح جميع النصوص المفرَّغة",
-      "clearAllDescription": "ستتم إزالة جميع النصوص المفرَّغة والملفات الصوتية وعدادات الإحصاءات نهائيًا من هذا الجهاز ومن حسابك.",
       "clearAllSuccess": "تم مسح السجل",
       "clearAllErrorTitle": "تعذر مسح السجل",
       "clearAllErrorDescription": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
@@ -551,7 +546,7 @@
         "recover": "استعادة",
         "recovered": "تمت الاستعادة"
       },
-      "clearAllDescriptionDevice": "ستتم إزالة جميع النصوص المفرَّغة والملفات الصوتية وعدادات الإحصاءات نهائيًا من هذا الجهاز. أما العدادات التي تمت مزامنتها مع حسابك فلا تتأثر.",
+      "clearAllDescriptionDevice": "ستتم إزالة جميع النصوص المفرَّغة والملفات الصوتية نهائيًا من هذا الجهاز.",
       "uploadAudio": "رفع ملف صوتي",
       "editItem": "تعديل",
       "newTranscript": "نص جديد",
@@ -560,9 +555,9 @@
       "uploadError": "تعذر رفع الملف الصوتي"
     },
     "aiCta": {
-      "title": "قم بتحسين نصوصك المفرَّغة باستخدام الذكاء الاصطناعي",
-      "description": "إصلاح القواعد وعلامات الترقيم والتنسيق تلقائيًا أثناء التحدث.",
-      "enable": "تمكين التحسين بالذكاء الاصطناعي"
+      "title": "تنظيف النص متوقف",
+      "description": "فعّله لإزالة كلمات الحشو وتصحيح القواعد وعلامات الترقيم.",
+      "enable": "افتح نماذج الذكاء الاصطناعي"
     },
     "loading": "جاري التحميل..."
   },
@@ -570,7 +565,7 @@
     "clearTitle": "مسح القاموس؟",
     "clearDescription": "سيؤدي هذا إلى إزالة جميع الكلمات من قاموسك المخصص. لا يمكن التراجع عن هذا الإجراء.",
     "addWord": "إضافة كلمة",
-    "addPlaceholder": "أضف كلمات مفصولة بفواصل — only-whispers، Supabase، John Snow، ARR",
+    "addPlaceholder": "أضف كلمات مفصولة بفواصل — Only Whispers، Supabase، John Snow، ARR",
     "removeWord": "إزالة {{word}}",
     "clearAll": "مسح الكل",
     "add": "إضافة",
@@ -589,37 +584,9 @@
     "exportFailed": "فشل التصدير",
     "editWord": "تعديل {{word}}",
     "noMatches": "لا توجد تطابقات — اضغط على Enter لإضافة \"{{word}}\"",
-    "tabDictionary": "القاموس",
-    "tabSnippets": "المقتطفات",
-    "snippets": {
-      "title": "المقتطفات",
-      "edit": "تعديل {{trigger}}",
-      "remove": "إزالة {{trigger}}",
-      "editTitle": "تعديل المقتطف",
-      "dialogDescription": "عندما تنطق العبارة المفتاحية، يتم استبدالها بالنص المحفوظ الخاص بك.",
-      "triggerLabel": "العبارة المفتاحية",
-      "triggerPlaceholder": "مثال: رابط التقويم",
-      "replacementLabel": "الاستبدال",
-      "replacementPlaceholder": "النص المراد إدراجه عندما تنطق العبارة المفتاحية…",
-      "create": "إنشاء مقتطف",
-      "duplicate": "يوجد مقتطف بهذه العبارة المفتاحية بالفعل",
-      "emptyTitle": "الأشياء التي لا ينبغي أن تضطر إلى قولها",
-      "emptyTitleAccent": "مرتين",
-      "emptyDescription": "انطق عبارة مفتاحية وسيستبدلها only-whispers بما حفظته — روابط، مقدمات، عبارات ختامية، مطالبات.",
-      "new": "مقتطف جديد",
-      "examples": {
-        "linkedinTrigger": "حسابي على LinkedIn",
-        "linkedinText": "linkedin.com/in/you",
-        "signoffTrigger": "ختام الرسالة",
-        "signoffText": "أطيب التحيات، Alex · alex@example.com"
-      },
-      "addPlaceholder": "أضف عبارة مفتاحية — \"طلب مستثمر\"، \"رابط التقويم\""
-    },
     "emptyTitle": "أضف كلمات إلى قاموسك",
-    "emptyDescription": "أضف الكلمات التي يجب أن يكتبها {{agentName}} بشكل صحيح دائمًا: الأسماء، الأدوات، الاختصارات.",
-    "addFirstWord": "أضف كلمتك الأولى",
-    "agentDefault": "تمت الإضافة افتراضيًا",
-    "promptLimitNotice": "عدد أحرف قاموسك: {{chars}}. لا تقرأ نماذج Groq وWhisper سوى بضع مئات من الأحرف الأخيرة منه، لذا تعمل القوائم الأقصر بشكل أفضل معها. أما النماذج الأخرى فتحصل على القائمة كاملة."
+    "emptyDescription": "أضف الكلمات التي يجب أن يكتبها Only Whispers بشكل صحيح دائمًا: الأسماء، الأدوات، الاختصارات.",
+    "addFirstWord": "أضف كلمتك الأولى"
   },
   "promptStudio": {
     "common": {
@@ -806,9 +773,7 @@
     "commandMenu": {
       "stopListening": "إيقاف الاستماع",
       "startListening": "بدء الاستماع",
-      "hideForNow": "إخفاء الآن",
-      "askAssistant": "اسأل المساعد",
-      "busyRecording": "أنهِ التسجيل الحالي أولاً"
+      "hideForNow": "إخفاء الآن"
     }
   },
   "notes": {
@@ -1131,9 +1096,9 @@
     }
   },
   "tray": {
-    "showControlPanel": "إظهار لوحة التحكم",
+    "showControlPanel": "فتح Only Whispers",
     "quit": "إنهاء Only Whispers",
-    "tooltip": "only-whispers - الإملاء الصوتي"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -1147,7 +1112,7 @@
   },
   "window": {
     "voiceRecorderTitle": "مسجل الصوت",
-    "controlPanelTitle": "لوحة التحكم"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -1428,9 +1393,8 @@
       "newConversation": "محادثة جديدة",
       "copyToClipboard": "النسخ إلى الحافظة",
       "suggestions": {
-        "summarizeNotes": "لخّص ملاحظاتي الأخيرة",
-        "calendar": "ما هي المواعيد في التقويم الخاص بي؟",
-        "draft": "ساعدني في صياغة شيء ما"
+        "draft": "ساعدني في صياغة شيء ما",
+        "dictionary": "أضف كلمة إلى قاموسي"
       }
     },
     "toolActivity": {
@@ -1470,7 +1434,7 @@
     "unreachable": "تعذّر الوصول إلى {{provider}}. تحقق من اتصالك.",
     "noResponse": "تعذّر الحصول على رد من {{provider}}. تحقق من مفتاح API واتصالك.",
     "unknown": "أعاد {{provider}} خطأ غير متوقع.",
-    "keyMissing": "لا يوجد مفتاح API مضبوط لـ {{provider}}. أضفه في الإعدادات ← النماذج اللغوية.",
+    "keyMissing": "لا يوجد مفتاح API مضبوط لـ {{provider}}. أضفه في الإعدادات ← نماذج الذكاء الاصطناعي.",
     "selfHosted": {
       "authFailed": "رفض خادمك مفتاح API.",
       "accessDenied": "رفض خادمك الوصول. قد لا يشمل المفتاح هذا النموذج.",
@@ -1573,7 +1537,7 @@
     }
   },
   "logsView": {
-    "description": "التحذيرات والأخطاء من الإملاء والتطبيق، الأحدث أولاً. لا تعرضها الأداة.",
+    "description": "التحذيرات والأخطاء من التطبيق، الأحدث أولاً.",
     "refresh": "تحديث",
     "openFolder": "فتح مجلد السجلات",
     "clear": "مسح",

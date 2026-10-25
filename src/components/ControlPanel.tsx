@@ -36,19 +36,12 @@ const SettingsModal = React.lazy(() => import("./SettingsModal"));
 const DictionaryView = React.lazy(() => import("./DictionaryView"));
 const LogsView = React.lazy(() => import("./LogsView"));
 
-interface ControlPanelProps {
-  /** Open the settings modal at this section on mount (e.g. after onboarding). */
-  initialSettingsSection?: string;
-}
-
-export default function ControlPanel({ initialSettingsSection }: ControlPanelProps = {}) {
+export default function ControlPanel() {
   const { t } = useTranslation();
   const history = useTranscriptions();
   const [isLoading, setIsLoading] = useState(true);
-  const [showSettings, setShowSettings] = useState(!!initialSettingsSection);
-  const [settingsSection, setSettingsSection] = useState<string | undefined>(
-    initialSettingsSection
-  );
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<string | undefined>();
   // Counts named show-settings requests, so asking again for the section the
   // modal was opened at still lands there after the user moved elsewhere in it.
   const [settingsRequest, setSettingsRequest] = useState(0);
@@ -131,7 +124,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     return () => cleanup?.();
   }, []);
 
-  // The tray's "Show Control Panel" always lands on Home.
+  // The tray's "Open Only Whispers" always lands on Home.
   useEffect(() => {
     const cleanup = window.electronAPI?.onShowHome?.(() => {
       setShowSettings(false);
@@ -140,11 +133,11 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     return () => cleanup?.();
   }, []);
 
-  // When accessibility is missing on macOS, open the permissions settings page
+  // When accessibility is missing on macOS, open General, which holds the permission rows.
   useEffect(() => {
     const cleanup = window.electronAPI?.onAccessibilityMissing?.(async () => {
       if (isAccessibilitySkipped()) return;
-      setSettingsSection("privacyData");
+      setSettingsSection("general");
       setShowSettings(true);
       toast({
         title: t("controlPanel.accessibilityMissing.title"),

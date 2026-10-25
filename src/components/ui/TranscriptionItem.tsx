@@ -154,16 +154,11 @@ export default function TranscriptionItem({
   const errorCode = item.error_code as TranscriptionErrorCode;
   const isConfigError =
     errorCode === "API_KEY_MISSING" ||
-    errorCode === "INVALID_KEY" ||
     errorCode === "PROVIDER_AUTH_FAILED" ||
     errorCode === "PROVIDER_ACCESS_DENIED" ||
     errorCode === "PROVIDER_QUOTA_EXHAUSTED" ||
     errorCode === "PROVIDER_MODEL_NOT_FOUND" ||
-    errorCode === "PROVIDER_NO_RESPONSE" ||
-    errorCode === "MODEL_NOT_AVAILABLE" ||
-    errorCode === "CUSTOM_ENDPOINT_INVALID";
-  const isLimitError = errorCode === "LIMIT_REACHED";
-  const isOfflineError = errorCode === "OFFLINE";
+    errorCode === "PROVIDER_NO_RESPONSE";
 
   const retryLabel = t("controlPanel.history.retryTranscription");
 
@@ -344,46 +339,16 @@ export default function TranscriptionItem({
                   {item.error_message}
                 </p>
               )}
-              {isConfigError && hasKeptText && (
+              {/* The Mistral key and the ChatGPT sign-in both live in AI Models. */}
+              {isConfigError && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   <button
-                    onClick={() => onOpenSettings?.("dictationAgent")}
+                    onClick={() => onOpenSettings?.("llms")}
                     className="cursor-pointer text-primary hover:underline"
                   >
-                    {t("controlPanel.history.failedCtaAiSettings")}
+                    {t("controlPanel.history.failedCtaSettings")}
                   </button>
-                </p>
-              )}
-              {isConfigError && !hasKeptText && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {hasAudio ? (
-                    <>
-                      <button
-                        onClick={() => onOpenSettings?.()}
-                        className="cursor-pointer text-primary hover:underline"
-                      >
-                        {t("controlPanel.history.failedCtaSettings")}
-                      </button>{" "}
-                      {t("controlPanel.history.failedCtaAndRetry")}
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => onOpenSettings?.()}
-                      className="cursor-pointer text-primary hover:underline"
-                    >
-                      {t("controlPanel.history.failedCtaSettingsOnly")}
-                    </button>
-                  )}
-                </p>
-              )}
-              {isLimitError && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("controlPanel.history.failedLimitReached")}
-                </p>
-              )}
-              {isOfflineError && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("controlPanel.history.failedOffline")}
+                  {hasAudio && <> {t("controlPanel.history.failedCtaAndRetry")}</>}
                 </p>
               )}
             </div>

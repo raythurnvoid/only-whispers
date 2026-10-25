@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "顯示控制面板",
+    "showControlPanel": "開啟 Only Whispers",
     "quit": "結束 Only Whispers",
-    "tooltip": "only-whispers - 語音輸入"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "錄音器",
-    "controlPanelTitle": "控制面板"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "需要輔助使用權限",
-      "description": "我們偵測到 only-whispers 需要輔助使用權限才能正常運作。請在下方啟用。"
+      "description": "Only Whispers 需要輔助使用權限才能貼上。請在下方開啟。"
     },
     "history": {
       "couldNotLoadTitle": "無法載入歷史記錄",
@@ -214,17 +214,12 @@
         "yesterday": "昨天"
       },
       "transcriptionFailed": "轉錄失敗",
-      "failedCtaSettings": "設定您的轉錄服務供應商",
-      "failedCtaAndRetry": "然後點擊重試",
-      "failedCtaSettingsOnly": "在設定中配置您的轉錄服務供應商",
-      "failedCtaAiSettings": "請在設定中檢查語音助理模型",
+      "failedCtaSettings": "開啟「設定 → AI 模型」",
+      "failedCtaAndRetry": "然後點選「重新轉錄」。",
       "editFailedTranscriptKept": "未套用編輯 · 已保留轉錄文字",
-      "failedLimitReached": "已達每日限額",
-      "failedOffline": "離線",
       "clearAll": "全部清除",
       "clearAllTitle": "清除所有轉錄",
-      "clearAllDescription": "所有轉錄、音訊檔案和 Insights 統計資料都將從此裝置和你的帳戶中永久刪除。",
-      "clearAllDescriptionDevice": "所有轉錄、音訊檔案和 Insights 統計資料都將從此裝置中永久刪除。已同步至帳戶的統計資料不受影響。",
+      "clearAllDescriptionDevice": "所有轉錄和音訊檔案都將從此裝置中永久刪除。",
       "clearAllSuccess": "歷史紀錄已清除",
       "clearAllErrorTitle": "無法清除歷史紀錄",
       "clearAllErrorDescription": "發生錯誤，請重試。",
@@ -261,9 +256,9 @@
       "uploadError": "無法上傳音訊"
     },
     "aiCta": {
-      "title": "用 AI 增強你的轉錄品質",
-      "description": "說話時自動修正文法、標點和格式。",
-      "enable": "啟用 AI 增強"
+      "title": "文字整理已關閉",
+      "description": "開啟後會移除贅詞，並修正文法和標點。",
+      "enable": "開啟AI 模型"
     },
     "loading": "載入中..."
   },
@@ -455,7 +450,7 @@
         "providerRateLimited": "你的轉錄服務商限制了請求頻率。請稍候再試。",
         "agentReasoningFailed": "語音助理無法處理該指令，已改為插入原始逐字稿。",
         "screenContextSkipped": "截圖無法傳送，因此已在沒有螢幕內容的情況下執行你的指令。",
-        "providerKeyMissing": "尚未為您的轉錄服務商設定 API 金鑰。請在「設定 → 語音轉文字」中新增。",
+        "providerKeyMissing": "尚未為 {{provider}} 設定 API 金鑰。請在「設定 → AI 模型」中新增。",
         "cleanupTruncated": "AI 模型的輸出長度達到上限，未能完成聽寫清理。",
         "cleanupDuplicated": "AI 清理重複了轉錄內容。已保留原始文字。",
         "cleanupEmptyReply": "AI 模型傳回空白回應，沒有產生清理後的文字。"
@@ -1202,7 +1197,7 @@
     "clearAll": "全部清除",
     "clearTitle": "清空字典？",
     "clearDescription": "這將移除自訂字典中的所有詞彙。此操作無法復原。",
-    "addPlaceholder": "用逗號分隔新增多個詞——only-whispers、Supabase、ARR",
+    "addPlaceholder": "用逗號分隔新增多個詞——Only Whispers、Supabase、ARR",
     "add": "新增",
     "importWords": "匯入詞語",
     "importPlaceholder": "貼上以逗號或換行分隔的詞語...",
@@ -1210,42 +1205,14 @@
     "wordsReady_other": "{{count}} 個詞語就緒",
     "import": "匯入",
     "yourDictionary": "你的詞典",
-    "promptLimitNotice": "字典目前共 {{chars}} 個字元。Groq 與 Whisper 模型只會讀取其中最後幾百個字元，因此清單越短效果越好；其他模型會收到完整清單。",
     "exportDictionary": "匯出詞典",
     "exportFailed": "匯出失敗",
     "editWord": "編輯 {{word}}",
     "wordsReady_one": "{{count}} 個詞語就緒",
     "noMatches": "無相符項目 — 按 Enter 新增「{{word}}」",
-    "tabDictionary": "字典",
-    "tabSnippets": "片段",
-    "snippets": {
-      "title": "片段",
-      "edit": "編輯 {{trigger}}",
-      "remove": "刪除 {{trigger}}",
-      "editTitle": "編輯片段",
-      "dialogDescription": "當你說出觸發詞時，它會被替換為你儲存的文字。",
-      "triggerLabel": "觸發詞",
-      "triggerPlaceholder": "例如：我的行事曆連結",
-      "replacementLabel": "替換文字",
-      "replacementPlaceholder": "說出觸發詞時插入的文字…",
-      "create": "建立片段",
-      "duplicate": "已存在使用此觸發詞的片段",
-      "emptyTitle": "同樣的話，只說",
-      "emptyTitleAccent": "一遍",
-      "emptyDescription": "說出觸發詞，only-whispers 會把它替換為你儲存的內容：連結、開場白、簽名、提示詞。",
-      "new": "建立片段",
-      "examples": {
-        "linkedinTrigger": "我的 LinkedIn",
-        "linkedinText": "linkedin.com/in/you",
-        "signoffTrigger": "簽名",
-        "signoffText": "祝好，Alex · alex@example.com"
-      },
-      "addPlaceholder": "新增觸發詞——「我的行事曆連結」「簽名」"
-    },
     "emptyTitle": "將詞語加入字典",
-    "emptyDescription": "新增希望{{agentName}}始終辨識正確的詞：名字、工具、縮寫。",
-    "addFirstWord": "新增第一個詞",
-    "agentDefault": "預設加入"
+    "emptyDescription": "新增希望 Only Whispers 始終辨識正確的詞：名字、工具、縮寫。",
+    "addFirstWord": "新增第一個詞"
   },
   "sidebar": {
     "home": "首頁",
@@ -1322,9 +1289,7 @@
     "commandMenu": {
       "stopListening": "停止錄音",
       "startListening": "開始錄音",
-      "hideForNow": "暫時隱藏",
-      "askAssistant": "詢問助理",
-      "busyRecording": "請先結束目前的錄音"
+      "hideForNow": "暫時隱藏"
     }
   },
   "dictationAgent": {
@@ -1424,9 +1389,8 @@
       "newConversation": "新對話",
       "copyToClipboard": "複製到剪貼簿",
       "suggestions": {
-        "summarizeNotes": "摘要我最近的筆記",
-        "calendar": "我的行事曆上有哪些安排？",
-        "draft": "幫我起草一些內容"
+        "draft": "幫我起草一些內容",
+        "dictionary": "把一個詞加入我的字典"
       }
     },
     "toolActivity": {
@@ -1466,7 +1430,7 @@
     "unreachable": "無法連線到 {{provider}}。請檢查你的網路連線。",
     "noResponse": "未能收到 {{provider}} 的回應。請檢查你的 API 金鑰和網路連線。",
     "unknown": "{{provider}} 回傳了意外的錯誤。",
-    "keyMissing": "尚未為 {{provider}} 設定 API 金鑰。請在「設定 → 語言模型」中新增。",
+    "keyMissing": "尚未為 {{provider}} 設定 API 金鑰。請在「設定 → AI 模型」中新增。",
     "selfHosted": {
       "authFailed": "你的伺服器拒絕了 API 金鑰。",
       "accessDenied": "你的伺服器拒絕存取。該金鑰可能不包含此模型。",
@@ -1569,7 +1533,7 @@
     }
   },
   "logsView": {
-    "description": "聽寫和應用程式的警告與錯誤，最新的在前。小工具不會顯示它們。",
+    "description": "應用程式的警告與錯誤，最新的在前。",
     "refresh": "重新整理",
     "openFolder": "開啟日誌資料夾",
     "clear": "清除",

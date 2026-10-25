@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "显示控制面板",
+    "showControlPanel": "打开 Only Whispers",
     "quit": "退出 Only Whispers",
-    "tooltip": "only-whispers - 语音听写"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "录音器",
-    "controlPanelTitle": "控制面板"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "需要辅助功能权限",
-      "description": "我们检测到 only-whispers 需要辅助功能权限才能正常工作。请在下方启用。"
+      "description": "Only Whispers 需要辅助功能权限才能粘贴。请在下方开启。"
     },
     "history": {
       "couldNotLoadTitle": "无法加载历史记录",
@@ -214,17 +214,12 @@
         "yesterday": "昨天"
       },
       "transcriptionFailed": "转录失败",
-      "failedCtaSettings": "设置您的转录服务商",
-      "failedCtaAndRetry": "然后点击重试",
-      "failedCtaSettingsOnly": "在设置中配置您的转录服务商",
-      "failedCtaAiSettings": "请在设置中检查语音助手模型",
+      "failedCtaSettings": "打开“设置 → AI 模型”",
+      "failedCtaAndRetry": "然后点击“重新转录”。",
       "editFailedTranscriptKept": "未应用编辑 · 已保留转录文本",
-      "failedLimitReached": "已达每日限额",
-      "failedOffline": "离线",
       "clearAll": "全部清除",
       "clearAllTitle": "清除所有转录",
-      "clearAllDescription": "所有转录、音频文件和 Insights 统计数据都将从此设备和你的账户中永久删除。",
-      "clearAllDescriptionDevice": "所有转录、音频文件和 Insights 统计数据都将从此设备中永久删除。已同步到账户的统计数据不受影响。",
+      "clearAllDescriptionDevice": "所有转录和音频文件都将从此设备中永久删除。",
       "clearAllSuccess": "历史记录已清除",
       "clearAllErrorTitle": "无法清除历史记录",
       "clearAllErrorDescription": "出了点问题，请重试。",
@@ -261,9 +256,9 @@
       "uploadError": "无法上传音频"
     },
     "aiCta": {
-      "title": "用 AI 提升你的转录质量",
-      "description": "在你说话的同时，自动修正语法、标点和格式。",
-      "enable": "启用 AI 增强"
+      "title": "文本整理已关闭",
+      "description": "开启后会去除口头禅，并修正语法和标点。",
+      "enable": "打开AI 模型"
     },
     "loading": "加载中..."
   },
@@ -455,7 +450,7 @@
         "providerRateLimited": "你的转录服务商限制了请求频率。请稍候再试。",
         "agentReasoningFailed": "语音助手无法处理该命令，已改为插入原始转录文本。",
         "screenContextSkipped": "截图无法发送，因此已在没有屏幕上下文的情况下执行你的命令。",
-        "providerKeyMissing": "尚未为您的转录服务商设置 API 密钥。请在“设置 → 语音转文字”中添加。",
+        "providerKeyMissing": "尚未为 {{provider}} 设置 API 密钥。请在“设置 → AI 模型”中添加。",
         "cleanupTruncated": "AI 模型的输出长度达到上限，未能完成听写清理。",
         "cleanupDuplicated": "AI 清理重复了转录内容。已保留原始文本。",
         "cleanupEmptyReply": "AI 模型返回了空响应，没有生成清理后的文本。"
@@ -1202,7 +1197,7 @@
     "clearAll": "全部清除",
     "clearTitle": "清空词典？",
     "clearDescription": "这将删除自定义词典中的所有词汇，此操作无法撤销。",
-    "addPlaceholder": "用逗号分隔添加多个词——only-whispers、Supabase、ARR",
+    "addPlaceholder": "用逗号分隔添加多个词——Only Whispers、Supabase、ARR",
     "add": "添加",
     "importWords": "导入词语",
     "importPlaceholder": "粘贴以逗号或换行分隔的词语...",
@@ -1210,42 +1205,14 @@
     "wordsReady_other": "{{count}} 个词语就绪",
     "import": "导入",
     "yourDictionary": "你的词典",
-    "promptLimitNotice": "词典当前共 {{chars}} 个字符。Groq 和 Whisper 模型只会读取其中最后几百个字符，因此列表越短效果越好；其他模型会收到完整列表。",
     "exportDictionary": "导出词典",
     "exportFailed": "导出失败",
     "editWord": "编辑 {{word}}",
     "wordsReady_one": "{{count}} 个词语就绪",
     "noMatches": "无匹配项 — 按 Enter 添加“{{word}}”",
-    "tabDictionary": "词典",
-    "tabSnippets": "片段",
-    "snippets": {
-      "title": "片段",
-      "edit": "编辑 {{trigger}}",
-      "remove": "删除 {{trigger}}",
-      "editTitle": "编辑片段",
-      "dialogDescription": "当你说出触发词时，它会被替换为你保存的文本。",
-      "triggerLabel": "触发词",
-      "triggerPlaceholder": "例如：我的日程链接",
-      "replacementLabel": "替换文本",
-      "replacementPlaceholder": "说出触发词时插入的文本…",
-      "create": "创建片段",
-      "duplicate": "已存在使用此触发词的片段",
-      "emptyTitle": "同样的话，只说",
-      "emptyTitleAccent": "一遍",
-      "emptyDescription": "说出触发词，only-whispers 会把它替换为你保存的内容：链接、开场白、签名、提示词。",
-      "new": "新建片段",
-      "examples": {
-        "linkedinTrigger": "我的 LinkedIn",
-        "linkedinText": "linkedin.com/in/you",
-        "signoffTrigger": "签名",
-        "signoffText": "祝好，Alex · alex@example.com"
-      },
-      "addPlaceholder": "添加触发词——“我的日程链接”“签名”"
-    },
     "emptyTitle": "向词典添加词语",
-    "emptyDescription": "添加希望{{agentName}}始终识别正确的词：名字、工具、缩写。",
-    "addFirstWord": "添加第一个词",
-    "agentDefault": "默认添加"
+    "emptyDescription": "添加希望 Only Whispers 始终识别正确的词：名字、工具、缩写。",
+    "addFirstWord": "添加第一个词"
   },
   "sidebar": {
     "home": "首页",
@@ -1322,9 +1289,7 @@
     "commandMenu": {
       "stopListening": "停止录音",
       "startListening": "开始录音",
-      "hideForNow": "暂时隐藏",
-      "askAssistant": "询问助手",
-      "busyRecording": "请先结束当前录音"
+      "hideForNow": "暂时隐藏"
     }
   },
   "dictationAgent": {
@@ -1424,9 +1389,8 @@
       "newConversation": "新对话",
       "copyToClipboard": "复制到剪贴板",
       "suggestions": {
-        "summarizeNotes": "总结我最近的笔记",
-        "calendar": "我的日历上有什么安排？",
-        "draft": "帮我起草一些内容"
+        "draft": "帮我起草一些内容",
+        "dictionary": "把一个词加入我的词典"
       }
     },
     "toolActivity": {
@@ -1466,7 +1430,7 @@
     "unreachable": "无法连接到 {{provider}}。请检查你的网络连接。",
     "noResponse": "未能收到 {{provider}} 的响应。请检查你的 API 密钥和网络连接。",
     "unknown": "{{provider}} 返回了一个意外错误。",
-    "keyMissing": "尚未为 {{provider}} 设置 API 密钥。请在“设置 → 语言模型”中添加。",
+    "keyMissing": "尚未为 {{provider}} 设置 API 密钥。请在“设置 → AI 模型”中添加。",
     "selfHosted": {
       "authFailed": "你的服务器拒绝了 API 密钥。",
       "accessDenied": "你的服务器拒绝了访问。该密钥可能不包含此模型。",
@@ -1569,7 +1533,7 @@
     }
   },
   "logsView": {
-    "description": "听写和应用的警告与错误，最新的在前。小组件不会显示它们。",
+    "description": "应用的警告与错误，最新的在前。",
     "refresh": "刷新",
     "openFolder": "打开日志文件夹",
     "clear": "清除",

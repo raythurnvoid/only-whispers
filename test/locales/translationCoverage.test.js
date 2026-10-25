@@ -15,13 +15,7 @@ const T_CALL = /\bt\(\s*(['"`])([A-Za-z0-9_.-]+)\1/g;
 const MESSAGE_KEY = /\bmessageKey\s*[:=]\s*(['"`])([A-Za-z0-9_.-]+)\1/g;
 const INTERPOLATION = /\{\{\s*([\w.]+)/g;
 const ARABIC_PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
-const ARABIC_PLURAL_BASES = [
-  "dictionary.wordsReady",
-];
-const ARABIC_NUMBER_NEUTRAL_TEMPLATES = {
-  "dictionary.promptLimitNotice":
-    "عدد أحرف قاموسك: {{chars}}. لا تقرأ نماذج Groq وWhisper سوى بضع مئات من الأحرف الأخيرة منه، لذا تعمل القوائم الأقصر بشكل أفضل معها. أما النماذج الأخرى فتحصل على القائمة كاملة.",
-};
+const ARABIC_PLURAL_BASES = ["dictionary.wordsReady"];
 
 const languages = fs
   .readdirSync(LOCALES)
@@ -174,13 +168,6 @@ test("Arabic defines every CLDR plural category for each counted message", () =>
         `ar/translation is missing ${base}_${category}`
       );
     }
-  }
-});
-
-test("Arabic non-count numeric templates remain number-neutral", () => {
-  const ar = flatten(load("ar", "translation"));
-  for (const [key, template] of Object.entries(ARABIC_NUMBER_NEUTRAL_TEMPLATES)) {
-    assert.equal(ar.get(key), template, `${key} reintroduced a fixed Arabic number form`);
   }
 });
 

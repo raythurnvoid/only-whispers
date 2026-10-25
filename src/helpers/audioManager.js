@@ -1751,9 +1751,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       apiKey = await window.electronAPI.getMistralKey?.();
     }
     if (!isValidApiKey(apiKey, "mistral")) {
-      const err = new Error(
-        "Mistral API key not found. Please set your API key in the Control Panel."
-      );
+      const err = new Error("No Mistral API key is set. Add it in Settings → AI Models.");
       err.code = "API_KEY_MISSING";
       throw err;
     }

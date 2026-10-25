@@ -1,8 +1,8 @@
 {
   "tray": {
-    "showControlPanel": "Mostra pannello di controllo",
+    "showControlPanel": "Apri Only Whispers",
     "quit": "Esci da Only Whispers",
-    "tooltip": "only-whispers - Dettatura vocale"
+    "tooltip": "Only Whispers"
   },
   "menu": {
     "appLabel": "only-whispers",
@@ -16,7 +16,7 @@
   },
   "window": {
     "voiceRecorderTitle": "Registratore vocale",
-    "controlPanelTitle": "Pannello di controllo"
+    "controlPanelTitle": "Only Whispers"
   },
   "dialog": {
     "openLink": {
@@ -189,7 +189,7 @@
     },
     "accessibilityMissing": {
       "title": "Autorizzazioni di accessibilità necessarie",
-      "description": "Abbiamo rilevato che only-whispers ha bisogno delle autorizzazioni di accessibilità per funzionare correttamente. Abilitale qui sotto."
+      "description": "Only Whispers ha bisogno del permesso di accessibilità per incollare. Attivalo qui sotto."
     },
     "history": {
       "couldNotLoadTitle": "Impossibile caricare la cronologia",
@@ -214,17 +214,12 @@
         "yesterday": "Ieri"
       },
       "transcriptionFailed": "La trascrizione è fallita",
-      "failedCtaSettings": "Configura il tuo provider di trascrizione",
-      "failedCtaAndRetry": "poi clicca su riprova",
-      "failedCtaSettingsOnly": "Configura il tuo provider di trascrizione nelle Impostazioni",
-      "failedCtaAiSettings": "Controlla il modello dell'Assistente vocale nelle Impostazioni",
+      "failedCtaSettings": "Apri Impostazioni → Modelli IA",
+      "failedCtaAndRetry": "e premi «Ritrascrivi».",
       "editFailedTranscriptKept": "Modifica non applicata · trascrizione conservata",
-      "failedLimitReached": "Limite giornaliero raggiunto",
-      "failedOffline": "Offline",
       "clearAll": "Cancella tutto",
       "clearAllTitle": "Cancella tutte le trascrizioni",
-      "clearAllDescription": "Tutte le trascrizioni, i file audio e i conteggi di Insights verranno rimossi definitivamente da questo dispositivo e dal tuo account.",
-      "clearAllDescriptionDevice": "Tutte le trascrizioni, i file audio e i conteggi di Insights verranno rimossi definitivamente da questo dispositivo. I conteggi già sincronizzati con un account non saranno interessati.",
+      "clearAllDescriptionDevice": "Tutte le trascrizioni e i file audio verranno rimossi definitivamente da questo dispositivo.",
       "clearAllSuccess": "Cronologia cancellata",
       "clearAllErrorTitle": "Impossibile cancellare la cronologia",
       "clearAllErrorDescription": "Qualcosa è andato storto. Riprova.",
@@ -261,9 +256,9 @@
       "uploadError": "Impossibile caricare l'audio"
     },
     "aiCta": {
-      "title": "Migliora le tue trascrizioni con l'IA",
-      "description": "Corregge automaticamente grammatica, punteggiatura e formattazione mentre parli.",
-      "enable": "Attiva miglioramento IA"
+      "title": "La correzione testo è disattivata",
+      "description": "Attivala per togliere le parole riempitive e correggere grammatica e punteggiatura.",
+      "enable": "Apri Modelli IA"
     },
     "loading": "Caricamento..."
   },
@@ -455,7 +450,7 @@
         "providerRateLimited": "Il tuo provider di trascrizione ha limitato la richiesta. Attendi un momento e riprova.",
         "agentReasoningFailed": "L'assistente vocale non è riuscito a elaborare il comando; è stata inserita la trascrizione grezza.",
         "screenContextSkipped": "Non è stato possibile inviare lo screenshot, quindi il comando è stato eseguito senza contesto dello schermo.",
-        "providerKeyMissing": "Nessuna chiave API impostata per il tuo provider di trascrizione. Aggiungila in Impostazioni → Da voce a testo.",
+        "providerKeyMissing": "Nessuna chiave API impostata per {{provider}}. Aggiungila in Impostazioni → Modelli IA.",
         "cleanupTruncated": "Il modello IA ha esaurito lo spazio prima di finire la pulizia della dettatura.",
         "cleanupDuplicated": "La pulizia con IA ha ripetuto la trascrizione. Il testo originale è stato conservato.",
         "cleanupEmptyReply": "Il modello IA ha restituito una risposta vuota invece della dettatura pulita."
@@ -1202,7 +1197,7 @@
     "clearAll": "Cancella tutto",
     "clearTitle": "Svuotare il dizionario?",
     "clearDescription": "Verranno rimossi tutti i termini dal tuo dizionario personalizzato. Questa azione non può essere annullata.",
-    "addPlaceholder": "Aggiungi parole separate da virgole: only-whispers, Supabase, John Snow, ARR",
+    "addPlaceholder": "Aggiungi parole separate da virgole: Only Whispers, Supabase, John Snow, ARR",
     "add": "Aggiungi",
     "importWords": "Importa parole",
     "importPlaceholder": "Incolla parole separate da virgole o a capo...",
@@ -1211,41 +1206,13 @@
     "wordsReady_other": "{{count}} parole pronte",
     "import": "Importa",
     "yourDictionary": "Il tuo dizionario",
-    "promptLimitNotice": "Il tuo dizionario contiene {{chars}} caratteri. I modelli Groq e Whisper ne leggono solo le ultime centinaia di caratteri, quindi lì conviene un elenco più corto. Gli altri modelli ricevono l'elenco completo.",
     "exportDictionary": "Esporta dizionario",
     "exportFailed": "Esportazione non riuscita",
     "editWord": "Modifica {{word}}",
     "noMatches": "Nessuna corrispondenza — premi Invio per aggiungere \"{{word}}\"",
-    "tabDictionary": "Dizionario",
-    "tabSnippets": "Snippet",
-    "snippets": {
-      "title": "Snippet",
-      "edit": "Modifica {{trigger}}",
-      "remove": "Rimuovi {{trigger}}",
-      "editTitle": "Modifica snippet",
-      "dialogDescription": "Quando pronunci il trigger, viene sostituito con il tuo testo salvato.",
-      "triggerLabel": "Trigger",
-      "triggerPlaceholder": "es. mio calendario",
-      "replacementLabel": "Sostituzione",
-      "replacementPlaceholder": "Testo da inserire quando pronunci il trigger…",
-      "create": "Crea snippet",
-      "duplicate": "Esiste già uno snippet con questo trigger",
-      "emptyTitle": "Quello che non dovresti dover dire",
-      "emptyTitleAccent": "due volte",
-      "emptyDescription": "Pronuncia un trigger e only-whispers lo sostituisce con ciò che hai salvato: URL, presentazioni, firme, prompt.",
-      "new": "Nuovo snippet",
-      "examples": {
-        "linkedinTrigger": "Il mio LinkedIn",
-        "linkedinText": "linkedin.com/in/tu",
-        "signoffTrigger": "Firma",
-        "signoffText": "Saluti, Alex · alex@example.com"
-      },
-      "addPlaceholder": "Aggiungi una frase trigger: \"mio calendario\", \"il mio LinkedIn\""
-    },
     "emptyTitle": "Aggiungi parole al tuo dizionario",
-    "emptyDescription": "Aggiungi le parole che {{agentName}} deve sempre riconoscere: nomi, strumenti, acronimi.",
-    "addFirstWord": "Aggiungi la tua prima parola",
-    "agentDefault": "Aggiunto di default"
+    "emptyDescription": "Aggiungi le parole che Only Whispers deve sempre riconoscere: nomi, strumenti, acronimi.",
+    "addFirstWord": "Aggiungi la tua prima parola"
   },
   "sidebar": {
     "home": "Home",
@@ -1322,9 +1289,7 @@
     "commandMenu": {
       "stopListening": "Smetti di ascoltare",
       "startListening": "Inizia ad ascoltare",
-      "hideForNow": "Nascondi per ora",
-      "askAssistant": "Chiedi all'assistente",
-      "busyRecording": "Prima termina la registrazione in corso"
+      "hideForNow": "Nascondi per ora"
     }
   },
   "dictationAgent": {
@@ -1424,9 +1389,8 @@
       "newConversation": "Nuova conversazione",
       "copyToClipboard": "Copia negli appunti",
       "suggestions": {
-        "summarizeNotes": "Riassumi le mie note recenti",
-        "calendar": "Cosa c’è nel mio calendario?",
-        "draft": "Aiutami a scrivere qualcosa"
+        "draft": "Aiutami a scrivere qualcosa",
+        "dictionary": "Aggiungi una parola al mio dizionario"
       }
     },
     "toolActivity": {
@@ -1466,7 +1430,7 @@
     "unreachable": "Impossibile contattare {{provider}}. Controlla la tua connessione.",
     "noResponse": "Nessuna risposta da {{provider}}. Controlla la tua chiave API e la connessione.",
     "unknown": "{{provider}} ha restituito un errore imprevisto.",
-    "keyMissing": "Nessuna chiave API impostata per {{provider}}. Aggiungila in Impostazioni → Modelli linguistici.",
+    "keyMissing": "Nessuna chiave API impostata per {{provider}}. Aggiungila in Impostazioni → Modelli IA.",
     "selfHosted": {
       "authFailed": "Il tuo server ha rifiutato la chiave API.",
       "accessDenied": "Il tuo server ha negato l’accesso. La chiave potrebbe non includere questo modello.",
@@ -1569,7 +1533,7 @@
     }
   },
   "logsView": {
-    "description": "Avvisi ed errori della dettatura e dell'app, dal più recente. Il widget non li mostra.",
+    "description": "Avvisi ed errori dell'app, dal più recente.",
     "refresh": "Aggiorna",
     "openFolder": "Apri cartella log",
     "clear": "Cancella",

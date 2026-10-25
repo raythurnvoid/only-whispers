@@ -4,7 +4,7 @@ const i18next = require("i18next");
 const { I18nextProvider } = require("react-i18next");
 const { React, renderStatic } = require("./harness/reactSsr");
 
-test("the empty Assistant offers three localized generic suggestions", async () => {
+test("the empty Assistant offers two localized generic suggestions", async () => {
   await i18next.init({
     lng: "en",
     resources: {
@@ -13,9 +13,8 @@ test("the empty Assistant offers three localized generic suggestions", async () 
           assistant: {
             panel: {
               suggestions: {
-                summarizeNotes: "Summarize my recent notes",
-                calendar: "What is on my calendar?",
                 draft: "Help me draft something",
+                dictionary: "Add a word to my dictionary",
               },
             },
           },
@@ -35,9 +34,8 @@ test("the empty Assistant offers three localized generic suggestions", async () 
     })
   );
 
-  assert.match(markup, /Summarize my recent notes/);
-  assert.match(markup, /What is on my calendar\?/);
   assert.match(markup, /Help me draft something/);
-  assert.equal((markup.match(/<button/g) ?? []).length, 3);
-  assert.equal((markup.match(/ disabled=""/g) ?? []).length, 3);
+  assert.match(markup, /Add a word to my dictionary/);
+  assert.equal((markup.match(/<button/g) ?? []).length, 2);
+  assert.equal((markup.match(/ disabled=""/g) ?? []).length, 2);
 });
