@@ -10,9 +10,6 @@ import {
 } from "../../helpers/llmRequestTimeout.js";
 import { redactProviderBody } from "../../helpers/providerHttpErrors.js";
 
-// Used when the plan call fails (plan limit hit, sign-in expired, network error).
-const FALLBACK_URL = "https://api.mistral.ai/v1/chat/completions";
-const FALLBACK_MODEL = "ministral-8b-latest";
 const SOCKET_TIMEOUT_MS = 15000;
 
 /**
@@ -22,7 +19,8 @@ const SOCKET_TIMEOUT_MS = 15000;
  * system prompt as `instructions`, `service_tier: "priority"` (not "fast", which it
  * rejects), and no `temperature` or `max_output_tokens`:
  * https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations
- * Any failure falls back to Mistral, so dictation never stops.
+ * Luna is the only cleanup model: on a failure the dictation pastes the raw
+ * transcript and shows the cleanup-failed toast (audioManager.js).
  */
 export async function callChatGPTPlan(params: ProviderCallParams, token: string): Promise<string> {
   const startTime = Date.now();
@@ -34,23 +32,13 @@ export async function callChatGPTPlan(params: ProviderCallParams, token: string)
     });
     return text;
   } catch (error) {
-    if (isRequestCancelled(params.config.requestId)) throw error;
-    const mistralKey = await window.electronAPI.getMistralKey();
-    logger.logReasoning("CHATGPT_PLAN_FALLBACK", {
-      model: params.model,
-      error: (error as Error).message,
-      hasMistralKey: !!mistralKey,
-    });
-    if (!mistralKey) throw error;
-    return params.ctx.callChatCompletionsApi(
-      FALLBACK_URL,
-      mistralKey,
-      FALLBACK_MODEL,
-      params.text,
-      params.agentName,
-      params.config,
-      "Mistral"
-    );
+    if (!isRequestCancelled(params.config.requestId)) {
+      logger.logReasoning("CHATGPT_PLAN_FAILED", {
+        model: params.model,
+        error: (error as Error).message,
+      });
+    }
+    throw error;
   }
 }
 

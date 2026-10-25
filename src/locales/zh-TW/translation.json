@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "ChatGPT 方案",
-      "description": "使用 ChatGPT 登入後,整理會使用你的 ChatGPT 方案,而不是 API 金鑰。如果方案無法使用,整理會改用 Mistral Ministral 8B。",
+      "description": "使用 ChatGPT 登入後,整理會使用你的 ChatGPT 方案,而不是 API 金鑰。",
       "signIn": "使用 ChatGPT 登入",
       "signingIn": "請在瀏覽器中完成登入...",
       "signOut": "登出",

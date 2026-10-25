@@ -25,7 +25,7 @@
 4. **OpenAI Luna** cleans the text: it removes filler words and fixes grammar and punctuation. It runs on your ChatGPT plan, so it needs no OpenAI API key.
 5. The clean text is pasted where your cursor is.
 
-If the ChatGPT plan fails, cleanup falls back to **Mistral Ministral 8B**.
+If the ChatGPT plan fails, the raw transcript is pasted instead.
 
 In my tests, a 14-second clip took about 0.9 s for speech-to-text and about 3 s for cleanup.
 

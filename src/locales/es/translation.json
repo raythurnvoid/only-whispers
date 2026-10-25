@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "Plan de ChatGPT",
-      "description": "Inicia sesión con ChatGPT para hacer la limpieza con tu plan de ChatGPT en lugar de una clave de API. Si el plan falla, la limpieza usa Mistral Ministral 8B.",
+      "description": "Inicia sesión con ChatGPT para hacer la limpieza con tu plan de ChatGPT en lugar de una clave de API.",
       "signIn": "Iniciar sesión con ChatGPT",
       "signingIn": "Termina de iniciar sesión en el navegador...",
       "signOut": "Cerrar sesión",

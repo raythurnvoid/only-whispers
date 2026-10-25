@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "ChatGPT 套餐",
-      "description": "使用 ChatGPT 登录后,整理会使用你的 ChatGPT 套餐,而不是 API 密钥。如果套餐不可用,整理会改用 Mistral Ministral 8B。",
+      "description": "使用 ChatGPT 登录后,整理会使用你的 ChatGPT 套餐,而不是 API 密钥。",
       "signIn": "使用 ChatGPT 登录",
       "signingIn": "请在浏览器中完成登录...",
       "signOut": "退出登录",

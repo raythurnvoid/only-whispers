@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "Forfait ChatGPT",
-      "description": "Connectez-vous avec ChatGPT pour faire le nettoyage avec votre forfait ChatGPT au lieu d'une clé API. Si le forfait échoue, le nettoyage utilise Mistral Ministral 8B.",
+      "description": "Connectez-vous avec ChatGPT pour faire le nettoyage avec votre forfait ChatGPT au lieu d'une clé API.",
       "signIn": "Se connecter avec ChatGPT",
       "signingIn": "Terminez la connexion dans votre navigateur...",
       "signOut": "Se déconnecter",

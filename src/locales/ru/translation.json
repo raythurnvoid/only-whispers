@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "План ChatGPT",
-      "description": "Войдите через ChatGPT, чтобы очистка работала по вашему плану ChatGPT, а не по API-ключу. Если план не сработает, очистка перейдёт на Mistral Ministral 8B.",
+      "description": "Войдите через ChatGPT, чтобы очистка работала по вашему плану ChatGPT, а не по API-ключу.",
       "signIn": "Войти через ChatGPT",
       "signingIn": "Завершите вход в браузере...",
       "signOut": "Выйти",

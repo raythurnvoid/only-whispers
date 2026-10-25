@@ -407,7 +407,7 @@
     },
     "chatgpt": {
       "title": "Plano do ChatGPT",
-      "description": "Entre com o ChatGPT para fazer a limpeza no seu plano do ChatGPT em vez de uma chave de API. Se o plano falhar, a limpeza usa o Mistral Ministral 8B.",
+      "description": "Entre com o ChatGPT para fazer a limpeza no seu plano do ChatGPT em vez de uma chave de API.",
       "signIn": "Entrar com o ChatGPT",
       "signingIn": "Conclua o login no navegador...",
       "signOut": "Sair",

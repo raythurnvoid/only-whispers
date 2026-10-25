@@ -17,7 +17,7 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 
 ## Project Overview
 
-only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs on the user's ChatGPT plan ("Sign in with ChatGPT") with Mistral Ministral 8B as the fallback, or on any configured AI provider, including local GGUF models through llama.cpp.
+only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs only on OpenAI Luna through the user's ChatGPT plan ("Sign in with ChatGPT"); if it fails, the raw transcript is pasted. Other providers and local models are still in the code but hidden from the UI.
 
 ## Architecture Overview
 
@@ -190,7 +190,7 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
   - Provider implementations live in a registry at `src/services/ai/inferenceProviders/index.ts` covering 9 providers (`anthropic`, `corti`, `enterprise`, `gemini`, `groq`, `lan`, `local`, `openai`, `tinfoil`), each implementing the `InferenceProvider` interface from `types.ts`
   - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `chatIntelligence`)
   - `selectResolvedLLMConfig(state, scope)` in `settingsStore.ts` resolves provider/model per scope with fallback chains
-- **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). Any failure falls back to Mistral `ministral-8b-latest`, so dictation never stops
+- **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). There is no fallback model: on a failure the raw transcript is pasted with the cleanup-failed toast
 
 ### Speech-to-Text (Mistral)
 
@@ -601,7 +601,7 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - [ ] The pill shows the right states, and its cancel X works
 - [ ] Retry and Upload work from Home
 - [ ] Custom dictionary words are recognized
-- [ ] Cleanup runs on the ChatGPT plan, and falls back to Mistral when signed out
+- [ ] Cleanup runs on the ChatGPT plan, and the raw transcript is pasted when it fails or you are signed out
 - [ ] Tone & Style picks the tone for the app
 - [ ] The voice assistant hotkey answers in the panel
 - [ ] Test GNOME / Hyprland / KDE Wayland hotkeys (Linux)

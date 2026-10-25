@@ -323,7 +323,7 @@
     "getApiKey": "Get your API key ->",
     "chatgpt": {
       "title": "ChatGPT plan",
-      "description": "Sign in with ChatGPT to run cleanup on your ChatGPT plan instead of an API key. If the plan fails, cleanup falls back to Mistral Ministral 8B.",
+      "description": "Sign in with ChatGPT to run cleanup on your ChatGPT plan instead of an API key.",
       "signIn": "Sign in with ChatGPT",
       "signingIn": "Finish signing in in your browser...",
       "signOut": "Sign out",

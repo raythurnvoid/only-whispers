@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "Piano ChatGPT",
-      "description": "Accedi con ChatGPT per eseguire la pulizia con il tuo piano ChatGPT invece di una chiave API. Se il piano non funziona, la pulizia usa Mistral Ministral 8B.",
+      "description": "Accedi con ChatGPT per eseguire la pulizia con il tuo piano ChatGPT invece di una chiave API.",
       "signIn": "Accedi con ChatGPT",
       "signingIn": "Completa l'accesso nel browser...",
       "signOut": "Esci",

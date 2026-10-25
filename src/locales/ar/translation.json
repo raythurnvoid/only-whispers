@@ -473,7 +473,7 @@
     },
     "chatgpt": {
       "title": "خطة ChatGPT",
-      "description": "سجّل الدخول باستخدام ChatGPT لتشغيل التنظيف على خطة ChatGPT بدلاً من مفتاح API. إذا فشلت الخطة، يعود التنظيف إلى Mistral Ministral 8B.",
+      "description": "سجّل الدخول باستخدام ChatGPT لتشغيل التنظيف على خطة ChatGPT بدلاً من مفتاح API.",
       "signIn": "تسجيل الدخول باستخدام ChatGPT",
       "signingIn": "أكمل تسجيل الدخول في المتصفح...",
       "signOut": "تسجيل الخروج",

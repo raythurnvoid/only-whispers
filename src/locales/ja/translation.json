@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "ChatGPT プラン",
-      "description": "ChatGPT でサインインすると、API キーの代わりに ChatGPT プランで整形を実行します。プランが失敗した場合は Mistral Ministral 8B で整形します。",
+      "description": "ChatGPT でサインインすると、API キーの代わりに ChatGPT プランで整形を実行します。",
       "signIn": "ChatGPT でサインイン",
       "signingIn": "ブラウザでサインインを完了してください...",
       "signOut": "サインアウト",

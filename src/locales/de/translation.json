@@ -413,7 +413,7 @@
     },
     "chatgpt": {
       "title": "ChatGPT-Abo",
-      "description": "Melde dich mit ChatGPT an, damit die Bereinigung über dein ChatGPT-Abo statt über einen API-Schlüssel läuft. Wenn das Abo fehlschlägt, nutzt die Bereinigung Mistral Ministral 8B.",
+      "description": "Melde dich mit ChatGPT an, damit die Bereinigung über dein ChatGPT-Abo statt über einen API-Schlüssel läuft.",
       "signIn": "Mit ChatGPT anmelden",
       "signingIn": "Schließe die Anmeldung im Browser ab...",
       "signOut": "Abmelden",
