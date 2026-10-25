@@ -48,7 +48,6 @@ const {
 } = require("./windowConfig");
 const AGENT_DICTATION_PILL_SIZE = Object.freeze({ ...WINDOW_SIZES.BASE });
 const { centeredBounds, clampedBounds } = require("./onboardingWindowBounds");
-const { isOnboardingInputAllowed } = require("./onboardingInputPolicy");
 const { createHotkeyRepeatGate } = require("./hotkeyRepeatGate");
 
 class WindowManager {
@@ -63,10 +62,6 @@ class WindowManager {
     // Fail closed until AppRouter has resolved persisted onboarding state and
     // committed the normal app. This covers the startup gap before React mounts.
     this._onboardingActive = true;
-    this._onboardingDemoKind = null;
-    // Set by IPCHandlers so its demo session dies with the demo kind on every
-    // teardown path (id-matched end, onboarding exit, control panel closed).
-    this.onOnboardingDemoTeardown = null;
     // Set by main.js: an app started to the tray creates no control panel.
     this.startedMinimized = false;
     this.agentDictationPillWindow = null;
@@ -151,7 +146,6 @@ class WindowManager {
       // A reload has not resolved its route yet. AppRouter releases this gate
       // after it renders the normal app; fresh onboarding keeps it active.
       this.setOnboardingActive(true);
-      this.endOnboardingDemo();
       this.mainWindow.setTitle(i18nMain.t("window.voiceRecorderTitle"));
       this.enforceMainWindowOnTop();
       this._notifyMainWindowHorizontalDirection();
@@ -696,7 +690,7 @@ class WindowManager {
   }
 
   startMacCompoundPushToTalk(hotkey) {
-    if (!this._isOnboardingInputAllowed("dictation")) return;
+    if (!this._isOnboardingInputAllowed()) return;
     if (this.macCompoundPushState?.active || this.isDictationProcessing()) {
       return;
     }
@@ -850,7 +844,7 @@ class WindowManager {
   // keeps it running for DOUBLE_TAP_WINDOW_MS, a second press in that time locks
   // it, and the next press stops it. Without a second press the tap is cancelled.
   startWindowsPushToTalk(key) {
-    if (!this._isOnboardingInputAllowed("dictation")) return;
+    if (!this._isOnboardingInputAllowed()) return;
     const state = this.winPushState;
     if (state?.locked) {
       clearTimeout(state.safetyTimeoutId);
@@ -970,8 +964,8 @@ class WindowManager {
     this.handleWindowsPushKeyUp(undefined, { reason: "reset" });
   }
 
-  _isOnboardingInputAllowed(inputKind) {
-    return isOnboardingInputAllowed(this._onboardingActive, this._onboardingDemoKind, inputKind);
+  _isOnboardingInputAllowed() {
+    return !this._onboardingActive;
   }
 
   // Visibility is part of "available": a ready pill that is merely hidden
@@ -1013,7 +1007,7 @@ class WindowManager {
   }
 
   _sendDictationToggle(channel, inputKind) {
-    if (!this._isOnboardingInputAllowed(inputKind)) return;
+    if (!this._isOnboardingInputAllowed()) return;
     if (this._shouldBlockDictationInput(inputKind)) {
       return;
     }
@@ -1048,8 +1042,7 @@ class WindowManager {
       // About-to-start guess: open the mic one IPC message ahead of the toggle.
       // A wrong guess (renderer declines) is bounded by the prepared capture's
       // max-age expiry, and the renderer dedups its own prepare call. Pass the
-      // toggle's own kind so the pre-warm survives the assistant demo, whose
-      // gate rejects "dictation".
+      // toggle's own kind, which the panel-open check reads.
       if (isStarting) {
         this.sendPrepareDictation({ inputKind });
       }
@@ -1120,8 +1113,7 @@ class WindowManager {
   // The tray's Ask assistant. Only the renderer can open the panel, and only it
   // knows the policy and recording state the pill menu gates the item on, so it
   // decides: nothing is shown or created here, and an accepted command surfaces
-  // the pill itself through setAssistantPanelOpen. Onboarding blocks it outright
-  // rather than through the demo-aware gate — the tray is never part of the demo.
+  // the pill itself through setAssistantPanelOpen. Onboarding blocks it.
   sendOpenAssistantPanel() {
     if (this.hotkeyManager.isInListeningMode() || this._onboardingActive) return;
     if (!this.mainWindow || this.mainWindow.isDestroyed()) return;
@@ -1129,7 +1121,7 @@ class WindowManager {
   }
 
   sendStartDictation() {
-    if (!this._isOnboardingInputAllowed("dictation")) return;
+    if (!this._isOnboardingInputAllowed()) return;
     if (this._shouldBlockDictationInput("dictation")) {
       return;
     }
@@ -1157,7 +1149,7 @@ class WindowManager {
   }
 
   sendPrepareDictation({ inputKind = "dictation" } = {}) {
-    if (!this._isOnboardingInputAllowed(inputKind)) return;
+    if (!this._isOnboardingInputAllowed()) return;
     if (this._shouldBlockDictationInput(inputKind)) {
       return;
     }
@@ -1437,7 +1429,6 @@ class WindowManager {
 
     this.controlPanelWindow.on("closed", () => {
       this._clearControlPanelVisibilityTimer();
-      this.endOnboardingDemo();
       this.controlPanelWindow = null;
       this._onboardingActive = true;
       this._hideNormalAppSurfaces();
@@ -1454,7 +1445,6 @@ class WindowManager {
       // only after it commits the normal app, so OAuth/onboarding reloads cannot
       // expose the dictation pill, hotkeys, or popup surfaces in between.
       this.setOnboardingActive(true);
-      this.endOnboardingDemo();
       this.controlPanelWindow.setTitle(i18nMain.t("window.controlPanelTitle"));
     });
 
@@ -1480,9 +1470,6 @@ class WindowManager {
           { reason: details.reason, exitCode: details.exitCode },
           "window"
         );
-        // The renderer owned any running demo; without this, its stale session
-        // keeps swallowing dictations after the reload.
-        this.endOnboardingDemo();
         setTimeout(() => this.loadControlPanel(), 1000);
       }
     });
@@ -1720,7 +1707,6 @@ class WindowManager {
       return true;
     }
 
-    this.endOnboardingDemo();
     this.sendCancelDictation();
     this.hideDictationPanel();
     this._onboardingActive = false;
@@ -1732,24 +1718,6 @@ class WindowManager {
     this.hideDictationPanel();
     this.hideTranscriptionPreview();
     this.hideAgentDictationPill();
-  }
-
-  isOnboardingDemoActive() {
-    return this._onboardingDemoKind !== null;
-  }
-
-  endOnboardingDemo() {
-    // Before the early return on purpose: IPCHandlers' demo session must die
-    // on every teardown path even if the demo kind is already gone — a stale
-    // session broadcasts every later dictation on onboarding-demo-event.
-    this.onOnboardingDemoTeardown?.();
-    if (!this._onboardingDemoKind) return false;
-    // Leaving/retrying is cancellation, not a transcription request. The
-    // overlay owns AudioManager, so route cleanup must be delivered there.
-    this.sendCancelDictation();
-    this.hideDictationPanel();
-    this._onboardingDemoKind = null;
-    return true;
   }
 
   _clearControlPanelVisibilityTimer() {
@@ -1903,9 +1871,6 @@ class WindowManager {
     // rescue a window that never got shown, and letting it fire now would
     // pull the panel (and the Dock icon) back out of the tray.
     this._clearControlPanelVisibilityTimer();
-    // A demo left running when the panel hides would keep swallowing normal
-    // dictations (paste suppressed, transcripts rerouted to the demo session).
-    this.endOnboardingDemo();
     // The guide cannot watch the panel's hide event (occlusion fires it too),
     // so the one real hide path tells it.
     this.permissionGuide?.close(false, true);

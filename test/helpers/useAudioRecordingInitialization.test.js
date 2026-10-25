@@ -15,7 +15,7 @@ test("useAudioRecording accepts an onboarding event handler on its initial rende
   const { useAudioRecording } = await vite.ssrLoadModule("/hooks/useAudioRecording.js");
 
   function InitialRenderProbe() {
-    useAudioRecording(() => {}, { onDemoEvent: () => {} });
+    useAudioRecording(() => {});
     return React.createElement("div");
   }
 

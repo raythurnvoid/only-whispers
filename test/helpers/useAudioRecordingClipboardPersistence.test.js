@@ -147,7 +147,7 @@ async function mountCompletionHarness(
   const { useAudioRecording } = await vite.ssrLoadModule("/hooks/useAudioRecording.js");
 
   function Harness() {
-    useAudioRecording(NOOP, { onDemoEvent: NOOP });
+    useAudioRecording(NOOP);
     return null;
   }
 

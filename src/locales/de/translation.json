@@ -110,15 +110,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "Kaffee nächste Woche?",
-          "senderName": "Maria Alvarez",
-          "body": "Hallo! Es war schön, dich gestern beim Meetup kennenzulernen. Hättest du nächste Woche Zeit für einen kurzen Kaffee? Sag mir einfach, was dir passt.\n\nMaria"
-        }
-      },
       "provider": {
-        "apiKey": "API-Schlüssel",
         "apiKeyPlaceholder": "API-Schlüssel einfügen",
         "connectionFailed": "Die Verbindung konnte nicht überprüft werden.",
         "unverified": "Konnte nicht überprüft werden: {{reason}}",
@@ -139,7 +131,6 @@
       }
     },
     "permissions": {
-      "grant": "Erteilen",
       "grantAccess": "Zugriff gewähren"
     },
     "activation": {

@@ -35,7 +35,6 @@ const serializeIpcError =
   };
 
 const { i18nMain, changeLanguage } = require("./i18nMain");
-const { ONBOARDING_DEMO_STATUSES } = require("./onboardingInputPolicy");
 const { focusWindowsHotkeyCaptureWindow } = require("./hotkeyCaptureFocus");
 const { MistralRealtimeStreaming, MISTRAL_REALTIME_MODEL } = require("./mistralRealtimeStreaming");
 const AudioStorageManager = require("./audioStorage");
@@ -173,7 +172,6 @@ class IPCHandlers {
     this._autoLearnLatestData = null;
     this._textEditHandler = null;
     this._activeRecordingPipeline = null;
-    this._onboardingDemoSession = null;
     this.audioStorageManager = new AudioStorageManager();
     this._retentionCleanupInterval = null;
     this._retentionSettings = { ...DEFAULT_RETENTION_SETTINGS }; // Synced from renderer
@@ -367,39 +365,9 @@ class IPCHandlers {
       this.windowManager.permissionGuide.startDrag(event, target)
     );
 
-    // WindowManager owns every teardown path for a demo (id-matched end,
-    // onboarding-set-active(false), control panel closed); without this hook a
-    // renderer crash mid-demo would leave the session set and broadcast every
-    // later dictation's transcripts on onboarding-demo-event forever.
-    this.windowManager.onOnboardingDemoTeardown = () => {
-      this._onboardingDemoSession = null;
-    };
-
     ipcMain.handle("onboarding-set-active", (_event, active) => {
       if (typeof active !== "boolean") return false;
       return this.windowManager.setOnboardingActive(active);
-    });
-
-    ipcMain.handle("onboarding-demo-publish", (_event, event) => {
-      const session = this._onboardingDemoSession;
-      if (!session || !event || event.kind !== session.kind) return false;
-      if (!ONBOARDING_DEMO_STATUSES.has(event.status)) return false;
-      const text = typeof event.text === "string" ? event.text.slice(0, 20000) : undefined;
-      const message = typeof event.message === "string" ? event.message.slice(0, 500) : undefined;
-      const tool = typeof event.tool === "string" ? event.tool.slice(0, 64) : undefined;
-      const level = Number.isFinite(event.level)
-        ? Math.min(1, Math.max(0, event.level))
-        : undefined;
-      broadcastToWindows("onboarding-demo-event", {
-        demoId: session.id,
-        kind: session.kind,
-        status: event.status,
-        text,
-        message,
-        tool,
-        level,
-      });
-      return true;
     });
 
     // Every panel showing the same credentials and model shares one answer.
@@ -878,15 +846,6 @@ class IPCHandlers {
     });
 
     ipcMain.handle("paste-text", async (event, text, options) => {
-      // An onboarding demo already puts the transcript in its own textarea from
-      // the demo event, and that textarea is what has focus — pasting on top of
-      // it appends the same sentence a second time. This is a successful no-op,
-      // not a completed paste, so callers can avoid reporting paste-dependent
-      // fallbacks as if text reached another application.
-      if (this.windowManager?.isOnboardingDemoActive()) {
-        return { success: true, pasted: false };
-      }
-
       const mainWindow = this.windowManager?.mainWindow;
       const targetPid = this.textEditMonitor?.lastTargetPid || null;
 

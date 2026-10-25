@@ -110,15 +110,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "来週コーヒーでも？",
-          "senderName": "マリア・アルバレス",
-          "body": "こんにちは！昨日のミートアップでお会いできてうれしかったです。来週、少しコーヒーでもご一緒しませんか？ご都合の良い日時を教えてください。\n\nマリア"
-        }
-      },
       "provider": {
-        "apiKey": "API キー",
         "apiKeyPlaceholder": "API キーを貼り付け",
         "connectionFailed": "接続を確認できませんでした。",
         "unverified": "確認できませんでした：{{reason}}",
@@ -139,7 +131,6 @@
       }
     },
     "permissions": {
-      "grant": "許可",
       "grantAccess": "アクセスを許可"
     },
     "activation": {

@@ -286,26 +286,6 @@ export interface PasteToolsResult {
   recommendedInstall?: string;
 }
 
-export type OnboardingDemoKind = "dictation" | "assistant";
-/**
- * "partial" streams the transcript, "processing" carries the final transcript,
- * "replying" streams the assistant demo's reply, and "level" mirrors the
- * microphone level while listening.
- */
-export type OnboardingDemoStatus =
-  "listening" | "level" | "processing" | "partial" | "replying" | "success" | "error";
-export interface OnboardingDemoEvent {
-  demoId: string;
-  kind: OnboardingDemoKind;
-  status: OnboardingDemoStatus;
-  text?: string;
-  message?: string;
-  /** Tool the assistant is running while it replies (a tool registry name). */
-  tool?: string;
-  /** Microphone input level, 0..1, on "level" events. */
-  level?: number;
-}
-
 declare global {
   interface Window {
     electronAPI: {
@@ -318,7 +298,6 @@ declare global {
         target: Pick<PermissionGuideState, "sessionId" | "permission">
       ) => void;
       onPermissionGuideState?: (callback: (state: PermissionGuideState) => void) => () => void;
-      publishOnboardingDemoEvent?: (event: Omit<OnboardingDemoEvent, "demoId">) => Promise<boolean>;
       testProviderConnection?: (config: {
         scope: "transcription" | "reasoning";
         provider: string;

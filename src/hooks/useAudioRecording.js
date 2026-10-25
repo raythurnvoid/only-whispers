@@ -8,7 +8,6 @@ import { expandSnippets } from "../utils/snippets";
 import { getRecordingErrorTitle, getRecordingErrorDescription } from "../utils/recordingErrors";
 import { providerErrorActions } from "../utils/describeProviderError";
 import { isAccessibilitySkipped } from "../utils/permissions";
-import { getOnboardingDemoKind } from "../utils/onboardingDemo";
 import {
   buildLiveTranscriptionPreview,
   shouldDisplayDictationPreview,
@@ -66,19 +65,15 @@ export const useAudioRecording = (toast, options = {}) => {
   const pastesInFlightRef = useRef(0);
   const cancellingRef = useRef(false);
   const wasMicUnavailableRef = useRef(false);
-  const demoKindRef = useRef("dictation");
-  const onDemoEventRef = useRef(options.onDemoEvent);
   const reportedLifecycleRef = useRef(null);
   const lastStartOptionsRef = useRef({ voiceAgentRequested: false });
   const {
     onToggle,
     onAssistantCommand,
-    onOnboardingAssistantCommand,
     dismissDictationError,
     onDictationError,
     getAssistantSelectionContext,
     onShowTranscript,
-    onDemoEvent,
     assistantOpenRef,
   } = options;
 
@@ -89,19 +84,11 @@ export const useAudioRecording = (toast, options = {}) => {
     []
   );
 
-  useEffect(() => {
-    onDemoEventRef.current = onDemoEvent;
-  }, [onDemoEvent]);
-
   // Read through a ref so a re-render never tears down the AudioManager
   // (the mount effect below must not depend on this callback).
   const onAssistantCommandRef = useRef(onAssistantCommand);
   useEffect(() => {
     onAssistantCommandRef.current = onAssistantCommand;
-  });
-  const onOnboardingAssistantCommandRef = useRef(onOnboardingAssistantCommand);
-  useEffect(() => {
-    onOnboardingAssistantCommandRef.current = onOnboardingAssistantCommand;
   });
   const onShowTranscriptRef = useRef(onShowTranscript);
   useEffect(() => {
@@ -169,7 +156,6 @@ export const useAudioRecording = (toast, options = {}) => {
           logger.warn("Failed to refresh dictation target", { error: error?.message });
         }
 
-        demoKindRef.current = getOnboardingDemoKind(voiceAgentRequested);
         audioManagerRef.current.setVoiceAgentRequested(voiceAgentRequested);
         audioManagerRef.current.setAssistantSelectionContext(assistantSelectionContext);
         // Covers the toggle path with freshly-set flags; the signature dedup
@@ -478,11 +464,6 @@ export const useAudioRecording = (toast, options = {}) => {
         micCaptureStatus,
       }) => {
         reportLifecycle(isRecording ? "recording" : isProcessing ? "processing" : "idle");
-        if (isRecording) {
-          onDemoEventRef.current?.({ kind: demoKindRef.current, status: "listening" });
-        } else if (isProcessing) {
-          onDemoEventRef.current?.({ kind: demoKindRef.current, status: "processing" });
-        }
         if (!isRecording) {
           window.electronAPI?.unregisterCancelHotkey?.();
           // Resume media the instant recording ends, not after transcription.
@@ -536,11 +517,6 @@ export const useAudioRecording = (toast, options = {}) => {
         setIsPreparing(false);
         setIsStopping(false);
         if (error?.code === "TRANSCRIPTION_CANCELLED" || error?.code === "REASON_CANCELLED") return;
-        onDemoEventRef.current?.({
-          kind: demoKindRef.current,
-          status: "error",
-          message: error?.message,
-        });
         if (error?.title !== "Paste Error") {
           window.electronAPI?.hideDictationPreview?.();
         }
@@ -569,11 +545,6 @@ export const useAudioRecording = (toast, options = {}) => {
       onNoAudio: () => {
         setIsPreparing(false);
         setIsStopping(false);
-        onDemoEventRef.current?.({
-          kind: demoKindRef.current,
-          status: "error",
-          message: t("hooks.audioRecording.noAudio.title"),
-        });
         window.electronAPI?.hideDictationPreview?.();
         if (getSettings().pauseMediaOnDictation) {
           window.electronAPI?.resumeMediaPlayback?.();
@@ -585,7 +556,6 @@ export const useAudioRecording = (toast, options = {}) => {
         });
       },
       onPartialTranscript: (text) => {
-        onDemoEventRef.current?.({ kind: demoKindRef.current, status: "partial", text });
         setPartialTranscript(text);
         const settings = getSettings();
         if (
@@ -644,36 +614,20 @@ export const useAudioRecording = (toast, options = {}) => {
                 ? { image: screenContext.data, mediaType: screenContext.mediaType }
                 : null,
             };
-            if (localStorage.getItem("onboardingCompleted") !== "true") {
-              // The assistant panel would cover the onboarding flow, so a headless
-              // responder answers and streams the reply back as demo events.
-              onDemoEventRef.current?.({
-                kind: demoKindRef.current,
-                status: "processing",
-                text: command.text,
-              });
-              onOnboardingAssistantCommandRef.current?.(command);
-            } else {
-              const { autoPasteEnabled, keepTranscriptionInClipboard } = getSettings();
-              onAssistantCommandRef.current?.({
-                ...command,
-                selectedContext: selectedContext ?? null,
-                delivery: createAssistantResponseDelivery({
-                  autoPasteEnabled,
-                  deliverySessionId,
-                  acceptsMarkdown: deliveryAcceptsMarkdown,
-                  appCategory: deliveryAppCategory,
-                  restoreClipboard: !keepTranscriptionInClipboard,
-                  allowClipboardFallback: isAccessibilitySkipped(),
-                }),
-              });
-            }
-          } else {
-            onDemoEventRef.current?.({
-              kind: demoKindRef.current,
-              status: "success",
-              text: result.text,
+            const { autoPasteEnabled, keepTranscriptionInClipboard } = getSettings();
+            onAssistantCommandRef.current?.({
+              ...command,
+              selectedContext: selectedContext ?? null,
+              delivery: createAssistantResponseDelivery({
+                autoPasteEnabled,
+                deliverySessionId,
+                acceptsMarkdown: deliveryAcceptsMarkdown,
+                appCategory: deliveryAppCategory,
+                restoreClipboard: !keepTranscriptionInClipboard,
+                allowClipboardFallback: isAccessibilitySkipped(),
+              }),
             });
+          } else {
             window.electronAPI?.completeDictationPreview?.({ text: result.text });
           }
 
@@ -914,15 +868,10 @@ export const useAudioRecording = (toast, options = {}) => {
           }
 
           // Cleanup can be missing or can fail whether or not the paste landed
-          // (#2631, #1003), so the toast is told which. The onboarding demo's
-          // paste is a no-op into its own text box, so it reports nothing there.
-          // A paste held back behind a newer dictation stays quiet too: that
-          // recording owns the pill, and an unconfigured warning stays unspent.
-          if (
-            result.cleanupFailure &&
-            !heldBehindNewerDictation &&
-            localStorage.getItem("onboardingCompleted") === "true"
-          ) {
+          // (#2631, #1003), so the toast is told which. A paste held back
+          // behind a newer dictation stays quiet: that recording owns the
+          // pill, and an unconfigured warning stays unspent.
+          if (result.cleanupFailure && !heldBehindNewerDictation) {
             recordCleanupFailure({ ...result.cleanupFailure, pasted });
             audioManagerRef.current.markCleanupNoticeShown(result.cleanupFailure);
           }
@@ -1085,8 +1034,6 @@ export const useAudioRecording = (toast, options = {}) => {
     const reportAudioLevel = () => {
       const level = getAudioLevel();
       if (level === null) return;
-      // The onboarding demo's pill draws its waveform from these levels.
-      onDemoEventRef.current?.({ kind: demoKindRef.current, status: "level", level });
       // The companion pill only exists while the Agent panel is open — with
       // the panel closed there is nobody to mirror levels to, so skip the
       // IPC. Checked per tick, not once: the panel can open mid-recording and

@@ -83,24 +83,9 @@ test.after(() => {
   Module._load = originalLoad;
 });
 
-test("paste-text reports an onboarding demo no-op without invoking the clipboard", async () => {
-  let pasteCalls = 0;
-  target.windowManager = { isOnboardingDemoActive: () => true };
-  target.clipboardManager = {
-    pasteText: async () => {
-      pasteCalls += 1;
-    },
-  };
-
-  const result = await handlers.get("paste-text")({ sender: {} }, "demo transcript");
-
-  assert.deepEqual(result, { success: true, pasted: false });
-  assert.equal(pasteCalls, 0);
-});
-
 test("paste-text reports pasted only after the clipboard paste completes", async () => {
   const pastes = [];
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   target.clipboardManager = {
     pasteText: async (text, options) => {
       pastes.push({ text, options });
@@ -114,7 +99,7 @@ test("paste-text reports pasted only after the clipboard paste completes", async
 });
 
 test("paste-text preserves a clipboard-only fallback as not pasted", async () => {
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   target.clipboardManager = {
     pasteText: async () => ({ pasted: false }),
   };
@@ -136,7 +121,6 @@ test("paste-text on Linux hands back the keyboard the assistant panel took befor
       Object.defineProperty(process, "platform", { value: platform, configurable: true });
       const order = [];
       target.windowManager = {
-        isOnboardingDemoActive: () => false,
         mainWindow: {
           isDestroyed: () => false,
           isFocused: () => true,
@@ -162,7 +146,7 @@ test("paste-text on Linux hands back the keyboard the assistant panel took befor
 });
 
 test("paste-text tells the renderer why a paste was held back", async () => {
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   target.clipboardManager = {
     pasteText: async () => ({ pasted: false, reason: "modifiers-held" }),
   };
@@ -190,7 +174,7 @@ test("paste-text does not schedule AutoLearn monitoring after a clipboard-only f
     activateTargetPid: async () => true,
     startMonitoring: (...args) => monitored.push(args),
   };
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   target.clipboardManager = {
     pasteText: async () => ({ pasted: false }),
   };
@@ -220,7 +204,7 @@ test("paste-text serializes only a copied Accessibility denial and skips AutoLea
     activateTargetPid: async () => true,
     startMonitoring: () => assert.fail("must not monitor denial"),
   };
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   target.clipboardManager = {
     pasteText: async (_text, options) => {
       assert.equal(options.silentAccessibilityCheck, true);
@@ -245,7 +229,7 @@ test("paste-text serializes only a copied Accessibility denial and skips AutoLea
 });
 
 test("paste-text preserves rejection for generic errors and unconfirmed clipboard writes", async () => {
-  target.windowManager = { isOnboardingDemoActive: () => false };
+  target.windowManager = {};
   for (const error of [
     new Error("accessibility mentioned in an unrelated failure"),
     Object.assign(new Error("not copied"), { code: "ACCESSIBILITY_PERMISSION_REQUIRED" }),
