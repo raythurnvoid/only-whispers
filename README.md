@@ -1,8 +1,9 @@
-<p align="center">
-  <img src=".github/logo.png" alt="Only Whispers logo" width="128" height="128" />
-</p>
-
-<h1 align="center">Only Whispers</h1>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/logo-dark.png" />
+    <img src=".github/logo-light.png" alt="Only Whispers" width="432" height="144" />
+  </picture>
+</h1>
 
 <p align="center">
   <em>Hold the Key, speak, and get clean text in any app.</em><br/>
