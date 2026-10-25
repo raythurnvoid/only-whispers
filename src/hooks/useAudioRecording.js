@@ -47,6 +47,8 @@ export const useAudioRecording = (toast, options = {}) => {
   // while a paste is still waiting.
   const [isPasting, setIsPasting] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  // True once the cleanup model works on this dictation's text.
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [isAssistantVoice, setIsAssistantVoice] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
@@ -471,7 +473,13 @@ export const useAudioRecording = (toast, options = {}) => {
     };
 
     audioManagerRef.current.setCallbacks({
-      onStateChange: ({ isRecording, isProcessing, isStreaming, micCaptureStatus }) => {
+      onStateChange: ({
+        isRecording,
+        isProcessing,
+        isStreaming,
+        isCleaningUp,
+        micCaptureStatus,
+      }) => {
         reportLifecycle(isRecording ? "recording" : isProcessing ? "processing" : "idle");
         if (isRecording) {
           onDemoEventRef.current?.({ kind: demoKindRef.current, status: "listening" });
@@ -492,6 +500,10 @@ export const useAudioRecording = (toast, options = {}) => {
         setIsRecording(isRecording);
         setIsProcessing(isProcessing);
         setIsStreaming(isStreaming ?? false);
+        // Cleanup stays marked until the next recording, so the pill keeps
+        // its cleanup look through the paste and the fade out.
+        if (isRecording) setIsCleaningUp(false);
+        if (isCleaningUp) setIsCleaningUp(true);
         if (isRecording) setIsPreparing(false);
         if (!isRecording) setIsStopping(false);
         // The panel only mirrors assistant-routed recordings; a plain
@@ -1107,6 +1119,7 @@ export const useAudioRecording = (toast, options = {}) => {
     // recording's pill as processing.
     isProcessing: isProcessing || (isPasting && !isRecording),
     isStreaming,
+    isCleaningUp,
     isAssistantVoice,
     cancellingRef,
     isPreparing,

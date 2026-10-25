@@ -71,7 +71,6 @@ export default function App() {
   // Floating icon auto-hide setting (read from store, synced via IPC)
   const floatingIconAutoHide = useSettingsStore((s) => s.floatingIconAutoHide);
   const panelStartPosition = useSettingsStore((s) => s.panelStartPosition);
-  const useCleanupModel = useSettingsStore((s) => s.useCleanupModel);
   const activationMode = useSettingsStore((s) => s.activationMode);
   const [pushLocked, setPushLocked] = useState(false);
   const prevAutoHideRef = useRef(floatingIconAutoHide);
@@ -222,6 +221,7 @@ export default function App() {
     isAssistantVoice,
     isPreparing,
     isStopping,
+    isCleaningUp,
     micCaptureStatus,
     toggleListening,
     cancelRecording,
@@ -506,8 +506,9 @@ export default function App() {
   const anyPanelOpen = assistant.open || liveTranscript.open;
   const anyPanelMounted = assistant.mounted || liveTranscript.mounted;
   // Plain dictation shows one fixed-size status pill that names the model at
-  // work: Voxtral while listening, then Luna while it cleans up the text. The
-  // assistant and the panels keep the original pill.
+  // work: Voxtral while it listens and transcribes, then Luna only once it
+  // cleans up the text. An empty transcript never reaches Luna, so its pill
+  // stays on Voxtral. The assistant and the panels keep the original pill.
   const activeDictationPhase =
     anyPanelMounted || isAssistantVoice
       ? null
@@ -525,7 +526,7 @@ export default function App() {
   const dictationPhase = activeDictationPhase ?? (autoHideIdle ? heldDictationPhase : null);
   const dictationStatus = !dictationPhase
     ? null
-    : dictationPhase === "processing" && useCleanupModel
+    : dictationPhase === "processing" && isCleaningUp
       ? {
           phase: dictationPhase,
           provider: "openai",

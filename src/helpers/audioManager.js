@@ -2241,6 +2241,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         );
         this._noteCleanupRoute(settings, route);
         if (route.kind === "skip") return normalizedText;
+        // Tells the pill that the cleanup model now works on the text.
+        if (route.kind === "cleanup") {
+          this.onStateChange?.({ isRecording: false, isProcessing: true, isCleaningUp: true });
+        }
 
         const targetModel = route.kind === "agent" ? route.model : cleanupModel;
         const reasoningConfig =
@@ -3565,6 +3569,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         } else if (route.kind === "cleanup") {
           const effectiveModel = getEffectiveCleanupModel();
           if (effectiveModel) {
+            this.onStateChange?.({
+              isRecording: false,
+              isProcessing: true,
+              isStreaming: false,
+              isCleaningUp: true,
+            });
             const reasoned = await this.processWithReasoningModel(
               finalText,
               effectiveModel,
