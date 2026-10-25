@@ -175,7 +175,6 @@ const TrayManager = require("./src/helpers/tray");
 const dockManager = require("./src/helpers/dockManager");
 const autoStart = require("./src/helpers/autoStart");
 const IPCHandlers = require("./src/helpers/ipcHandlers");
-const CliBridge = require("./src/helpers/cliBridge");
 const UpdateManager = require("./src/updater");
 const GlobeKeyManager = require("./src/helpers/globeKeyManager");
 const WindowsKeyManager = require("./src/helpers/windowsKeyManager");
@@ -204,7 +203,6 @@ let linuxKeyManager = null;
 let textEditMonitor = null;
 let selectionManager = null;
 let ipcHandlers = null;
-let cliBridge = null;
 let globeKeyAlertShown = false;
 let macAccessibilityFeaturesReady = false;
 let startMacAccessibilityFeatures = null;
@@ -453,12 +451,6 @@ async function startApp() {
   initializeCoreManagers();
   await environmentManager.init();
   registerSidecars();
-
-  cliBridge = new CliBridge(ipcHandlers);
-  cliBridge.start().catch((err) => {
-    debugLogger.error("CLI bridge failed to start", { error: err.message });
-    cliBridge = null;
-  });
 
   await windowManager.setActivationModeCache(environmentManager.getActivationMode());
   windowManager.setFloatingIconAutoHide(environmentManager.getFloatingIconAutoHide());
@@ -1172,10 +1164,6 @@ if (gotSingleInstanceLock) {
 }
 
 function performSyncTeardown() {
-  if (cliBridge) {
-    cliBridge.stop().catch(() => {});
-    cliBridge = null;
-  }
   if (hotkeyManager) {
     hotkeyManager.unregisterAll();
   } else {
