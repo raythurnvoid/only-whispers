@@ -145,19 +145,19 @@ test("retry: sends the stored audio to Mistral with x-api-key and saves the text
   assert.equal(fetches[0].init.headers["x-api-key"], "mk-mistral");
   const body = fetches[0].init.body;
   assert.equal(body.get("model"), "voxtral-small-latest");
-  assert.equal(body.get("language"), "de");
+  assert.equal(body.get("language"), "en", "English whatever the saved language");
   assert.equal(body.get("file").name, "audio.webm");
   assert.deepEqual(textUpdates, [{ id: 7, text: "transcribed" }]);
   assert.deepEqual(statusUpdates, [{ id: 7, status: "completed" }]);
 });
 
-test("retry: a stale non-Voxtral model and auto language fall back to Voxtral defaults", async () => {
+test("retry: a stale non-Voxtral model and auto language fall back to Voxtral and English", async () => {
   fetches.length = 0;
   const result = await invoke({ cloudTranscriptionModel: "whisper-1", preferredLanguage: "auto" });
   assert.equal(result.success, true);
   const body = fetches[0].init.body;
   assert.equal(body.get("model"), "voxtral-mini-transcribe-3-0");
-  assert.equal(body.get("language"), null);
+  assert.equal(body.get("language"), "en");
 });
 
 test("retry: an empty answer from Mistral is no speech", async (t) => {

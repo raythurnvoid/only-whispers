@@ -65,11 +65,13 @@ export abstract class BaseReasoningService {
     agentName: string | null,
     toneStyle?: DictationToneStyle | null
   ): string {
+    // Always the English prompt: dictation is English only, and the UI
+    // language can follow the OS language, which would pick a translated prompt.
     return getCleanupSystemPrompt(
       agentName,
       this.getCustomDictionary(),
       this.getPreferredLanguage(),
-      this.getUiLanguage(),
+      "en",
       toneStyle
     );
   }

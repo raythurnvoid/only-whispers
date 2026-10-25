@@ -1508,7 +1508,7 @@ class IPCHandlers {
 
     ipcMain.handle(
       "proxy-mistral-transcription",
-      serializeIpcError(async (event, { audioBuffer, model, language, contextBias }) => {
+      serializeIpcError(async (event, { audioBuffer, model, contextBias }) => {
         const apiKey = this.environmentManager.getMistralKey();
         if (!apiKey) {
           throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, {
@@ -1522,9 +1522,8 @@ class IPCHandlers {
         const audioBlob = new Blob([Buffer.from(audioBuffer)], { type: "audio/webm" });
         formData.append("file", audioBlob, "audio.webm");
         formData.append("model", transcriptionModel);
-        if (language && language !== "auto") {
-          formData.append("language", language);
-        }
+        // English only, whatever the settings say: auto detection sometimes heard French.
+        formData.append("language", "en");
         if (contextBias && contextBias.length > 0) {
           for (const token of contextBias) {
             formData.append("context_bias", token);
@@ -2610,11 +2609,6 @@ class IPCHandlers {
       if (!buffer) return { success: false, error: "Audio file not found" };
       let providerErrorContext = null;
       try {
-        const preferredLanguage = settings?.preferredLanguage;
-        const language =
-          preferredLanguage && preferredLanguage !== "auto"
-            ? preferredLanguage.split("-")[0]
-            : undefined;
         const { resolveMistralModel } = await import("./transcriptionRoute.ts");
         // Retry re-sends the stored audio with the model selected now.
         const model = resolveMistralModel(settings?.cloudTranscriptionModel);
@@ -2634,7 +2628,8 @@ class IPCHandlers {
         const formData = new FormData();
         formData.append("file", new Blob([buffer], { type: "audio/webm" }), "audio.webm");
         formData.append("model", model);
-        if (language) formData.append("language", language);
+        // English only, like dictation.
+        formData.append("language", "en");
         const response = await proxyFetch(MISTRAL_TRANSCRIPTION_URL, {
           method: "POST",
           headers: { "x-api-key": apiKey },

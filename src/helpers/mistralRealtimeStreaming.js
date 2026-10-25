@@ -41,16 +41,17 @@ class MistralRealtimeStreaming {
     this.coldStartBufferSize = 0;
   }
 
-  async connect({ apiKey, model, language, keyterms }) {
+  async connect({ apiKey, model, keyterms }) {
     if (!apiKey) throw new Error("Mistral API key is required");
     if (!this.bufferingAudio) this.beginConnecting();
     this.isConnecting = true;
 
+    // English only, whatever the settings say: auto detection sometimes heard French.
     const session = {
       audio_format: { encoding: "pcm_s16le", sample_rate: 16000 },
       target_streaming_delay_ms: STREAMING_DELAY_MS,
+      language: "en",
     };
-    if (language) session.language = language.split("-")[0].toLowerCase();
     // Same word list the batch request sends: single words, at most 100.
     const contextBias = (keyterms || [])
       .flatMap((entry) => entry.trim().split(/\s+/))
