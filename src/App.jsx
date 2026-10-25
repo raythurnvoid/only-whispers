@@ -520,13 +520,13 @@ export default function App() {
       ? {
           phase: dictationPhase,
           provider: "openai",
-          model: "Luna GPT-6",
+          model: "GPT-6 Luna",
           activity: t("app.mic.isProcessing"),
         }
       : {
           phase: dictationPhase,
           provider: "mistral",
-          model: "Voxtral",
+          model: "Voxtral Mini 3",
           activity: t(
             dictationPhase === "processing" ? "app.mic.isTranscribing" : "app.mic.isListening"
           ),

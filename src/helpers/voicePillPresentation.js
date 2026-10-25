@@ -12,8 +12,8 @@ export const VOICE_PILL_FOOTPRINT = Object.freeze({
   // inset (the waveform side keeps extra air; insets include the 1px border).
   recording: Object.freeze({ width: 98, height: 36 }),
   // Plain dictation's status pill keeps one size from key press to paste:
-  // model icon + "Luna GPT-6 is processing" (the longest label) + mini waveform.
-  dictation: Object.freeze({ width: 200, height: 28 }),
+  // model icon + "Voxtral Mini 3 is transcribing" (the longest label) + mini waveform.
+  dictation: Object.freeze({ width: 240, height: 28 }),
 });
 
 // The cancel X inside the pill, at its end (px). The pill grows by

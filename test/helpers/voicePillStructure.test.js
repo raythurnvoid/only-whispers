@@ -94,7 +94,7 @@ test("the dictation status pill keeps one size from listening to processing", as
     dictationStatus: {
       phase: "listening",
       provider: "mistral",
-      model: "Voxtral",
+      model: "Voxtral Mini 3",
       activity: "is listening",
     },
   });
@@ -102,15 +102,15 @@ test("the dictation status pill keeps one size from listening to processing", as
     dictationStatus: {
       phase: "processing",
       provider: "openai",
-      model: "Luna GPT-6",
+      model: "GPT-6 Luna",
       activity: "is processing",
     },
   });
 
   assert.match(listening, size);
   assert.match(processing, size);
-  assert.match(listening, /Voxtral<\/span> <span[^>]*>is listening/);
-  assert.match(processing, /Luna GPT-6<\/span> <span[^>]*>is processing/);
+  assert.match(listening, /Voxtral Mini 3<\/span> <span[^>]*>is listening/);
+  assert.match(processing, /GPT-6 Luna<\/span> <span[^>]*>is processing/);
   assert.match(processing, /dictation-pill-ripple-bar/);
 });
 
