@@ -15,7 +15,7 @@
 
 ## How it works
 
-1. Hold the hotkey and speak.
+1. Hold the key and speak.
 2. Let go.
 3. Clean text appears where your cursor is, in any app.
 
