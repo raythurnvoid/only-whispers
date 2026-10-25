@@ -28,27 +28,18 @@ const ARABIC_PLURAL_BASES = [
   "settingsPage.privacy.hoursAgo",
   "settingsPage.privacy.minutesAgo",
   "settingsPage.enterpriseCheckout.seatsHint",
-  "workspaces.join.memberCount",
   "notes.spaces.noteCount",
   "notes.spaces.invitedTo",
   "notes.addToFolder.addCount",
   "notes.overview.meta.folders",
   "notes.overview.meta.members",
   "dictionary.wordsReady",
-  "insights.days",
-  "insights.longestStreak",
-  "insights.dayTooltip",
-  "insights.claimDescription",
-  "insights.enableDescription",
 ];
 const ARABIC_NUMBER_NEUTRAL_TEMPLATES = {
-  "workspaces.invite.seatUsage": "المقاعد المستخدمة: {{used}} من أصل {{seats}}",
   "notes.spaces.members.addFailed": "عدد الأشخاص الذين تعذرت إضافتهم: {{failed}} من أصل {{total}}",
   "notes.upload.partialWarningCount":
     "عدد الأجزاء الصوتية التي تعذر تفريغها: {{failed}} من أصل {{total}}.",
   "settingsPage.account.planDescriptions.trial": "عدد الأيام المتبقية: {{days}} - تفريغ غير محدود",
-  "emailVerification.resendIn": "إعادة الإرسال بعد {{seconds}} ث",
-  "insights.wpmCoverage": "استنادًا إلى نسبة {{count}}% من الكلمات المقاسة",
   "dictionary.promptLimitNotice":
     "عدد أحرف قاموسك: {{chars}}. لا تقرأ نماذج Groq وWhisper سوى بضع مئات من الأحرف الأخيرة منه، لذا تعمل القوائم الأقصر بشكل أفضل معها. أما النماذج الأخرى فتحصل على القائمة كاملة.",
 };
