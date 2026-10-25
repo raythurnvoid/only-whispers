@@ -16,10 +16,10 @@ export const VOICE_PILL_FOOTPRINT = Object.freeze({
   dictation: Object.freeze({ width: 200, height: 28 }),
 });
 
-// The hover cancel control that emerges beside the pill (px). Same contract:
-// WINDOW_SIZES.RECORDING must fit pill + gap + cancel inside its dock insets,
-// or the control clips at the native window bounds.
-export const VOICE_PILL_CANCEL = Object.freeze({ size: 28, gap: 8 });
+// The cancel X inside the pill, at its end (px). The pill grows by
+// size + gap while the X shows. Same contract: the pill window must fit the
+// widest pill with its X, or the pill clips at the native window bounds.
+export const VOICE_PILL_CANCEL = Object.freeze({ size: 18, gap: 6 });
 
 export const LISTENING_ENTRANCE_TIMING = Object.freeze({
   // A short hold that reads as an acknowledged press before the control

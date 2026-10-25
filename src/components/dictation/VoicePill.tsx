@@ -1,11 +1,12 @@
 import { forwardRef, type HTMLAttributes } from "react";
-import { ChevronUp } from "../icons";
+import { ChevronUp, X } from "../icons";
 import { cn } from "../lib/utils";
 import { MistralIcon, OpenAIIcon } from "./ModelIcons";
 import { PillWaveform } from "./PillWaveform";
 import { VoiceIdentityIcon } from "./VoiceIdentityIcon";
 import { RESTING_WAVE_SILHOUETTE, WAVEFORM_BAR_COUNT } from "./waveformMath";
 import {
+  VOICE_PILL_CANCEL,
   VOICE_PILL_FOOTPRINT,
   VOICE_PILL_GROW_TRANSITION,
 } from "../../helpers/voicePillPresentation";
@@ -40,6 +41,9 @@ interface VoicePillProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"
   /** Shows a ring while recording hands-free: "locked" by a double tap (with a
    *  short snap) or "tap" mode. Null while the key is held. */
   handsFree?: "locked" | "tap" | null;
+  /** Set while a recording or its processing can be discarded: shows the X
+   *  inside the pill, at its end. */
+  cancel?: { label: string; onCancel: () => void } | null;
 }
 
 // Mini waveform for the dictation status pill. "Voxtral is listening" is
@@ -87,6 +91,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
     horizontalDirection = "right",
     dictationStatus = null,
     handsFree = null,
+    cancel = null,
     className,
     style,
     ...props
@@ -112,11 +117,20 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
   const dividerMargin = showCompactPill ? (showDivider ? 4 : COMPACT_CONTENT_GAP_PX / 2) : 0;
   const identitySize = 22;
   const floatingHover = !isPanel && state === "hover";
-  const footprint = dictationStatus
+  const baseFootprint = dictationStatus
     ? VOICE_PILL_FOOTPRINT.dictation
     : showCompactPill
       ? VOICE_PILL_FOOTPRINT.recording
       : VOICE_PILL_FOOTPRINT.idle;
+  // The X sits inside the pill, so the pill grows by its slot. Only the
+  // dictation and compact pills have room for it; the idle circle has none.
+  const showCancel = Boolean(cancel) && (Boolean(dictationStatus) || showCompactPill);
+  const footprint = showCancel
+    ? {
+        width: baseFootprint.width + VOICE_PILL_CANCEL.size + VOICE_PILL_CANCEL.gap,
+        height: baseFootprint.height,
+      }
+    : baseFootprint;
   // The dictation pill appears at its final size and keeps it, so it skips
   // the width/height morph.
   const sizeTransition = dictationStatus
@@ -270,6 +284,32 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
             />
           </div>
         </>
+      )}
+
+      {showCancel && cancel && (
+        // Stop every event so the pill's own toggle, drag and key handlers
+        // do not also fire.
+        <button
+          type="button"
+          aria-label={cancel.label}
+          onMouseDown={(event) => event.stopPropagation()}
+          onMouseUp={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            cancel.onCancel();
+          }}
+          className="relative flex shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          style={{
+            width: VOICE_PILL_CANCEL.size,
+            height: VOICE_PILL_CANCEL.size,
+            // The dictation pill's flex gap already spaces it.
+            marginLeft: dictationStatus ? 0 : VOICE_PILL_CANCEL.gap,
+          }}
+        >
+          <X size={11} strokeWidth={2.5} aria-hidden="true" />
+        </button>
       )}
 
       {isUnavailable && (

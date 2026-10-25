@@ -22,7 +22,6 @@ import { LiveTranscriptPanel } from "./components/dictation/LiveTranscriptPanel"
 import { VoiceModePanelCore } from "./components/dictation/VoiceModePanelCore";
 import { PillTooltip } from "./components/dictation/PillTooltip";
 import { PillCommandMenu } from "./components/dictation/PillCommandMenu";
-import { PillCancelButton } from "./components/dictation/PillCancelButton";
 import { createMainWindowResizeCoordinator } from "./utils/mainWindowResizeCoordinator";
 import {
   ASSISTANT_FOOTER_TRANSITION_TIMING,
@@ -759,6 +758,19 @@ export default function App() {
                 event.preventDefault();
                 activateVoicePill();
               }}
+              cancel={
+                voicePillInteraction.cancelVisible
+                  ? {
+                      label: isRecording
+                        ? t("app.buttons.cancelRecording")
+                        : t("app.buttons.cancelProcessing"),
+                      onCancel: () => {
+                        if (isRecording) cancelRecording();
+                        else cancelProcessing();
+                      },
+                    }
+                  : null
+              }
               onContextMenu={(e) => {
                 if (anyPanelMounted) return;
                 e.preventDefault();
@@ -769,16 +781,6 @@ export default function App() {
               }}
             />
           </PillTooltip>
-          <PillCancelButton
-            visible={voicePillInteraction.cancelVisible}
-            ariaLabel={
-              isRecording ? t("app.buttons.cancelRecording") : t("app.buttons.cancelProcessing")
-            }
-            onCancel={() => {
-              if (isRecording) cancelRecording();
-              else cancelProcessing();
-            }}
-          />
           {!anyPanelMounted && isCommandMenuOpen && (
             <PillCommandMenu
               buttonRef={buttonRef}

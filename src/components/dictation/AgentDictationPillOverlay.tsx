@@ -19,7 +19,6 @@ import {
   resolveVoicePillInteraction,
   shouldOfferLiveTranscriptReopen,
 } from "../../helpers/voicePillPresentation";
-import { PillCancelButton } from "./PillCancelButton";
 import { LiveTranscriptPanel, type LiveTranscriptPhase } from "./LiveTranscriptPanel";
 import { VoiceModePanelCore, type VoiceModePanelStage } from "./VoiceModePanelCore";
 import { VoicePill, type VoicePillState } from "./VoicePill";
@@ -217,33 +216,34 @@ export default function AgentDictationPillOverlay() {
         }}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className="relative flex items-center">
-          <VoicePill
-            variant={liveTranscript.open ? "panel" : "floating"}
-            state={state}
-            expanded={!liveTranscript.open && expanded}
-            collapseToLogo={listeningEntrance.collapseToLogo}
-            waveformVisible={listeningEntrance.waveformVisible}
-            waveformOnlyWhileRecording={liveTranscript.mounted}
-            integratedWithPanel={liveTranscript.open}
-            showExpandChevron={canReopenLiveTranscript && hovered}
-            getAudioLevel={getAudioLevel}
-            horizontalDirection={horizontalDirection}
-            role={pillInteractive ? "button" : "status"}
-            aria-label={label}
-            aria-disabled={!pillInteractive}
-            onClick={activatePill}
-          />
-          <PillCancelButton
-            visible={cancelVisible}
-            ariaLabel={
-              isRecording ? t("app.buttons.cancelRecording") : t("app.buttons.cancelProcessing")
-            }
-            onCancel={() => {
-              void window.electronAPI.cancelAgentPanelDictation?.();
-            }}
-          />
-        </div>
+        <VoicePill
+          variant={liveTranscript.open ? "panel" : "floating"}
+          state={state}
+          expanded={!liveTranscript.open && expanded}
+          collapseToLogo={listeningEntrance.collapseToLogo}
+          waveformVisible={listeningEntrance.waveformVisible}
+          waveformOnlyWhileRecording={liveTranscript.mounted}
+          integratedWithPanel={liveTranscript.open}
+          showExpandChevron={canReopenLiveTranscript && hovered}
+          getAudioLevel={getAudioLevel}
+          horizontalDirection={horizontalDirection}
+          role={pillInteractive ? "button" : "status"}
+          aria-label={label}
+          aria-disabled={!pillInteractive}
+          onClick={activatePill}
+          cancel={
+            cancelVisible
+              ? {
+                  label: isRecording
+                    ? t("app.buttons.cancelRecording")
+                    : t("app.buttons.cancelProcessing"),
+                  onCancel: () => {
+                    void window.electronAPI.cancelAgentPanelDictation?.();
+                  },
+                }
+              : null
+          }
+        />
       </div>
 
       <VoiceModePanelCore
