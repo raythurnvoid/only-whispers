@@ -7,7 +7,7 @@ This directory contains app icons and other assets for only-whispers.
 For proper app packaging, you'll need the following icon files:
 
 - `icon.icns` - macOS icon (1024x1024 recommended)
-- `icon.ico` - Windows icon (256x256 recommended)
+- `icon-night.ico` - Windows icon, app and tray (256x256 recommended)
 - `icon.png` - Linux icon (512x512 recommended)
 
 ## Icon Specifications

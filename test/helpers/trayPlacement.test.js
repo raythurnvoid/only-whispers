@@ -30,7 +30,6 @@ async function createTrayOn(platform, { channel = "production", metadata = {} } 
         on() {}
       },
       Menu: { buildFromTemplate: () => ({}) },
-      nativeTheme: { on() {} },
       systemPreferences: {
         // Copied because the object comes from the VM's realm, whose prototype
         // deepStrictEqual would reject.

@@ -157,7 +157,7 @@
   },
   "win": {
     "target": ["nsis"],
-    "icon": "src/assets/icon.ico"
+    "icon": "src/assets/icon-night.ico"
   },
   "linux": {
     "target": ["AppImage", "deb", "rpm", "tar.gz"],
