@@ -1310,6 +1310,7 @@
     "mic": {
       "isListening": "слушает",
       "isProcessing": "обрабатывает",
+      "isTranscribing": "расшифровывает",
       "recording": "Запись...",
       "processing": "Обработка...",
       "clickToSpeak": "Нажмите для записи",

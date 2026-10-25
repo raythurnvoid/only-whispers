@@ -1308,6 +1308,7 @@
     "mic": {
       "isListening": "正在聆听",
       "isProcessing": "正在处理",
+      "isTranscribing": "正在转录",
       "recording": "录音中...",
       "processing": "处理中...",
       "clickToSpeak": "点击开始说话",

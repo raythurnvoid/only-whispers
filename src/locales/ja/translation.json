@@ -1308,6 +1308,7 @@
     "mic": {
       "isListening": "が聞き取り中",
       "isProcessing": "が処理中",
+      "isTranscribing": "が文字起こし中",
       "recording": "録音中...",
       "processing": "処理中...",
       "clickToSpeak": "クリックして話す",

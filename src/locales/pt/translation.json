@@ -1308,6 +1308,7 @@
     "mic": {
       "isListening": "está ouvindo",
       "isProcessing": "está processando",
+      "isTranscribing": "está transcrevendo",
       "recording": "Gravando...",
       "processing": "Processando...",
       "clickToSpeak": "Clique para falar",

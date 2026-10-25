@@ -793,6 +793,7 @@
     "mic": {
       "isListening": "يستمع",
       "isProcessing": "يعالج",
+      "isTranscribing": "يفرّغ النص",
       "recording": "جاري التسجيل...",
       "processing": "جاري المعالجة...",
       "clickToSpeak": "انقر للتحدث",

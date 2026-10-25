@@ -506,9 +506,11 @@ export default function App() {
   const anyPanelOpen = assistant.open || liveTranscript.open;
   const anyPanelMounted = assistant.mounted || liveTranscript.mounted;
   // Plain dictation shows one fixed-size status pill that names the model at
-  // work: Voxtral while it listens and transcribes, then Luna only once it
-  // cleans up the text. An empty transcript never reaches Luna, so its pill
-  // stays on Voxtral. The assistant and the panels keep the original pill.
+  // work: Voxtral while it listens, then while it transcribes (after the key
+  // is released the app waits for Voxtral's final transcript, or for the
+  // upload's transcript without streaming), then Luna only once it cleans up
+  // the text. An empty transcript never reaches Luna, so its pill stays on
+  // Voxtral. The assistant and the panels keep the original pill.
   const activeDictationPhase =
     anyPanelMounted || isAssistantVoice
       ? null
@@ -538,7 +540,7 @@ export default function App() {
           provider: "mistral",
           model: "Voxtral",
           activity: t(
-            dictationPhase === "processing" ? "app.mic.isProcessing" : "app.mic.isListening"
+            dictationPhase === "processing" ? "app.mic.isTranscribing" : "app.mic.isListening"
           ),
         };
   const canReopenLiveTranscript =

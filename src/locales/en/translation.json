@@ -1308,6 +1308,7 @@
     "mic": {
       "isListening": "is listening",
       "isProcessing": "is processing",
+      "isTranscribing": "is transcribing",
       "recording": "Recording...",
       "processing": "Processing...",
       "clickToSpeak": "Click to speak",
