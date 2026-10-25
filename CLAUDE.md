@@ -18,7 +18,15 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 
 ## Project Overview
 
-only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs only on OpenAI Luna through the user's ChatGPT plan ("Sign in with ChatGPT"); if it fails, the raw transcript is pasted. Other providers and local models are still in the code but hidden from the UI.
+only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs only on OpenAI Luna through the user's ChatGPT plan ("Sign in with ChatGPT"); if it fails, the raw transcript is pasted. There are no other AI providers and no local models.
+
+### Hidden in this release
+
+These features are still in the code, but their UI is hidden in this release. They are kept so they can come back later. Do not describe them as live features.
+
+- The voice assistant: the assistant panel and chat (`AssistantPanel.tsx`, `src/components/chat/`), its tools, the `voiceAgent` hotkey slot and the "Hey [AgentName]" wake word. `resolveReasoningRoute` in `audioManager.js` always passes `agentInvoked: false`, and `main.js` does not register a saved `voiceAgent` hotkey at startup (sections 6 and 15)
+- Screen context (section 15), Tone & Style (section 16), media pause while dictating (`pauseMediaOnDictation`, no toggle), email drafts and the macOS permission guide
+- Snippets (`SnippetsView.tsx` is not mounted), `ui/PromptStudio.tsx`, and `settings/DictationAgentSettings.tsx`, `settings/ChatAgentSettings.tsx` and `settings/ToneStyleSection.tsx` (nothing imports them)
 
 ## Architecture Overview
 
@@ -29,7 +37,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **Database**: better-sqlite3 for local transcription history
 - **UI Components**: shadcn/ui with Radix primitives
 - **Speech Processing**: Mistral Voxtral API
-- **Local AI**: llama.cpp server (`llama-server`) for optional local cleanup models
 - **Audio Processing**: FFmpeg (bundled via ffmpeg-static)
 - **Node.js**: 24 (pinned in `.nvmrc`, run through Vite Plus)
 
@@ -63,9 +70,9 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **windows-text-monitor.c**: Windows text-field monitor
 - **linux-key-listener.c**, **linux-fast-paste.c**, **linux-text-monitor.c**: Linux key listener, paste helper and text-field monitor
 - **macos-globe-listener.swift**, **macos-fast-paste.swift**, **macos-text-monitor.swift**, **macos-mic-listener.swift**, **macos-media-remote.swift**: macOS Globe/Fn key listener, paste helper, text monitor, mic listener and media control
-- **macos-window-bounds.swift**: Swift source for the System Settings window reporter used by the onboarding permission guide. Prints the dialog's bounds, whether a sheet or authorization prompt is in front, which app owns the front window (`settings` / `self` / `other`, attributed by process because window owner names are localized) and whether System Settings is running. CoreGraphics window list only, so it needs neither Accessibility nor Screen Recording
+- **macos-window-bounds.swift**: Swift source for the System Settings window reporter used by the macOS permission guide (hidden). Prints the dialog's bounds, whether a sheet or authorization prompt is in front, which app owns the front window (`settings` / `self` / `other`, attributed by process because window owner names are localized) and whether System Settings is running. CoreGraphics window list only, so it needs neither Accessibility nor Screen Recording
 - **mediaremote-adapter/**: vendored macOS media control adapter, used by `mediaPlayer.js`
-- **bin/**: compiled or downloaded native binaries (llama-server, nircmd, key listeners, paste helpers, text monitors)
+- **bin/**: compiled or downloaded native binaries (nircmd, key listeners, paste helpers, text monitors)
 
 ### Helper Modules (src/helpers/)
 
@@ -81,7 +88,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **transcriptionRoute.ts**: Mistral is the only speech-to-text provider. Picks the Voxtral model (default `voxtral-mini-transcribe-3-0`) and holds Mistral's 25 MB upload limit. Shared by dictation, Retry and Upload
 - **mistralRealtimeStreaming.js**: Mistral realtime transcription session; sends the custom dictionary as `context_bias`
 - **chatgptAuth.js**: "Sign in with ChatGPT" (OAuth token sharing). The login is stored encrypted at `userData/secure-keys/CHATGPT_AUTH.enc`
-- **llamaServer.js**, **modelManagerBridge.js**: local GGUF models through llama-server (download, start, context sizing)
 - **debugLogger.js**: Debug logging system with file output
 - **providerHttpErrors.js**: Pure ESM classifier for BYOK provider failures (transcription and AI models), shared by main (require(esm)) and renderer. `providerHttpError({ provider, status, body, headers, model, surface, selfHosted })` builds an Error carrying `code` (`PROVIDER_AUTH_FAILED`, `PROVIDER_QUOTA_EXHAUSTED`, …), `messageKey` (`providerErrors.*`), `messageParams`, `settingsTarget` (`speechToText`/`llms`, fixable errors only) and redacted `technicalDetails`; `asProviderError` classifies AI SDK, timeout and network errors and leaves already-keyed errors alone. Raw provider bodies never reach UI text. Rendered by `src/utils/describeProviderError.ts`
 - **devServerManager.js**: Vite dev server integration
@@ -96,7 +102,7 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **dragManager.js**: Window dragging functionality
 - **environment.js**: Environment variable and OpenAI API management
 - **hotkeyManager.js**: Global hotkey registration and management
-  - Named hotkey slots: `dictation`, `voiceAgent` (voice assistant — dictation routed to the assistant panel), `translation`
+  - Named hotkey slots: `dictation` and `voiceAgent` (voice assistant, hidden: not registered at startup)
   - Handles platform-specific defaults (GLOBE on macOS, Control+Super on Windows/Linux)
   - Auto-fallback to F8/F9 if default hotkey is unavailable
   - Notifies renderer via IPC when hotkey registration fails
@@ -122,17 +128,17 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
   - Converts Electron hotkey format to Qt key codes
   - Only active on Linux + KDE desktop (detected via `XDG_CURRENT_DESKTOP`)
   - D-Bus transport: `@homebridge/dbus-native` (pure JavaScript, no native addons)
-- **autoStart.js**: Single entry point for launch at login, used by `ipcHandlers.js` and `main.js`
+- **autoStart.js**: Single entry point for launch at login, used by `main.js`
+  - There is no launch-at-login toggle in the UI today: `getAutoStartState()` and `setAutoStartEnabled()` have no caller. `main.js` still calls `wasLaunchedAtLoginHidden()` and `syncAutoStartEntry()`
   - Dispatches to `setLoginItemSettings()` on macOS/Windows and to `linuxAutostart.js` on Linux
   - `getAutoStartState()` returns `{ enabled, requiresApproval }`; `requiresApproval` is macOS-only and means SMAppService registered the item but the user has not allowed it under System Settings → General → Login Items yet
   - `wasLaunchedAtLoginHidden()` decides whether this launch should go straight to the tray
   - `syncAutoStartEntry()` runs from `initializeCoreManagers()` and repairs entries written by older builds
   - Decision logic lives in `autoStartPolicy.js` (pure)
-- **autoStartPolicy.js**: Electron-free launch-at-login and relaunch decisions
+- **autoStartPolicy.js**: Electron-free launch-at-login decisions
   - `HIDDEN_LAUNCH_FLAG` (`--hidden`) is how a login launch tells the app to start in the tray. Windows has no native equivalent (`openAsHidden` is macOS-only and a no-op on macOS 13+), so the flag rides on the login item's `args`; Linux puts it on the autostart entry's `Exec`; macOS uses `wasOpenedAtLogin` instead
   - On Windows, read the state from `executableWillLaunchAtLogin`, never from `openAtLogin`: `openAtLogin` only compares the `Run` value against the current executable and args and ignores the `StartupApproved` key that Task Manager and Settings write when a user disables a startup app
   - Reads and writes must pass identical `args`, or `openAtLogin` always reports false
-  - `getRelaunchOptions()` and `getRelaunchWaiter()` shape the `relaunch-app` IPC that follows `cleanup-app` (Reset app data): the relaunch drops `--hidden` and any cold-start deep link, and an AppImage is started again from its on-disk file (`$APPIMAGE`) by a detached waiter, since it runs from a FUSE mount that disappears when the app exits. The handler in `ipcHandlers.js` only quits under `pnpm dev` and, on macOS with an update Squirrel already holds, hands the restart to the updater
 - **linuxAutostart.js**: Launch-at-login on Linux via an XDG autostart entry
   - `app.setLoginItemSettings()` is a no-op on Linux, so the entry is written directly to `$XDG_CONFIG_HOME/autostart/only-whispers.desktop`, matching the executable name electron-builder packages under
   - `Exec` resolves from `$APPIMAGE` first: `process.execPath` is the ephemeral AppImage FUSE mount
@@ -146,34 +152,33 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
   - Emits `key-down` and `key-up` events for push-to-talk functionality
   - Graceful fallback if binary unavailable
 - **menuManager.js**: Application menu management
-- **toneAppCategories.js**: Tone & Style's app classifier (pure, `test/helpers/toneAppCategories.test.js`): an app identity, window title and page host map to `personal`, `work`, `email` or `other` (see Tone & Style)
-- **tray.js**: System tray icon and menu
+- **toneAppCategories.js**: Tone & Style's app classifier (hidden feature) (pure, `test/helpers/toneAppCategories.test.js`): an app identity, window title and page host map to `personal`, `work`, `email` or `other` (see Tone & Style)
+- **tray.js**: System tray icon and menu (Show Control Panel, Quit). Windows uses the Night icon (`src/assets/icon-night.ico`) for the tray and the app
 - **windowConfig.js**: Centralized window configuration
 - **plasmaWorkAreas.js**: Per-monitor work areas on KDE Plasma. On X11 and XWayland, Chromium clips only the primary display with the single root `_NET_WORKAREA`, which KWin builds from every monitor's panels at once (#1110). This asks plasmashell over D-Bus (`evaluateScript`) for each screen's always-visible panels and rebuilds each display's `workArea` for the dictation pill, its companion windows and dragging. On X11, Qt reports a screen's origin in device pixels and only its size scaled, so those origins are divided by the display scale before matching. It refreshes on display events and each time a dictation shows the pill, retrying after 1, 5 and 15 s when plasmashell isn't ready; a display event starts those retries over. An auto-placed pill re-anchors when the result changes; a dragged one stays put. With a single display, or outside Linux + KDE, Chromium's work area is used as is
 - **windowManager.js**: Window creation and lifecycle management
-- **connectors/emailCompose.js**: Builds Gmail, Outlook and mailto compose links (shared ESM, used by the email draft target)
-- **permissionGuideManager.js**: macOS onboarding permission overlay — a frameless always-on-top window anchored to the bottom of the System Settings window (placement in `permissionGuidePlacement.js`, pure), polled one read at a time via `settingsWindowState.js` (exec of `macos-window-bounds`). Steps aside for authorization prompts, other apps and a dialog on another Space; closes when the dialog closes; never subscribes to the control panel's `hide` (occlusion fires it), so `hideControlPanelToTray()` closes it explicitly
+- **connectors/emailCompose.js**: Builds Gmail, Outlook and mailto compose links (shared ESM, used by the email draft target; hidden feature)
+- **permissionGuideManager.js**: macOS permission overlay (hidden feature) — a frameless always-on-top window anchored to the bottom of the System Settings window (placement in `permissionGuidePlacement.js`, pure), polled one read at a time via `settingsWindowState.js` (exec of `macos-window-bounds`). Steps aside for authorization prompts, other apps and a dialog on another Space; closes when the dialog closes; never subscribes to the control panel's `hide` (occlusion fires it), so `hideControlPanelToTray()` closes it explicitly
 
 ### React Components (src/components/)
 
 - **App.jsx**: Dictation pill window with recording states
 - **ControlPanel.tsx**: Main window: Home (history with Retry and Upload), Dictionary, Logs and Settings
 - **AppSetup.tsx**: First-run setup: the Mistral API key and ChatGPT sign-in
-- **SettingsPage.tsx**: Settings interface
-- **HistoryView.tsx**, **DictionaryView.tsx**, **SnippetsView.tsx**, **LogsView.tsx**: Control panel views
-- **LocalModelPicker.tsx**: Local model download and selection
+- **SettingsPage.tsx**: Settings interface, with three sections: `general`, `hotkeys` and `llms` ("AI Models": the Mistral key and cleanup)
+- **HistoryView.tsx**, **DictionaryView.tsx**, **LogsView.tsx**: Control panel views (**SnippetsView.tsx** is hidden)
 - **ChatGPTSignIn.tsx**: ChatGPT sign-in button and state
-- **dictation/**: The pill (`VoicePill.tsx`), the assistant panel and the live transcript panel
+- **dictation/**: The pill (`VoicePill.tsx`), the assistant panel (hidden) and the live transcript panel
 - **ui/**: Reusable UI components (buttons, cards, inputs, etc.)
 
 ### React Hooks (src/hooks/)
 
 - **useAudioRecording.js**: MediaRecorder API wrapper with error handling
-- **useAssistantPanel.js**: Assistant panel lifecycle (open/close choreography, thinking flourish, footer phases, pending voice commands, conversation session boundaries)
+- **useAssistantPanel.js**: Assistant panel lifecycle (hidden feature) (open/close choreography, thinking flourish, footer phases, pending voice commands, conversation session boundaries)
 - **useLiveTranscriptPanel.js**: Live transcript panel lifecycle (entrance choreography, buffered text scheduler, measure-then-reveal resize pipeline, preview IPC wiring)
 - **useMainWindowSizeOwner.js**: Single owner of the main window size ladder (panel > menu > toast > pill > base) and the dictation-error pill handoff
 - **useWindowResizeCompensation.js**: Masks split native setBounds frames via CSS-variable counter-translation
-- **useMainProcessNotifications.tsx**: Main-process notifications (hotkey fallback, GPU fallback, learned corrections) as toasts
+- **useMainProcessNotifications.tsx**: Main-process notifications (hotkey fallback, hotkey failure, learned corrections) as toasts
 - **useClipboard.ts**: Clipboard operations hook
 - **useDialogs.ts**: Electron dialog integration
 - **useHotkey.js**: Hotkey state management
@@ -186,9 +191,9 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 
 ### Services
 
-- **ReasoningService.ts**: AI processing for agent-addressed commands
-  - Detects when user addresses their named agent and removes the agent name from final output
-  - Provider implementations live in a registry at `src/services/ai/inferenceProviders/index.ts` covering 9 providers (`anthropic`, `corti`, `enterprise`, `gemini`, `groq`, `lan`, `local`, `openai`, `tinfoil`), each implementing the `InferenceProvider` interface from `types.ts`
+- **ReasoningService.ts**: AI processing for cleanup (`processText`) and the hidden assistant's chat stream (`processTextStreamingAI`)
+  - The provider registry in `src/services/ai/inferenceProviders/index.ts` has only `openai`, which implements the `InferenceProvider` interface from `types.ts`
+  - The chat stream uses the ChatGPT plan token as its key when the user is signed in; an OpenAI API key is the fallback
   - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `chatIntelligence`)
   - `selectResolvedLLMConfig(state, scope)` in `settingsStore.ts` resolves provider/model per scope with fallback chains
 - **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). There is no fallback model: on a failure the raw transcript is pasted with the cleanup-failed toast
@@ -201,7 +206,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 
 ### Build Scripts (scripts/)
 
-- **download-llama-server.js**: Downloads llama.cpp server for local LLM inference
 - **download-nircmd.js**: Downloads nircmd.exe (closed source, not shipped in builds; kept so it can be brought back)
 - **download-windows-key-listener.js**: Downloads prebuilt Windows key listener binary
 - **download-windows-fast-paste.js**, **download-text-monitor.js**: Download the prebuilt Windows paste helper and the text monitors. All prebuilt helpers come from the `raythurnvoid/only-whispers` GitHub releases
@@ -216,7 +220,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
   - `fetchLatestRelease(repo, options)`: Fetches latest release from GitHub API
   - `downloadFile(url, dest)`: Downloads file with progress and retry logic
   - `extractZip(zipPath, destDir)`: Cross-platform zip extraction
-  - `parseArgs()`: Parses CLI arguments for platform/arch targeting
   - Supports `GITHUB_TOKEN` for authenticated requests (higher rate limits)
 
 ## Key Implementation Details
@@ -257,18 +260,16 @@ CREATE TABLE transcriptions (
 
 Settings stored in localStorage with these keys:
 
-- `language`: Selected language code
-- `agentName`: User's custom agent name
-- `reasoningModel`: Selected AI model for processing
-- `reasoningProvider`: AI provider (openai/anthropic/gemini/local)
-- `hotkey`: Custom hotkey configuration
-- `hasCompletedOnboarding`: Onboarding completion flag
+- `preferredLanguage`: Selected language code
+- `agentName`: User's custom agent name (hidden assistant)
+- `cleanupModel`, `cleanupProvider`: The cleanup model and provider (only `gpt-6-luna` on `openai` exists). Older `reasoningModel`/`reasoningProvider` keys are migrated to these once
+- `dictationKey`: Custom dictation hotkey
+- `onboardingCompleted`: First-run setup completion flag
 - `customDictionary`: JSON array of words/phrases for improved transcription accuracy
-- `keepLocalModelLoaded`: Keeps the shared llama-server loaded instead of unloading it after 5 idle minutes (#1207; default off). Synced to main with `sync-startup-preferences`, outside its policy gate; `LlamaServerManager.setKeepResident` acts only on a change, since every window resyncs on load
-- `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on (the setup dialog's Finish, or Settings' Tones & voices switch) and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`)
-- `emailDraftTarget`: Where email drafts open (`auto`, `gmail`, `gmailSend`, `outlookWork`, `outlookPersonal`, `mailto`); an unknown value reads as `auto`
+- `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`). Hidden: there is no UI to change them in this release
+- `emailDraftTarget`: Where email drafts open (hidden feature) (`auto`, `gmail`, `gmailSend`, `outlookWork`, `outlookPersonal`, `mailto`); an unknown value reads as `auto`
 
-Secret keys (the BYOK API keys in `src/config/secretKeys.js` plus the enterprise cloud creds, see `SECRET_KEYS` in `environment.js`) are encrypted at rest via Electron `safeStorage` (`secretCrypto.js`) and stored as per-key files under `userData/secure-keys/`. They are loaded into `process.env` at startup by `EnvironmentManager.init()`. Renderer reads them via IPC (`get-*-key`) and writes via debounced IPC (`save-*-key`). On Linux without a keyring, secrets fall back to plaintext.
+Secret keys (the BYOK API keys in `src/config/secretKeys.js`, see `SECRET_KEYS` in `environment.js`) are encrypted at rest via Electron `safeStorage` (`secretCrypto.js`) and stored as per-key files under `userData/secure-keys/`. They are loaded into `process.env` at startup by `EnvironmentManager.init()`. Renderer reads them via IPC (`get-*-key`) and writes via debounced IPC (`save-*-key`). On Linux without a keyring, secrets fall back to plaintext.
 
 ### 5. Language Support
 
@@ -278,66 +279,31 @@ Secret keys (the BYOK API keys in `src/config/secretKeys.js` plus the enterprise
 - Each entry has a two-letter code, label and flag
 - "auto" is a 61st entry for automatic detection
 
-### 6. Agent Naming System
+### 6. Agent Naming System (hidden)
 
-- User names their agent in Settings (`DictationAgentSettings.tsx`)
-- Name stored in localStorage and database
-- ReasoningService detects "Hey [AgentName]" patterns
+The assistant is hidden in this release, so "Hey [AgentName]" never routes a dictation to it (`agentInvoked: false` in `audioManager.js`). The code is kept:
+
+- The agent name is stored in localStorage (`src/utils/agentName.ts`); its settings UI (`DictationAgentSettings.tsx`) is not mounted
 - Standalone wake-word commands stream into the assistant panel (the address is stripped first, `stripAgentAddress`); a highlighted selection is edited in place by the dictation agent
-- Supports many AI providers. Every model is listed in `src/models/modelRegistryData.json` (OpenAI, Anthropic, Gemini, Groq, Mistral, local GGUF models via llama.cpp, and more):
-  - GPT-5 and newer reject `temperature`, so their registry entries carry `supportsTemperature: false`
-  - Anthropic models from Opus 4.7 onward reject `temperature` too; the Anthropic IPC bridge sends no thinking parameters, so no Anthropic entry carries `supportsThinking`
 
 ### 7. Model Registry Architecture
 
-All desktop AI model definitions are centralized in `src/models/modelRegistryData.json` as the single source of truth:
-
-```json
-{
-  "cloudProviders": [...],   // OpenAI, Anthropic, Gemini API models
-  "localProviders": [...]    // GGUF models with download URLs
-}
-```
+`src/models/modelRegistryData.json` lists the only model: `gpt-6-luna` under the `openai` cloud provider. It has `supportsTemperature: false` (GPT-5 and newer reject `temperature`) and `supportsVision: true`.
 
 **Key files:**
 
-- `src/models/modelRegistryData.json` - Single source of truth for all desktop models
-- `src/models/ModelRegistry.ts` - TypeScript wrapper with helper methods; also derives
-  `REASONING_PROVIDERS` (`buildReasoningProviders()`), consumed by the model pickers
+- `src/models/modelRegistryData.json` - Single source of truth for the model
+- `src/models/ModelRegistry.ts` - TypeScript wrapper with helper methods
 - `src/models/providerDefaultModel.ts` - `pickProviderDefaultModel()`; with no
   `defaultModel` on the provider, the first model in the array is the default
-- `src/config/retiredCloudModels.ts` - Remaps selections pinned to a retired model
-- `src/helpers/modelManagerBridge.js` - Handles local model downloads
-
-**Local model features:**
-
-- Each model has `hfRepo` for direct HuggingFace download URLs
-- Chat formatting comes from the GGUF's embedded template (llama-server runs with `--jinja`); the registry carries no prompt templates
-- Download URLs constructed as: `{baseUrl}/{hfRepo}/resolve/main/{fileName}`
 
 ### 8. API Integrations and Updates
 
-**OpenAI Responses API (September 2025)**:
+**OpenAI Responses API**:
 
-- Migrated from Chat Completions to new Responses API
-- Endpoint: `https://api.openai.com/v1/responses`
-- Simplified request format with `input` array instead of `messages`
-- New response format with `output` array containing typed items
-- Automatic handling of GPT-5 and o-series model requirements
-- No temperature parameter for newer models (GPT-5, o-series)
-
-**Anthropic Integration**:
-
-- Routes through IPC handler to avoid CORS issues in renderer process
-- Uses main process for API calls with proper error handling
-- Model IDs use alias format (e.g., `claude-sonnet-4-6` not date-suffixed versions)
-
-**Gemini Integration**:
-
-- Direct API calls from renderer process
-- Increased token limits for Gemini 3.1 Pro (2000 minimum)
-- Proper handling of thinking process in responses
-- Error handling for MAX_TOKENS finish reason
+- Cleanup and the chat stream use the Responses API on the ChatGPT plan (`chatgptPlan.ts`, `ReasoningService.ts`)
+- Request format with an `input` array instead of `messages`; the system prompt goes in `instructions`
+- No temperature parameter for newer models (GPT-5 and newer)
 
 ### 9. System Settings Integration
 
@@ -348,7 +314,7 @@ The app can open OS-level settings for microphone permissions, sound input selec
 - `open-microphone-settings`: Opens microphone privacy settings
 - `open-sound-input-settings`: Opens sound/audio input device settings
 - `open-accessibility-settings`: Opens accessibility privacy settings (macOS only)
-- `open-login-items-settings`: Opens the login/startup items pane (macOS Login Items, Windows Startup Apps)
+- The Login Items URLs below are still in the URL map, but no IPC opens them today
 
 **Platform-specific URLs**:
 
@@ -417,7 +383,7 @@ Native Windows support for true push-to-talk functionality using low-level keybo
 
 - User adds words in the Dictionary view; they are stored as a JSON array in localStorage (`customDictionary`)
 - Sent to Mistral as `context_bias` (`mistralRealtimeStreaming.js`) and added to the cleanup prompt (the dictionary suffix)
-- The voice assistant can change it with the `update_dictionary` tool
+- The hidden voice assistant can change it with the `update_dictionary` tool
 
 ### 13. GNOME Wayland Global Hotkeys
 
@@ -484,7 +450,9 @@ On Hyprland (wlroots Wayland compositor), Electron's `globalShortcut` API and th
 - Push-to-talk not supported (Hyprland `bind` fires a single exec, not key-down/key-up)
 - Requires `hyprctl` on PATH (ships with Hyprland)
 
-### 15. Voice Assistant Hotkey
+### 15. Voice Assistant Hotkey (hidden)
+
+Hidden in this release and kept to restore later. `main.js` does not register a saved `voiceAgent` hotkey at startup, and the Settings UI below is not mounted. This section describes the kept code.
 
 A dedicated global hotkey that starts a dictation whose transcript is sent straight to the voice assistant as a command — no wake word ("Hey [AgentName]") needed — and that always bypasses the cleanup model. With auto-paste enabled, a caret verified as writable at capture time (an opaque `caret` session in `selectionManager.js`, revalidated before pasting) receives the completed answer and the pill returns to idle. A dormant macOS accessibility tree reports "unknown": synthetic copy can still recover selected text, but cannot establish a safe caret destination. Unknown targets therefore stay on the panel route, since they can also be integrated terminals, pages without inputs, or fields with selections hidden by clipboard capture. A verified caret whose accessibility becomes unknown before delivery falls back the same way. Terminal and secure-field checks still apply to verified targets. On Linux the caret is verified by `linux-text-monitor --probe-editable <pid>`, which answers only for the focused field in that process's active window; the pid comes from the target (its AT-SPI pid, `xdotool`/`kdotool getwindowpid`, or `hyprctl activewindow`), and a target whose pid can't be read stays on the panel route. Otherwise the answer streams into a floating assistant panel attached to the dictation pill (there is no separate assistant window) and, with auto-paste enabled, is also copied to the clipboard for manual paste (the Copy button confirms for six seconds). The pill window is content-protected while the panel is open (the panel never appears in screen shares).
 
@@ -495,7 +463,7 @@ A dedicated global hotkey that starts a dictation whose transcript is sent strai
 3. On transcription, `resolveReasoningRoute` consults `resolveDictationRouteKind()` (`src/helpers/dictationRouting.js`): a voice assistant recording always takes the agent route and never falls back to cleanup. The dictation agent's reachability only gates selection edits — a selection with the dictation agent unconfigured routes to the panel with the selected text quoted instead of editing in place
 4. Standalone commands (no text selected) run through the chat pipeline (`src/components/dictation/AssistantPanel.tsx`) with the tools in `src/services/tools/`: `copy_to_clipboard`, `get_snippet` (triggers listed in the tool description, body fetched on demand), `update_dictionary` and `update_snippets` (these write through the settings store, like a UI edit). The custom dictionary and snippet triggers are added to the system prompt. Conversations persist in the `agent_conversations` table
 5. Response delivery: a capture with `status: "editable"` (a focused writable non-terminal field with no selection) plus auto-paste banks a `deliverySessionId`; the completed answer is pasted via `paste-at-captured-target`, which revalidates the target and fails closed to the panel + clipboard on any change (`assistantResponseDelivery.ts`, `pasteAtCapturedTarget` in `selectionManager.js`). A follow-up spoken while the panel is already open stays panel-first. Cancelled or empty responses never paste and never touch the clipboard
-6. Selection edits: highlighted text goes through the `dictationAgent` scope and is safely replaced in place. When the editor judges the command a question about the selection ("explain this") rather than a change, it answers `SELECTION_QUESTION_MARKER` (`selectionEditing.js`, both the cloud and local prompts) and the command goes to the panel with the selection quoted, leaving the selection untouched
+6. Selection edits: highlighted text goes through the `dictationAgent` scope and is safely replaced in place. When the editor judges the command a question about the selection ("explain this") rather than a change, it answers `SELECTION_QUESTION_MARKER` (`selectionEditing.js`) and the command goes to the panel with the selection quoted, leaving the selection untouched
 
 **Storage & IPC**:
 
@@ -520,18 +488,20 @@ When "Share screen context" is enabled (Settings → AI Models → Voice Assista
 - Capture: `src/helpers/screenContextCapture.js` (main process; `screen.getCursorScreenPoint` + `desktopCapturer`). macOS requires the Screen Recording TCC permission (`useScreenRecordingPermission` hook + `PermissionCard` in `DictationAgentSettings`); Windows/Linux X11 need no permission; Linux Wayland is unsupported (capture silently skipped)
 - Encoding: `encodeWithinBudget()` walks a JPEG quality ladder (82 → 70 → 55), then falls back to a 1024 px resize, keeping the payload under `MAX_ENCODED_BYTES` (1.5 MB ≈ 2.05M base64 chars, inside the API's 2.8M cap). Each rung re-encodes the original bitmap, so quality drops never compound. A screen that still won't fit is dropped
 - Trigger: `useAudioRecording.js` calls `audioManager.beginScreenContextCapture()` at recording start (fire-and-forget); `consumeScreenContext()` (3s guard) is awaited when the request is built. The dictation overlay gets `setContentProtection` while the setting is on so the pill never appears in captures
-- Routing: the press-time screenshot is re-decided against the model that will actually answer. On BYOK, it attaches only when the chat model's provider client is image-wired (`supportsImages` on the `InferenceProvider`) and the model has `supportsVision` in `modelRegistryData.json`. Dropping the image never fails the command
+- Routing: the press-time screenshot is re-decided against the model that will actually answer. It attaches only when the chat model's provider client is image-wired (`supportsImages` on the `InferenceProvider`) and the model has `supportsVision` in `modelRegistryData.json`. Dropping the image never fails the command
 - Privacy: screenshots live only in renderer memory for one request — never written to disk, stored in history, or logged (loggers emit `hasScreenContext` booleans only)
-- IPC: `capture-screen-context`, `check-screen-recording-access`, `request-screen-recording-access`, `open-screen-recording-settings`, `screen-context-set-enabled`
+- IPC: `capture-screen-context`, `check-screen-recording-access`, `request-screen-recording-access`, `screen-context-set-enabled`
 
 **Tests**: `test/helpers/dictationRouting.test.js`, `test/helpers/screenContextCapture.test.js` (run with `node --test`)
 
-### 16. Tone & Style
+### 16. Tone & Style (hidden)
+
+Hidden in this release and kept to restore later. `useAudioRecording` never starts the app capture, and `ToneStyleSection.tsx` is not mounted. This section describes the kept code.
 
 Dictation cleanup writes in the tone the user picked for the kind of app they are dictating into: personal messages (formal, casual, very casual), work messages, email and everything else (formal, casual, excited). Off by default (cleanup keeps the speaker's own tone); turned on by the Tones & voices switch in Settings > Tone & Style. The assistant also writes drafts in the tone of the kind of text the request is for. Translation keeps its source's tone.
 
 - **Detection** (main, at dictation start): `capture-dictation-app-category` reads the captured target through `selectionManager.getTargetAppContext()` and classifies it with `toneAppCategories.js`. macOS: `macos-text-monitor --app-context <pid>` prints the app name, bundle id, focused window title (accessibility, no Screen Recording needed) and, for a browser page, the URL host. Windows: `windows-fast-paste --detect-only` also prints `WINDOW_TITLE` (an older helper without it classifies by exe only). Linux: the window title is read on demand (`xdotool`/`kdotool getwindowname`) or taken from Hyprland's active window; an AT-SPI target's comes from `linux-fast-paste --atspi-target` (`WINDOW_TITLE_B64`, the active window's accessible name; an older helper prints none). Titles are kept beside the captured target (`_targetTitles`), never on it, since capture results reach the renderer. A browser (and a Windows UWP frame) is judged by its page or app title (its host, else the site name the title ends with; on a host not listed, only a site name the host carries, so a Notion page titled "Hey" stays `other`); native apps by whole-token app identity. Titles and hosts never leave the main process or reach the logs; only the category does
-- **Cleanup**: `useAudioRecording` starts `audioManager.beginToneStyleCapture()` for every non-translation recording while Tone & Style is on; the cleanup route's `consumeToneStyle()` (1.5 s guard, unknown app reads as `other`) puts `toneStyle` on the reasoning config, and the cleanup prompt gets `appendToneStyleSuffix` (`src/config/prompts/toneStyle.ts`) after the dictionary suffix (English in every locale)
+- **Cleanup**: `audioManager.beginToneStyleCapture()` starts the app capture (no caller in this release; `useAudioRecording` called it at recording start); the cleanup route's `consumeToneStyle()` (1.5 s guard, unknown app reads as `other`) puts `toneStyle` on the reasoning config, and the cleanup prompt gets `appendToneStyleSuffix` (`src/config/prompts/toneStyle.ts`) after the dictionary suffix (English in every locale)
 - **Assistant and chat**: `getAgentSystemPrompt`'s `writingStyle` option adds a WRITING STYLE block (`buildWritingStyleBlock`) to every chat surface's prompt while Tone & Style is on: the model works out from the request, the recipient and the tool (an `email_draft` body is an email) which kind of text it writes, and uses the user's tone for it; its own answers keep its voice, a tone the user asks for wins, and code is never restyled. A voice-assistant answer pasted at a verified caret writes its reply for that app (text written through a tool, such as an `email_draft` body, still takes its own kind's style): `processAgentCommand` consumes the capture and banks `deliveryAppCategory`, which reaches the send as `destinationAppCategory` through the paste delivery. Before pasting, `deliverAssistantResponse` replaces the answer's em dashes, except in ranges (which take an en dash), code, links and non-Latin scripts. Selection edits get one sentence (`selectionEditToneSentence`) that applies the selection's app style only to a prose rewrite asked for without a tone. The desktop builds every agent prompt itself, so the API needs nothing here
 - **UI**: Settings > Tone & Style (`settings/ToneStyleSection.tsx`) has a Tones & voices switch (`toneStyleEnabled`); while it's off, the picks and Save Changes are grayed out. App badges live in `src/assets/icons/apps/`
 
@@ -565,7 +535,7 @@ const { t } = useTranslation();
 
 ### Image and Icon Assets — REQUIRED
 
-Raster UI assets live in `src/assets/` (onboarding ones are named `onboarding-*`). Vector provider/brand marks live in `src/assets/icons/`.
+Raster UI assets live in `src/assets/`. Vector provider/brand marks live in `src/assets/icons/`.
 
 UI icons come from `src/components/icons/` (vendored Nucleo core outline components behind lucide-style names, e.g. `import { Check, Loader2 } from "../icons"`). To add one, map a name to a Nucleo label in `src/components/icons/nucleo-map.json` and run `node scripts/sync-nucleo-icons.js`; never import from `lucide-react` or a machine-local Nucleo path. Icons outside that set are drawn by hand in `src/components/icons/primitives.tsx`, which the generated `index.ts` re-exports.
 
@@ -576,8 +546,8 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 1. **Always `import` the asset**; never write a literal path like `/assets/foo.webp`. Packaged builds load the renderer from a `file://` origin, so root-relative paths resolve to nothing. Importing lets Vite fingerprint the file and rewrite the URL:
 
    ```tsx
-   import microphoneIcon from "@/assets/onboarding-permission-microphone.webp";
-   <img src={microphoneIcon} ... />;
+   import appIcon from "@/assets/icon.png";
+   <img src={appIcon} ... />;
    ```
 
 2. **WebP, lossless** for UI art with hard edges or alpha — `cwebp -lossless -z 9 -alpha_q 100 in.png -o out.webp` (roughly 40–55% smaller than PNG). Reserve lossy for photographic art.
@@ -594,7 +564,7 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 3. **New UI Component**: Follow shadcn/ui patterns in src/components/ui
 4. **New Manager**: Create in src/helpers/, initialize in main.js
 5. **New UI Strings**: Add translation keys to all 11 language files (see i18n section above)
-6. **New Sidecar Binary**: Add download script in `scripts/`, add to `prebuild*` scripts in package.json, add manager in `src/helpers/`, initialize in `main.js`. Spawn the child with `detached: process.platform !== "win32"` so it has its own process group on Unix. Right after spawn call `sidecarPidFile.write(name, child.pid)` and on `close` call `sidecarPidFile.clear(name)`. Add the binary fragment to `EXPECTED_BINARY_FRAGMENTS` in `sidecarReaper.js`. Register a stop function via `sidecarRegistry.register(name, () => manager.stop())` in `registerSidecars()` — that single registration replaces the old `will-quit` line.
+6. **New Sidecar Binary**: Add download script in `scripts/`, add to `prebuild*` scripts in package.json, add manager in `src/helpers/`, initialize in `main.js`. Spawn the child with `detached: process.platform !== "win32"` so it has its own process group on Unix. Right after spawn call `sidecarPidFile.write(name, child.pid)` and on `close` call `sidecarPidFile.clear(name)`. Add the binary fragment to `EXPECTED_BINARY_FRAGMENTS` in `sidecarReaper.js`. Register a stop function via `sidecarRegistry.register(name, () => manager.stop())` at startup in `main.js` — that single registration replaces the old `will-quit` line. No sidecar is registered today; `EXPECTED_BINARY_FRAGMENTS` keeps `llama-server` only so one left running by an older build is still stopped.
 
 ### Testing Checklist
 
@@ -603,10 +573,10 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - [ ] Retry and Upload work from Home
 - [ ] Custom dictionary words are recognized
 - [ ] Cleanup runs on the ChatGPT plan, and the raw transcript is pasted when it fails or you are signed out
-- [ ] Tone & Style picks the tone for the app
-- [ ] The voice assistant hotkey answers in the panel
 - [ ] Test GNOME / Hyprland / KDE Wayland hotkeys (Linux)
 - [ ] No errors in the Logs view
+
+Hidden features (the voice assistant, Tone & Style) are not in this list. Test them when they come back.
 
 ### Common Issues and Solutions
 
@@ -684,13 +654,13 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
   - On Linux (`ui/overlayBlur.ts`), the full-window dialog overlays (shared `Dialog`, Settings) skip their default backdrop blur; a blur passed through `overlayClassName` still applies
   - Settings cards (`SettingsPanel`), the Settings selects and the `LanguageSelector` trigger sit on an opaque pane, so they carry no blur on any platform
 - **Launch at login**: XDG autostart entry at `~/.config/autostart/only-whispers.desktop` (see `linuxAutostart.js`), since Electron's `setLoginItemSettings()` does nothing on Linux
-  - Disabling it from GNOME Tweaks or KDE's autostart editor is reflected in the Settings toggle
+  - `isAutostartEnabled()` sees an entry disabled from GNOME Tweaks or KDE's autostart editor (there is no Settings toggle today)
   - "Start minimized" is handled app-side by the `startMinimized` setting, not by the desktop entry
 - **Clipboard paste tools** (at least one required for auto-paste):
   - **X11**: `xdotool` (recommended)
   - **Hyprland Wayland**: `wtype`, then `hyprctl` sendshortcut (avoids the sendshortcut stuck-modifier bug when wtype is installed)
   - **Sway/wlroots Wayland**: `wtype` (requires the virtual keyboard protocol)
-  - **COSMIC Wayland**: `wtype` for terminals (Warp has no Shift+Insert paste); other windows paste with uinput Shift+Insert. Settings and onboarding ask for `wtype` there once something else pastes (`needsWtype` in `src/utils/linuxPasteTools.ts`), but `checkPasteTools` never reports it as the method
+  - **COSMIC Wayland**: `wtype` for terminals (Warp has no Shift+Insert paste); other windows paste with uinput Shift+Insert. Settings asks for `wtype` there once something else pastes (`needsWtype` in `src/utils/linuxPasteTools.ts`), but `checkPasteTools` never reports it as the method
   - **GNOME/KDE Wayland**: RemoteDesktop portal keysyms (Shift+Insert on KDE, except Warp), then uinput/ydotool
   - **Wayland physical fallback**: Shift+Insert avoids layout-sensitive KEY_V; `ydotool` requires the `ydotoold` daemon
   - Terminal detection: Auto-detects terminal emulators and uses Ctrl+Shift+V
@@ -714,15 +684,13 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 
 ## Performance Considerations
 
-- Local model size vs speed tradeoff
 - Audio blob size limits for IPC (10MB)
 - Temporary file cleanup
-- Memory usage with large models
 - Process timeout protection (5 minutes)
 
 ## Security Considerations
 
-- API keys, enterprise cloud creds and the ChatGPT login are encrypted at rest via Electron `safeStorage` → OS keychain (Keychain / DPAPI / libsecret), stored as per-key files in `userData/secure-keys/`. Linux without a keyring falls back to plaintext (Electron default).
+- API keys and the ChatGPT login are encrypted at rest via Electron `safeStorage` → OS keychain (Keychain / DPAPI / libsecret), stored as per-key files in `userData/secure-keys/`. Linux without a keyring falls back to plaintext (Electron default).
 - Context isolation enabled
 - No remote code execution
 - Sanitized file paths
