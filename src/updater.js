@@ -4,10 +4,14 @@ const debugLogger = require("./helpers/debugLogger");
 
 // Updates come from this repo's GitHub releases: the "publish" block in
 // electron-builder.json, which the build writes into app-update.yml.
-// Only the NSIS installer and an AppImage can replace themselves. macOS needs
-// a signed app, and deb/rpm/tar.gz installs update through the package manager.
+// Only the NSIS installer, the macOS app and an AppImage can replace
+// themselves; deb/rpm/tar.gz installs update through the package manager.
+// macOS updates pass Squirrel.Mac's signature check because every build is
+// signed with the same self-signed certificate (.github/workflows/release.yml).
 const isUpdaterSupported =
-  process.platform === "win32" || (process.platform === "linux" && !!process.env.APPIMAGE);
+  process.platform === "win32" ||
+  process.platform === "darwin" ||
+  (process.platform === "linux" && !!process.env.APPIMAGE);
 
 const STARTUP_DELAY_MS = 3000;
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
@@ -66,6 +70,7 @@ class UpdateManager {
   installUpdate() {
     if (!this.downloadedVersion) return false;
     // Silent on Windows, so the NSIS installer shows no wizard; relaunch after.
+    // macOS ignores both arguments: Squirrel.Mac swaps the app and relaunches it.
     autoUpdater.quitAndInstall(true, true);
     return true;
   }

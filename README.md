@@ -28,6 +28,8 @@
 
 The app updates itself.
 
+**macOS** (preview, Apple Silicon only): open the `.dmg` and drag the app to Applications. The app is not checked by Apple, so macOS blocks the first open: go to System Settings → Privacy & Security and click **Open Anyway**. You do this once; updates open normally.
+
 ## Privacy
 
 Your words stay yours.

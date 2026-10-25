@@ -1,0 +1,1 @@
+identifier "com.raythurnvoid.only-whispers" and certificate root = H"4692fa60549e1cb2dca5b766e6b8d84128c98d39"

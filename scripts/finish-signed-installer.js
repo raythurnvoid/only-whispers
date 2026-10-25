@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Run after SignPath signs the installer (.github/workflows/release-win.yml).
-// Signing changes the installer's bytes, so the blockmap and the sha512/size in
-// latest.yml, which the auto-updater checks, are made again here. The files to
-// upload land in dist/release under the names latest.yml points to.
+// Run by .github/workflows/release.yml after the Windows installer is built,
+// and signed when SignPath is set up. Signing changes the installer's bytes,
+// so the blockmap and the sha512/size in latest.yml, which the auto-updater
+// checks, are made again here. The files to upload land in dist/release under
+// the names latest.yml points to.
 const fs = require("fs");
 const path = require("path");
 

@@ -1,0 +1,229 @@
+name: Release
+
+# Builds Windows and macOS and publishes them as one GitHub release for the
+# version in package.json. Installed apps read latest.yml and latest-mac.yml
+# from that release to auto-update (src/updater.js).
+#
+# Windows: signed by SignPath Foundation (free for open source; see "Code
+# signing policy" in README.md) once the repo has the secret SIGNPATH_API_TOKEN,
+# the variable SIGNPATH_ORGANIZATION_ID and, on SignPath, project
+# "only-whispers", signing policy "release-signing" and the artifact
+# configurations "app" and "installer" from .signpath/. Unsigned until then.
+#
+# macOS (Apple Silicon): signed with our self-signed certificate, from the
+# secrets MACOS_CERT_P12_BASE64 and MACOS_CERT_PASSWORD. Its public half is
+# .github/macos-codesign-cert.pem. Every build must use this same certificate:
+# Squirrel.Mac only installs an update whose signature matches the running app,
+# and macOS keeps the Microphone and Accessibility permissions only then.
+#
+# Run with publish off to build and check everything without a release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the GitHub release
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  SIGNPATH_PROJECT: only-whispers
+  SIGNPATH_POLICY: release-signing
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the native helpers and the renderer
+        run: |
+          pnpm run prebuild:win
+          pnpm run build:renderer
+
+      # Without SignPath: the unsigned config, as for local builds.
+      - name: Build the unsigned installer
+        if: env.SIGNPATH_API_TOKEN == ''
+        run: pnpm exec electron-builder --win --config electron-builder.unsigned-win.json --publish never
+
+      # Copies the installer to dist/release under the name latest.yml points to
+      # (dashes; the built file has spaces).
+      - name: Put the unsigned installer next to latest.yml
+        if: env.SIGNPATH_API_TOKEN == ''
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist -Filter "*Setup*.exe" | Select-Object -First 1
+          node scripts/finish-signed-installer.js $installer.FullName
+
+      - name: Build the app folder
+        if: env.SIGNPATH_API_TOKEN != ''
+        run: pnpm exec electron-builder --win --dir --publish never
+
+      # First pass: sign only-whispers.exe and our own helpers inside the app
+      # folder, so the installed app is signed too, not just the installer.
+      - name: Upload the app folder
+        if: env.SIGNPATH_API_TOKEN != ''
+        id: upload-app
+        uses: actions/upload-artifact@v7
+        with:
+          name: app
+          path: dist/win-unpacked
+
+      - name: Sign the app
+        if: env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLICY }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.upload-app.outputs.artifact-id }}
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: dist/win-signed
+
+      - name: Build the installer from the signed app
+        if: env.SIGNPATH_API_TOKEN != ''
+        run: pnpm exec electron-builder --win nsis --prepackaged dist/win-signed --publish never
+
+      # Second pass: sign the installer itself.
+      - name: Upload the installer
+        if: env.SIGNPATH_API_TOKEN != ''
+        id: upload-installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer
+          path: dist/*.exe
+
+      - name: Sign the installer
+        if: env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLICY }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: dist/installer-signed
+
+      - name: Remake latest.yml and the blockmap
+        if: env.SIGNPATH_API_TOKEN != ''
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist/installer-signed -Filter *.exe | Select-Object -First 1
+          node scripts/finish-signed-installer.js $installer.FullName
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows
+          path: dist/release/*
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # codesign only picks a trusted identity, and nobody trusts a self-signed
+      # certificate by default. Trust our public certificate for code signing.
+      - name: Trust the signing certificate
+        run: sudo security add-trusted-cert -d -r trustRoot -p codeSign -k /Library/Keychains/System.keychain .github/macos-codesign-cert.pem
+
+      - name: Build the native helpers and the icon
+        run: |
+          pnpm run prebuild:mac
+          test -f src/assets/Assets.car
+
+      # forceCodeSigning fails the build when the identity is missing, instead
+      # of making an unsigned app.
+      - name: Build the app
+        env:
+          CSC_LINK: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          pnpm run build:renderer
+          pnpm exec electron-builder --mac --arm64 --publish never -c.mac.forceCodeSigning=true
+
+      # Squirrel.Mac checks the app inside the zip, so check that one.
+      - name: Check the signature
+        run: |
+          ditto -x -k dist/*-arm64-mac.zip "$RUNNER_TEMP/unzipped"
+          APP="$RUNNER_TEMP/unzipped/only-whispers.app"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          # The designated requirement must never change, or Mac users stop
+          # getting updates and lose their permissions.
+          codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => //p' > "$RUNNER_TEMP/dr.txt"
+          cat "$RUNNER_TEMP/dr.txt"
+          diff "$RUNNER_TEMP/dr.txt" .github/macos-designated-requirement.txt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos
+          path: |
+            dist/*.dmg
+            dist/*.dmg.blockmap
+            dist/*.zip
+            dist/*.zip.blockmap
+            dist/latest-mac.yml
+          if-no-files-found: error
+
+  publish:
+    needs: [windows, macos]
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: "{windows,macos}"
+          path: release
+          merge-multiple: true
+
+      # The draft comes first, so the release exists before any upload and
+      # stays hidden until every file is there.
+      - name: Publish the release
+        run: |
+          version=$(node -p "require('./package.json').version")
+          tag="v$version"
+          gh release view "$tag" > /dev/null 2>&1 || gh release create "$tag" --draft --title "$version" --target "$GITHUB_SHA"
+          gh release upload "$tag" release/* --clobber
+          gh release edit "$tag" --draft=false --latest
