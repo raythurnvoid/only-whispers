@@ -2994,13 +2994,12 @@ class IPCHandlers {
           });
         }
 
-        // No language field: an uploaded file is often not in the dictation
-        // language, and a wrong hint silently mistranscribes it.
+        // English only, like dictation: auto detection sometimes heard French.
         const { body, boundary } = buildMultipartBody(
           fs.readFileSync(realByok),
           path.basename(realByok),
           providerContentType(realByok),
-          { model: mistralModel }
+          { model: mistralModel, language: "en" }
         );
         // Mistral authenticates with x-api-key, not Bearer.
         const data = await postMultipart(new URL(MISTRAL_TRANSCRIPTION_URL), body, boundary, {

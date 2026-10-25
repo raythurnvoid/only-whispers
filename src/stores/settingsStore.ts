@@ -218,15 +218,14 @@ const NUMERIC_SETTINGS = new Set([
   "transcriptRetentionDays",
 ]);
 
-// Dictation is English only (there is no language picker), so "auto" from an
-// older setup becomes "en": auto detection sometimes heard Italian or German.
-const LANGUAGE_MIGRATIONS: Record<string, string> = { zh: "zh-CN", auto: "en" };
-
+// Dictation is English only (there is no language picker), so any language
+// saved by an older setup ("auto", "fr", ...) becomes "en": auto detection
+// sometimes heard French, Italian or German.
 function migratePreferredLanguage() {
   if (!isBrowser) return;
   const stored = localStorage.getItem("preferredLanguage");
-  if (stored && LANGUAGE_MIGRATIONS[stored]) {
-    localStorage.setItem("preferredLanguage", LANGUAGE_MIGRATIONS[stored]);
+  if (stored && stored !== "en") {
+    localStorage.setItem("preferredLanguage", "en");
   }
 }
 

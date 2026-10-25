@@ -216,9 +216,8 @@ const invokeUpload = (payload) => {
   return uploadHandler({ sender: {} }, { filePath: uploadTempFile, ...payload });
 };
 
-// An uploaded file is often not in the dictation language, and a wrong hint
-// silently mistranscribes it, so uploads never send a language.
-test("upload: mistral sends x-api-key with a Voxtral model and no language", async () => {
+// Uploads are English only, like dictation.
+test("upload: mistral sends x-api-key with a Voxtral model and English", async () => {
   fetches.length = 0;
   const result = await invokeUpload({ model: "gpt-4o-mini-transcribe" });
   assert.equal(result.success, true);
@@ -227,7 +226,7 @@ test("upload: mistral sends x-api-key with a Voxtral model and no language", asy
   assert.equal(fetches[0].init.headers.Authorization, undefined);
   const body = fetches[0].init.body.toString();
   assert.match(body, /voxtral-mini-transcribe-3-0/);
-  assert.doesNotMatch(body, /name="language"/);
+  assert.match(body, /name="language"\r\n\r\nen\r\n/);
 });
 
 // Electron's net.fetch rejects with a plain Error whose message is the Chromium
