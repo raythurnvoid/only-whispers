@@ -24,17 +24,18 @@ const BRANCH = buildLaurelBranch({
 export default function LaurelLogo() {
   return (
     <div className="relative mx-2 mt-1 mb-[18px] grid h-[60px] place-items-center">
+      {/* The leaves fade out softly toward the name's band, so none look cut.
+          The website and the promo video use the same mask. */}
       <svg
         viewBox={`0 0 ${W} 60`}
         aria-hidden="true"
         className="absolute inset-0 h-full w-full text-(--laurel)"
+        style={{ maskImage: "linear-gradient(#000 24%, transparent 40%, transparent 60%, #000 76%)" }}
       >
         <LaurelBranch branch={BRANCH} stemWidth={1.1} berryRadius={1.05} />
         <LaurelBranch branch={BRANCH} stemWidth={1.1} berryRadius={1.05} mirrorAt={W} />
       </svg>
-      {/* The name sits on a strip of the window's own marble (both fixed, so they
-          line up): it hides the leaves behind the letters and is otherwise unseen. */}
-      <div className="pz-window pz-display relative whitespace-nowrap px-2 pt-[3px] pb-px text-[12.5px] font-semibold tracking-[0.12em] text-foreground uppercase">
+      <div className="pz-display relative whitespace-nowrap px-2 pt-[3px] pb-px text-[12.5px] font-semibold tracking-[0.12em] text-foreground uppercase">
         Only Whispers
       </div>
     </div>
