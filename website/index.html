@@ -259,23 +259,6 @@ header {
   mask-composite: intersect;
 }
 
-/* The promo is dark. On Day marble a fade reads as a smudge, so the video
-   gets a clean frame, like a screen, instead. Phones: see .video-box. */
-@media (prefers-color-scheme: light) and (min-width: 801px) {
-  .video-box {
-    right: 48px;
-    /* The space right of the text column (.copy and the hero padding). */
-    width: min(100vw - 31rem - clamp(16px, 6vw, 96px) - 96px, 1100px);
-    overflow: hidden;
-    border-radius: 10px;
-    box-shadow: 0 24px 60px -24px rgb(40 28 12 / 0.55);
-  }
-
-  .hero video { mask-image: none; }
-
-  .video-controls { bottom: 14px; }
-}
-
 /* Replay and sound, on the video's bottom right corner, above its fade. The
    video is dark in both themes, so the buttons are always light on dark. */
 .video-controls {
@@ -548,13 +531,6 @@ footer p { margin: 0; }
   }
 
   .video-controls { right: 12px; bottom: 18%; }
-
-  /* On Day marble the dark video keeps sharp edges, as on desktop. */
-  @media (prefers-color-scheme: light) {
-    .video-box { mask-image: none; }
-
-    .video-controls { bottom: 12px; }
-  }
 
   .hero video {
     flex: none;
