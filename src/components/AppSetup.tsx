@@ -17,7 +17,7 @@ const CLEANUP_MODEL = "gpt-6-luna";
  * speech-to-text and Sign in with ChatGPT for cleanup. Everything else keeps
  * its default and can be changed later in Settings.
  */
-export default function RT0Setup({ onComplete }: { onComplete: () => void }) {
+export default function AppSetup({ onComplete }: { onComplete: () => void }) {
   const { t } = useTranslation();
   const store = useSettingsStore();
   // null until edited, so the saved key fills the field when it loads.
@@ -88,21 +88,21 @@ export default function RT0Setup({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <OnboardingShell compact stepKey="rt0-setup">
+    <OnboardingShell compact stepKey="app-setup">
       <CompactOnboardingFrame>
         <div className="onboarding-shell-scroll relative flex h-full flex-col overflow-y-auto px-5 pb-6 pt-45">
           <h1 className="onboarding-display-title mx-auto max-w-96 text-balance text-center text-3xl!">
-            {t("rt0Setup.title")}
+            {t("appSetup.title")}
           </h1>
           <p className="mx-auto mt-2 max-w-sm text-center text-sm text-[var(--onboarding-text-secondary)]">
-            {t("rt0Setup.description")}
+            {t("appSetup.description")}
           </p>
 
           <div className="mt-5 space-y-4 rounded-[1.35rem] bg-[var(--onboarding-surface-secondary)] p-4">
             <label className="block">
-              <FieldLabel>{t("rt0Setup.mistralKey")}</FieldLabel>
+              <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
               <ProviderCheckField
-                aria-label={t("rt0Setup.mistralKey")}
+                aria-label={t("appSetup.mistralKey")}
                 check={check}
                 invalidOn="credentialsRejected"
                 type="password"
@@ -118,7 +118,7 @@ export default function RT0Setup({ onComplete }: { onComplete: () => void }) {
                 rel="noopener noreferrer"
                 className="mt-1.5 inline-block text-xs text-[var(--onboarding-link)] hover:opacity-80"
               >
-                {t("rt0Setup.getMistralKey")}
+                {t("appSetup.getMistralKey")}
               </a>
             </label>
             <div className="h-px bg-[var(--onboarding-surface-tertiary)]" />
@@ -133,7 +133,7 @@ export default function RT0Setup({ onComplete }: { onComplete: () => void }) {
             disabled={!keyUsable || !signedIn || finishing}
             className="mt-5 h-10 w-full rounded-[38px] text-sm"
           >
-            {finishing ? t("common.loading") : t("rt0Setup.start")}
+            {finishing ? t("common.loading") : t("appSetup.start")}
           </Button>
         </div>
       </CompactOnboardingFrame>

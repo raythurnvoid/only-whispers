@@ -1252,7 +1252,7 @@
     "addFirstWord": "Add your first word",
     "agentDefault": "Added by default"
   },
-  "rt0Setup": {
+  "appSetup": {
     "title": "Set up only-whispers",
     "description": "Hold the hotkey, speak, and clean text appears in any app. Add two things to start.",
     "mistralKey": "Mistral API key (speech-to-text)",

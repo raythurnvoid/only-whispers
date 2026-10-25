@@ -17,7 +17,7 @@ const isOnboardingInProgress = () =>
 
 const ControlPanel = React.lazy(() => import("./components/ControlPanel.tsx"));
 // Replaces upstream onboarding: only a Mistral key and Sign in with ChatGPT.
-const RT0Setup = React.lazy(() => import("./components/RT0Setup.tsx"));
+const AppSetup = React.lazy(() => import("./components/AppSetup.tsx"));
 
 export default function AppRouter() {
   useTheme();
@@ -47,7 +47,7 @@ function MainApp() {
       import("./components/ControlPanel.tsx").catch(() => {});
 
       if (!localStorage.getItem("onboardingCompleted")) {
-        import("./components/RT0Setup.tsx").catch(() => {});
+        import("./components/AppSetup.tsx").catch(() => {});
       }
     }
   }, [isControlPanel]);
@@ -120,7 +120,7 @@ function MainApp() {
   if (isControlPanel && showOnboarding) {
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <RT0Setup onComplete={handleOnboardingComplete} />
+        <AppSetup onComplete={handleOnboardingComplete} />
       </Suspense>
     );
   }

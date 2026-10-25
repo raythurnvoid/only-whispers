@@ -1252,7 +1252,7 @@
     "expand": "展開側邊欄",
     "logs": "日誌"
   },
-  "rt0Setup": {
+  "appSetup": {
     "title": "設定 only-whispers",
     "description": "按住快速鍵說話,整潔的文字就會出現在任何應用程式中。新增兩項即可開始。",
     "mistralKey": "Mistral API 金鑰(語音轉文字)",

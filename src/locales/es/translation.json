@@ -1252,7 +1252,7 @@
     "expand": "Expandir barra lateral",
     "logs": "Registros"
   },
-  "rt0Setup": {
+  "appSetup": {
     "title": "Configurar only-whispers",
     "description": "Mantén pulsada la tecla, habla y aparece texto limpio en cualquier app. Añade dos cosas para empezar.",
     "mistralKey": "Clave de API de Mistral (voz a texto)",

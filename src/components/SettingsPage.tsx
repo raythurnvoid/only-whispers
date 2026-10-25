@@ -110,9 +110,9 @@ function MistralKeySection() {
       <SettingsPanel>
         <SettingsPanelRow>
           <label className="block">
-            <FieldLabel>{t("rt0Setup.mistralKey")}</FieldLabel>
+            <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
             <ProviderCheckField
-              aria-label={t("rt0Setup.mistralKey")}
+              aria-label={t("appSetup.mistralKey")}
               check={check}
               invalidOn="credentialsRejected"
               type="password"
@@ -128,7 +128,7 @@ function MistralKeySection() {
               rel="noopener noreferrer"
               className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
             >
-              {t("rt0Setup.getMistralKey")}
+              {t("appSetup.getMistralKey")}
             </a>
           </label>
         </SettingsPanelRow>
