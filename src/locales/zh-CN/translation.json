@@ -1080,7 +1080,31 @@
     "noMatches": "无匹配项 — 按 Enter 添加“{{word}}”",
     "emptyTitle": "向词典添加词语",
     "emptyDescription": "添加希望 Only Whispers 始终识别正确的词：名字、工具、缩写。",
-    "addFirstWord": "添加第一个词"
+    "addFirstWord": "添加第一个词",
+    "snippets": {
+      "title": "片段",
+      "edit": "编辑 {{trigger}}",
+      "remove": "删除 {{trigger}}",
+      "editTitle": "编辑片段",
+      "dialogDescription": "当你说出触发词时，它会被替换为你保存的文本。",
+      "triggerLabel": "触发词",
+      "triggerPlaceholder": "例如：我的日程链接",
+      "replacementLabel": "替换文本",
+      "replacementPlaceholder": "说出触发词时插入的文本…",
+      "create": "创建片段",
+      "duplicate": "已存在使用此触发词的片段",
+      "emptyTitle": "同样的话，只说",
+      "emptyTitleAccent": "一遍",
+      "emptyDescription": "说出触发词，only-whispers 会把它替换为你保存的内容：链接、开场白、签名、提示词。",
+      "new": "新建片段",
+      "examples": {
+        "linkedinTrigger": "我的 LinkedIn",
+        "linkedinText": "linkedin.com/in/you",
+        "signoffTrigger": "签名",
+        "signoffText": "祝好，Alex · alex@example.com"
+      },
+      "addPlaceholder": "添加触发词——“我的日程链接”“签名”"
+    }
   },
   "sidebar": {
     "home": "首页",
@@ -1157,7 +1181,9 @@
     "commandMenu": {
       "stopListening": "停止录音",
       "startListening": "开始录音",
-      "hideForNow": "暂时隐藏"
+      "hideForNow": "暂时隐藏",
+      "askAssistant": "询问助手",
+      "busyRecording": "请先结束当前录音"
     }
   },
   "dictationAgent": {
@@ -1407,5 +1433,64 @@
     "clear": "清除",
     "empty": "没有警告或错误。",
     "details": "详情"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "已复制",
+      "copy": "复制",
+      "reset": "重置",
+      "save": "保存"
+    },
+    "defaultTestInput": "你好 Whispr，今天天气怎么样？",
+    "dialogs": {
+      "reset": {
+        "description": "提示词已重置为默认值。",
+        "title": "重置完成"
+      },
+      "saved": {
+        "description": "你的自定义提示词将用于所有后续的 AI 处理。",
+        "title": "提示词已保存"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "助手名称：",
+      "cautionLabel": "注意",
+      "cautionTextPrefix": "修改此提示词可能影响转录质量。",
+      "cautionTextSuffix": "保留 {{agentName}} 占位符以确保助手识别功能正常。",
+      "placeholder": "输入你的自定义系统提示词..."
+    },
+    "tabs": {
+      "customize": "自定义",
+      "test": "测试",
+      "view": "查看"
+    },
+    "test": {
+      "addressHint": "试试说“{{agentName}}”来测试指令模式",
+      "aiModels": "AI 模型",
+      "baseUrlMissing": "{{provider}} 的 URL 缺失，请在 AI 模型设置中添加。",
+      "cleanup": "文本整理",
+      "disabledInSettingsPrefix": "AI 文本增强已禁用。",
+      "disabledInSettingsSuffix": "请在 AI 模型中启用以测试提示词。",
+      "disabledReasoning": "AI 文本增强已禁用，请在 AI 模型中启用以测试提示词。",
+      "failed": "测试失败：{{error}}",
+      "inputLabel": "输入",
+      "inputPlaceholder": "输入要测试的文本...",
+      "instruction": "指令",
+      "modelLabel": "模型",
+      "noModelSelected": "未选择模型",
+      "none": "无",
+      "outputLabel": "输出",
+      "processing": "处理中...",
+      "providerLabel": "服务商",
+      "run": "运行测试",
+      "customEndpoint": "自定义端点",
+      "apiKeyMissing": "未配置 {{provider}} API 密钥，请在 AI 模型设置中添加。",
+      "agentDisabled": "启用语音助手以测试此提示词"
+    },
+    "view": {
+      "customPrompt": "自定义提示词",
+      "defaultPrompt": "默认提示词",
+      "modified": "已修改"
+    }
   }
 }

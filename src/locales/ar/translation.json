@@ -543,7 +543,31 @@
     "noMatches": "لا توجد تطابقات — اضغط على Enter لإضافة \"{{word}}\"",
     "emptyTitle": "أضف كلمات إلى قاموسك",
     "emptyDescription": "أضف الكلمات التي يجب أن يكتبها Only Whispers بشكل صحيح دائمًا: الأسماء، الأدوات، الاختصارات.",
-    "addFirstWord": "أضف كلمتك الأولى"
+    "addFirstWord": "أضف كلمتك الأولى",
+    "snippets": {
+      "title": "المقتطفات",
+      "edit": "تعديل {{trigger}}",
+      "remove": "إزالة {{trigger}}",
+      "editTitle": "تعديل المقتطف",
+      "dialogDescription": "عندما تنطق العبارة المفتاحية، يتم استبدالها بالنص المحفوظ الخاص بك.",
+      "triggerLabel": "العبارة المفتاحية",
+      "triggerPlaceholder": "مثال: رابط التقويم",
+      "replacementLabel": "الاستبدال",
+      "replacementPlaceholder": "النص المراد إدراجه عندما تنطق العبارة المفتاحية…",
+      "create": "إنشاء مقتطف",
+      "duplicate": "يوجد مقتطف بهذه العبارة المفتاحية بالفعل",
+      "emptyTitle": "الأشياء التي لا ينبغي أن تضطر إلى قولها",
+      "emptyTitleAccent": "مرتين",
+      "emptyDescription": "انطق عبارة مفتاحية وسيستبدلها only-whispers بما حفظته — روابط، مقدمات، عبارات ختامية، مطالبات.",
+      "new": "مقتطف جديد",
+      "examples": {
+        "linkedinTrigger": "حسابي على LinkedIn",
+        "linkedinText": "linkedin.com/in/you",
+        "signoffTrigger": "ختام الرسالة",
+        "signoffText": "أطيب التحيات، Alex · alex@example.com"
+      },
+      "addPlaceholder": "أضف عبارة مفتاحية — \"طلب مستثمر\"، \"رابط التقويم\""
+    }
   },
   "dictationAgent": {
     "enabled": "تمكين المساعد الصوتي",
@@ -671,7 +695,9 @@
     "commandMenu": {
       "stopListening": "إيقاف الاستماع",
       "startListening": "بدء الاستماع",
-      "hideForNow": "إخفاء الآن"
+      "hideForNow": "إخفاء الآن",
+      "askAssistant": "اسأل المساعد",
+      "busyRecording": "أنهِ التسجيل الحالي أولاً"
     }
   },
   "notes": {
@@ -1411,5 +1437,64 @@
     "clear": "مسح",
     "empty": "لا توجد تحذيرات أو أخطاء.",
     "details": "التفاصيل"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "تم النسخ",
+      "copy": "نسخ",
+      "reset": "إعادة تعيين",
+      "save": "حفظ"
+    },
+    "defaultTestInput": "مرحبًا Whispr، كيف حال الطقس اليوم؟",
+    "dialogs": {
+      "reset": {
+        "description": "تمت إعادة تعيين المطالبة إلى القيمة الافتراضية.",
+        "title": "اكتملت إعادة التعيين"
+      },
+      "saved": {
+        "description": "سيتم استخدام المطالبة المخصصة الخاصة بك لجميع عمليات المعالجة المستقبلية للذكاء الاصطناعي.",
+        "title": "تم حفظ المطالبة"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "اسم المساعد:",
+      "cautionLabel": "تحذير",
+      "cautionTextPrefix": "قد يؤثر تعديل هذه المطالبة على جودة التفريغ الصوتي.",
+      "cautionTextSuffix": "احتفظ بالعنصر النائب {{agentName}} للحفاظ على اكتشاف المساعد.",
+      "placeholder": "أدخل مطالبة النظام المخصصة الخاصة بك..."
+    },
+    "tabs": {
+      "customize": "تخصيص",
+      "test": "اختبار",
+      "view": "عرض"
+    },
+    "test": {
+      "addressHint": "حاول مخاطبة \"{{agentName}}\" لاختبار وضع التعليمات",
+      "aiModels": "نماذج الذكاء الاصطناعي",
+      "baseUrlMissing": "عنوان URL الأساسي لـ {{provider}} مفقود. أضفه في إعدادات «نماذج الذكاء الاصطناعي».",
+      "cleanup": "تنقيح",
+      "disabledInSettingsPrefix": "تم تعطيل تحسين النص بالذكاء الاصطناعي.",
+      "disabledInSettingsSuffix": "قم بتمكينه من قسم «نماذج الذكاء الاصطناعي» لاختبار المطالبات.",
+      "disabledReasoning": "تم تعطيل تحسين النص بالذكاء الاصطناعي. قم بتمكينه من قسم «نماذج الذكاء الاصطناعي» لاختبار المطالبات.",
+      "failed": "فشل الاختبار: {{error}}",
+      "inputLabel": "المدخلات",
+      "inputPlaceholder": "أدخل النص للاختبار...",
+      "instruction": "التعليمات",
+      "modelLabel": "النموذج",
+      "noModelSelected": "لم يتم تحديد أي نموذج",
+      "none": "لا شيء",
+      "outputLabel": "المخرجات",
+      "processing": "جاري المعالجة...",
+      "providerLabel": "المزود",
+      "run": "تشغيل الاختبار",
+      "customEndpoint": "نقطة نهاية مخصصة",
+      "apiKeyMissing": "مفتاح API الخاص بـ {{provider}} غير مهيأ. أضفه في إعدادات «نماذج الذكاء الاصطناعي».",
+      "agentDisabled": "قم بتمكين المساعد الصوتي لاختبار هذه المطالبة"
+    },
+    "view": {
+      "customPrompt": "مطالبة مخصصة",
+      "defaultPrompt": "المطالبة الافتراضية",
+      "modified": "مُعدل"
+    }
   }
 }

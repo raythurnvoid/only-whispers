@@ -1088,7 +1088,31 @@
     "noMatches": "Keine Treffer — Enter drücken, um \"{{word}}\" hinzuzufügen",
     "emptyTitle": "Füge Wörter zu deinem Wörterbuch hinzu",
     "emptyDescription": "Füge Wörter hinzu, die Only Whispers immer richtig erkennen soll: Namen, Tools, Abkürzungen.",
-    "addFirstWord": "Füge dein erstes Wort hinzu"
+    "addFirstWord": "Füge dein erstes Wort hinzu",
+    "snippets": {
+      "title": "Snippets",
+      "edit": "{{trigger}} bearbeiten",
+      "remove": "{{trigger}} entfernen",
+      "editTitle": "Snippet bearbeiten",
+      "dialogDescription": "Wenn du den Auslöser sprichst, wird er durch deinen gespeicherten Text ersetzt.",
+      "triggerLabel": "Auslöser",
+      "triggerPlaceholder": "z. B. mein Kalender",
+      "replacementLabel": "Ersetzung",
+      "replacementPlaceholder": "Text, der beim Sprechen des Auslösers eingefügt wird …",
+      "create": "Snippet erstellen",
+      "duplicate": "Ein Snippet mit diesem Auslöser existiert bereits",
+      "emptyTitle": "Sag es nur",
+      "emptyTitleAccent": "einmal",
+      "emptyDescription": "Sprich ein Auslösewort und only-whispers ersetzt es durch deinen gespeicherten Text – Links, Intros, Grußformeln, Prompts.",
+      "new": "Neues Snippet",
+      "examples": {
+        "linkedinTrigger": "Mein LinkedIn",
+        "linkedinText": "linkedin.com/in/du",
+        "signoffTrigger": "Grußformel",
+        "signoffText": "Viele Grüße, Alex · alex@example.com"
+      },
+      "addPlaceholder": "Auslöser-Phrase hinzufügen – „mein Kalender“, „mein LinkedIn“"
+    }
   },
   "appSetup": {
     "title": "Only Whispers einrichten",
@@ -1157,7 +1181,9 @@
     "commandMenu": {
       "stopListening": "Aufnahme beenden",
       "startListening": "Aufnahme starten",
-      "hideForNow": "Vorerst ausblenden"
+      "hideForNow": "Vorerst ausblenden",
+      "askAssistant": "Assistent fragen",
+      "busyRecording": "Beende zuerst die laufende Aufnahme"
     }
   },
   "dictationAgent": {
@@ -1407,5 +1433,64 @@
     "clear": "Leeren",
     "empty": "Keine Warnungen oder Fehler.",
     "details": "Details"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "Kopiert",
+      "copy": "Kopieren",
+      "reset": "Zurücksetzen",
+      "save": "Speichern"
+    },
+    "defaultTestInput": "Hey Whispr, wie ist das Wetter heute?",
+    "dialogs": {
+      "reset": {
+        "description": "Der Prompt wurde auf den Standardwert zurückgesetzt.",
+        "title": "Zurücksetzen abgeschlossen"
+      },
+      "saved": {
+        "description": "Ihr benutzerdefinierter Prompt wird für alle zukünftigen KI-Verarbeitungen verwendet.",
+        "title": "Prompt gespeichert"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "Assistent-Name:",
+      "cautionLabel": "Vorsicht",
+      "cautionTextPrefix": "Änderungen an diesem Prompt können die Transkriptionsqualität beeinträchtigen.",
+      "cautionTextSuffix": "Behalten Sie den Platzhalter {{agentName}} bei, um die Assistent-Erkennung zu gewährleisten.",
+      "placeholder": "Geben Sie Ihren benutzerdefinierten System-Prompt ein..."
+    },
+    "tabs": {
+      "customize": "Anpassen",
+      "test": "Testen",
+      "view": "Ansicht"
+    },
+    "test": {
+      "addressHint": "Versuchen Sie, '{{agentName}}' anzusprechen, um den Anweisungsmodus zu testen",
+      "aiModels": "KI-Modelle",
+      "baseUrlMissing": "{{provider}} Basis-URL fehlt. Fügen Sie sie in den KI-Modelle-Einstellungen hinzu.",
+      "cleanup": "Textbereinigung",
+      "disabledInSettingsPrefix": "KI-Textverbesserung ist deaktiviert.",
+      "disabledInSettingsSuffix": "Aktivieren Sie sie unter KI-Modelle, um Prompts zu testen.",
+      "disabledReasoning": "KI-Textverbesserung ist deaktiviert. Aktivieren Sie sie unter KI-Modelle, um Prompts zu testen.",
+      "failed": "Test fehlgeschlagen: {{error}}",
+      "inputLabel": "Eingabe",
+      "inputPlaceholder": "Text zum Testen eingeben...",
+      "instruction": "Anweisung",
+      "modelLabel": "Modell",
+      "noModelSelected": "Kein Modell ausgewählt",
+      "none": "Keine",
+      "outputLabel": "Ausgabe",
+      "processing": "Verarbeitung...",
+      "providerLabel": "Anbieter",
+      "run": "Test ausführen",
+      "customEndpoint": "Benutzerdefinierter Endpoint",
+      "apiKeyMissing": "{{provider}} API-Schlüssel nicht konfiguriert. Fügen Sie ihn in den KI-Modelle-Einstellungen hinzu.",
+      "agentDisabled": "Aktiviere den Sprachassistenten, um diesen Prompt zu testen"
+    },
+    "view": {
+      "customPrompt": "Benutzerdefinierter Prompt",
+      "defaultPrompt": "Standard-Prompt",
+      "modified": "Geändert"
+    }
   }
 }

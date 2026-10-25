@@ -1088,7 +1088,31 @@
     "noMatches": "No matches — press Enter to add \"{{word}}\"",
     "emptyTitle": "Add words to your dictionary",
     "emptyDescription": "Add words Only Whispers should always get right: names, tools, acronyms.",
-    "addFirstWord": "Add your first word"
+    "addFirstWord": "Add your first word",
+    "snippets": {
+      "title": "Snippets",
+      "edit": "Edit {{trigger}}",
+      "remove": "Remove {{trigger}}",
+      "editTitle": "Edit snippet",
+      "dialogDescription": "When you speak the trigger, it's replaced with your saved text.",
+      "triggerLabel": "Trigger",
+      "triggerPlaceholder": "e.g. cal link",
+      "replacementLabel": "Replacement",
+      "replacementPlaceholder": "Text to insert when you say the trigger…",
+      "create": "Create snippet",
+      "duplicate": "A snippet with this trigger already exists",
+      "emptyTitle": "Stuff you shouldn't have to say",
+      "emptyTitleAccent": "twice",
+      "emptyDescription": "Speak a trigger word and only-whispers replaces it with whatever you saved — URLs, intros, sign-offs, prompts.",
+      "new": "New snippet",
+      "examples": {
+        "linkedinTrigger": "My LinkedIn",
+        "linkedinText": "linkedin.com/in/you",
+        "signoffTrigger": "Sign off",
+        "signoffText": "Best, Alex · alex@example.com"
+      },
+      "addPlaceholder": "Add a trigger phrase — \"investor ask\", \"cal link\""
+    }
   },
   "appSetup": {
     "title": "Set up Only Whispers",
@@ -1157,7 +1181,9 @@
     "commandMenu": {
       "stopListening": "Stop listening",
       "startListening": "Start listening",
-      "hideForNow": "Hide for now"
+      "hideForNow": "Hide for now",
+      "askAssistant": "Ask assistant",
+      "busyRecording": "Finish the current dictation first"
     }
   },
   "dictationAgent": {
@@ -1407,5 +1433,64 @@
     "clear": "Clear",
     "empty": "No warnings or errors.",
     "details": "Details"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "Copied",
+      "copy": "Copy",
+      "reset": "Reset",
+      "save": "Save"
+    },
+    "defaultTestInput": "Hey Whispr, what's the weather like today?",
+    "dialogs": {
+      "reset": {
+        "description": "Prompt has been reset to the default value.",
+        "title": "Reset Complete"
+      },
+      "saved": {
+        "description": "Your custom prompt will be used for all future AI processing.",
+        "title": "Prompt Saved"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "Assistant name:",
+      "cautionLabel": "Caution",
+      "cautionTextPrefix": "Modifying this prompt may affect transcription quality.",
+      "cautionTextSuffix": "Keep the {{agentName}} placeholder to preserve assistant detection.",
+      "placeholder": "Enter your custom system prompt..."
+    },
+    "tabs": {
+      "customize": "Customize",
+      "test": "Test",
+      "view": "View"
+    },
+    "test": {
+      "addressHint": "Try addressing \"{{agentName}}\" to test instruction mode",
+      "aiModels": "AI Models",
+      "baseUrlMissing": "{{provider}} base URL missing. Add it in AI Models settings.",
+      "cleanup": "Cleanup",
+      "disabledInSettingsPrefix": "AI text enhancement is disabled.",
+      "disabledInSettingsSuffix": "Enable it in AI Models to test prompts.",
+      "disabledReasoning": "AI text enhancement is disabled. Enable it in AI Models to test prompts.",
+      "failed": "Test failed: {{error}}",
+      "inputLabel": "Input",
+      "inputPlaceholder": "Enter text to test...",
+      "instruction": "Instruction",
+      "modelLabel": "Model",
+      "noModelSelected": "No model selected",
+      "none": "None",
+      "outputLabel": "Output",
+      "processing": "Processing...",
+      "providerLabel": "Provider",
+      "run": "Run Test",
+      "customEndpoint": "Custom endpoint",
+      "apiKeyMissing": "{{provider}} API key not configured. Add it in AI Models settings.",
+      "agentDisabled": "Enable the voice assistant to test this prompt"
+    },
+    "view": {
+      "customPrompt": "Custom prompt",
+      "defaultPrompt": "Default prompt",
+      "modified": "Modified"
+    }
   }
 }

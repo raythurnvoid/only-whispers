@@ -1080,7 +1080,31 @@
     "noMatches": "無相符項目 — 按 Enter 新增「{{word}}」",
     "emptyTitle": "將詞語加入字典",
     "emptyDescription": "新增希望 Only Whispers 始終辨識正確的詞：名字、工具、縮寫。",
-    "addFirstWord": "新增第一個詞"
+    "addFirstWord": "新增第一個詞",
+    "snippets": {
+      "title": "片段",
+      "edit": "編輯 {{trigger}}",
+      "remove": "刪除 {{trigger}}",
+      "editTitle": "編輯片段",
+      "dialogDescription": "當你說出觸發詞時，它會被替換為你儲存的文字。",
+      "triggerLabel": "觸發詞",
+      "triggerPlaceholder": "例如：我的行事曆連結",
+      "replacementLabel": "替換文字",
+      "replacementPlaceholder": "說出觸發詞時插入的文字…",
+      "create": "建立片段",
+      "duplicate": "已存在使用此觸發詞的片段",
+      "emptyTitle": "同樣的話，只說",
+      "emptyTitleAccent": "一遍",
+      "emptyDescription": "說出觸發詞，only-whispers 會把它替換為你儲存的內容：連結、開場白、簽名、提示詞。",
+      "new": "建立片段",
+      "examples": {
+        "linkedinTrigger": "我的 LinkedIn",
+        "linkedinText": "linkedin.com/in/you",
+        "signoffTrigger": "簽名",
+        "signoffText": "祝好，Alex · alex@example.com"
+      },
+      "addPlaceholder": "新增觸發詞——「我的行事曆連結」「簽名」"
+    }
   },
   "sidebar": {
     "home": "首頁",
@@ -1157,7 +1181,9 @@
     "commandMenu": {
       "stopListening": "停止錄音",
       "startListening": "開始錄音",
-      "hideForNow": "暫時隱藏"
+      "hideForNow": "暫時隱藏",
+      "askAssistant": "詢問助理",
+      "busyRecording": "請先結束目前的錄音"
     }
   },
   "dictationAgent": {
@@ -1407,5 +1433,64 @@
     "clear": "清除",
     "empty": "沒有警告或錯誤。",
     "details": "詳細資料"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "已複製",
+      "copy": "複製",
+      "reset": "重設",
+      "save": "儲存"
+    },
+    "defaultTestInput": "嘿 Whispr，今天天氣怎麼樣？",
+    "dialogs": {
+      "reset": {
+        "description": "提示詞已重設為預設值。",
+        "title": "重設完成"
+      },
+      "saved": {
+        "description": "你的自訂提示詞將用於所有後續的 AI 處理。",
+        "title": "提示詞已儲存"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "助理名稱：",
+      "cautionLabel": "注意",
+      "cautionTextPrefix": "修改此提示詞可能影響轉錄品質。",
+      "cautionTextSuffix": "請保留 {{agentName}} 佔位符以維持助理偵測功能。",
+      "placeholder": "輸入你的自訂系統提示詞..."
+    },
+    "tabs": {
+      "customize": "自訂",
+      "test": "測試",
+      "view": "檢視"
+    },
+    "test": {
+      "addressHint": "試試對「{{agentName}}」說話以測試指令模式",
+      "aiModels": "AI 模型",
+      "baseUrlMissing": "缺少 {{provider}} 的 URL。請在 AI 模型設定中新增。",
+      "cleanup": "文字整理",
+      "disabledInSettingsPrefix": "AI 文字增強已停用。",
+      "disabledInSettingsSuffix": "請在 AI 模型中啟用以測試提示詞。",
+      "disabledReasoning": "AI 文字增強已停用。請在 AI 模型中啟用以測試提示詞。",
+      "failed": "測試失敗：{{error}}",
+      "inputLabel": "輸入",
+      "inputPlaceholder": "輸入文字進行測試...",
+      "instruction": "指令",
+      "modelLabel": "模型",
+      "noModelSelected": "未選擇模型",
+      "none": "無",
+      "outputLabel": "輸出",
+      "processing": "處理中...",
+      "providerLabel": "供應商",
+      "run": "執行測試",
+      "customEndpoint": "自訂端點",
+      "apiKeyMissing": "未設定 {{provider}} API 金鑰。請在 AI 模型設定中新增。",
+      "agentDisabled": "啟用語音助理以測試此提示詞"
+    },
+    "view": {
+      "customPrompt": "自訂提示詞",
+      "defaultPrompt": "預設提示詞",
+      "modified": "已修改"
+    }
   }
 }

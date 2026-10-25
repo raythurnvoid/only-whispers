@@ -1080,7 +1080,31 @@
     "noMatches": "Sin coincidencias — pulsa Enter para añadir \"{{word}}\"",
     "emptyTitle": "Añade palabras a tu diccionario",
     "emptyDescription": "Añade palabras que Only Whispers siempre debe reconocer: nombres, herramientas, siglas.",
-    "addFirstWord": "Añade tu primera palabra"
+    "addFirstWord": "Añade tu primera palabra",
+    "snippets": {
+      "title": "Snippets",
+      "edit": "Editar {{trigger}}",
+      "remove": "Eliminar {{trigger}}",
+      "editTitle": "Editar snippet",
+      "dialogDescription": "Cuando digas el disparador, se reemplazará por tu texto guardado.",
+      "triggerLabel": "Disparador",
+      "triggerPlaceholder": "p. ej. mi agenda",
+      "replacementLabel": "Reemplazo",
+      "replacementPlaceholder": "Texto que se insertará al decir el disparador…",
+      "create": "Crear snippet",
+      "duplicate": "Ya existe un snippet con este disparador",
+      "emptyTitle": "Lo que no deberías tener que decir",
+      "emptyTitleAccent": "dos veces",
+      "emptyDescription": "Di una palabra disparadora y only-whispers la reemplaza por lo que guardaste: URLs, presentaciones, despedidas, prompts.",
+      "new": "Nuevo snippet",
+      "examples": {
+        "linkedinTrigger": "Mi LinkedIn",
+        "linkedinText": "linkedin.com/in/tu",
+        "signoffTrigger": "Despedida",
+        "signoffText": "Saludos, Alex · alex@example.com"
+      },
+      "addPlaceholder": "Añade una frase disparadora: \"mi agenda\", \"mi LinkedIn\""
+    }
   },
   "sidebar": {
     "home": "Inicio",
@@ -1157,7 +1181,9 @@
     "commandMenu": {
       "stopListening": "Dejar de escuchar",
       "startListening": "Empezar a escuchar",
-      "hideForNow": "Ocultar por ahora"
+      "hideForNow": "Ocultar por ahora",
+      "askAssistant": "Preguntar al asistente",
+      "busyRecording": "Primero termina la grabación actual"
     }
   },
   "dictationAgent": {
@@ -1407,5 +1433,64 @@
     "clear": "Borrar",
     "empty": "No hay avisos ni errores.",
     "details": "Detalles"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "reset": "Restablecer",
+      "save": "Guardar"
+    },
+    "defaultTestInput": "Hola Whispr, ¿cómo está el clima hoy?",
+    "dialogs": {
+      "reset": {
+        "description": "El prompt ha sido restablecido al valor predeterminado.",
+        "title": "Restablecimiento completado"
+      },
+      "saved": {
+        "description": "Tu prompt personalizado se usará en todo el procesamiento de IA futuro.",
+        "title": "Prompt guardado"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "Nombre del asistente:",
+      "cautionLabel": "Precaución",
+      "cautionTextPrefix": "Modificar este prompt puede afectar la calidad de transcripción.",
+      "cautionTextSuffix": "Mantén el marcador {{agentName}} para preservar la detección del asistente.",
+      "placeholder": "Introduce tu prompt de sistema personalizado..."
+    },
+    "tabs": {
+      "customize": "Personalizar",
+      "test": "Probar",
+      "view": "Ver"
+    },
+    "test": {
+      "addressHint": "Intenta dirigirte a \"{{agentName}}\" para probar el modo de instrucción",
+      "aiModels": "Modelos de IA",
+      "baseUrlMissing": "Falta la URL base de {{provider}}. Agrégala en la configuración de Modelos de IA.",
+      "cleanup": "Corrección",
+      "disabledInSettingsPrefix": "La mejora de texto con IA está desactivada.",
+      "disabledInSettingsSuffix": "Actívala en Modelos de IA para probar prompts.",
+      "disabledReasoning": "La mejora de texto con IA está desactivada. Actívala en Modelos de IA para probar prompts.",
+      "failed": "Prueba fallida: {{error}}",
+      "inputLabel": "Entrada",
+      "inputPlaceholder": "Introduce texto para probar...",
+      "instruction": "Instrucción",
+      "modelLabel": "Modelo",
+      "noModelSelected": "Ningún modelo seleccionado",
+      "none": "Ninguno",
+      "outputLabel": "Salida",
+      "processing": "Procesando...",
+      "providerLabel": "Proveedor",
+      "run": "Ejecutar prueba",
+      "customEndpoint": "Endpoint personalizado",
+      "apiKeyMissing": "La clave API de {{provider}} no está configurada. Agrégala en la configuración de Modelos de IA.",
+      "agentDisabled": "Activa el asistente de voz para probar este prompt"
+    },
+    "view": {
+      "customPrompt": "Prompt personalizado",
+      "defaultPrompt": "Prompt predeterminado",
+      "modified": "Modificado"
+    }
   }
 }

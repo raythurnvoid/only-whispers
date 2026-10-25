@@ -1082,7 +1082,31 @@
     "noMatches": "Совпадений нет — нажмите Enter, чтобы добавить «{{word}}»",
     "emptyTitle": "Добавьте слова в словарь",
     "emptyDescription": "Добавьте слова, которые Only Whispers всегда должен распознавать: имена, инструменты, аббревиатуры.",
-    "addFirstWord": "Добавьте первое слово"
+    "addFirstWord": "Добавьте первое слово",
+    "snippets": {
+      "title": "Сниппеты",
+      "edit": "Изменить {{trigger}}",
+      "remove": "Удалить {{trigger}}",
+      "editTitle": "Изменить сниппет",
+      "dialogDescription": "Когда вы произносите триггер, он заменяется сохранённым текстом.",
+      "triggerLabel": "Триггер",
+      "triggerPlaceholder": "например, мой календарь",
+      "replacementLabel": "Замена",
+      "replacementPlaceholder": "Текст, который будет вставлен при произнесении триггера…",
+      "create": "Создать сниппет",
+      "duplicate": "Сниппет с таким триггером уже существует",
+      "emptyTitle": "То, что не нужно повторять",
+      "emptyTitleAccent": "дважды",
+      "emptyDescription": "Произнесите слово-триггер, и only-whispers заменит его сохранённым текстом: ссылки, приветствия, подписи, промпты.",
+      "new": "Новый сниппет",
+      "examples": {
+        "linkedinTrigger": "Мой LinkedIn",
+        "linkedinText": "linkedin.com/in/you",
+        "signoffTrigger": "Подпись",
+        "signoffText": "С уважением, Алекс · alex@example.com"
+      },
+      "addPlaceholder": "Добавьте фразу-триггер — «мой календарь», «мой LinkedIn»"
+    }
   },
   "sidebar": {
     "home": "Главная",
@@ -1159,7 +1183,9 @@
     "commandMenu": {
       "stopListening": "Остановить запись",
       "startListening": "Начать запись",
-      "hideForNow": "Скрыть"
+      "hideForNow": "Скрыть",
+      "askAssistant": "Спросить помощника",
+      "busyRecording": "Сначала завершите текущую запись"
     }
   },
   "dictationAgent": {
@@ -1409,5 +1435,64 @@
     "clear": "Очистить",
     "empty": "Нет предупреждений и ошибок.",
     "details": "Подробности"
+  },
+  "promptStudio": {
+    "common": {
+      "copied": "Скопировано",
+      "copy": "Копировать",
+      "reset": "Сбросить",
+      "save": "Сохранить"
+    },
+    "defaultTestInput": "Привет, Whispr, какая сегодня погода?",
+    "dialogs": {
+      "reset": {
+        "description": "Промпт сброшен до значения по умолчанию.",
+        "title": "Сброс завершён"
+      },
+      "saved": {
+        "description": "Ваш пользовательский промпт будет использоваться для всей последующей обработки ИИ.",
+        "title": "Промпт сохранён"
+      }
+    },
+    "edit": {
+      "agentNameLabel": "Имя помощника:",
+      "cautionLabel": "Внимание",
+      "cautionTextPrefix": "Изменение этого промпта может повлиять на качество транскрипции.",
+      "cautionTextSuffix": "Сохраняйте заполнитель {{agentName}}, чтобы обнаружение помощника работало корректно.",
+      "placeholder": "Введите пользовательский системный промпт..."
+    },
+    "tabs": {
+      "customize": "Настроить",
+      "test": "Тест",
+      "view": "Просмотр"
+    },
+    "test": {
+      "addressHint": "Попробуйте обратиться к «{{agentName}}» для проверки режима инструкций",
+      "aiModels": "ИИ-модели",
+      "baseUrlMissing": "Базовый URL для {{provider}} не указан. Добавьте его в настройках ИИ-моделей.",
+      "cleanup": "Очистка",
+      "disabledInSettingsPrefix": "ИИ-улучшение текста отключено.",
+      "disabledInSettingsSuffix": "Включите его в ИИ-моделях для тестирования промптов.",
+      "disabledReasoning": "ИИ-улучшение текста отключено. Включите его в ИИ-моделях для тестирования промптов.",
+      "failed": "Тест не пройден: {{error}}",
+      "inputLabel": "Ввод",
+      "inputPlaceholder": "Введите текст для тестирования...",
+      "instruction": "Инструкция",
+      "modelLabel": "Модель",
+      "noModelSelected": "Модель не выбрана",
+      "none": "Нет",
+      "outputLabel": "Результат",
+      "processing": "Обработка...",
+      "providerLabel": "Провайдер",
+      "run": "Запустить тест",
+      "customEndpoint": "Пользовательская конечная точка",
+      "apiKeyMissing": "API-ключ {{provider}} не настроен. Добавьте его в настройках ИИ-моделей.",
+      "agentDisabled": "Включите голосового помощника, чтобы протестировать этот промпт"
+    },
+    "view": {
+      "customPrompt": "Пользовательский промпт",
+      "defaultPrompt": "Промпт по умолчанию",
+      "modified": "Изменён"
+    }
   }
 }
