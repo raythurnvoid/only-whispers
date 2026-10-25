@@ -329,7 +329,6 @@ Offline semantic search that finds notes by meaning, not just keywords. Used by 
 - **download-sherpa-onnx.js**: Downloads sherpa-onnx binaries for Parakeet support
 - **download-qdrant.js**: Downloads Qdrant vector DB binary for local semantic search
 - **download-minilm.js**: Downloads all-MiniLM-L6-v2 ONNX model + tokenizer for local embeddings
-- **download-brand-fonts.js**: Fetches the licensed Yowza font files from the private `OpenWhispr/brand-assets` release into the git-ignored `src/assets/fonts/yowza/`. Runs in `predev:main` and every `prebuild*` chain; skips (Noto Sans fallback) without repo access, fails only when `BRAND_FONTS_REQUIRED=1` (release CI)
 - **sync-nucleo-icons.js**: Regenerates `src/components/icons/` from `nucleo-map.json` using the local Nucleo install (`~/.nucleo/skills`); only the icons the app uses are vendored
 - **build-globe-listener.js**: Compiles macOS Globe key listener from Swift source
 - **build-macos-mic-listener.js**: Compiles macOS mic listener from Swift source
@@ -848,7 +847,7 @@ Raster UI assets live in `src/assets/` (onboarding ones are named `onboarding-*`
 
 UI icons come from `src/components/icons/` (vendored Nucleo core outline components behind lucide-style names, e.g. `import { Check, Loader2 } from "../icons"`). To add one, map a name to a Nucleo label in `src/components/icons/nucleo-map.json` and run `node scripts/sync-nucleo-icons.js`; never import from `lucide-react` or a machine-local Nucleo path. Icons outside that set — the status marks, the note toolbar's formatting glyphs, the note chat's rounded copy and "/" glyphs, and the design's action icons (`ListEnd`, `FolderRounded`) — are drawn by hand in `src/components/icons/primitives.tsx`, which the generated `index.ts` re-exports.
 
-**Typography**: `--font-family-sans` is Yowza (brand, Latin only) falling back to the bundled Noto Sans; `--font-family-display` is Yowza Soft for headings. The font files are licensed and never committed — `src/brandFonts.ts` registers whatever `scripts/download-brand-fonts.js` fetched at build time, and a build without them silently uses Noto Sans.
+**Typography**: `--font-family-sans` is the bundled Noto Sans; `--font-family-display` uses the same stack.
 
 **Rules**:
 

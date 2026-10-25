@@ -98,8 +98,7 @@
     ".env",
     {
       "from": "src/assets",
-      "to": "src/assets",
-      "filter": ["**/*", "!fonts/yowza/**"]
+      "to": "src/assets"
     },
     {
       "from": "resources/bin/",
