@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "API-ключ",
         "apiKeyPlaceholder": "Вставьте свой API-ключ",
-        "testing": "Проверка…",
-        "connected": "Подключено",
         "connectionFailed": "Не удалось проверить подключение.",
         "unverified": "Не удалось проверить: {{reason}}",
         "errors": {
@@ -683,65 +681,6 @@
     "xwaylandAppsOnly": "автоматическая вставка работает только для приложений XWayland",
     "wlClipboardTitle": "Установите wl-clipboard, чтобы вставлять текст в приложения Wayland",
     "wlClipboardDescription": "На этом рабочем столе приложения Wayland читают текст, скопированный only-whispers, только через wl-copy. Чтобы вставлять в них диктовку, установите wl-clipboard:"
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "Скопировано",
-      "copy": "Копировать",
-      "reset": "Сбросить",
-      "save": "Сохранить"
-    },
-    "defaultTestInput": "Привет, Whispr, какая сегодня погода?",
-    "dialogs": {
-      "reset": {
-        "description": "Промпт сброшен до значения по умолчанию.",
-        "title": "Сброс завершён"
-      },
-      "saved": {
-        "description": "Ваш пользовательский промпт будет использоваться для всей последующей обработки ИИ.",
-        "title": "Промпт сохранён"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "Имя помощника:",
-      "cautionLabel": "Внимание",
-      "cautionTextPrefix": "Изменение этого промпта может повлиять на качество транскрипции.",
-      "cautionTextSuffix": "Сохраняйте заполнитель {{agentName}}, чтобы обнаружение помощника работало корректно.",
-      "placeholder": "Введите пользовательский системный промпт..."
-    },
-    "tabs": {
-      "customize": "Настроить",
-      "test": "Тест",
-      "view": "Просмотр"
-    },
-    "test": {
-      "addressHint": "Попробуйте обратиться к «{{agentName}}» для проверки режима инструкций",
-      "aiModels": "ИИ-модели",
-      "baseUrlMissing": "Базовый URL для {{provider}} не указан. Добавьте его в настройках ИИ-моделей.",
-      "cleanup": "Очистка",
-      "disabledInSettingsPrefix": "ИИ-улучшение текста отключено.",
-      "disabledInSettingsSuffix": "Включите его в ИИ-моделях для тестирования промптов.",
-      "disabledReasoning": "ИИ-улучшение текста отключено. Включите его в ИИ-моделях для тестирования промптов.",
-      "failed": "Тест не пройден: {{error}}",
-      "inputLabel": "Ввод",
-      "inputPlaceholder": "Введите текст для тестирования...",
-      "instruction": "Инструкция",
-      "modelLabel": "Модель",
-      "noModelSelected": "Модель не выбрана",
-      "none": "Нет",
-      "outputLabel": "Результат",
-      "processing": "Обработка...",
-      "providerLabel": "Провайдер",
-      "run": "Запустить тест",
-      "customEndpoint": "Пользовательская конечная точка",
-      "apiKeyMissing": "API-ключ {{provider}} не настроен. Добавьте его в настройках ИИ-моделей.",
-      "agentDisabled": "Включите голосового помощника, чтобы протестировать этот промпт"
-    },
-    "view": {
-      "customPrompt": "Пользовательский промпт",
-      "defaultPrompt": "Промпт по умолчанию",
-      "modified": "Изменён"
-    }
   },
   "settingsModal": {
     "sections": {

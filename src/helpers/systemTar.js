@@ -117,6 +117,5 @@ function runSystemTar(
 }
 
 module.exports = {
-  resolveSystemTarExecutable,
   runSystemTar,
 };

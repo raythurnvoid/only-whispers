@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "Chiave API",
         "apiKeyPlaceholder": "Incolla la tua chiave API",
-        "testing": "Test in corso…",
-        "connected": "Connesso",
         "connectionFailed": "Non è stato possibile verificare la connessione.",
         "unverified": "Impossibile verificare: {{reason}}",
         "errors": {
@@ -683,65 +681,6 @@
     "xwaylandAppsOnly": "l'incollaggio automatico funziona solo per le app XWayland",
     "wlClipboardTitle": "Installa wl-clipboard per incollare nelle app Wayland",
     "wlClipboardDescription": "Su questo desktop, le app Wayland possono leggere il testo copiato da only-whispers solo tramite wl-copy. Per incollarvi la dettatura, installa wl-clipboard:"
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "Copiato",
-      "copy": "Copia",
-      "reset": "Reimposta",
-      "save": "Salva"
-    },
-    "defaultTestInput": "Ehi Whispr, che tempo fa oggi?",
-    "dialogs": {
-      "reset": {
-        "description": "Il prompt è stato reimpostato al valore predefinito.",
-        "title": "Reimpostazione completata"
-      },
-      "saved": {
-        "description": "Il tuo prompt personalizzato verrà usato per tutta l'elaborazione IA futura.",
-        "title": "Prompt salvato"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "Nome dell'assistente:",
-      "cautionLabel": "Attenzione",
-      "cautionTextPrefix": "La modifica di questo prompt potrebbe influire sulla qualità della trascrizione.",
-      "cautionTextSuffix": "Mantieni il segnaposto {{agentName}} per preservare il rilevamento dell'assistente.",
-      "placeholder": "Inserisci il tuo prompt di sistema personalizzato..."
-    },
-    "tabs": {
-      "customize": "Personalizza",
-      "test": "Test",
-      "view": "Visualizza"
-    },
-    "test": {
-      "addressHint": "Prova a rivolgerti a \"{{agentName}}\" per testare la modalità istruzione",
-      "aiModels": "Modelli IA",
-      "baseUrlMissing": "URL base di {{provider}} mancante. Aggiungilo nelle impostazioni Modelli IA.",
-      "cleanup": "Correzione",
-      "disabledInSettingsPrefix": "Il miglioramento testo con IA è disattivato.",
-      "disabledInSettingsSuffix": "Attivalo in Modelli IA per testare i prompt.",
-      "disabledReasoning": "Il miglioramento testo con IA è disattivato. Attivalo in Modelli IA per testare i prompt.",
-      "failed": "Test fallito: {{error}}",
-      "inputLabel": "Input",
-      "inputPlaceholder": "Inserisci il testo da testare...",
-      "instruction": "Istruzione",
-      "modelLabel": "Modello",
-      "noModelSelected": "Nessun modello selezionato",
-      "none": "Nessuno",
-      "outputLabel": "Output",
-      "processing": "Elaborazione...",
-      "providerLabel": "Provider",
-      "run": "Esegui test",
-      "customEndpoint": "Endpoint personalizzato",
-      "apiKeyMissing": "Chiave API di {{provider}} non configurata. Aggiungila nelle impostazioni Modelli IA.",
-      "agentDisabled": "Abilita l'assistente vocale per testare questo prompt"
-    },
-    "view": {
-      "customPrompt": "Prompt personalizzato",
-      "defaultPrompt": "Prompt predefinito",
-      "modified": "Modificato"
-    }
   },
   "settingsModal": {
     "sections": {

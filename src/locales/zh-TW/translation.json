@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "API 金鑰",
         "apiKeyPlaceholder": "貼上你的 API Key",
-        "testing": "測試中…",
-        "connected": "已連接",
         "connectionFailed": "無法驗證這個連線。",
         "unverified": "無法驗證：{{reason}}",
         "errors": {
@@ -683,65 +681,6 @@
     "xwaylandAppsOnly": "自動貼上僅適用於 XWayland 應用程式",
     "wlClipboardTitle": "安裝 wl-clipboard 以貼上到 Wayland 應用程式",
     "wlClipboardDescription": "在此桌面上，Wayland 應用程式只能透過 wl-copy 讀取 only-whispers 複製的文字。若要將聽寫內容貼上到這些應用程式，請安裝 wl-clipboard："
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "已複製",
-      "copy": "複製",
-      "reset": "重設",
-      "save": "儲存"
-    },
-    "defaultTestInput": "嘿 Whispr，今天天氣怎麼樣？",
-    "dialogs": {
-      "reset": {
-        "description": "提示詞已重設為預設值。",
-        "title": "重設完成"
-      },
-      "saved": {
-        "description": "你的自訂提示詞將用於所有後續的 AI 處理。",
-        "title": "提示詞已儲存"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "助理名稱：",
-      "cautionLabel": "注意",
-      "cautionTextPrefix": "修改此提示詞可能影響轉錄品質。",
-      "cautionTextSuffix": "請保留 {{agentName}} 佔位符以維持助理偵測功能。",
-      "placeholder": "輸入你的自訂系統提示詞..."
-    },
-    "tabs": {
-      "customize": "自訂",
-      "test": "測試",
-      "view": "檢視"
-    },
-    "test": {
-      "addressHint": "試試對「{{agentName}}」說話以測試指令模式",
-      "aiModels": "AI 模型",
-      "baseUrlMissing": "缺少 {{provider}} 的 URL。請在 AI 模型設定中新增。",
-      "cleanup": "文字整理",
-      "disabledInSettingsPrefix": "AI 文字增強已停用。",
-      "disabledInSettingsSuffix": "請在 AI 模型中啟用以測試提示詞。",
-      "disabledReasoning": "AI 文字增強已停用。請在 AI 模型中啟用以測試提示詞。",
-      "failed": "測試失敗：{{error}}",
-      "inputLabel": "輸入",
-      "inputPlaceholder": "輸入文字進行測試...",
-      "instruction": "指令",
-      "modelLabel": "模型",
-      "noModelSelected": "未選擇模型",
-      "none": "無",
-      "outputLabel": "輸出",
-      "processing": "處理中...",
-      "providerLabel": "供應商",
-      "run": "執行測試",
-      "customEndpoint": "自訂端點",
-      "apiKeyMissing": "未設定 {{provider}} API 金鑰。請在 AI 模型設定中新增。",
-      "agentDisabled": "啟用語音助理以測試此提示詞"
-    },
-    "view": {
-      "customPrompt": "自訂提示詞",
-      "defaultPrompt": "預設提示詞",
-      "modified": "已修改"
-    }
   },
   "settingsModal": {
     "sections": {

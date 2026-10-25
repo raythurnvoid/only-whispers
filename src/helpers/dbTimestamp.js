@@ -9,10 +9,6 @@
 
 const EXPLICIT_TIME_ZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
 
-function hasExplicitTimeZone(value) {
-  return typeof value === "string" && EXPLICIT_TIME_ZONE.test(value.trim());
-}
-
 /** Returns null for anything unreadable, so callers can fall back explicitly. */
 function parseDbTimestamp(value) {
   if (typeof value !== "string") return null;
@@ -38,4 +34,4 @@ function toDbTimestamp(value) {
   return parseDbTimestamp(value)?.toISOString().replace("T", " ") ?? null;
 }
 
-module.exports = { hasExplicitTimeZone, parseDbTimestamp, toDbTimestamp };
+module.exports = { parseDbTimestamp, toDbTimestamp };

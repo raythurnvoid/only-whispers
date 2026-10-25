@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "Clave API",
         "apiKeyPlaceholder": "Pega tu clave API",
-        "testing": "Probando…",
-        "connected": "Conectado",
         "connectionFailed": "No se pudo verificar la conexión.",
         "unverified": "No se pudo verificar: {{reason}}",
         "errors": {
@@ -683,65 +681,6 @@
     "xwaylandAppsOnly": "el pegado automático funciona solo en apps XWayland",
     "wlClipboardTitle": "Instala wl-clipboard para pegar en apps de Wayland",
     "wlClipboardDescription": "En este escritorio, las apps de Wayland solo pueden leer el texto que only-whispers copia a través de wl-copy. Para pegar el dictado en ellas, instala wl-clipboard:"
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "Copiado",
-      "copy": "Copiar",
-      "reset": "Restablecer",
-      "save": "Guardar"
-    },
-    "defaultTestInput": "Hola Whispr, ¿cómo está el clima hoy?",
-    "dialogs": {
-      "reset": {
-        "description": "El prompt ha sido restablecido al valor predeterminado.",
-        "title": "Restablecimiento completado"
-      },
-      "saved": {
-        "description": "Tu prompt personalizado se usará en todo el procesamiento de IA futuro.",
-        "title": "Prompt guardado"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "Nombre del asistente:",
-      "cautionLabel": "Precaución",
-      "cautionTextPrefix": "Modificar este prompt puede afectar la calidad de transcripción.",
-      "cautionTextSuffix": "Mantén el marcador {{agentName}} para preservar la detección del asistente.",
-      "placeholder": "Introduce tu prompt de sistema personalizado..."
-    },
-    "tabs": {
-      "customize": "Personalizar",
-      "test": "Probar",
-      "view": "Ver"
-    },
-    "test": {
-      "addressHint": "Intenta dirigirte a \"{{agentName}}\" para probar el modo de instrucción",
-      "aiModels": "Modelos de IA",
-      "baseUrlMissing": "Falta la URL base de {{provider}}. Agrégala en la configuración de Modelos de IA.",
-      "cleanup": "Corrección",
-      "disabledInSettingsPrefix": "La mejora de texto con IA está desactivada.",
-      "disabledInSettingsSuffix": "Actívala en Modelos de IA para probar prompts.",
-      "disabledReasoning": "La mejora de texto con IA está desactivada. Actívala en Modelos de IA para probar prompts.",
-      "failed": "Prueba fallida: {{error}}",
-      "inputLabel": "Entrada",
-      "inputPlaceholder": "Introduce texto para probar...",
-      "instruction": "Instrucción",
-      "modelLabel": "Modelo",
-      "noModelSelected": "Ningún modelo seleccionado",
-      "none": "Ninguno",
-      "outputLabel": "Salida",
-      "processing": "Procesando...",
-      "providerLabel": "Proveedor",
-      "run": "Ejecutar prueba",
-      "customEndpoint": "Endpoint personalizado",
-      "apiKeyMissing": "La clave API de {{provider}} no está configurada. Agrégala en la configuración de Modelos de IA.",
-      "agentDisabled": "Activa el asistente de voz para probar este prompt"
-    },
-    "view": {
-      "customPrompt": "Prompt personalizado",
-      "defaultPrompt": "Prompt predeterminado",
-      "modified": "Modificado"
-    }
   },
   "settingsModal": {
     "sections": {

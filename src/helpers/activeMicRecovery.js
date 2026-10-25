@@ -5,7 +5,7 @@ const DEFAULT_RETRY_MS = 2000;
 const deviceKey = (device) =>
   [device?.deviceId || "", device?.groupId || "", device?.label || ""].join("\u0000");
 
-export const describeAudioInputs = (devices = []) => {
+const describeAudioInputs = (devices = []) => {
   const inputs = devices.filter((device) => device.kind === "audioinput");
   return {
     defaultKey: inputs.length > 0 ? deviceKey(inputs[0]) : "",
@@ -15,7 +15,7 @@ export const describeAudioInputs = (devices = []) => {
   };
 };
 
-export const activeTrackIsAvailable = (track, inputs) => {
+const activeTrackIsAvailable = (track, inputs) => {
   if (!track || track.readyState === "ended") return false;
   const settings = track.getSettings?.() || {};
   if (settings.deviceId && inputs.deviceIds.has(settings.deviceId)) return true;

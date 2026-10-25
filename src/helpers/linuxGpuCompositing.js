@@ -11,4 +11,4 @@ function shouldDisableGpuCompositing(fileExists = fs.existsSync) {
   return process.platform === "linux" && fileExists(NVIDIA_DRIVER_VERSION_PATH);
 }
 
-module.exports = { NVIDIA_DRIVER_VERSION_PATH, shouldDisableGpuCompositing };
+module.exports = { shouldDisableGpuCompositing };

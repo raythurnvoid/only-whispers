@@ -201,5 +201,3 @@ export function useHotkeyRegistration(
     clearError,
   };
 }
-
-export default useHotkeyRegistration;

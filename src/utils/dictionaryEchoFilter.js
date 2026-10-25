@@ -69,7 +69,7 @@ const matchesConsecutiveTermRun = (textWords, dictionaryPrompt) => {
   return false;
 };
 
-export function analyzeDictionaryPromptFragment(text, dictionaryPrompt) {
+function analyzeDictionaryPromptFragment(text, dictionaryPrompt) {
   if (!text || !dictionaryPrompt) return EMPTY_FRAGMENT_ANALYSIS;
 
   const normalizedText = normalize(text);

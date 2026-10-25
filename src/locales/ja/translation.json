@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "API キー",
         "apiKeyPlaceholder": "API キーを貼り付け",
-        "testing": "テスト中…",
-        "connected": "接続済み",
         "connectionFailed": "接続を確認できませんでした。",
         "unverified": "確認できませんでした：{{reason}}",
         "errors": {
@@ -683,65 +681,6 @@
     "xwaylandAppsOnly": "自動貼り付けは XWayland アプリのみで動作します",
     "wlClipboardTitle": "Wayland アプリに貼り付けるには wl-clipboard をインストールしてください",
     "wlClipboardDescription": "このデスクトップでは、Wayland アプリは only-whispers がコピーしたテキストを wl-copy を通してしか読み取れません。音声入力を貼り付けるには、wl-clipboard をインストールしてください："
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "コピーしました",
-      "copy": "コピー",
-      "reset": "リセット",
-      "save": "保存"
-    },
-    "defaultTestInput": "ねぇ Whispr、今日の天気はどう？",
-    "dialogs": {
-      "reset": {
-        "description": "プロンプトをデフォルト値にリセットしました。",
-        "title": "リセット完了"
-      },
-      "saved": {
-        "description": "カスタムプロンプトが今後すべての AI 処理に使用されます。",
-        "title": "プロンプトを保存しました"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "アシスタント名:",
-      "cautionLabel": "注意",
-      "cautionTextPrefix": "このプロンプトを変更すると文字起こしの品質に影響する場合があります。",
-      "cautionTextSuffix": "アシスタント検出を維持するために {{agentName}} プレースホルダーを残してください。",
-      "placeholder": "カスタムシステムプロンプトを入力..."
-    },
-    "tabs": {
-      "customize": "カスタマイズ",
-      "test": "テスト",
-      "view": "表示"
-    },
-    "test": {
-      "addressHint": "「{{agentName}}」と呼びかけて指示モードをテストしてみてください",
-      "aiModels": "AI モデル",
-      "baseUrlMissing": "{{provider}} のベース URL が未設定です。AI モデル設定で追加してください。",
-      "cleanup": "クリーンアップ",
-      "disabledInSettingsPrefix": "AI テキスト補正が無効です。",
-      "disabledInSettingsSuffix": "AI モデルで有効にするとプロンプトをテストできます。",
-      "disabledReasoning": "AI テキスト補正が無効です。AI モデルで有効にするとプロンプトをテストできます。",
-      "failed": "テスト失敗: {{error}}",
-      "inputLabel": "入力",
-      "inputPlaceholder": "テストするテキストを入力...",
-      "instruction": "指示",
-      "modelLabel": "モデル",
-      "noModelSelected": "モデル未選択",
-      "none": "なし",
-      "outputLabel": "出力",
-      "processing": "処理中...",
-      "providerLabel": "プロバイダー",
-      "run": "テスト実行",
-      "customEndpoint": "カスタムエンドポイント",
-      "apiKeyMissing": "{{provider}} の API キーが未設定です。AI モデル設定で追加してください。",
-      "agentDisabled": "このプロンプトをテストするには音声アシスタントを有効にしてください"
-    },
-    "view": {
-      "customPrompt": "カスタムプロンプト",
-      "defaultPrompt": "デフォルトプロンプト",
-      "modified": "変更済み"
-    }
   },
   "settingsModal": {
     "sections": {

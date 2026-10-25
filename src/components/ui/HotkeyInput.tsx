@@ -896,5 +896,3 @@ export function HotkeyInput({
     </div>
   );
 }
-
-export default HotkeyInput;

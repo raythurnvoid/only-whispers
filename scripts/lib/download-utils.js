@@ -460,8 +460,6 @@ module.exports = {
   extractZip,
   fetchLatestRelease,
   findBinaryInDir,
-  findLibrariesInDir,
-  matchesPattern,
   parseArgs,
   setExecutable,
   cleanupFiles,

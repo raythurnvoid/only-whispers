@@ -17,7 +17,6 @@ import i18n from "./i18n";
 // Display shaping automatically. Declaring the face is global; only the
 // onboarding surfaces actually ask for it (see .onboarding-canvas in index.css).
 import "@fontsource-variable/inter/opsz.css";
-import "@fontsource-variable/caveat";
 // The control panel faces (see styles/palazzo.css): Cinzel caps for labels,
 // EB Garamond for reading.
 import "@fontsource-variable/cinzel";

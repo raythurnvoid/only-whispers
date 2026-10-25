@@ -1,7 +1,7 @@
 import { isBuiltInMicrophone } from "../utils/audioDeviceUtils";
 import { resolveMicDeviceSelection } from "./micDeviceSelection";
 
-export const MICROPHONE_SELECTION_MODES = ["system", "built-in", "specific"];
+const MICROPHONE_SELECTION_MODES = ["system", "built-in", "specific"];
 
 // Chromium lists the Windows default input twice ("default" and the
 // "communications" role alias) under the device's own label. They are aliases,
@@ -18,7 +18,7 @@ export function getMicrophoneSelectionMode(settings = {}) {
     : "system";
 }
 
-export function normalizeMicrophoneLabel(label = "") {
+function normalizeMicrophoneLabel(label = "") {
   return String(label)
     .normalize("NFKC")
     .replace(/^\s*(?:default|communications)\s*-\s*/i, "")
