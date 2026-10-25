@@ -117,15 +117,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "Un caffè la prossima settimana?",
-          "senderName": "Maria Alvarez",
-          "body": "Ciao! È stato un piacere conoscerti ieri al meetup. Ti andrebbe un caffè veloce la prossima settimana? Fammi sapere quando ti va bene.\n\nMaria"
-        }
-      },
       "provider": {
-        "apiKey": "Chiave API",
         "apiKeyPlaceholder": "Incolla la tua chiave API",
         "connectionFailed": "Non è stato possibile verificare la connessione.",
         "unverified": "Impossibile verificare: {{reason}}",
@@ -146,7 +138,6 @@
       }
     },
     "permissions": {
-      "grant": "Concedi",
       "grantAccess": "Concedi accesso"
     },
     "activation": {

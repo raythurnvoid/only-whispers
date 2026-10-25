@@ -65,7 +65,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     (callback) => (_event, state) => callback(state)
   ),
   markMacAccessibilityFeaturesReady: () => ipcRenderer.send("mac-accessibility-features-ready"),
-  publishOnboardingDemoEvent: (event) => ipcRenderer.invoke("onboarding-demo-publish", event),
   testProviderConnection: (config) => ipcRenderer.invoke("test-provider-connection", config),
   pasteText: (text, options) => ipcRenderer.invoke("paste-text", text, options),
   captureSelectedText: (options) => ipcRenderer.invoke("capture-selected-text", options),

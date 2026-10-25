@@ -4,14 +4,15 @@ import App from "./App.jsx";
 import AgentDictationPillOverlay from "./components/dictation/AgentDictationPillOverlay.tsx";
 import { BrandMarkIcon } from "./components/dictation/BrandMarkIcon.tsx";
 import { PermissionGuideOverlay } from "./components/onboarding/PermissionGuideOverlay";
-import { LEGACY_ONBOARDING_STEP_KEY, ONBOARDING_SESSION_KEY } from "./components/onboarding/flow";
 import { useControlPanelWindowDrag } from "./hooks/useControlPanelWindowDrag";
 import { useTheme } from "./hooks/useTheme";
 import { resolveSettledControlPanelWindowMode } from "./utils/controlPanelWindowMode.ts";
 import { isControlPanelWindow } from "./utils/windowContext.ts";
 
-// Either marker means the flow is mid-way: the legacy step key is kept for
-// back-compat, the v2 session is what the rebuilt flow actually persists.
+// Keys the upstream onboarding flow persisted. Either one means a setup from
+// an older build was left unfinished.
+const ONBOARDING_SESSION_KEY = "onboardingSessionV2";
+const LEGACY_ONBOARDING_STEP_KEY = "onboardingCurrentStep";
 const isOnboardingInProgress = () =>
   localStorage.getItem(LEGACY_ONBOARDING_STEP_KEY) !== null ||
   localStorage.getItem(ONBOARDING_SESSION_KEY) !== null;
@@ -60,8 +61,7 @@ function MainApp() {
     }
 
     if (isDictationPanel && !resolved) {
-      // Keep the dictation overlay hidden during onboarding — OnboardingFlow
-      // shows it explicitly when the user reaches the activation step.
+      // Keep the dictation overlay hidden until the setup screen is done.
       window.electronAPI?.hideWindow?.();
     }
 

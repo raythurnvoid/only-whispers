@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { getCachedPlatform } from "../utils/platform";
 
-// Matches OnboardingShell's 48px drag strip — the frameless window's titlebar.
+// The frameless window's 48px titlebar drag strip.
 const DRAG_STRIP_HEIGHT_PX = 48;
 // A press has to travel before it becomes a drag. Without this, a plain click
 // on the titlebar starts a tracked drag whose first tick runs the DragManager's
@@ -68,8 +68,8 @@ export function useControlPanelWindowDrag(enabled) {
       if (event.button !== 0) return;
       const target = event.target instanceof Element ? event.target : null;
       // The universal titlebar band, plus any surface that declares itself
-      // window chrome (e.g. the compact onboarding hero via
-      // data-window-drag-zone in OnboardingShell).
+      // window chrome (e.g. the setup screen via data-window-drag-zone in
+      // AppSetup).
       const inDragZone =
         event.clientY <= DRAG_STRIP_HEIGHT_PX ||
         pointInDeclaredDragZone(event.clientX, event.clientY);

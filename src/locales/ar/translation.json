@@ -758,15 +758,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "قهوة الأسبوع المقبل؟",
-          "senderName": "ماريا ألفاريز",
-          "body": "مرحبًا! سعدت بلقائك في الملتقى أمس. هل تودّ أن نلتقي لاحتساء قهوة سريعة في وقت ما من الأسبوع المقبل؟ أخبرني بما يناسبك.\n\nماريا"
-        }
-      },
       "provider": {
-        "apiKey": "مفتاح API",
         "apiKeyPlaceholder": "الصق مفتاح API الخاص بك",
         "connectionFailed": "تعذر التحقق من الاتصال.",
         "unverified": "تعذر التحقق: {{reason}}",
@@ -787,7 +779,6 @@
       }
     },
     "permissions": {
-      "grant": "منح",
       "grantAccess": "منح الوصول"
     },
     "activation": {

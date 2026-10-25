@@ -117,15 +117,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "Coffee next week?",
-          "senderName": "Maria Alvarez",
-          "body": "Hi! It was great meeting you at the meetup yesterday. Would you be up for a quick coffee sometime next week? Let me know what works for you.\n\nMaria"
-        }
-      },
       "provider": {
-        "apiKey": "API Key",
         "apiKeyPlaceholder": "Paste your API key",
         "connectionFailed": "The connection could not be verified.",
         "unverified": "Couldn't verify: {{reason}}",
@@ -146,7 +138,6 @@
       }
     },
     "permissions": {
-      "grant": "Grant",
       "grantAccess": "Grant Access"
     },
     "activation": {

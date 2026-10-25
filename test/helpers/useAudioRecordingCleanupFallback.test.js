@@ -57,7 +57,6 @@ test("a raw cleanup fallback is reported with whether the dictation was pasted",
     },
   });
   const container = installHookDom(t);
-  localStorage.setItem("onboardingCompleted", "true");
   const vite = await createRendererServer(t, {
     cachePrefix: "only-whispers-cleanup-fallback-hook-",
     mockModules: {
@@ -78,7 +77,7 @@ test("a raw cleanup fallback is reported with whether the dictation was pasted",
   useCleanupFailureStore.setState({ pending: 0, lastFailure: null });
 
   function Harness() {
-    useAudioRecording(() => {}, { onDemoEvent: () => {} });
+    useAudioRecording(() => {});
     return null;
   }
 
@@ -126,12 +125,4 @@ test("a raw cleanup fallback is reported with whether the dictation was pasted",
   report = await recorded({ success: true, pasted: true });
   assert.equal(report.pending, 1);
   assert.equal(report.lastFailure.pasted, false);
-
-  // The onboarding demo's paste is a no-op into its own text box: nothing is
-  // reported, and an unconfigured-cleanup warning is not used up.
-  useSettingsStore.setState({ autoPasteEnabled: true });
-  localStorage.setItem("onboardingCompleted", "false");
-  report = await recorded({ success: true, pasted: false });
-  assert.equal(report.pending, 0);
-  assert.deepEqual(report.shown, []);
 });

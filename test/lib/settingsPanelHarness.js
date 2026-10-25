@@ -43,8 +43,8 @@ const domNode = (trail, page) => ({
 
 /**
  * Runs one Settings panel's real hooks under React's lifecycle with its children left
- * unmounted, as byokStepHarness does for onboarding: the element tree, the settings store
- * and the checks sent are the test boundary. `visible` plays the TabPanel around it. One
+ * unmounted: the element tree, the settings store and the checks sent are the test
+ * boundary. `visible` plays the TabPanel around it. One
  * mount per test context: the mock clock can be enabled only once.
  */
 async function mountSettingsPanel(

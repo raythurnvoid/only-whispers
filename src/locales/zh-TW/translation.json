@@ -117,15 +117,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "下週喝杯咖啡？",
-          "senderName": "Maria Alvarez",
-          "body": "嗨！很高興昨天在聚會上認識你。下週有空一起喝杯咖啡嗎？告訴我你什麼時間方便。\n\nMaria"
-        }
-      },
       "provider": {
-        "apiKey": "API 金鑰",
         "apiKeyPlaceholder": "貼上你的 API Key",
         "connectionFailed": "無法驗證這個連線。",
         "unverified": "無法驗證：{{reason}}",
@@ -146,7 +138,6 @@
       }
     },
     "permissions": {
-      "grant": "授權",
       "grantAccess": "授予存取權限"
     },
     "activation": {

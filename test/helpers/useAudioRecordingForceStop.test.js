@@ -162,7 +162,7 @@ async function mountHarness(
   const pushToast = (entry) => toasts.push(entry);
   const dismissDictationError = () => dismissals.push(toasts.length);
   function Harness() {
-    Object.assign(api, useAudioRecording(pushToast, { onDemoEvent: NOOP, dismissDictationError }));
+    Object.assign(api, useAudioRecording(pushToast, { dismissDictationError }));
     return null;
   }
 
@@ -444,7 +444,6 @@ test("a paste held back after the next recording started keeps the transcript qu
 test("a paste held back behind the next recording reports no cleanup failure", async (t) => {
   const paste = deferredPaste();
   const harness = await mountHarness(t, { pasteOutcome: paste.outcome });
-  localStorage.setItem("onboardingCompleted", "true");
   const cleanupFailure = {
     message: "AI cleanup is on, but no cleanup model is set up.",
     messageKey: "hooks.audioRecording.cleanupUnconfigured",

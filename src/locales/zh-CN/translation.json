@@ -117,15 +117,7 @@
   },
   "onboarding": {
     "rehaul": {
-      "assistantDemo": {
-        "email": {
-          "subject": "下周喝杯咖啡？",
-          "senderName": "Maria Alvarez",
-          "body": "你好！很高兴昨天在聚会上认识你。下周有空一起喝杯咖啡吗？告诉我你什么时间方便。\n\nMaria"
-        }
-      },
       "provider": {
-        "apiKey": "API 密钥",
         "apiKeyPlaceholder": "粘贴你的 API Key",
         "connectionFailed": "无法验证此连接。",
         "unverified": "无法验证：{{reason}}",
@@ -146,7 +138,6 @@
       }
     },
     "permissions": {
-      "grant": "授权",
       "grantAccess": "授予访问权限"
     },
     "activation": {

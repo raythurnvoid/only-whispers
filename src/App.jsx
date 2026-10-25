@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import "./index.css";
 import { useToast } from "./components/ui/useToast";
@@ -8,7 +8,6 @@ import { useWindowDrag } from "./hooks/useWindowDrag";
 import { useLinuxPillInteractivity } from "./hooks/useLinuxPillInteractivity";
 import { useAudioRecording } from "./hooks/useAudioRecording";
 import { useAssistantFollowUpThinking, useAssistantPanel } from "./hooks/useAssistantPanel";
-import { useOnboardingAssistantDemo } from "./hooks/useOnboardingAssistantDemo";
 import { useLiveTranscriptPanel } from "./hooks/useLiveTranscriptPanel";
 import { useMainWindowSizeOwner } from "./hooks/useMainWindowSizeOwner";
 import { useMainProcessNotifications } from "./hooks/useMainProcessNotifications";
@@ -159,18 +158,6 @@ export default function App() {
   const recordingControlsRef = useRef({});
   const liveTranscriptApiRef = useRef(null);
 
-  // Demo sessions only exist while onboarding is incomplete — skip the IPC otherwise.
-  const publishOnboardingDemoEvent = useCallback((event) => {
-    if (localStorage.getItem("onboardingCompleted") === "true") return;
-    window.electronAPI?.publishOnboardingDemoEvent?.(event);
-  }, []);
-  const runOnboardingAssistantDemo = useOnboardingAssistantDemo(
-    useCallback(
-      (event) => publishOnboardingDemoEvent({ ...event, kind: "assistant" }),
-      [publishOnboardingDemoEvent]
-    )
-  );
-
   const assistant = useAssistantPanel({
     requestMainWindowSize,
     dictationErrorActionCount,
@@ -196,9 +183,7 @@ export default function App() {
 
   const recording = useAudioRecording(toast, {
     onToggle: handleDictationToggle,
-    onDemoEvent: publishOnboardingDemoEvent,
     onAssistantCommand: assistant.handleCommand,
-    onOnboardingAssistantCommand: runOnboardingAssistantDemo,
     dismissDictationError,
     onDictationError: handleDictationError,
     getAssistantSelectionContext: assistant.getSelectionContext,
