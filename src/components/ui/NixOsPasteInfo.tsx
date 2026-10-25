@@ -16,16 +16,6 @@ const MANUAL_CONFIG = `programs.ydotool.enable = true;
 hardware.uinput.enable  = true;
 users.users.<you>.extraGroups = [ "ydotool" "uinput" ];`;
 
-const FLAKE_CONFIG = `# flake inputs
-inputs.openwhispr.url = "github:OpenWhispr/openwhispr";
-
-# in your NixOS modules
-imports = [ openwhispr.nixosModules.default ];
-programs.openwhispr = {
-  enable = true;
-  users = [ "<you>" ];
-};`;
-
 function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span dir="ltr" className="inline-flex items-center gap-1 text-xs">
@@ -94,21 +84,6 @@ export default function NixOsPasteInfo({ status, onRecheck }: NixOsPasteInfoProp
           })}
         </p>
         <CodeBlock code={MANUAL_CONFIG} copyLabel={copyLabel} />
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-sm font-medium">
-          {t("settingsPage.general.waylandPaste.nixos.flakeTitle", {
-            defaultValue: "Installing via our flake?",
-          })}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {t("settingsPage.general.waylandPaste.nixos.flakeDesc", {
-            defaultValue:
-              "If you install OpenWhispr from the flake, programs.openwhispr.enable turns on ydotool, the uinput module and the group memberships for you.",
-          })}
-        </p>
-        <CodeBlock code={FLAKE_CONFIG} copyLabel={copyLabel} />
       </div>
 
       <p className="text-xs text-muted-foreground">

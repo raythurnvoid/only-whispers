@@ -1,62 +1,4 @@
 {
-  "settings": {
-    "language": {
-      "sectionTitle": "Idioma",
-      "sectionDescription": "Defina separadamente os idiomas da interface e da transcrição",
-      "uiLabel": "Idioma da interface",
-      "uiDescription": "Escolha o idioma usado na interface do only-whispers",
-      "transcriptionLabel": "Idioma de transcrição",
-      "transcriptionDescription": "Escolha o idioma que você fala para maior precisão",
-      "chineseScriptLabel": "Escrita chinesa (ditado)",
-      "chineseScriptDescription": "Quando o chinês for detectado, converter as transcrições ditadas para caracteres simplificados ou tradicionais. O chinês falado soa igual; o Whisper só retorna uma escrita.",
-      "chineseScriptAsTranscribed": "Manter como transcrito",
-      "chineseScriptSimplified": "Simplificado (简体)",
-      "chineseScriptTraditional": "Tradicional (繁體)"
-    },
-    "noteFiles": {
-      "title": "Salvar notas como arquivos",
-      "description": "Salvar notas e transcrições automaticamente como arquivos no disco, organizados por pasta",
-      "path": "Local de salvamento",
-      "changePath": "Alterar local",
-      "rebuild": "Reconstruir todos os arquivos",
-      "rebuildDescription": "Ressincronizar todas as notas e transcrições no disco",
-      "rebuildError": {
-        "title": "Falha na reconstrução",
-        "description": "Não foi possível reconstruir os arquivos de notas. Verifique se o recurso está ativado e se a pasta permite gravação."
-      }
-    },
-    "granolaImport": {
-      "title": "Importar do Granola",
-      "description": "Importar notas de reunião de uma exportação CSV do Granola",
-      "howTo": "No Granola: Settings → Profile → Export historical data → Generate CSV. A exportação chega por e-mail, normalmente em algumas horas.",
-      "chooseFile": "Escolher arquivo CSV",
-      "preview": {
-        "title": "Importar do Granola",
-        "summary": "{{total}} notas encontradas: {{newCount}} novas, {{duplicateCount}} já importadas",
-        "warnings": "{{warningCount}} linhas têm problemas (ignoradas ou importadas sem data)",
-        "confirm": "Importar {{newCount}} notas",
-        "nothingNew": "Todas as notas deste arquivo já foram importadas."
-      },
-      "done": {
-        "title": "Importação concluída",
-        "summary": "{{imported}} notas importadas para a pasta \"Imported\", {{skipped}} duplicatas ignoradas"
-      },
-      "error": {
-        "title": "Falha na importação",
-        "EMPTY_FILE": "O arquivo está vazio.",
-        "HEADERS_UNRECOGNIZED": "Isto não parece uma exportação CSV do Granola.",
-        "NO_DATA_ROWS": "Nenhuma nota foi encontrada neste arquivo.",
-        "FILE_TOO_LARGE": "Este arquivo é grande demais para importar.",
-        "generic": "Algo deu errado ao ler o arquivo."
-      }
-    },
-    "meeting": {
-      "speakerDetection": {
-        "title": "Identificar e rotular participantes",
-        "description": "Quando desativado, as transcrições mostram \"Você\" e \"Outros\""
-      }
-    }
-  },
   "tray": {
     "toggleDictation": {
       "show": "Mostrar painel de ditado",
@@ -147,12 +89,8 @@
   },
   "common": {
     "continue": "Continuar",
-    "add": "Adicionar",
     "retry": "Tentar novamente",
     "back": "Voltar",
-    "logout": "Sair",
-    "next": "Avançar",
-    "complete": "Concluir",
     "reset": "Redefinir",
     "refresh": "Atualizar",
     "download": "Baixar",
@@ -162,239 +100,32 @@
     "managedByOrg": "Gerenciado pela sua organização",
     "signInRequired": "Login necessário",
     "signIn": "Entrar",
-    "comingSoon": "Em breve",
-    "cloud": "Nuvem",
-    "local": "Local",
     "apiKey": "Chave API",
-    "model": "Modelo",
     "loading": "Carregando...",
     "unknown": "Desconhecido",
     "availableModels": "Modelos disponíveis",
-    "fast": "Rápido",
     "hold": "Segurar",
-    "private": "Privado",
     "tap": "Toque",
     "close": "Fechar",
-    "dismiss": "Dispensar",
     "save": "Guardar",
-    "saving": "Guardando…",
-    "create": "Crear",
-    "delete": "Eliminar",
-    "actions": "Acciones",
     "error": "Algo salió mal",
     "unknownError": "Ocurrió un error desconocido",
     "copy": "Copiar",
     "copied": "Copiado",
-    "done": "Listo",
-    "skip": "Pular",
-    "policyAiProcessingRestricted": "O processamento de IA está restrito pela sua organização.",
-    "policyAgentRestricted": "O uso do assistente de IA está restrito pela sua organização.",
-    "policyTranscriptionRestricted": "A transcrição está restrita pela sua organização.",
-    "policyUnresolved": "As configurações da sua organização ainda não foram carregadas. Tente novamente em instantes.",
-    "managedConfigLoading": "Verificando a configuração gerenciada da sua organização. Tente novamente em instantes.",
-    "managedConfigUnavailable": "O acesso empresarial gerenciado está indisponível. Entre novamente ou entre em contato com o administrador.",
-    "managedPolicyConflict": "O acesso gerenciado está bloqueado pela política do seu espaço de trabalho. Entre em contato com o administrador.",
-    "resizePanel": "Redimensionar painel"
+    "skip": "Pular"
   },
   "onboarding": {
     "rehaul": {
-      "permissions": {
-        "title": "Configure o only-whispers em 3 minutos",
-        "microphoneDescription": "Só ouve enquanto você grava.",
-        "accessibilityDescription": "Cola o texto em qualquer app.",
-        "systemAudioTitle": "Áudio do Sistema",
-        "systemAudioDescription": "Grava os outros nas suas chamadas.",
-        "screenContextDescription": "Deixa o assistente ver sua tela.",
-        "enable": "Ativar",
-        "enabled": "Ativado"
-      },
-      "languages": {
-        "title": "Quais idiomas você fala?",
-        "titleLineOne": "Quais idiomas",
-        "titleLineTwo": "você fala?",
-        "description": "Selecione todas as opções aplicáveis. Isso ajuda o only-whispers a reconhecer trocas de idioma com mais precisão."
-      },
-      "dictationHotkey": {
-        "title": "Escolha seu atalho de ditado",
-        "titleLineOne": "Escolha seu",
-        "titleLineTwo": "atalho de ditado",
-        "description": "Pressione-o sempre que quiser falar em vez de digitar. Funciona em qualquer app.",
-        "activation": "Tocar ou segurar?"
-      },
-      "assistantHotkey": {
-        "title": "Configure o only-whispers Assistant",
-        "titleLineOne": "Configure o",
-        "titleLineTwo": "only-whispers Assistant",
-        "description": "Fale um pedido. O only-whispers Assistant escreve o resultado para você."
-      },
-      "hotkey": {
-        "capture": "Pressione a tecla que você quer usar",
-        "chooseAnother": "Escolher outro atalho",
-        "inUse": "Esse atalho já está em uso. Escolha outro.",
-        "holding": "Continue pressionando ou pressione outra tecla"
-      },
-      "dictationDemo": {
-        "title": "Experimente seu primeiro ditado",
-        "titleLineOne": "Experimente seu",
-        "titleLineTwo": "primeiro ditado",
-        "description": "Pressione {{hotkey}} e comece a falar. O only-whispers vai transformar sua voz em texto.",
-        "founder": "Oi, eu sou o Gabe, o fundador. Obrigado por experimentar o only-whispers!",
-        "prompt": "Clique na caixa abaixo, pressione seu atalho e me conte: o que você adoraria que o only-whispers fizesse por você?",
-        "placeholder": "Clique aqui e depois pressione seu atalho. O only-whispers digita em qualquer caixa de texto."
-      },
       "assistantDemo": {
-        "title": "Conheça o only-whispers Assistant",
-        "titleLineOne": "Conheça o",
-        "titleLineTwo": "only-whispers Assistant",
         "email": {
           "subject": "Café na semana que vem?",
           "senderName": "Maria Alvarez",
-          "recipient": "para mim",
-          "body": "Oi! Foi ótimo te conhecer no meetup ontem. Que tal um café rápido na semana que vem? Me diz o que funciona para você.\n\nMaria",
-          "reply": "Responder"
-        },
-        "scenarios": {
-          "calendarScreen": {
-            "description": "Pressione {{hotkey}} e peça uma resposta. O assistente lê o e-mail na sua tela e verifica horários livres no seu calendário.",
-            "prompt": "Tente dizer: “Responda e sugira alguns horários livres na semana que vem.”"
-          },
-          "screen": {
-            "description": "Pressione {{hotkey}} e peça uma resposta. O assistente lê o e-mail direto da sua tela.",
-            "prompt": "Tente dizer: “Responda que eu adoraria e sugira quarta à tarde.”"
-          },
-          "calendar": {
-            "description": "Pressione {{hotkey}} e peça uma resposta. O assistente verifica horários livres no seu calendário e escreve a resposta.",
-            "prompt": "Tente dizer: “Responda à Maria e sugira alguns horários livres na semana que vem.”"
-          },
-          "general": {
-            "description": "Pressione {{hotkey}} e peça uma resposta. O assistente escreve para você.",
-            "prompt": "Tente dizer: “Responda à Maria que eu adoraria e sugira quarta à tarde.”"
-          }
-        }
-      },
-      "demo": {
-        "listening": "Ouvindo…",
-        "processing": "Transformando sua voz em texto…",
-        "stop": "Parar",
-        "typing": "Digitando…"
-      },
-      "notes": {
-        "title": "Grave reuniões sem bot com o only-whispers Notes",
-        "titleLineOne": "Grave reuniões sem um bot",
-        "titleLineTwoPrefix": "com o only-whispers",
-        "titleLineTwoBrand": "Notes",
-        "description": "O only-whispers transforma sua conversa em notas claras. Nenhum bot de reunião entra na sua chamada.",
-        "hero": {
-          "description": "Grave sua reunião e deixe o only-whispers transformar a conversa em notas claras e organizadas.",
-          "chat": "Converse com as notas da reunião",
-          "transcript": "Revise a transcrição completa",
-          "speakers": "Veja quem disse o quê"
-        },
-        "connectors": {
-          "connect": "Conectar",
-          "googleTitle": "Google Agenda",
-          "googleDescription": "Sincronize suas reuniões.",
-          "microsoftTitle": "Microsoft Outlook",
-          "microsoftDescription": "Traga reuniões e convites de trabalho.",
-          "appleTitle": "Calendário da Apple",
-          "appleDescription": "Sincronize eventos do seu Mac e iPhone."
-        }
-      },
-      "setupChoice": {
-        "title": "Escolha sua configuração do only-whispers",
-        "titleLineOne": "Escolha sua configuração",
-        "titleLineTwo": "do only-whispers",
-        "description": "Escolha a opção que combina com o seu jeito de trabalhar.",
-        "unavailable": {
-          "title": "Nenhuma opção de configuração disponível",
-          "description": "A política do seu espaço de trabalho não permite uma configuração completa de transcrição e IA. Entre em contato com o administrador."
-        },
-        "cloud": {
-          "title": "only-whispers Cloud",
-          "description": "Receba 2.000 palavras grátis por semana. Suas configurações ficam sincronizadas entre dispositivos.",
-          "continue": "Continuar de graça",
-          "signIn": "Entre para usar a Nuvem",
-          "features": {
-            "fast": "O mais rápido, sem configuração",
-            "privacy": "Privacy-focused processing",
-            "sync": "Configurações sincronizadas entre dispositivos",
-            "features": "Recursos de IA para notas e ações"
-          }
-        },
-        "byok": {
-          "title": "Traga sua própria chave",
-          "description": "Use sua própria chave de API."
-        },
-        "local": {
-          "title": "No seu dispositivo",
-          "description": "Transcrição privada offline. Precisa de pelo menos {{minimumSpace}} GB de espaço livre.",
-          "badge": "Grátis",
-          "download": "Baixar modelos",
-          "features": {
-            "device": "Roda no seu dispositivo",
-            "offline": "Funciona offline depois da configuração",
-            "models": "Escolha modelos para ditado e assistente",
-            "free": "Grátis para sempre"
-          }
-        },
-        "warnings": {
-          "byok": {
-            "title": "Seu provedor cuida dos seus dados",
-            "description": "Você vai adicionar credenciais para provedores separados de ditado e Assistant. Os preços e as políticas de retenção do provedor se aplicam.",
-            "continue": "Configurar provedor de API",
-            "steps": {
-              "1": "Escolha provedores para ditado e Assistant",
-              "2": "Adicione credenciais com armazenamento seguro",
-              "3": "Teste cada conexão antes de ativar"
-            }
-          },
-          "local": {
-            "title": "A configuração local leva alguns passos extras",
-            "description": "O processamento local mantém sua fala neste dispositivo, mas exige uma configuração inicial e pelo menos {{minimumSpace}} GB de espaço livre.",
-            "continue": "Configurar localmente",
-            "steps": {
-              "1": "Escolha um motor de transcrição",
-              "2": "Configure ou baixe um modelo, cerca de {{modelSize}}",
-              "3": "Aguarde a instalação e a ativação"
-            }
-          }
-        },
-        "useCloud": "Usar a Nuvem em vez disso",
-        "continueSetup": "Continuar a configuração",
-        "showMore": "Mostrar mais opções",
-        "moreOptions": {
-          "title": "Escolha sua configuração de API",
-          "description": "Adicione uma chave de API ou conecte um modelo auto-hospedado.",
-          "selfHosted": {
-            "title": "Auto-hospedado",
-            "description": "Conecte seu próprio modelo hospedado."
-          }
+          "body": "Oi! Foi ótimo te conhecer no meetup ontem. Que tal um café rápido na semana que vem? Me diz o que funciona para você.\n\nMaria"
         }
       },
       "provider": {
-        "progress": "Progresso da configuração do provedor",
-        "dictation": "Ditado",
-        "assistant": "Assistente",
-        "title": "Conecte seu provedor de IA",
-        "description": "Escolha um provedor, adicione suas credenciais e teste a conexão.",
-        "descriptionLineOne": "Escolha um provedor e adicione",
-        "descriptionLineTwo": "sua chave de API.",
-        "selfHosted": "Tenho uma chave de modelo auto-hospedado",
-        "providerLabel": "Provedor",
-        "providerPlaceholder": "Escolha o provedor do modelo",
-        "modelLabel": "Modelo",
-        "modelPlaceholder": "Escolha o modelo",
         "apiKey": "Chave de API",
         "apiKeyPlaceholder": "Cole sua chave de API",
-        "endpointUrl": "URL do endpoint",
-        "endpointPlaceholder": "Cole a URL do seu endpoint",
-        "optional": "Opcional",
-        "modelId": "ID do modelo",
-        "modelIdPlaceholder": "Escreva o ID do seu modelo",
-        "proceed": "Prosseguir",
-        "clinical": "PARA TRANSCRIÇÃO CLÍNICA",
-        "clientId": "Client ID",
-        "clientSecret": "Client secret",
         "testing": "Testando…",
         "connected": "Conectado",
         "connectionFailed": "Não foi possível verificar a conexão.",
@@ -413,157 +144,14 @@
           "timeout": "O teste de conexão expirou.",
           "network": "Não foi possível contatar o provedor."
         }
-      },
-      "local": {
-        "title": "Configurar modelos locais",
-        "description": "Escolha os modelos que você quer executar no seu dispositivo.",
-        "descriptionLineOne": "Escolha os modelos que você quer",
-        "descriptionLineTwo": "executar no seu dispositivo.",
-        "providerLabel": "Provedor",
-        "download": "Baixar",
-        "downloadingShort": "Baixando",
-        "selected": "Selecionado",
-        "use": "Usar",
-        "downloadInProgress": "Download em andamento",
-        "cancelDownload": "Cancelar o download de {{model}}",
-        "downloads": "Downloads de modelos",
-        "downloading": "Baixando… {{progress}}%",
-        "installing": "Instalando"
       }
-    },
-    "steps": {
-      "welcome": "Boas-vindas",
-      "setup": "Configuração",
-      "permissions": "Permissões",
-      "activation": "Ditado",
-      "useCase": "Sobre você",
-      "meeting": "Reuniões",
-      "finish": "Concluir"
-    },
-    "hotkey": {
-      "couldNotRegisterTitle": "Não foi possível registrar esse atalho",
-      "couldNotRegisterDescription": "Essa combinação pode estar em uso. Tente outra."
-    },
-    "setup": {
-      "title": "Configuração",
-      "description": "Escolha seu idioma e conceda permissões",
-      "language": "Idioma"
     },
     "permissions": {
-      "title": "Permissões",
-      "microphoneTitle": "Microfone",
-      "microphoneDescription": "Transforma sua fala em texto. Nada é gravado até você pressionar seu atalho.",
       "grant": "Conceder",
-      "grantAccess": "Conceder acesso",
-      "accessibilityTitle": "Acessibilidade",
-      "accessibilityDescription": "Digita o texto final diretamente no aplicativo em que você estiver — documentos, e-mail, chat.",
-      "testAndGrant": "Testar e conceder",
-      "requiredForApp": "Necessário para o only-whispers funcionar",
-      "microphoneRequired": "Acesso ao microfone necessário",
-      "openSystemSettings": "Abrir Configurações do Sistema",
-      "systemAudioTitle": "Áudio do Sistema",
-      "systemAudioDescription": "Permite que o gravador de reuniões ouça o outro lado das suas chamadas — reuniões, aulas, podcasts. Você pode ativar depois nas Configurações.",
-      "optional": "Opcional",
-      "recommended": "Recomendado",
-      "accessibilityTroubleshooting": "Em Configurações do Sistema → Acessibilidade, desative o interruptor do only-whispers e ative-o novamente. Se o only-whispers não aparecer na lista, clique em + e adicione-o a partir da pasta Aplicativos. Ainda com problemas? Envie um e-mail para support@openwhispr.com."
-    },
-    "transcription": {
-      "title": "Configuração de transcrição",
-      "description": "Escolha seu modo e provedor",
-      "preferredLanguage": "Idioma preferido"
+      "grantAccess": "Conceder acesso"
     },
     "activation": {
-      "title": "Configuração de ditado",
-      "description": "Configure como acionar o ditado",
-      "hotkey": "Atalho",
-      "mode": "Modo",
-      "tapDescription": "Pressione para iniciar/parar",
-      "holdDescription": "Segure enquanto fala",
-      "test": "Teste",
-      "hotkeyToStartStop": "{{hotkey}} para iniciar/parar",
-      "holdHotkey": "Segure {{hotkey}}",
-      "textareaPlaceholder": "Clique aqui e use seu atalho para ditar..."
-    },
-    "connectivity": {
-      "title": "Não conseguimos acessar o only-whispers Cloud nesta rede",
-      "body": "{{cause}} Você pode mudar para o motor local ou continuar e tentar de novo depois.",
-      "useLocal": "Usar motor local",
-      "continue": "Continuar mesmo assim"
-    },
-    "useCase": {
-      "title": "Como você vai usar o only-whispers?",
-      "titleLineOne": "Como você usará",
-      "titleLineTwo": "o only-whispers?",
-      "description": "Escolha todas as opções que se aplicam. Vamos adaptar sua configuração.",
-      "noteLabel": "Algo mais que gostaria de nos contar?",
-      "notePlaceholder": "Conte como você pretende usar o only-whispers (opcional)",
-      "proceedToSetup": "Continuar a configuração",
-      "options": {
-        "dictation": {
-          "title": "Escreva mais rápido",
-          "description": "Fale em vez de digitar, em qualquer aplicativo."
-        },
-        "meetings": {
-          "title": "Notas de reuniões",
-          "description": "Grave, transcreva e resuma reuniões."
-        },
-        "healthcare": {
-          "title": "Documentação clínica",
-          "description": "Crie notas de pacientes, notas de sessão e relatórios."
-        },
-        "translation": {
-          "title": "Traduza enquanto fala",
-          "description": "Fale um idioma e escreva em outro."
-        },
-        "ai": {
-          "title": "Fale com sua IA",
-          "description": "Use sua voz com o ChatGPT, o Claude e outras ferramentas de IA."
-        },
-        "upload": {
-          "title": "Transcreva arquivos de áudio",
-          "description": "Envie arquivos de áudio para transcrição."
-        }
-      },
-      "selectHint": "Selecione todas as opções aplicáveis"
-    },
-    "meeting": {
-      "title": "Notas de reunião",
-      "description": "Capture e resuma suas reuniões",
-      "autoDetect": "O only-whispers detecta automaticamente quando você está em uma reunião e oferece iniciar notas — nada é gravado sem você.",
-      "hotkeyLabel": "Atalho de reunião",
-      "hotkeyHint": "Opcional — pressione-o em qualquer reunião para iniciar uma nota na hora."
-    },
-    "finish": {
-      "title": "Tudo pronto",
-      "cloudDescription": "Você está no only-whispers Cloud — rápido, preciso, zero retenção de dados e 2.000 palavras grátis por semana. Prefere tudo no seu dispositivo? Mude para o processamento local nas Configurações.",
-      "localDescription": "Você está configurado com processamento local ou sua própria chave. Ajuste como seu áudio é processado a qualquer momento nas Configurações.",
-      "cleanupNote": "A limpeza de texto por IA usa padrões sensatos. Você pode ajustá-la a qualquer momento nas Configurações.",
-      "openSettings": "Abrir Configurações",
-      "skipForNow": "Pular por enquanto",
-      "corti": {
-        "title": "Você nos disse que está aqui pela transcrição clínica",
-        "description": "Firmamos parceria com a Corti — voz para texto de nível clínico com a maior precisão e em conformidade com a HIPAA.",
-        "createAccount": "Crie sua conta Corti",
-        "creditBadge": "US$ 50 de crédito grátis",
-        "regionHint": "Escolha onde seu áudio é processado — EUA ou UE.",
-        "llmHint": "Os recursos de modelo de linguagem também serão executados nos modelos da Corti.",
-        "useCorti": "Usar Corti",
-        "skip": "Agora não",
-        "step1": "Cadastre-se em corti.ai",
-        "step2": "Abra o console da Corti e crie credenciais de API",
-        "step3": "Cole seu Client ID e Secret abaixo"
-      }
-    },
-    "requiredModels": {
-      "title": "Instale os modelos exigidos",
-      "description": "{{organization}} exige estes modelos neste dispositivo antes que você possa começar a ditar.",
-      "genericOrganization": "Sua organização",
-      "installed": "Instalado",
-      "queued": "Na fila",
-      "failed": {
-        "title": "Um download não foi concluído",
-        "description": "Verifique sua conexão e o espaço livre em disco e tente novamente. Se continuar falhando, entre em contato com seu administrador."
-      }
+      "holdDescription": "Segure enquanto fala"
     },
     "permissionGuide": {
       "label": "Guia de permissões",
@@ -583,47 +171,24 @@
   "streaming": {
     "errors": {
       "cloudUnreachable": {
-        "title": "Não foi possível acessar o only-whispers Cloud",
+        "title": "Não foi possível acessar o serviço de transcrição",
         "generic": "A solicitação de rede falhou. Verifique sua conexão.",
-        "dnsBlocked": "O DNS não está resolvendo openwhispr.com — pode ser um bloqueador de anúncios ou filtro.",
+        "dnsBlocked": "O DNS não encontra o endereço do serviço — pode ser um bloqueador de anúncios ou filtro.",
         "refused": "A conexão foi recusada — provavelmente um firewall ou VPN.",
         "timeout": "Tempo limite da rede esgotado — VPN, portal cativo ou conexão instável.",
-        "tls": "Falha no handshake TLS — verifique o relógio do sistema ou um proxy corporativo.",
-        "fallback": "Cloud indisponível — usando o motor local para esta gravação."
+        "tls": "Falha no handshake TLS — verifique o relógio do sistema ou um proxy corporativo."
       }
     }
   },
   "controlPanel": {
-    "updateRequiredByOrg": {
-      "title": "Atualização obrigatória",
-      "description": "Sua organização exige o only-whispers {{version}} ou mais recente. Atualize o aplicativo."
-    },
     "update": {
       "readyTitle": "Atualização pronta para instalar",
       "readyDescription": "Clique em 'Instalar atualização' para reiniciar com a versão mais recente.",
-      "installTitle": "Instalar atualização",
-      "installDescription": "O only-whispers será reiniciado para aplicar a atualização. O trabalho em andamento será salvo.",
-      "couldNotInstallTitle": "Não foi possível instalar a atualização",
-      "couldNotInstallDescription": "Algo deu errado. Tente novamente.",
-      "couldNotDownloadTitle": "Não foi possível baixar a atualização",
-      "couldNotDownloadDescription": "Verifique sua conexão e tente novamente.",
-      "installing": "Instalando...",
-      "installButton": "Instalar atualização",
-      "availableButton": "Atualização disponível"
-    },
-    "limit": {
-      "weeklyTitle": "Limite semanal da nuvem atingido",
-      "weeklyDescription": "Seu limite é redefinido continuamente. Faça upgrade para Pro ou use sua própria chave API para uso ilimitado."
+      "installButton": "Instalar atualização"
     },
     "accessibilityMissing": {
       "title": "Permissões de acessibilidade necessárias",
       "description": "Detectamos que o only-whispers precisa de permissões de acessibilidade para funcionar corretamente. Ative-as abaixo."
-    },
-    "billing": {
-      "pastDueTitle": "Não foi possível processar seu pagamento",
-      "pastDueDescription": "Sem problemas — você está no plano gratuito por enquanto. Atualize o pagamento em Configurações para voltar ao Pro.",
-      "bannerDescription": "Você está no plano gratuito por enquanto — ainda tem {{limit}} palavras por semana. Atualize seu pagamento para voltar ao Pro.",
-      "updatePayment": "Atualizar pagamento"
     },
     "history": {
       "couldNotLoadTitle": "Não foi possível carregar seu histórico",
@@ -642,9 +207,7 @@
       "shortcutHint": "Pressione {{shortcut}} e comece a falar.",
       "dataRetentionDisabled": "A retenção de dados está desativada. Transcrições e áudio não são salvos no histórico.",
       "welcomeBack": "Que bom ter você de volta",
-      "welcomeBackNamed": "Que bom ter você de volta, {{name}}",
       "welcome": "Boas-vindas",
-      "welcomeNamed": "Boas-vindas, {{name}}",
       "dateGroups": {
         "today": "Hoje",
         "yesterday": "Ontem"
@@ -673,12 +236,8 @@
       "showInFolderWindows": "Mostrar no Explorador",
       "showInFolderLinux": "Mostrar no gerenciador de arquivos",
       "retryTranscription": "Retranscrever",
-      "retrying": "Retranscrevendo…",
       "retrySuccess": "Transcrição atualizada",
       "retryError": "Falha ao retranscrever",
-      "retryErrors": {
-        "invalidResponse": "O mecanismo de transcrição retornou uma resposta inesperada. Tente novamente."
-      },
       "audioNotFound": "Arquivo de áudio não encontrado ou expirado",
       "noAiProcessing": "Nenhum processamento de IA foi aplicado a esta transcrição",
       "rawTranscript": "Transcrição bruta",
@@ -691,7 +250,6 @@
         "recover": "Recuperar",
         "recovered": "Recuperada"
       },
-      "retryTranslationMode": "Modo de Tradução",
       "uploadAudio": "Enviar áudio",
       "editItem": "Editar",
       "newTranscript": "Nova transcrição",
@@ -704,33 +262,14 @@
       "description": "Corrija automaticamente gramática, pontuação e formatação enquanto você fala.",
       "enable": "Ativar melhoria com IA"
     },
-    "loading": "Carregando...",
-    "gpu": {
-      "bannerTitle": "Aceleração GPU disponível",
-      "bannerDescription": "Ative a aceleração GPU para um desempenho mais rápido.",
-      "enableButton": "Ativar GPU",
-      "dismissButton": "Agora não"
-    },
-    "backToNotes": "Voltar para notas",
-    "requiredModelsByOrg": {
-      "title": "Modelos exigidos ausentes",
-      "description": "Sua organização exige estes modelos neste dispositivo: {{models}}.",
-      "download": "Baixar"
-    },
-    "cloudNudge": {
-      "title": "Você entrou",
-      "description": "O ditado continua usando sua própria configuração. Você pode mudar para o only-whispers Cloud a qualquer momento.",
-      "action": "Abrir Configurações"
-    }
+    "loading": "Carregando..."
   },
   "reasoning": {
     "mode": {
       "cloud": "Nuvem",
       "local": "Local",
-      "enterprise": "Corporativo",
       "localDescription": "Roda no seu dispositivo. Privacidade total, funciona offline.",
-      "cloudDescription": "Modelos avançados via API. Rápido e potente, requer internet.",
-      "enterpriseDescription": "Use as credenciais de nuvem da sua organização."
+      "cloudDescription": "Modelos avançados via API. Rápido e potente, requer internet."
     },
     "custom": {
       "endpointWithProtocol": "Informe uma URL base completa com protocolo (por exemplo, https://server/v1).",
@@ -739,8 +278,6 @@
       "endpointUnauthorized": "O endpoint rejeitou a requisição (401/403). Adicione uma chave API ou ajuste a autenticação do servidor.",
       "endpointTitle": "URL do endpoint",
       "endpointExamples": "Exemplos:",
-      "ollama": "(Ollama)",
-      "localAi": "(LocalAI)",
       "apiKeyOptional": "Chave API (opcional)",
       "apiKeyHelp": "Opcional. Enviada como token Bearer para autenticação. Separada da sua chave API da OpenAI.",
       "applyAndRefresh": "Aplicar e atualizar",
@@ -790,8 +327,6 @@
       "endpointHelp": "Aponte para um servidor compatível com OpenAI na sua rede local (ex.: Ollama, LM Studio, vLLM ou llama-server)."
     },
     "enterprise": {
-      "title": "Provedores corporativos",
-      "description": "Conecte-se a provedores de nuvem usando as credenciais da sua organização.",
       "testConnection": "Testar conexão",
       "testing": "Testando…",
       "testSuccess": "Conectado",
@@ -819,12 +354,10 @@
       "allModels": "Todos os modelos em {{region}}",
       "modelListError": "Não foi possível carregar os modelos.",
       "bedrock": {
-        "ssoHelp": "Usa sua configuração SSO do AWS CLI. Certifique-se de ter executado 'aws sso login'.",
-        "keysHelp": "Informe suas chaves de acesso AWS IAM."
+        "ssoHelp": "Usa sua configuração SSO do AWS CLI. Certifique-se de ter executado 'aws sso login'."
       },
       "errors": {
         "bedrock": {
-          "temporaryAccessExpired": "O acesso temporário à AWS expirou.",
           "ssoExpired": "A sessão SSO da AWS expirou.",
           "credentialsRejected": "As credenciais da AWS foram rejeitadas. Verifique o ID da chave de acesso, o segredo e o token de sessão.",
           "accessDenied": "O AWS Bedrock negou esta solicitação. Peça ao administrador da AWS permissão para invocar o modelo selecionado na região {{region}}.",
@@ -837,7 +370,6 @@
           "network": "Não foi possível acessar o AWS Bedrock. Verifique sua conexão com a internet e tente novamente.",
           "unknown": "Erro do AWS Bedrock: {{error}}",
           "actions": {
-            "refreshManagedAccess": "Saia e entre novamente para renovar o acesso da empresa e tente outra vez.",
             "reauthenticate": "Execute o comando abaixo no terminal para se autenticar novamente:"
           }
         }
@@ -881,42 +413,13 @@
     }
   },
   "transcription": {
-    "modelCard": "Ficha do modelo",
     "deleteModel": {
       "title": "Excluir modelo",
       "description": "Tem certeza de que deseja excluir este modelo? Será necessário baixá-lo novamente para usá-lo."
-    },
-    "parakeet": {
-      "multilingual": "25 idiomas",
-      "english": "Inglês",
-      "requiresMacOS": "macOS {{version}}+",
-      "unavailable": "Indisponível"
-    },
-    "apiKeyOptional": "Chave API (opcional)",
-    "getKey": "Obter chave ->",
-    "endpointUrl": "URL do endpoint",
-    "azureHint": "Azure AI Foundry: insira o endpoint do seu recurso (ex.: https://your-resource.cognitiveservices.azure.com) e defina Modelo com o nome exato da sua implantação.",
-    "customProvider": "Personalizado",
-    "fallback": {
-      "whisperModelDescription": "Modelo",
-      "parakeetModelDescription": "Modelo NVIDIA Parakeet"
-    },
-    "whisperModels": "Modelos Whisper",
-    "corti": {
-      "clientId": "ID do cliente",
-      "clientSecret": "Segredo do cliente",
-      "apiKey": "Chave API",
-      "environment": "Região de dados",
-      "tenant": "Tenant"
-    },
-    "tinfoil": {
-      "transportNote": "O Tinfoil transmite com o Voxtral Mini 4B e processa em lote com o Voxtral Small 24B.",
-      "docsLink": "Ver a documentação"
     }
   },
   "hooks": {
     "audioRecording": {
-      "cleanupSignedOut": "A limpeza por IA usa o only-whispers Cloud, mas você não está conectado.",
       "cleanupUnconfigured": "A limpeza por IA está ativada, mas nenhum modelo de limpeza foi configurado.",
       "errorTitles": {
         "sessionExpired": "Sessão expirada",
@@ -925,10 +428,6 @@
         "screenContextSkipped": "Contexto de tela ignorado",
         "cloudLimitReached": "Limite semanal da nuvem atingido",
         "providerRateLimited": "Limite de taxa do provedor"
-      },
-      "fallback": {
-        "title": "Modo de fallback",
-        "description": "O Whisper local falhou. A API da OpenAI foi usada no lugar."
       },
       "errorActions": {
         "viewTranscript": "Ver transcrição"
@@ -939,8 +438,7 @@
       },
       "micDisconnected": {
         "title": "Microfone desconectado",
-        "description": "A gravação continua ativa e será retomada quando um microfone estiver disponível.",
-        "meetingDescription": "A reunião continua gravando o áudio do sistema e retomará a captura do microfone automaticamente."
+        "description": "A gravação continua ativa e será retomada quando um microfone estiver disponível."
       },
       "micRestored": {
         "title": "Microfone restaurado",
@@ -951,28 +449,13 @@
         "description": "Não foi possível transcrever parte da gravação."
       },
       "errorDescriptions": {
-        "sessionExpired": "Sua sessão do only-whispers Cloud está indisponível. Entre novamente nas Configurações.",
-        "offline": "Você está offline. A transcrição na nuvem exige conexão com a internet.",
-        "dailyLimitReached": "Você atingiu o limite de transcrições de hoje. Tente novamente amanhã ou faça upgrade do seu plano.",
         "providerRateLimited": "Seu provedor de transcrição limitou a solicitação. Aguarde um momento e tente novamente.",
-        "chunkLoss": "Um problema de rede fez perder grande parte da gravação. Retranscreva-a a partir do histórico.",
         "agentReasoningFailed": "Seu assistente de voz não conseguiu processar o comando; a transcrição bruta foi inserida no lugar.",
         "screenContextSkipped": "Não foi possível enviar a captura, então seu comando foi executado sem contexto de tela.",
-        "customEndpointInvalid": "Seu endpoint de transcrição personalizado não está configurado ou a URL é inválida. Atualize-o em Configurações → Fala para texto.",
-        "managedTranscriptionUnavailable": "A transcrição gerenciada não está disponível no momento. Tente novamente em instantes.",
-        "managedRouteInvalid": "A transcrição gerenciada não pôde ser iniciada devido a uma incompatibilidade de configuração. Tente novamente ou entre em contato com o administrador.",
-        "managedAuthRejected": "As credenciais de transcrição gerenciada da sua organização foram rejeitadas. Entre em contato com o administrador.",
-        "streamingOnlyProvider": "Este provedor só suporta transcrição ao vivo. Escolha outro provedor para uploads de arquivos e novas tentativas.",
         "providerKeyMissing": "Nenhuma chave de API definida para seu provedor de transcrição. Adicione-a em Configurações → Fala para texto.",
         "cleanupTruncated": "O modelo de IA ficou sem espaço antes de terminar a limpeza do seu ditado.",
         "cleanupDuplicated": "A limpeza por IA repetiu a transcrição. O texto original foi mantido.",
         "cleanupEmptyReply": "O modelo de IA devolveu uma resposta vazia em vez do ditado limpo."
-      },
-      "translationFallback": {
-        "unreachableTitle": "Tradução indisponível",
-        "unreachableDescription": "Seu ditado foi colado sem tradução. Verifique as configurações de tradução.",
-        "failedTitle": "Falha na tradução",
-        "failedDescription": "O texto original foi colado. Você pode tentar novamente pelo Histórico."
       },
       "pushForceStopped": {
         "title": "Transcrição não colada",
@@ -1066,7 +549,6 @@
       },
       "modelDeleted": {
         "title": "Modelo removido",
-        "descriptionWithSpace": "Modelo removido com sucesso! {{sizeMb}}MB de espaço liberados.",
         "description": "Modelo removido com sucesso!"
       },
       "deleteFailed": {
@@ -1108,31 +590,8 @@
       "micUnavailable": "As APIs de microfone não estão disponíveis neste ambiente. Reinicie o app.",
       "titles": {
         "microphoneUnavailable": "Microfone indisponível",
-        "microphonePermissionRequired": "Permissão de microfone obrigatória",
-        "accessibilityNeeded": "Permissões de acessibilidade necessárias",
-        "readyToGo": "Tudo pronto!",
-        "waylandClipboardMode": "Modo área de transferência no Wayland",
-        "optionalPasteTool": "Opcional: instalar ferramenta de colagem"
+        "microphonePermissionRequired": "Permissão de microfone obrigatória"
       },
-      "descriptions": {
-        "accessibilityNeeded": "Conceda permissões de acessibilidade nas configurações do sistema para habilitar colagem automática.",
-        "windowsReady": "O Windows não exige permissões especiais para colagem automática. Tudo pronto!",
-        "linuxReadyWithMethod": "A colagem automática está disponível usando {{method}}. Tudo pronto!",
-        "waylandClipboardMode": "A colagem automática não está disponível nesta sessão Wayland. O only-whispers copiará o texto para a área de transferência e você poderá colar com Ctrl+V.",
-        "optionalPasteTool": "Para colagem automática, instale {{tool}}:\n\n{{installCmd}}{{waylandNote}}\n\nSem isso, você ainda pode usar o only-whispers — o texto será copiado para a área de transferência e você poderá colar com Ctrl+V."
-      },
-      "alerts": {
-        "accessibilityNeeded": "Permissões de acessibilidade necessárias! Conceda nas configurações do sistema."
-      },
-      "notes": {
-        "waylandWtype": "\n\nNota: para apps XWayland, xdotool também funciona.",
-        "waylandXwaylandOnly": "\n\nNota: a colagem automática funciona apenas para apps XWayland."
-      },
-      "labels": {
-        "defaultPasteTool": "xdotool",
-        "xdotoolXwayland": "xdotool (apps XWayland)"
-      },
-      "accessibilityTestText": "teste de acessibilidade do only-whispers",
       "warning": {
         "messages": {
           "macos": "Verifique as configurações de Som para selecionar o dispositivo de entrada",
@@ -1143,86 +602,6 @@
         "privacyLabel": "Privacidade"
       }
     }
-  },
-  "auth": {
-    "sessionExpired": "Sessão expirada",
-    "cloudNotConfigured": "Nuvem não configurada",
-    "common": {
-      "back": "Voltar",
-      "continue": "Continuar",
-      "or": "ou"
-    },
-    "emailStep": {
-      "checkingEmail": "Verificando seu e-mail...",
-      "continueWithEmail": "Continuar com e-mail",
-      "continueWithoutAccount": "Continuar sem conta",
-      "emailLabel": "E-mail",
-      "emailPlaceholder": "voce@exemplo.com",
-      "useDifferentEmail": "Usar outro e-mail"
-    },
-    "errors": {
-      "accountExistsSignIn": "Já existe uma conta com este e-mail. Faça login.",
-      "accountNotFoundCreate": "Nenhuma conta encontrada com este e-mail. Crie uma conta.",
-      "authNotConfigured": "A autenticação não está configurada",
-      "createAccountFailed": "Falha ao criar conta",
-      "failedProviderSignIn": "Falha ao fazer login com {{provider}}",
-      "failedUserCheck": "Falha ao verificar conta do usuário",
-      "generic": "Algo deu errado. Tente novamente.",
-      "invalidCredentials": "E-mail ou senha inválidos",
-      "invalidEmail": "Digite um endereço de e-mail válido"
-    },
-    "getStarted": "Começar",
-    "legal": {
-      "and": "e",
-      "prefix": "Ao continuar, você concorda com nossos",
-      "privacy": "Política de Privacidade",
-      "suffix": "",
-      "terms": "Termos de Serviço"
-    },
-    "passwordForm": {
-      "createAccount": "Criar uma conta",
-      "createAccountButton": "Continuar com e-mail",
-      "createAccountLink": "Criar conta",
-      "createPasswordPlaceholder": "Crie uma senha",
-      "creatingAccount": "Criando conta...",
-      "enterPasswordPlaceholder": "Digite sua senha",
-      "forgotPassword": "Esqueceu a senha?",
-      "fullNamePlaceholder": "Adicione seu nome",
-      "nameLabel": "Nome",
-      "passwordLabel": "Senha",
-      "haveAccount": "Já tem uma conta?",
-      "newHere": "Novo por aqui?",
-      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
-      "signIn": "Continuar com e-mail",
-      "signInLink": "Entrar",
-      "signingIn": "Entrando...",
-      "welcomeBack": "Que bom ter você de volta"
-    },
-    "signedIn": {
-      "welcomeBack": "Que bom ter você de volta",
-      "welcomeBackNamed": "Que bom ter você de volta, {{name}}",
-      "notYou": "Não é você? Sair"
-    },
-    "sso": {
-      "continueWithSSO": "Entrar com SSO",
-      "workEmailLabel": "E-mail profissional",
-      "emailPlaceholder": "Adicione seu e-mail",
-      "emailRequired": "Insira seu e-mail corporativo para usar o SSO.",
-      "failed": "Falha no logon único. Tente novamente.",
-      "companySignInTitle": "Usar o login da sua empresa",
-      "requiredDescription": "{{domain}} exige SSO para o only-whispers.",
-      "availableDescription": "A sua conta {{domain}} está pronta para o SSO da empresa.",
-      "useEmailInstead": "Usar e-mail e senha em vez disso"
-    },
-    "social": {
-      "completeInBrowser": "Conclua o login no navegador",
-      "continueWithApple": "Continuar com a Apple",
-      "continueWithGoogle": "Continuar com o Google",
-      "continueWithMicrosoft": "Continuar com a Microsoft",
-      "protocolUnavailable": "Login pelo navegador indisponível — registre novamente o protocolo openwhispr:// nas configurações de Aplicativos Padrão do sistema."
-    },
-    "welcomeSubtitle": "O poder da sua voz. Nos seus termos.",
-    "welcomeTitle": "Boas-vindas ao only-whispers"
   },
   "cleanupPrompt": "Limpeza",
   "dictionarySuffix": "Sufixo do dicionário",
@@ -1261,7 +640,6 @@
     "inputDevice": "Dispositivo de entrada",
     "noBuiltInDetected": "Nenhum microfone integrado detectado. Usando o padrão do sistema.",
     "preferBuiltIn": {
-      "description": "Microfones externos podem causar latência ou reduzir a qualidade da transcrição",
       "label": "Preferir microfone integrado"
     },
     "selectPlaceholder": "Selecione um microfone",
@@ -1357,42 +735,24 @@
       "none": "Nenhum",
       "outputLabel": "Saída",
       "processing": "Processando...",
-      "openwhisprCloud": "only-whispers Cloud",
       "providerLabel": "Provedor",
       "run": "Executar teste",
       "customEndpoint": "Endpoint personalizado",
       "apiKeyMissing": "Chave API do {{provider}} não configurada. Adicione nas configurações de Modelos de IA.",
-      "translateHint": "O texto será traduzido para {{language}}",
-      "translation": "Tradução",
-      "translationDisabled": "Ative a tradução de ditado para testar este prompt",
-      "noTargetLanguage": "Escolha primeiro um idioma de destino",
       "agentDisabled": "Ative o assistente de voz para testar este prompt"
     },
     "view": {
       "customPrompt": "Prompt personalizado",
       "defaultPrompt": "Prompt padrão",
       "modified": "Modificado"
-    },
-    "defaultTestInputTranslate": "O tempo está lindo hoje, quer dar um passeio?"
+    }
   },
   "settingsModal": {
-    "managedByOrg": "Algumas configurações são gerenciadas pela sua organização.",
-    "managedAccount": "Conta gerenciada",
     "groups": {
-      "account": "Conta",
       "app": "Aplicativo",
-      "aiModels": "Modelos de IA",
-      "system": "Sistema"
+      "aiModels": "Modelos de IA"
     },
     "sections": {
-      "account": {
-        "description": "Perfil e login",
-        "label": "Perfil"
-      },
-      "plansBilling": {
-        "description": "Planos, uso e cobrança",
-        "label": "Planos e cobrança"
-      },
       "general": {
         "description": "Aparência, sons e inicialização",
         "label": "Preferências"
@@ -1412,275 +772,11 @@
       "llms": {
         "description": "Modelos para chat, limpeza e resumos",
         "label": "Modelos de linguagem"
-      },
-      "privacyData": {
-        "description": "Privacidade, permissões e análise",
-        "label": "Privacidade e dados"
-      },
-      "system": {
-        "description": "Atualizações, armazenamento e ferramentas de desenvolvimento",
-        "label": "Sistema"
-      },
-      "workspace": {
-        "description": "Membros, espaços de equipe e chaves de API",
-        "label": "Espaço de trabalho"
       }
     },
     "title": "Configurações"
   },
   "settingsPage": {
-    "unifiedBilling": {
-      "workspaceTitle": "Cobrança do workspace",
-      "workspaceDescription": "Cada workspace tem seu próprio plano, assentos e responsável pela cobrança.",
-      "billableSeat": "Seu assento é faturável",
-      "nonBillableSeat": "Acesso somente de administrador · sem assento pago",
-      "managedBy": "A cobrança é gerenciada por {{owner}}.",
-      "addSeat": "Adicionar assento",
-      "seatUpdated_one": "Capacidade do workspace atualizada para {{count}} assento",
-      "seatUpdated_other": "Capacidade do workspace atualizada para {{count}} assentos",
-      "seatUpdateFailed": "Não foi possível atualizar os assentos do workspace",
-      "businessWorkspaceOnly": "Disponível para workspaces",
-      "personalPlanTitle": "Plano pessoal",
-      "providedBy": "Plano pessoal: Gratuito · Acesso pago fornecido por {{workspaces}}",
-      "confirmSeats": {
-        "title": "Adicionar um assento ao workspace?",
-        "description_one": "Aumentar {{workspace}} para {{count}} assento. O Stripe fará o rateio da alteração.",
-        "description_other": "Aumentar {{workspace}} para {{count}} assentos. O Stripe fará o rateio da alteração.",
-        "newCapacity": "Nova capacidade",
-        "chargeToday": "Cobrança de hoje",
-        "confirm": "Adicionar assento"
-      }
-    },
-    "account": {
-      "badges": {
-        "free": "Gratuito",
-        "limitReached": "Limite da nuvem atingido",
-        "pastDue": "Em atraso",
-        "pro": "Pro",
-        "business": "Business",
-        "trial": "Teste"
-      },
-      "billing": {
-        "couldNotOpenDescription": "Tivemos dificuldade em abrir a página de cobrança. Tente novamente.",
-        "couldNotOpenTitle": "Não foi possível abrir cobrança",
-        "manageBilling": "Gerenciar cobrança",
-        "opening": "Abrindo...",
-        "updatePaymentMethod": "Atualizar forma de pagamento",
-        "contactOwnerTitle": "Fale com o proprietário do workspace",
-        "contactOwnerDescription": "Apenas o proprietário do workspace pode atualizar a cobrança dele.",
-        "manageInAppStore": "Gerenciar na App Store",
-        "manageInGooglePlay": "Gerenciar no Google Play",
-        "managedInMobileStore": "Cobrado pela loja de apps do seu celular. Gerencie pelo celular."
-      },
-      "checkout": {
-        "couldNotOpenDescription": "Tivemos dificuldade em abrir a página de checkout. Tente novamente.",
-        "couldNotOpenTitle": "Não foi possível abrir checkout",
-        "opening": "Abrindo...",
-        "upgradeToPro": "Fazer upgrade para Pro"
-      },
-      "disabled": "Desabilitado",
-      "featuresDisabled": "Recursos de conta desabilitados",
-      "featuresDisabledDescription": "Defina VITE_AUTH_URL no seu arquivo .env para habilitar os recursos de conta.",
-      "notConfigured": "A autenticação não está configurada",
-      "notSignedIn": "Não conectado",
-      "notSignedInDescription": "Crie uma conta para desbloquear recursos premium.",
-      "offline": "Offline",
-      "pastDue": {
-        "description": "Você está no plano gratuito por enquanto. Atualize sua forma de pagamento para voltar ao Pro.",
-        "title": "Não foi possível processar seu pagamento"
-      },
-      "planDescriptions": {
-        "freeUsage": "{{used}} / {{limit}} palavras do only-whispers Cloud esta semana",
-        "byokUnlimited": "Suas próprias chaves de API e os modelos locais continuam sem limite.",
-        "nextBilling": "Próxima cobrança: {{date}}",
-        "pastDue": "{{used}} / {{limit}} palavras do only-whispers Cloud esta semana — atualize o pagamento para restaurar o Pro",
-        "trial": "{{days}} dias restantes — transcrições ilimitadas",
-        "unlimited": "Ilimitado",
-        "accessUntil": "Acesso até {{date}}",
-        "storePaymentIssue": "A loja de apps não conseguiu renovar esta assinatura. Atualize lá sua forma de pagamento para manter seu plano."
-      },
-      "planLabels": {
-        "free": "Gratuito",
-        "pro": "Pro",
-        "business": "Business",
-        "trial": "Teste"
-      },
-      "rollingWeeklyLimit": "Limite semanal contínuo",
-      "signOut": {
-        "failedDescription": "Algo deu errado ao sair. Tente novamente.",
-        "failedTitle": "Não foi possível sair",
-        "signOut": "Sair",
-        "signingOut": "Saindo..."
-      },
-      "title": "Conta",
-      "toasts": {
-        "approachingLimit": {
-          "description": "Você usou {{used}} de {{limit}} palavras do only-whispers Cloud esta semana. Faça upgrade para Pro para uso ilimitado.",
-          "title": "Aproximando-se do limite de palavras da nuvem"
-        }
-      },
-      "trialCta": {
-        "button": "Criar conta gratuita",
-        "description": "Transcrições ilimitadas, processamento prioritário e muito mais.",
-        "title": "Experimente o Pro grátis por 7 dias"
-      },
-      "pricing": {
-        "title": "Planos",
-        "billedYearly": "Cobrança anual",
-        "free": {
-          "name": "Free",
-          "price": "$0",
-          "period": "para sempre",
-          "features": [
-            "## only-whispers Cloud",
-            "2.000 palavras/semana de transcrição",
-            "5 horas de gravação de reuniões/mês",
-            "## Sempre gratuito",
-            "Modelos de IA locais ilimitados",
-            "Transcrição na nuvem ilimitada com suas próprias chaves de API",
-            "Mais de 100 idiomas suportados",
-            "Dicionário personalizado",
-            "Zero retenção de dados",
-            "Suporte da comunidade"
-          ]
-        },
-        "pro": {
-          "name": "Pro",
-          "monthlyPrice": "$8",
-          "monthlyPeriod": "/mês",
-          "annualPrice": "$80",
-          "annualPeriod": "/ano",
-          "annualEquivalent": "$6.67",
-          "includesPrefix": "Todos os recursos do Free +",
-          "features": [
-            "Transcrição na nuvem ilimitada",
-            "20 horas de gravação de reuniões/mês",
-            "Sincronização entre dispositivos",
-            "Compartilhe notas com links públicos",
-            "Acesso pessoal à API",
-            "Integração MCP em todos os seus apps",
-            "Aplicativo móvel",
-            "Suporte por e-mail"
-          ],
-          "cta": "Começar",
-          "switchToAnnual": "Mudar para anual"
-        },
-        "business": {
-          "name": "Business",
-          "monthlyPrice": "$16",
-          "monthlyPeriod": "/mês",
-          "annualPrice": "$160",
-          "annualPeriod": "/ano",
-          "annualEquivalent": "$13.33",
-          "includesPrefix": "Todos os recursos do Pro +",
-          "badge": "Mais popular",
-          "features": [
-            "Gravações de reuniões ilimitadas",
-            "Funções e gestão de membros do espaço de trabalho",
-            "Modo assistente",
-            "Converse com seus dados",
-            "Suporte prioritário"
-          ],
-          "cta": "Começar",
-          "switchToAnnual": "Mudar para anual"
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Personalizado",
-          "subtitle": "Para segurança avançada e suporte",
-          "includesPrefix": "Todos os recursos do Business +",
-          "features": [
-            "Créditos de API gerenciados",
-            "Sincronização na nuvem entre dispositivos",
-            "Recursos de equipe e administração",
-            "SSO e conformidade",
-            "Suporte dedicado"
-          ],
-          "cta": "Falar com Vendas",
-          "upgradeCta": "Fazer upgrade para Enterprise",
-          "askOwner": "Peça a {{name}} para fazer o upgrade do seu workspace."
-        },
-        "currentPlan": "Plano atual",
-        "coveredByWorkspace": "Incluído no plano do seu workspace",
-        "upgrade": "Fazer upgrade",
-        "downgrade": "Fazer downgrade",
-        "planSwitched": "Plano atualizado com sucesso",
-        "confirmSwitch": {
-          "title": "Confirmar alteração de plano",
-          "description": "Mudar para {{plan}} ({{interval}})",
-          "monthly": "mensal",
-          "yearly": "anual",
-          "chargeToday": "Cobrança hoje",
-          "accountCredit": "Crédito na conta",
-          "newPrice": "Novo preço",
-          "nextBilling": "Próxima cobrança",
-          "mo": "mo",
-          "yr": "yr",
-          "cancel": "Cancelar",
-          "confirm": "Confirmar"
-        }
-      },
-      "signedOutPlans": {
-        "button": "Criar conta gratuita"
-      },
-      "user": "Usuário",
-      "wordsRemaining": "{{remaining}} restantes",
-      "deleteAccount": {
-        "label": "Excluir conta",
-        "labelDescription": "Excluir permanentemente sua conta e dados pessoais na nuvem. Outros usuários locais e conteúdos dos espaços de trabalho são preservados.",
-        "button": "Excluir minha conta",
-        "deleting": "Excluindo...",
-        "title": "Excluir sua conta?",
-        "description": "Isso exclui permanentemente sua conta only-whispers e seus dados pessoais. Conteúdos dos espaços de trabalho e dados de outros usuários locais permanecem neste dispositivo.",
-        "confirmText": "Excluir conta",
-        "eraseDeviceLabel": "Também apagar todos os dados deste dispositivo",
-        "eraseDeviceDescription": "Exclui notas e caches de espaços de todos os usuários locais, modelos baixados, configurações, calendários, credenciais e gravações.",
-        "eraseDeviceWarning": "Esta exclusão de todo o dispositivo não pode ser desfeita e afeta todos os usuários locais.",
-        "successTitle": "Conta excluída",
-        "successDescription": "Sua conta e dados pessoais foram excluídos. Outros usuários locais, espaços de trabalho, modelos e configurações foram preservados.",
-        "partialCleanupDescription": "Sua conta foi excluída, mas parte da limpeza local não pôde ser concluída. Outros usuários e conteúdos dos espaços de trabalho foram preservados.",
-        "failedTitle": "Falha na exclusão",
-        "failedDescription": "Não foi possível concluir a exclusão da conta. Nenhuma exclusão de todo o dispositivo foi iniciada. Tente novamente."
-      },
-      "profile": {
-        "name": {
-          "label": "Nome de exibição",
-          "placeholder": "Seu nome",
-          "save": "Salvar",
-          "saving": "Salvando...",
-          "saved": "Nome de exibição atualizado",
-          "error": "Não foi possível atualizar seu nome"
-        },
-        "password": {
-          "label": "Senha",
-          "description": "Altere a senha que você usa para entrar.",
-          "change": "Alterar senha",
-          "dialogTitle": "Alterar senha",
-          "dialogDescription": "Digite sua senha atual e escolha uma nova.",
-          "currentLabel": "Senha atual",
-          "newLabel": "Nova senha",
-          "confirmLabel": "Confirmar nova senha",
-          "minLength": "A senha deve ter pelo menos 8 caracteres",
-          "mismatch": "As senhas não coincidem",
-          "revokeOthers": "Sair dos outros dispositivos",
-          "submit": "Atualizar senha",
-          "saving": "Atualizando...",
-          "cancel": "Cancelar",
-          "saved": "Senha atualizada"
-        },
-        "errors": {
-          "invalidPassword": "Sua senha atual está incorreta.",
-          "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
-          "passwordTooLong": "A senha é muito longa.",
-          "noPassword": "Nenhuma senha está definida para esta conta.",
-          "generic": "Algo deu errado. Tente novamente."
-        }
-      },
-      "planUnavailable": {
-        "title": "Plano indisponível",
-        "description": "Não conseguimos carregar seu plano agora. Seu acesso permanece o mesmo."
-      }
-    },
     "agentConfig": {
       "agentName": "Nome do assistente",
       "description": "Dê um nome ao seu assistente de IA para poder chamá-lo diretamente durante o ditado",
@@ -1703,133 +799,29 @@
       }
     },
     "aiModels": {
-      "customSetup": "Configuração personalizada",
-      "customSetupDescription": "Use seu próprio provedor e chave API.",
-      "description": "Limpe transcrições, processe comandos e corrija erros preservando seu tom de voz.",
       "enableTextCleanup": "Ativar limpeza de texto",
       "enableTextCleanupDescription": "A IA remove palavras de preenchimento, corrige gramática e pontuação",
       "modes": {
-        "openwhispr": "only-whispers Cloud",
         "providers": "Traga sua própria chave",
         "local": "Local",
         "selfHosted": "Auto-hospedado",
-        "openwhisprDesc": "Resultados confiáveis. Sem configuração.",
         "providersDesc": "Use sua própria chave de API para conectar seu provedor de LLM preferido.",
         "localDesc": "Modelos no dispositivo. Privado.",
         "selfHostedDesc": "Seu servidor na sua rede.",
         "enterprise": "Corporativo",
         "enterpriseDesc": "Use a conta de nuvem da sua organização (AWS, Azure, GCP)."
-      },
-      "openwhisprCloud": "only-whispers Cloud",
-      "openwhisprCloudDescription": "Resultados confiáveis. Sem configuração.",
-      "title": "Melhoria de texto com IA",
-      "toasts": {
-        "switchedCloud": {
-          "description": "A melhoria de texto usará o serviço de nuvem do only-whispers.",
-          "title": "Mudou para only-whispers Cloud"
-        },
-        "switchedCustom": {
-          "description": "Configure seu próprio provedor e chave API.",
-          "title": "Mudou para configuração personalizada"
-        },
-        "switchedProviders": {
-          "title": "Traga sua própria chave",
-          "description": "Usando suas próprias chaves API."
-        },
-        "switchedLocal": {
-          "title": "No dispositivo",
-          "description": "A IA é executada localmente na sua máquina."
-        },
-        "switchedSelfHosted": {
-          "title": "Auto-hospedado",
-          "description": "Usando seu próprio servidor."
-        },
-        "switchedEnterprise": {
-          "title": "Corporativo",
-          "description": "Usando a conta de nuvem da sua organização."
-        }
-      },
-      "managedEnterprise": {
-        "errorTitle": "A IA empresarial gerenciada precisa de atenção",
-        "title": "Gerenciado pela sua organização",
-        "description": "O login fornece acesso de curta duração automaticamente. Não são necessárias chaves de nuvem nem configuração da CLI.",
-        "usePersonalSetup": "Usar configuração pessoal",
-        "availableTitle": "Configuração da organização disponível",
-        "availableDescription": "Use {{provider}} sem gerenciar credenciais.",
-        "useManaged": "Usar gerenciado"
       }
     },
-    "developer": {
-      "clearCache": "Limpar cache",
-      "dataManagementDescription": "Gerencie modelos em cache e dados do app",
-      "dataManagementTitle": "Gerenciamento de dados",
-      "modelCache": "Cache de modelos",
-      "open": "Abrir",
-      "removeModels": {
-        "confirmText": "Excluir modelos",
-        "description": "Isso exclui todos os modelos Whisper armazenados localmente ({{path}}) e libera espaço em disco. Você pode baixá-los novamente no seletor de modelos.",
-        "failedDescription": "Algo deu errado ao remover os modelos. Tente novamente.",
-        "failedDescriptionShort": "Não foi possível remover os modelos em cache.",
-        "failedTitle": "Não foi possível remover modelos",
-        "successDescription": "Todos os modelos em cache foram removidos.",
-        "successTitle": "Modelos removidos",
-        "title": "Remover modelos baixados?"
-      },
-      "removing": "Removendo...",
-      "resetAll": {
-        "confirmText": "Excluir tudo",
-        "description": "Isso excluirá permanentemente todas as configurações locais, transcrições, gravações de áudio, modelos de IA baixados, conexões de calendário e dados em cache. Os dados na nuvem e sua conta não serão afetados. O app será reiniciado após a redefinição.",
-        "failedDescription": "Algo deu errado. Tente novamente ou reinstale o app.",
-        "failedTitle": "Não foi possível redefinir",
-        "successDescription": "Tudo foi redefinido. O app será reiniciado agora.",
-        "successTitle": "Tudo pronto",
-        "title": "Redefinir todos os dados do app"
-      },
-      "resetAppData": "Redefinir dados do app",
-      "resetAppDataDescription": "Excluir permanentemente todas as configurações locais, transcrições, gravações de áudio, modelos baixados e dados em cache"
-    },
     "dictionary": {
-      "title": "Dicionário personalizado",
-      "description": "Ensine à IA o seu vocabulário — nomes, jargões e termos que ela poderia não reconhecer",
-      "addWordOrPhrase": "Adicionar palavra ou frase",
-      "placeholder": "Adicionar uma palavra ou frase...",
-      "add": "Adicionar",
-      "pressEnterToAdd": "Pressione Enter para adicionar",
       "autoLearnTitle": "Aprender automaticamente com correções",
-      "autoLearnDescription": "Quando você corrige uma transcrição no aplicativo de destino, a palavra corrigida é adicionada automaticamente ao seu dicionário.",
-      "yourWords": "Suas palavras",
-      "clearDictionaryTitle": "Limpar dicionário?",
-      "clearDictionaryDescription": "Isso removerá todas as palavras do seu dicionário personalizado. Esta ação não pode ser desfeita.",
-      "clearAll": "Limpar tudo",
-      "agentNameAutoManaged": "Gerenciado automaticamente — sincronizado com o nome do assistente",
-      "removeWord": "Remover palavra",
-      "noWords": "Nenhuma palavra ainda",
-      "wordsAppearHere": "Palavras que você adicionar aparecerão aqui",
-      "howItWorksTitle": "Como funciona",
-      "howItWorksDescription": "As palavras são fornecidas como dicas de contexto ao modelo de fala, ajudando-o a reconhecer termos incomuns. Para palavras difíceis, tente adicionar contexto como \"The word is Synty\" junto com a própria palavra.",
-      "tipLabel": "Dica",
-      "tipDescription": "Separe várias palavras com vírgulas. Adicione frases de contexto como \"The word is Synty\" para melhor reconhecimento."
+      "autoLearnDescription": "Quando você corrige uma transcrição no aplicativo de destino, a palavra corrigida é adicionada automaticamente ao seu dicionário."
     },
     "general": {
-      "appearance": {
-        "auto": "Auto",
-        "dark": "Escuro",
-        "description": "Controle a aparência do only-whispers",
-        "light": "Claro",
-        "theme": "Tema",
-        "themeDescription": "Escolha claro, escuro ou acompanhe o sistema",
-        "title": "Aparência"
-      },
       "floatingIcon": {
         "alwaysVisible": "Sempre visível",
         "alwaysVisibleDescription": "Mantenha o ícone na tela mesmo quando não estiver ditando",
         "description": "Controle quando o ícone de ditado fica visível na tela",
-        "title": "Ícone flutuante",
-        "startPosition": "Posição inicial",
-        "startPositionDescription": "Onde o painel de gravação de voz aparece na tela",
-        "bottomRight": "Inferior direito",
-        "center": "Inferior central",
-        "bottomLeft": "Inferior esquerdo"
+        "title": "Ícone flutuante"
       },
       "hotkey": {
         "activationMode": "Modo de ativação",
@@ -1846,11 +838,7 @@
         "hyprlandUnbindDescription": "No Hyprland, o only-whispers reserva o atalho selecionado. Qualquer atalho existente do Hyprland que use a mesma combinação de teclas será desvinculado quando o only-whispers registar o atalho."
       },
       "meetingHotkey": {
-        "title": "Atalho modo reunião",
-        "description": "Iniciar modo reunião e posicionar o painel ao lado da tela",
-        "layoutLabel": "Ao acionar pelo atalho, abrir em:",
-        "layoutFullWidth": "Largura total",
-        "layoutSidePanel": "Painel lateral"
+        "title": "Atalho modo reunião"
       },
       "voiceAgentHotkey": {
         "title": "Atalho do assistente de voz",
@@ -1861,43 +849,6 @@
         "title": "Microfone",
         "muteOtherApps": "Silenciar outros apps ao ditar",
         "muteOtherAppsDescription": "Silencia o som de outros apps para não atrapalhar o seu ditado"
-      },
-      "soundEffects": {
-        "dictationSounds": "Sons de ditado",
-        "dictationSoundsDescription": "Tocar um som ao iniciar e parar a gravação",
-        "pauseMedia": "Pausar mídia",
-        "pauseMediaDescription": "Pausar a música automaticamente ao iniciar o ditado",
-        "title": "Efeitos sonoros"
-      },
-      "notifications": {
-        "title": "Notificações",
-        "description": "Controle quais notificações o only-whispers pode mostrar",
-        "disableAll": "Desativar todas as notificações",
-        "disableAllDescription": "Silenciar tudo exceto mensagens de erro",
-        "meetingDetection": "Detecção de reuniões",
-        "meetingDetectionDescription": "Notificar quando uma reunião for detectada para iniciar a gravação",
-        "calendarReminders": "Lembretes do calendário",
-        "calendarRemindersDescription": "Notificar quando uma reunião agendada está prestes a começar"
-      },
-      "clipboard": {
-        "title": "Área de transferência",
-        "autoPaste": "Colagem automática",
-        "autoPasteDescription": "Colar automaticamente o texto transcrito no aplicativo ativo ao finalizar o ditado",
-        "keepInClipboard": "Manter transcrição na área de transferência",
-        "keepInClipboardDescription": "Manter o texto ditado na área de transferência para poder colar manualmente se necessário"
-      },
-      "startup": {
-        "launchAtLogin": "Iniciar ao fazer login",
-        "launchAtLoginDescription": "Iniciar o only-whispers em segundo plano ao fazer login",
-        "title": "Inicialização",
-        "description": "Controle o comportamento do only-whispers ao iniciar",
-        "startMinimized": "Iniciar minimizado",
-        "startMinimizedDescription": "Iniciar sem mostrar a janela do painel de controle",
-        "needsApproval": {
-          "title": "Aprovação necessária nas Configurações do Sistema",
-          "description": "O macOS registrou o only-whispers como item de início, mas está aguardando que você o permita em Itens de Início.",
-          "action": "Abrir Itens de Início"
-        }
       },
       "waylandPaste": {
         "title": "Configuração de colagem no Wayland",
@@ -1970,70 +921,9 @@
           "detected": "Detetado",
           "manualTitle": "Adicione isto à sua configuração",
           "manualDesc": "Configure manualmente e depois reconstrua.",
-          "flakeTitle": "A instalar pelo nosso flake?",
-          "flakeDesc": "Se instalar o only-whispers pelo flake, programs.openwhispr.enable ativa o ydotool, o módulo uinput e as associações de grupo por si.",
           "rebuildNote": "Execute sudo nixos-rebuild switch, depois termine a sessão e volte a entrar para que a alteração de grupo e a regra /dev/uinput entrem em vigor. Substitua <you> pelo seu nome de utilizador."
         },
         "wlCopyDesc": "Ferramenta de área de transferência da qual os apps Wayland leem o texto colado nesta área de trabalho"
-      },
-      "updates": {
-        "automaticUpdates": "Atualizações automáticas",
-        "automaticUpdatesDescription": "Baixar e instalar atualizações em segundo plano",
-        "badges": {
-          "dev": "Dev",
-          "latest": "Mais recente",
-          "update": "Atualização"
-        },
-        "checkForUpdates": "Verificar atualizações",
-        "checking": "Verificando...",
-        "currentVersion": "Versão atual",
-        "devMode": "Executando em modo de desenvolvimento",
-        "dialogs": {
-          "almostThere": {
-            "description": "A atualização está quase pronta. Aguarde um momento.",
-            "title": "Quase lá"
-          },
-          "checkFailed": {
-            "description": "Tivemos dificuldade ao verificar atualizações. Tente novamente mais tarde.",
-            "title": "Não foi possível verificar atualizações"
-          },
-          "downloadFailed": {
-            "description": "Tivemos dificuldade ao baixar a atualização. Tente novamente.",
-            "title": "Não foi possível baixar a atualização"
-          },
-          "installFailed": {
-            "description": "Tivemos dificuldade ao instalar a atualização. Tente novamente.",
-            "title": "Não foi possível instalar a atualização"
-          },
-          "installUpdate": {
-            "confirmText": "Instalar e reiniciar",
-            "description": "O only-whispers será reiniciado para aplicar a atualização.",
-            "title": "Instalar atualização"
-          },
-          "noUpdates": {
-            "description": "Você está na versão mais recente.",
-            "title": "Sem atualizações"
-          },
-          "updateAvailable": {
-            "description": "Atualização disponível: v{{version}}",
-            "title": "Atualização disponível"
-          }
-        },
-        "downloadUpdate": "Baixar atualização {{version}}",
-        "downloading": "Baixando... {{progress}}%",
-        "installAndRestart": "Instalar e reiniciar",
-        "latestVersion": "Você está na versão mais recente",
-        "managedByPackageManager": "As atualizações são instaladas pelo seu gerenciador de pacotes",
-        "newVersion": "Uma versão mais recente está disponível",
-        "newVersionAvailable": "Nova versão disponível",
-        "restarting": "Reiniciando...",
-        "title": "Atualizações",
-        "versionPlaceholder": "—",
-        "whatsNew": "Novidades na v{{version}}"
-      },
-      "translationHotkey": {
-        "title": "Atalho de Tradução",
-        "description": "Dite em qualquer idioma: o texto colado sai traduzido"
       }
     },
     "permissions": {
@@ -2048,69 +938,14 @@
         "rowDescription": "Corrija problemas após reinstalar ou recompilar o app removendo e readicionando o only-whispers nas Configurações do Sistema",
         "title": "Redefinir permissões de acessibilidade"
       },
-      "optional": "Opcional",
-      "systemAudioTitle": "Áudio do Sistema",
-      "systemAudioDescription": "Transcreva reuniões, chamadas, palestras, podcasts e outros áudios do sistema.",
       "grantAccess": "Conceder acesso",
-      "test": "Testar",
-      "testAndGrant": "Testar e conceder",
       "title": "Permissões",
       "troubleshoot": "Solucionar problemas",
       "troubleshootingTitle": "Solução de problemas"
     },
-    "privacy": {
-      "cloudBackup": "Backup na nuvem",
-      "cloudBackupDescription": "Salve suas transcrições e notas na nuvem para acesso contínuo em todos os dispositivos.",
-      "cloudBackupTeamCaveat": "Notas em espaços de equipe e notas que você compartilhou são sempre sincronizadas, independentemente desta configuração.",
-      "cloudNotesMigration": "Fazendo backup das notas… {{done}} / {{total}}",
-      "cloudNotesMigrationDone": "Todas as notas salvas na nuvem",
-      "description": "Controle quais dados saem do seu dispositivo. Tudo está desativado por padrão.",
-      "title": "Privacidade",
-      "insightsSync": "Sincronizar Estatísticas pessoais",
-      "insightsSyncDescription": "Sincronize contagens de palavras, a data e a hora exata de cada ditado, durações e tipos de modelo entre seus dispositivos. O conteúdo das transcrições nunca é incluído. Quando você está conectado, limpar o histórico também remove essas contagens deste dispositivo e da sua conta.",
-      "insightsSyncRequiresAccount": "Entre na sua conta para sincronizar dados de Estatísticas sem conteúdo entre seus dispositivos.",
-      "insightsSyncRequiresHistory": "Ative a retenção de dados para registrar as Estatísticas antes de sincronizá-las entre seus dispositivos.",
-      "leaderboardDescription": "Mostre seu nome, e-mail e atividade nas classificações qualificadas de espaços de trabalho e domínios profissionais. As transcrições permanecem privadas.",
-      "leaderboardRequiresAccount": "Entre na sua conta para gerenciar sua participação nas classificações.",
-      "leaderboardRequiresHistory": "Ative a retenção de dados antes de participar das classificações.",
-      "usageAnalytics": "Análise de uso",
-      "usageAnalyticsDescription": "Ajude-nos a melhorar o only-whispers compartilhando métricas anônimas de desempenho. Nunca enviamos conteúdo de transcrição — apenas dados de tempo e erros.",
-      "dataRetention": "Retenção de dados",
-      "dataRetentionDescription": "Armazenar transcrições e áudio localmente no seu histórico. Quando desativado, as transcrições são coladas mas não salvas.",
-      "transcriptRetention": "Retenção de transcrições",
-      "transcriptRetentionDescription": "Excluir automaticamente as transcrições salvas, o áudio delas e os contadores do Insights delas após este período.",
-      "transcriptRetentionForever": "Para sempre",
-      "hoursAgo": "há {{count}}h",
-      "justNow": "agora mesmo",
-      "lastSynced": "Última sincronização {{time}}",
-      "minutesAgo": "há {{count}}min",
-      "audioRetention": "Retenção de áudio",
-      "audioRetentionDescription": "Armazena o áudio de ditado localmente para retranscrição e download. Os arquivos são excluídos automaticamente após o período de retenção. O áudio de reuniões nunca é armazenado.",
-      "audioRetentionDisabled": "Desativado",
-      "retentionDays_one": "{{count}} dia",
-      "retentionDays_other": "{{count}} dias",
-      "audioStorageUsage": "Uso de armazenamento",
-      "audioStorageUsageDescription": "Arquivos de áudio armazenados neste dispositivo",
-      "audioStorageFiles": "{{count}} arquivos, {{size}}",
-      "audioStorageEmpty": "Nenhum arquivo de áudio armazenado",
-      "clearAllAudio": "Excluir todos os áudios",
-      "clearAllAudioConfirm": "Excluir todos os arquivos de áudio armazenados? Esta ação não pode ser desfeita.",
-      "saveDiscarded": "Salvar ditados descartados",
-      "saveDiscardedDescription": "Quando você cancela um ditado com Escape, mantém o áudio no histórico para poder recuperá-lo. Requer a retenção de dados e áudio ativada."
-    },
-    "prompts": {
-      "description": "Visualize, personalize e teste o prompt de sistema unificado que alimenta a limpeza de texto e a detecção de instruções",
-      "title": "Estúdio de prompts"
-    },
     "speechToText": {
       "title": "Voz para texto",
-      "description": "Escolha um motor para ditado e gravação de notas",
-      "tabs": {
-        "dictation": "Ditado",
-        "noteRecording": "Gravação de notas",
-        "upload": "Enviar áudio"
-      },
-      "selfHostedStreamingNote": "Requer um servidor que suporte transcrição em streaming."
+      "description": "Escolha um motor para ditado e gravação de notas"
     },
     "llms": {
       "title": "Modelos de linguagem",
@@ -2118,363 +953,8 @@
       "tabs": {
         "dictationCleanup": "Limpeza do ditado",
         "dictationAgent": "Assistente de voz",
-        "noteFormatting": "Formatação de notas",
-        "chatIntelligence": "Chat",
-        "dictationTranslation": "Tradução"
+        "chatIntelligence": "Chat"
       }
-    },
-    "noteFormatting": {
-      "autoGenerateTitle": "Gerar títulos de notas automaticamente",
-      "autoGenerateTitleDescription": "Usar IA para gerar um título curto para notas após transcrição ou aprimoramento"
-    },
-    "transcription": {
-      "customSetup": "Configuração personalizada",
-      "customSetupDescription": "Use seu próprio provedor e chave API.",
-      "description": "Escolha como o only-whispers transcreve sua voz",
-      "modes": {
-        "openwhispr": "only-whispers Cloud",
-        "providers": "Provedores na nuvem",
-        "local": "Local",
-        "selfHosted": "Auto-hospedado",
-        "openwhisprDesc": "Resultados confiáveis. Sem configuração.",
-        "providersDesc": "Use sua própria chave API.",
-        "localDesc": "Modelos no dispositivo. Privado.",
-        "selfHostedDesc": "Seu servidor na sua rede.",
-        "enterprise": "Nuvem corporativa",
-        "enterpriseDesc": "O áudio vai para a nuvem da sua organização."
-      },
-      "openwhisprCloud": "only-whispers Cloud",
-      "openwhisprCloudDescription": "Resultados confiáveis. Sem configuração.",
-      "title": "Fala para texto",
-      "toasts": {
-        "switchedCloud": {
-          "description": "A transcrição usará o serviço de nuvem do only-whispers.",
-          "title": "Mudou para only-whispers Cloud"
-        },
-        "switchedCustom": {
-          "description": "Configure seu próprio provedor e chave API.",
-          "title": "Mudou para configuração personalizada"
-        },
-        "switchedProviders": {
-          "title": "Provedores na nuvem",
-          "description": "Usando suas próprias chaves API."
-        },
-        "switchedLocal": {
-          "title": "No dispositivo",
-          "description": "A transcrição é executada localmente na sua máquina."
-        },
-        "switchedSelfHosted": {
-          "title": "Auto-hospedado",
-          "description": "Usando seu próprio servidor."
-        },
-        "switchedEnterprise": {
-          "title": "Nuvem corporativa selecionada",
-          "description": "A ditado agora usa a transcrição gerida pela sua organização."
-        }
-      },
-      "gpuDevice": {
-        "title": "GPU de transcrição",
-        "description": "GPU usada para transcrição local"
-      },
-      "diarization": {
-        "title": "Identificação de falantes",
-        "description": "Identificar falantes individuais em gravações de reuniões",
-        "modelsReady": "Modelos prontos",
-        "deleteModels": "Excluir modelos"
-      },
-      "transcriptionPreview": "Pré-visualização ao vivo",
-      "transcriptionPreviewDescription": "Mostrar transcrição em janela flutuante antes da limpeza",
-      "aec": {
-        "toggle": {
-          "title": "Cancelamento de eco para reuniões",
-          "description": "Cancela o áudio da reunião que vaza para o seu microfone. Deixe isto desativado ao usar fones de ouvido ou auriculares — não há eco para cancelar e pode suprimir totalmente a sua voz."
-        }
-      },
-      "vad": {
-        "title": "Detecção de atividade de voz",
-        "description": "Configure como o Silero VAD detecta e segmenta a fala na transcrição local do Whisper",
-        "toggles": {
-          "dictation": {
-            "title": "Silero VAD para ditado",
-            "description": "Ativar detecção de atividade de voz para ditado local"
-          },
-          "noteRecording": {
-            "title": "Silero VAD para gravação de notas",
-            "description": "Ativar detecção de atividade de voz para gravação local de notas"
-          },
-          "meeting": {
-            "title": "Silero VAD para reuniões",
-            "description": "Ativar detecção de atividade de voz para transcrição local de reuniões"
-          }
-        },
-        "fields": {
-          "threshold": {
-            "label": "Limiar de VAD",
-            "info": "Probabilidade acima da qual um quadro é classificado como fala."
-          },
-          "minSpeechDurationMs": {
-            "label": "Duração mínima da fala (ms)",
-            "info": "Segmentos de fala mais curtos são descartados como ruído ou falsos positivos."
-          },
-          "minSilenceDurationMs": {
-            "label": "Duração mínima de silêncio (ms)",
-            "info": "O silêncio precisa durar pelo menos esse tempo para encerrar um segmento. Pausas mais curtas permanecem dentro do segmento."
-          },
-          "maxSpeechDurationS": {
-            "label": "Duração máxima da fala (s)",
-            "info": "Segmentos maiores são divididos em pontos de silêncio para manter pedaços gerenciáveis."
-          },
-          "speechPadMs": {
-            "label": "Preenchimento da fala (ms)",
-            "info": "Preenchimento antes e depois de cada segmento para não cortar as bordas das palavras."
-          },
-          "samplesOverlap": {
-            "label": "Sobreposição de amostras (s)",
-            "info": "Áudio estendido de um segmento para o próximo, evitando cortes bruscos na concatenação."
-          }
-        }
-      },
-      "meetingEnterpriseOnly": "A sua organização só permite transcrição em nuvem corporativa, que ainda não abrange a gravação de reuniões.",
-      "meetingCloudSignedOut": "As gravações de notas não podem começar no only-whispers Cloud enquanto você estiver desconectado. Escolha outro motor acima."
-    },
-    "intelligence": {
-      "gpuDevice": {
-        "title": "GPU de inteligência",
-        "description": "GPU usado para processamento IA local"
-      }
-    },
-    "selfHosted": {
-      "endpointUrl": "URL do endpoint",
-      "serverUrl": "URL do servidor",
-      "apiKeyOptional": "API Key (opcional)"
-    },
-    "workspace": {
-      "title": "Espaço de trabalho",
-      "description": "Colabore com colegas, compartilhe notas e gerencie o acesso ao workspace em um só lugar.",
-      "empty": {
-        "title": "Crie seu primeiro espaço de trabalho",
-        "description": "Espaços de trabalho permitem colaborar com colegas e compartilhar notas.",
-        "create": "Criar espaço de trabalho"
-      },
-      "loadError": {
-        "title": "Não foi possível carregar os espaços de trabalho",
-        "description": "Verifique sua conexão e tente novamente.",
-        "retry": "Tentar novamente"
-      },
-      "tab": {
-        "general": "Geral",
-        "members": "Membros",
-        "teams": "Grupos",
-        "developer": "Desenvolvedor"
-      },
-      "role": {
-        "owner": "Proprietário",
-        "admin": "Administrador",
-        "member": "Membro"
-      },
-      "general": {
-        "nameLabel": "Nome do espaço de trabalho",
-        "saved": "Espaço de trabalho atualizado",
-        "dangerTitle": "Excluir espaço de trabalho",
-        "dangerDescription": "Todas as notas, pastas e integrações compartilhadas serão excluídas. Esta ação não pode ser desfeita.",
-        "delete": "Excluir espaço de trabalho",
-        "confirmTitle": "Excluir {{name}}?",
-        "confirmDescription": "Isso cancela a assinatura e remove todos os dados do espaço de trabalho permanentemente.",
-        "deleting": "Excluindo…",
-        "deleted": "Espaço de trabalho excluído",
-        "leaveTitle": "Sair do espaço de trabalho",
-        "leaveDescription": "Você perderá o acesso a este espaço de trabalho e às notas compartilhadas dele.",
-        "leave": "Sair do espaço de trabalho",
-        "leaving": "Saindo…",
-        "leaveConfirm": {
-          "title": "Sair de {{name}}?",
-          "description": "Você perderá o acesso imediatamente. Um administrador pode convidá-lo de volta."
-        },
-        "left": "Você saiu de {{name}}"
-      },
-      "members": {
-        "title": "Membros",
-        "description": "{{count}} de {{seats}} assentos usados.",
-        "invite": "Convidar",
-        "empty": "Ainda não há membros.",
-        "loadError": "Não foi possível carregar os membros.",
-        "roleUpdated": "Função atualizada",
-        "removed": "{{name}} removido",
-        "promote": "Tornar administrador",
-        "demote": "Tornar membro",
-        "transferOwnership": "Transferir propriedade",
-        "remove": "Remover do espaço de trabalho",
-        "removeConfirm": {
-          "title": "Remover este membro?",
-          "description": "{{name}} perderá o acesso a {{workspace}} imediatamente."
-        },
-        "transferConfirm": {
-          "title": "Transferir a propriedade?",
-          "description": "{{name}} se torna o proprietário de {{workspace}}. Sua função muda para administrador e apenas o novo proprietário pode transferi-la de volta."
-        }
-      },
-      "joinRequests": {
-        "title": "Pedidos de acesso",
-        "approve": "Aprovar",
-        "deny": "Recusar",
-        "approved": "{{name}} entrou no workspace",
-        "denied": "Pedido recusado",
-        "errorTitle": "Não foi possível atualizar o pedido"
-      },
-      "teams": {
-        "title": "Grupos",
-        "description": "Grupos de membros do workspace que podem receber acesso a espaços de equipe de uma vez.",
-        "new": "Novo grupo",
-        "empty": "Nenhum grupo ainda.",
-        "createFirst": "Crie seu primeiro grupo",
-        "addMembersLabel": "Adicionar membros",
-        "createTitle": "Criar grupo",
-        "nameLabel": "Nome do grupo",
-        "memberCount_one": "{{count}} membro",
-        "memberCount_other": "{{count}} membros",
-        "membersButton": "Membros",
-        "grantsAccessToSpaces_one": "Dá acesso a {{count}} espaço",
-        "grantsAccessToSpaces_other": "Dá acesso a {{count}} espaços",
-        "couldNotCreate": "Não foi possível criar o grupo",
-        "created": "{{team}} criada",
-        "deleted": "{{team}} excluída",
-        "deleteConfirmTitle": "Excluir {{team}}?",
-        "deleteConfirmDescription": "Isso arquiva o grupo. Seus membros perdem o acesso que ele concedia.",
-        "deleteConfirmSpaceAccess_one": "Este grupo dá acesso a {{count}} espaço. Seus membros perderão esse acesso.",
-        "deleteConfirmSpaceAccess_other": "Este grupo dá acesso a {{count}} espaços. Seus membros perderão esse acesso.",
-        "members": {
-          "title": "Membros de {{team}}",
-          "removeConfirm": "Remover {{name}} de {{team}}?",
-          "leave": "Sair do grupo",
-          "leftTeam": "Você saiu de {{team}}",
-          "leaveConfirm": "Sair de {{team}}?",
-          "leaveConfirmDescription": "Você perderá o acesso aos espaços atribuídos a este grupo, a menos que tenha sido adicionado diretamente ou outro grupo o inclua."
-        }
-      },
-      "invites": {
-        "title": "Convites pendentes",
-        "expiresIn_one": "Expira em {{count}} dia",
-        "expiresIn_other": "Expira em {{count}} dias",
-        "expired": "Expirado",
-        "loadError": "Não foi possível carregar os convites.",
-        "resend": "Reenviar",
-        "resending": "Reenviando…",
-        "revoke": "Revogar",
-        "resent": "Convite reenviado",
-        "resentNoEmail": "Convite atualizado, mas não foi possível entregar o e-mail.",
-        "revoked": "Convite revogado",
-        "revokeFailed": "Não foi possível revogar o convite",
-        "revokeConfirm": {
-          "title": "Revogar este convite?",
-          "description": "O link de convite de {{email}} deixará de funcionar."
-        }
-      },
-      "billing": {
-        "plan": "Plano",
-        "seats": "Assentos",
-        "ownerOnly": "Apenas o proprietário do espaço de trabalho pode gerenciar a assinatura.",
-        "nextInvoice": "Próxima fatura",
-        "manageStripe": "Gerenciar no Stripe",
-        "startSubscription": "Iniciar assinatura",
-        "planLabel": {
-          "business": "Business",
-          "pro": "Pro",
-          "free": "Gratuito",
-          "enterprise": "Enterprise"
-        },
-        "status": {
-          "active": "Ativa",
-          "trialing": "Em teste",
-          "past_due": "Em atraso",
-          "canceled": "Cancelada",
-          "incomplete": "Incompleta",
-          "unpaid": "Não paga"
-        }
-      },
-      "developer": {
-        "title": "Chaves de API",
-        "description": "Acesso programático limitado a este espaço de trabalho.",
-        "empty": "Ainda não há chaves de API. Crie uma para integrar com este espaço de trabalho.",
-        "loadError": "Não foi possível carregar as chaves de API.",
-        "new": "Nova chave",
-        "create": "Criar chave",
-        "createTitle": "Criar chave de API",
-        "createDescription": "Escolha as permissões que esta chave precisa. Você pode revogá-la a qualquer momento.",
-        "nameLabel": "Nome da chave",
-        "namePlaceholder": "Integração de produção",
-        "revoke": "Revogar chave",
-        "revoked": "Chave {{name}} revogada",
-        "lastUsed": "Último uso {{date}}",
-        "neverUsed": "Nunca usada",
-        "keyCreatedTitle": "Chave de API criada",
-        "keyCreatedDescription": "Copie esta chave agora — você não poderá vê-la novamente.",
-        "revokeConfirm": {
-          "title": "Revogar esta chave?",
-          "description": "{{name}} deixará de funcionar imediatamente. Qualquer integração que a utilize começará a falhar."
-        },
-        "scopes": {
-          "notes": {
-            "title": "Notas",
-            "read": "Ler notas",
-            "write": "Escrever notas"
-          },
-          "folders": {
-            "title": "Pastas",
-            "read": "Ler pastas",
-            "write": "Escrever pastas"
-          },
-          "transcriptions": {
-            "title": "Transcrições",
-            "read": "Ler transcrições"
-          },
-          "members": {
-            "title": "Membros",
-            "read": "Ler membros",
-            "write": "Gerenciar membros"
-          },
-          "billing": {
-            "title": "Cobrança",
-            "read": "Ler cobrança"
-          },
-          "full": {
-            "title": "Acesso total",
-            "admin": "Administrador do espaço de trabalho"
-          }
-        }
-      },
-      "enterpriseConsole": {
-        "title": "Console Enterprise",
-        "description": "Gerencie SSO, políticas e membros pela web",
-        "open": "Abrir console"
-      }
-    },
-    "enterpriseCheckout": {
-      "title": "Fazer upgrade para Enterprise",
-      "description": "Escolha o workspace, os assentos e o ciclo de cobrança. O pagamento é concluído no Stripe Checkout.",
-      "allSubscribed": "Os workspaces que você possui já estão no Enterprise ou não podem ser alterados aqui. Para mudanças de plano, fale com vendas.",
-      "workspaceLabel": "Workspace",
-      "seatsLabel": "Assentos",
-      "seatsHint_one": "{{count}} assento em uso no momento",
-      "seatsHint_other": "{{count}} assentos em uso no momento",
-      "intervalLabel": "Ciclo de cobrança",
-      "interval": {
-        "monthly": "Mensal",
-        "annual": "Anual"
-      },
-      "proratedCharge": "Cobrança proporcional",
-      "prorationNote": "A diferença proporcional é adicionada à sua próxima fatura.",
-      "errors": {
-        "previewFailed": "Não foi possível carregar a prévia do upgrade.",
-        "alreadyEnterprise": "Este espaço de trabalho já está no Enterprise.",
-        "subscriptionInactive": "A assinatura deste espaço de trabalho não está ativa. Atualize os dados de cobrança e tente novamente.",
-        "priceNotConfigured": "Os preços do Enterprise não estão disponíveis no momento. Fale com a equipe de vendas."
-      },
-      "priceNote": "O preço final é exibido no checkout.",
-      "continueCta": "Continuar para o checkout",
-      "upgradeDescription": "Faça o upgrade de {{workspace}} de {{plan}} para Enterprise. Assentos e ciclo de cobrança são mantidos; a mudança entra em vigor imediatamente.",
-      "upgradeCta": "Fazer upgrade agora",
-      "upgradedTitle": "Upgrade concluído",
-      "upgradedDescription": "{{workspace}} agora está no Enterprise."
     }
   },
   "models": {
@@ -2632,424 +1112,22 @@
     "close": "Fechar"
   },
   "notes": {
-    "mutationErrors": {
-      "folderNameRequired": "Insira um nome para a pasta.",
-      "folderAlreadyExists": "Já existe uma pasta com esse nome.",
-      "folderNotFound": "Não foi possível encontrar essa pasta.",
-      "defaultFolderImmutable": "As pastas padrão não podem ser alteradas.",
-      "spaceNameRequired": "Insira um nome para o espaço.",
-      "spaceNotFound": "Não foi possível encontrar esse espaço.",
-      "privateSpaceImmutable": "Seu espaço Pessoal não pode ser alterado.",
-      "generic": "Não foi possível concluir a alteração. Tente novamente."
-    },
-    "sidebar": {
-      "newNote": "Nova nota",
-      "searchNotes": "Pesquisar notas",
-      "templatesAndActions": "Modelos e ações"
-    },
-    "spaces": {
-      "privateSpaces": "Notas privadas",
-      "teamSpaces": "Teamspaces",
-      "personal": "Pessoal",
-      "privateTooltip": "Somente você pode ver seu espaço pessoal",
-      "newSpace": "Novo espaço de equipe",
-      "newSpaceInWorkspace": "Novo espaço de equipe em {{workspace}}",
-      "createTitle": "Criar espaço de equipe",
-      "createDescription": "Uma área compartilhada dentro de um workspace para as pessoas e grupos que você adicionar.",
-      "nameAndIconLabel": "Nome e ícone",
-      "create": "Criar",
-      "couldNotCreate": "Não foi possível criar o espaço",
-      "created": "{{space}} criado",
-      "changeEmoji": "Alterar emoji",
-      "settings": "Configurações",
-      "settingsTitle": "Configurações do espaço",
-      "couldNotRename": "Não foi possível renomear o espaço",
-      "couldNotChangeEmoji": "Não foi possível alterar o emoji",
-      "deleteSpace": "Excluir espaço",
-      "deleteHintTeam": "Remove este espaço para todos. Seus grupos permanecem.",
-      "deleteHintLocal": "Exclui permanentemente este espaço com suas pastas e notas neste dispositivo.",
-      "leaveTitle": "Sair do espaço",
-      "leaveDescription": "Suas notas continuam disponíveis para os outros membros.",
-      "leave": "Sair do espaço",
-      "leaveConfirmTitle": "Sair de {{space}}?",
-      "leaveConfirmDescription": "Você será removido de {{teams}} e perderá o acesso a outros espaços que esses grupos podem abrir.",
-      "leaveDirectDescription": "Você perderá o acesso a este espaço.",
-      "leaveKeepsGroupAccess": "Você manterá o acesso por meio de {{groups}}.",
-      "left": "Você saiu de {{space}}",
-      "stillViaGroups": "Você ainda tem acesso a {{space}} por meio de {{groups}}.",
-      "couldNotLeave": "Não foi possível sair do espaço",
-      "deleteConfirmTitle": "Excluir espaço?",
-      "deleteConfirmDescription": "Isso exclui permanentemente {{space}} com todas as suas pastas e notas neste dispositivo.",
-      "deleteConfirmTeamDescription": "Isso exclui {{space}} para todos. Seus grupos permanecem, mas os membros perdem o acesso a todas as pastas e notas.",
-      "deleteTypeName": "Digite {{space}} para confirmar",
-      "couldNotDelete": "Não foi possível excluir o espaço",
-      "deleted": "{{space}} excluído",
-      "moveTo": "Mover para",
-      "moveToSpace": "Mover para espaço…",
-      "searchSpaces": "Pesquisar espaços...",
-      "noSpacesFound": "Nenhum espaço encontrado",
-      "spaceRoot": "Raiz do espaço",
-      "moveConfirm": "Mover",
-      "confirmMoveInTitle": "Mover para {{space}}?",
-      "confirmMoveIn": "Todos em {{space}} poderão ver e editar esta nota. As notas não podem ser retiradas de um espaço de equipe depois.",
-      "confirmMoveInFolder": "Todos em {{space}} poderão ver e editar esta pasta e suas notas. As pastas e notas não podem ser retiradas de um espaço de equipe depois.",
-      "cantMoveOut": "As notas não podem ser retiradas de um espaço de equipe.",
-      "cantMoveTeammate": "Apenas o proprietário da nota ou um administrador do workspace pode movê-la para outro espaço.",
-      "moved": "“{{title}}” movida para {{target}}",
-      "couldNotMove": "Não foi possível mover a pasta",
-      "couldNotMoveNote": "Não foi possível mover a nota",
-      "folderNameTaken": "Não foi possível mover “{{name}}”: já existe uma pasta com esse nome nesse local",
-      "undo": "Desfazer",
-      "emptySpace": "Nenhuma nota ainda. As notas aqui são visíveis para todos em {{space}}.",
-      "emptyTeamHint": "Os espaços compartilhados com você aparecerão aqui.",
-      "emptyTeamTitle": "Nenhum espaço compartilhado",
-      "noteCount_one": "{{count}} nota",
-      "noteCount_other": "{{count}} notas",
-      "accessRevoked": "Você não tem mais acesso a {{space}}",
-      "accessRevokedActiveNote": "Você não tem mais acesso a {{space}} — \"{{title}}\" não está mais disponível neste dispositivo",
-      "movedToPersonal": "Você não tem mais acesso a {{space}} — “{{title}}” foi movida para o seu espaço pessoal",
-      "updateDeniedNote": "Você não tem permissão para alterar “{{title}}” — suas edições não sincronizadas foram salvas como cópia no seu espaço pessoal",
-      "deleteDeniedNote": "“{{title}}” não foi excluída — apenas o proprietário da nota ou um administrador pode excluí-la",
-      "updateDeniedFolder": "Você não tem permissão para alterar “{{name}}” — seu trabalho não sincronizado foi salvo no seu espaço pessoal",
-      "deleteDeniedFolder": "“{{name}}” não foi excluída — apenas um administrador pode excluir uma pasta do espaço",
-      "conflictBanner": "Existe uma versão mais recente desta nota.",
-      "conflictRefresh": "Atualizar",
-      "conflictKeep": "Continuar editando",
-      "editedBy": "Editado por {{name}} · {{time}}",
-      "members": {
-        "addPeople": "Adicionar pessoas",
-        "addedToTeam": "{{name}} adicionado a {{team}}",
-        "removedFromTeam": "{{name}} removido de {{team}}",
-        "stillViaGroups": "{{name}} ainda tem acesso por meio de {{groups}}",
-        "roleUpdated": "Função atualizada",
-        "you": "Você",
-        "addFailed": "Não foi possível adicionar {{failed}} de {{total}} pessoas",
-        "searchPlaceholder": "Pesquisar pessoas…",
-        "noResults": "Nenhuma pessoa encontrada",
-        "roleAdmin": "Administrador",
-        "roleMember": "Membro",
-        "roleAdminDescription": "Gerencia pessoas e configurações.",
-        "roleMemberDescription": "Pode ver e editar notas.",
-        "remove": "Remover",
-        "removeConfirm": "Remover {{name}} de {{space}}?",
-        "removeConfirmDescription": "A pessoa perderá o acesso a todas as notas deste espaço.",
-        "removeKeepsGroupAccess": "O acesso por meio de {{groups}} será mantido.",
-        "inviteFooter": "Convidar {{email}} para o espaço de trabalho…",
-        "empty": "Ninguém foi adicionado ainda",
-        "viaGroup": "via {{group}}",
-        "managedByGroup": "Adicionado por meio de {{group}}. Remova a pessoa lá.",
-        "roleFromGroup": "Administrador por meio de {{group}}. Altere isso lá.",
-        "invited": "Convite enviado para {{email}}"
-      },
-      "invitedTo_one": "Você entrará em {{count}} espaço de equipe",
-      "invitedTo_other": "Você entrará em {{count}} espaços de equipe",
-      "invitedToSpaces": "Você entrará em {{spaces}}",
-      "teamsMembers": {
-        "title": "Membros de {{space}}",
-        "noTeams": "Nenhum grupo tem acesso a este espaço ainda.",
-        "addTeamLabel": "Adicionar um grupo a este espaço",
-        "chooseTeam": "Escolher grupo…",
-        "teamAdded": "{{team}} adicionada a {{space}}",
-        "teamRemoved": "{{team}} removida de {{space}}",
-        "removeTeamFromSpace": "Remover do espaço",
-        "removeTeamConfirm": "Remover {{team}} de {{space}}?",
-        "removeTeamConfirmDescription": "Seus membros perderão o acesso a este espaço, a menos que tenham sido adicionados diretamente ou outro grupo os inclua.",
-        "accessLabel": "Acesso ao espaço",
-        "accessAdmin": "Administrador",
-        "accessMember": "Membro",
-        "accessChanged": "Acesso de {{team}} atualizado",
-        "accessHint": "Os administradores de {{team}} só gerenciam este espaço quando seu acesso está definido como Administrador."
-      },
-      "teams": {
-        "newTeam": "Novo grupo",
-        "loadError": "Não foi possível carregar os grupos."
-      },
-      "groups": {
-        "title": "Grupos com acesso",
-        "optional": "Grupos (opcional)"
-      }
-    },
-    "structureIntro": {
-      "title": "Onde ficam suas notas",
-      "description": "O only-whispers separa pensamentos privados do trabalho compartilhado para que as pessoas certas vejam as notas certas.",
-      "personal": {
-        "title": "Espaço pessoal",
-        "description": "Somente você pode ver as pastas e notas deste espaço."
-      },
-      "workspace": {
-        "title": "Espaço de trabalho",
-        "description": "O lugar dos membros, funções e espaços de equipe do seu workspace."
-      },
-      "teamSpace": {
-        "title": "Espaço de equipe",
-        "description": "Uma área compartilhada dentro de um workspace. Adicione pessoas ou grupos para dar acesso a elas."
-      },
-      "contents": "Cada espaço pode conter pastas e notas.",
-      "done": "Entendi",
-      "reopen": "Entenda como os espaços são organizados"
-    },
-    "folders": {
-      "defaults": {
-        "personal": "Pessoal",
-        "meetings": "Reuniões",
-        "videos": "Vídeos"
-      },
-      "title": "Pastas",
-      "soon": "Em breve",
-      "folderName": "Nome da pasta",
-      "couldNotCreate": "Não foi possível criar a pasta",
-      "couldNotRename": "Não foi possível renomear a pasta",
-      "couldNotDelete": "Não foi possível excluir a pasta",
-      "deleteTitle": "Excluir pasta?",
-      "deleteDescription": "Isso excluirá permanentemente \"{{name}}\" e suas {{count}} nota(s). Esta ação não pode ser desfeita.",
-      "deleteDescriptionEmpty": "Isso excluirá permanentemente \"{{name}}\". Esta ação não pode ser desfeita.",
-      "deleteConfirm": "Excluir pasta e notas"
-    },
     "list": {
-      "title": "Notas",
-      "newNote": "Nova nota",
-      "untitled": "Sem título",
-      "untitledNote": "Nota sem título",
-      "shared": "Compartilhada",
       "timeNow": "Agora",
       "minutesAgo": "{{count}}m",
       "hoursAgo": "{{count}}h",
       "daysAgo": "{{count}}d"
     },
-    "createMenu": {
-      "note": "Nota",
-      "assistantChat": "Chat com o assistente",
-      "chooseType": "Escolher o que criar"
-    },
     "editor": {
-      "untitled": "Sem título",
-      "noteTitle": "Título da nota",
       "stop": "Parar",
       "transcribe": "Transcrever",
-      "processing": "Processando...",
-      "export": "Exportar",
-      "asMarkdown": "Como Markdown",
-      "asPlainText": "Como texto simples",
-      "asTranscriptText": "Como texto simples (.txt)",
-      "asSubtitles": "Como legendas (.srt)",
-      "asJson": "Como JSON (.json)",
-      "asTranscriptMarkdown": "Como Markdown (.md)",
-      "raw": "Original",
-      "aiSummary": "Resumo com IA",
-      "saving": "Salvando",
-      "transcriptEmptyTitle": "Nenhuma transcrição ainda",
-      "transcriptEmptyDescription": "Inicie uma gravação e tudo o que for dito aparecerá aqui.",
-      "startRecording": "Começar a gravar",
-      "generateSummary": "Gerar resumo com IA",
-      "startWriting": "Comece a escrever...",
-      "staleIndicator": "O conteúdo mudou desde o aprimoramento",
-      "live": "Ao vivo",
-      "transcript": "Transcrição",
-      "notes": "Suas notas",
-      "conversationWillAppear": "A conversa aparecerá aqui...",
-      "linkedEvent": "Evento vinculado",
-      "noFolder": "Sem pasta",
-      "participants": "Participantes",
-      "table": {
-        "actions": "Ações da tabela",
-        "insertRowAbove": "Inserir linha acima",
-        "insertRowBelow": "Inserir linha abaixo",
-        "insertColumnLeft": "Inserir coluna à esquerda",
-        "insertColumnRight": "Inserir coluna à direita",
-        "deleteRow": "Excluir linha",
-        "deleteColumn": "Excluir coluna",
-        "deleteTable": "Excluir tabela"
-      },
-      "format": {
-        "toolbar": "Formatação",
-        "withShortcut": "{{action}} ({{shortcut}})",
-        "bold": "Negrito",
-        "italic": "Itálico",
-        "strike": "Tachado",
-        "code": "Código",
-        "textStyle": "Estilo de texto",
-        "paragraph": "Texto normal",
-        "heading1": "Título 1",
-        "heading2": "Título 2",
-        "heading3": "Título 3",
-        "bulletList": "Lista com marcadores",
-        "orderedList": "Lista numerada",
-        "taskList": "Lista de verificação",
-        "blockquote": "Citação",
-        "table": "Inserir tabela"
-      }
-    },
-    "participants": {
-      "attendee": "participante",
-      "attendees": "participantes",
-      "addAttendees": "Adicionar participantes",
-      "addPlaceholder": "Adicionar participantes...",
-      "typeEmail": "Digite um e-mail para adicionar...",
-      "me": "(eu)"
-    },
-    "eventLink": {
-      "selectEvent": "Selecionar evento do calendário",
-      "searchPlaceholder": "Pesquisar evento…",
-      "back": "Voltar",
-      "removeEvent": "Remover evento do calendário",
-      "allDay": "Dia inteiro",
-      "noEventsOnDay": "Nenhum evento neste dia",
-      "searchOtherDays": "Pesquise para encontrar eventos de outros dias",
-      "outsideWindow": "Só é possível vincular eventos dos últimos {{days}} dias",
-      "noResults": "Nenhum evento correspondente",
-      "noCalendar": "Conecte um calendário em Integrações para vincular eventos",
-      "loadFailed": "Não foi possível carregar os eventos do calendário",
-      "join": "Entrar",
-      "calendar": "Calendário",
-      "openInGoogle": "Abrir no Google Calendar",
-      "openInOutlook": "Abrir no Outlook",
-      "linkedEvent": "Evento do calendário",
-      "unavailable": "Este evento não está nos seus calendários neste dispositivo"
+      "participants": "Participantes"
     },
     "upload": {
-      "title": "Enviar áudio",
-      "using": "Usando {{model}}",
-      "dropOrBrowse": "Arraste um arquivo de áudio ou vídeo, ou clique para procurar",
-      "supportedFormats": "MP3, WAV, M4A, MP4, MOV e a maioria dos outros formatos de áudio ou vídeo",
-      "unsupportedFiles": "{{names}} ignorado: formato de áudio ou vídeo não suportado.",
-      "dropToUpload": "Solte para enviar",
-      "transcribe": "Transcrever",
-      "cancel": "Cancelar",
-      "transcribingCloud": "Transcrevendo pela nuvem...",
-      "transcribingLocal": "Transcrevendo localmente...",
-      "transcribingProvider": "Transcrevendo via {{provider}}...",
-      "cancelTranscription": "Cancelar transcrição",
-      "transcriptionComplete": "Transcrição concluída",
-      "partialWarning": "Não foi possível transcrever parte do áudio.",
-      "partialWarningCount": "Não foi possível transcrever {{failed}} de {{total}} seções do áudio.",
-      "diarizationWarning": "Não foi possível aplicar a identificação de falantes. A transcrição foi salva sem rótulos de falante.",
-      "chunkLossExceeded": "Muito áudio foi perdido devido a um problema de rede. Verifique sua conexão e tente novamente.",
-      "openNote": "Abrir nota",
-      "uploadAnother": "Enviar outro",
-      "retry": "Tentar novamente",
-      "startOver": "Recomeçar",
-      "newFolder": "Nova pasta",
-      "folderName": "Nome da pasta",
-      "create": "Criar",
-      "openwhisprCloud": "only-whispers Cloud",
-      "custom": "Personalizado",
-      "selectFolder": "Selecionar pasta",
       "transcriptionFailed": "Falha na transcrição",
-      "errorOccurred": "Ocorreu um erro",
-      "noSpeechDetected": "Nenhuma fala detectada neste áudio.",
-      "noProviderTitle": "Nenhum provedor de transcrição configurado",
-      "noProviderDescription": "Adicione uma chave API ou baixe um modelo local para começar a transcrever.",
-      "noProviderAction": "Abrir configurações de transcrição",
-      "fileTooLarge": "Este arquivo excede o limite de 500 MB.",
-      "largeFileNote": "Arquivos grandes são divididos e transcritos em paralelo.",
-      "chunkProgress": "Transcrevendo parte {{completed}} de {{total}}...",
-      "paidPlanRequired": "A transcrição na nuvem para arquivos acima de 25 MB requer um plano pago. Arquivos grandes são processados com o only-whispers Cloud para resultados confiáveis e de alta qualidade.",
-      "byokTooLarge": "Chaves API de terceiros suportam apenas arquivos de até {{size}} MB.",
-      "byokTooLargeDetail": "Para arquivos acima de {{size}} MB, o only-whispers Cloud cuida da divisão, processamento paralelo e remontagem — para resultados confiáveis sem depender dos limites de provedores de terceiros.",
-      "byokTooLargeNeedsAccount": "Crie uma conta e mude para um plano pago para transcrever arquivos maiores com o only-whispers Cloud.",
-      "byokTooLargeNeedsUpgrade": "Mude para um plano pago para transcrever arquivos maiores com o only-whispers Cloud.",
-      "switchToCloudForLargeFiles": "Mude para o only-whispers Cloud para transcrever este arquivo.",
-      "createAccount": "Criar conta",
-      "upgrade": "Fazer upgrade",
-      "switchToCloud": "only-whispers Cloud",
-      "orDivider": "ou",
-      "urlPlaceholder": "Cole uma URL do YouTube ou de áudio",
-      "urlDownloading": "Baixando áudio...",
-      "urlResolving": "Resolvendo URL...",
-      "urlInvalid": "URL inválida. Cole um link do YouTube ou uma URL direta de arquivo de áudio.",
-      "urlVideoUnavailable": "Este vídeo não está disponível. Pode ser privado, removido ou bloqueado geograficamente.",
-      "urlPlaylistNotSupported": "Playlists não são suportadas. Cole a URL de um único vídeo.",
-      "urlContentTypeInvalid": "Esta URL não aponta para um arquivo de áudio ou vídeo.",
-      "urlDownloadFailed": "Falha no download. Verifique a URL e tente novamente.",
-      "urlCancelDownload": "Cancelar download",
-      "addToQueue": "Adicionar à fila",
-      "queueProgress": "{{completed}}/{{total}} concluídos",
-      "cancelAll": "Cancelar tudo",
-      "clearQueue": "Limpar",
-      "pasteUrls": "Colar URLs (uma por linha)",
-      "speakerDetection": "Detecção de locutores",
-      "speakerDetectionDescription": "Identificar diferentes locutores no áudio",
-      "numSpeakersPlaceholder": "Detecção automática",
-      "numSpeakersLabel": "Número de falantes",
-      "numSpeakersHint": "Os falantes são detectados automaticamente, até este número.",
-      "downloadingModels": "Baixando modelos...",
-      "openaiDiarizeNote": "Substitui seu modelo de transcrição por gpt-4o-transcribe-diarize, o único modelo OpenAI com detecção de falantes. Os custos podem diferir do modelo selecionado.",
-      "mistralDiarizeNote": "Detecção de falantes incluída sem custo adicional com Voxtral.",
-      "groqDiarizeNote": "A detecção de falantes não está disponível com Groq. A diarização local será usada.",
-      "batchCancelled": "Cancelado",
-      "batchTranscriptionFailed": "Falha na transcrição",
-      "batchSaveFailed": "Falha ao salvar a nota",
-      "batchUnknownError": "Erro desconhecido",
-      "removeFromQueue": "Remover da fila",
-      "diarizationRunsLocally": "A detecção de falantes é executada localmente no seu dispositivo.",
-      "urlSubmit": "Adicionar link",
-      "urlsSkipped": "Alguns links não puderam ser adicionados ({{n}})",
-      "queueFailed": "{{n}} com falha",
-      "urlFileTooLarge": "O arquivo é grande demais para baixar. O tamanho máximo é 500 MB.",
-      "urlYoutubeBlocked": "O YouTube está bloqueando temporariamente downloads da sua rede. Tente novamente em instantes.",
-      "customEndpointInvalid": "O endpoint de transcrição personalizado não está configurado ou é inválido. Atualize-o nas Configurações.",
-      "streamingOnlyProvider": "Este provedor só suporta transcrição ao vivo. Escolha outro provedor para uploads de arquivos e novas tentativas."
-    },
-    "meeting": {
-      "title": "Notas de reunião",
-      "description": "Transcrições e resumos estruturados",
-      "back": "Voltar",
-      "restrictedByOrg": "A transcrição de reuniões está restrita pela sua organização.",
-      "unsupportedSelfHosted": "A gravação de notas ainda não pode usar um endpoint auto-hospedado. Abra as Configurações e escolha Local ou um provedor de streaming.",
-      "unsupportedProvider": "A gravação de notas não pode usar {{provider}} para transcrição ao vivo. Abra as Configurações e escolha Local ou um provedor de streaming.",
-      "noProviderSelected": "Nenhum provedor está selecionado para a gravação de notas. Abra as Configurações e escolha Local ou um provedor de streaming.",
-      "signInRequired": "A gravação de notas exige que você entre na sua conta. Entre para continuar.",
-      "signInExpired": "Sua sessão expirou, então a gravação de notas não consegue renovar a conexão e pode parar. Entre novamente quando esta gravação terminar.",
-      "systemAudioSilent": {
-        "title": "Nenhum áudio da reunião detectado até agora",
-        "description": "Até agora, apenas o seu microfone captou som. Está em uma videochamada? Verifique se o áudio da reunião está sendo reproduzido neste computador e não está silenciado. Está gravando presencialmente? Você pode ignorar este aviso: seu microfone capta o ambiente."
-      },
-      "systemAudioInterrupted": {
-        "title": "Áudio da reunião interrompido",
-        "description": "A captura do áudio do sistema parou e está reiniciando. Alguns segundos da chamada podem faltar na transcrição."
-      },
-      "systemAudioStopped": {
-        "title": "O áudio da reunião parou",
-        "description": "O only-whispers não está mais captando os outros participantes. Pare a gravação e inicie novamente, ou verifique seu dispositivo de saída de som."
-      },
-      "systemAudioQuiet": {
-        "title": "O áudio da reunião ficou silencioso",
-        "description": "Ninguém foi ouvido nos últimos minutos. Se a chamada ainda estiver acontecendo, verifique seu dispositivo de saída de som."
-      }
-    },
-    "meetingPill": {
-      "returnToNote": "Voltar à gravação",
-      "waitingForMicrophone": "Aguardando microfone"
-    },
-    "context": {
-      "moveToFolder": "Mover para pasta",
-      "delete": "Excluir",
-      "rename": "Renomear",
-      "searchFolders": "Pesquisar pastas...",
-      "noResults": "Nenhuma pasta encontrada",
-      "newFolder": "Nova pasta",
-      "showInFileManager": "Mostrar no {{manager}}"
+      "noSpeechDetected": "Nenhuma fala detectada neste áudio."
     },
     "actions": {
-      "allActions": "Todas as ações",
-      "selectAction": "Selecionar ação",
-      "manage": "Gerenciar ações...",
-      "addAction": "Nova ação",
-      "editAction": "Editar ação",
-      "namePlaceholder": "Nome da ação",
-      "descriptionPlaceholder": "Descrição breve (opcional)",
-      "promptPlaceholder": "O que a IA deve fazer com o conteúdo da nota?",
-      "builtIn": "Integrada",
-      "save": "Salvar",
-      "update": "Atualizar",
-      "cancel": "Cancelar",
-      "noActions": "Nenhuma ação personalizada ainda",
-      "promptLabel": "Instrução",
-      "emptyEditorTitle": "Selecionar ação",
-      "emptyEditorDescription": "Escolha uma ação da lista ou crie uma nova",
-      "done": "Concluído",
-      "chunkProgress": "Parte {{step}} de {{total}}",
-      "emptyReply": "O modelo retornou uma resposta vazia. Tente novamente ou escolha outro modelo.",
       "builtin": {
         "generateNotes": {
           "name": "Resumo com IA",
@@ -3108,190 +1186,11 @@
           "description": "Expande o resumo de IA salvo com detalhes fundamentados no conteúdo",
           "cta": "Expandir as notas"
         }
-      },
-      "errors": {
-        "noModel": "Nenhum modelo de IA selecionado. Configure um nas Configurações.",
-        "actionFailed": "A ação falhou",
-        "noEndpoint": "Nenhum URL de servidor auto-hospedado definido. Configure um nas Configurações.",
-        "outputTruncated": "O modelo de IA ficou sem espaço antes de terminar, então a nota ficou como estava.",
-        "outputSpentThinking": "O modelo de IA gastou todo o limite de saída raciocinando e não escreveu notas, então a nota ficou como estava. Ative \"Desativar saída de raciocínio\" ou escolha um modelo que raciocine menos em Configurações → Modelos de linguagem → Formatação de notas e tente novamente.",
-        "outputSpentThinkingDisabled": "O modelo de IA gastou todo o limite de saída raciocinando e não escreveu notas, mesmo com \"Desativar saída de raciocínio\" ativado, então a nota ficou como estava. Escolha outro modelo em Configurações → Modelos de linguagem → Formatação de notas.",
-        "outputSpentThinkingOtherModel": "O modelo de IA gastou todo o limite de saída raciocinando e não escreveu notas, então a nota ficou como estava. Escolha um modelo que raciocine menos em Configurações → Modelos de linguagem → Formatação de notas.",
-        "nothingToSummarize": "Esta nota ainda não tem nada para resumir, então o resumo com IA ficou como estava.",
-        "saveFailed": "Não foi possível salvar. Verifique se nada está longo demais e tente novamente."
-      },
-      "tab": "Ações",
-      "output": {
-        "chat": "Chat",
-        "summary": "Resumo com IA",
-        "chatHint": "Esta ação responde no chat. Seu resumo de IA salvo permanece inalterado.",
-        "summaryHint": "Esta ação integrada atualiza seu resumo de IA salvo. Você pode desfazer a alteração."
-      },
-      "applied": "Resumo com IA atualizado com {{name}}"
-    },
-    "templates": {
-      "tab": "Modelos",
-      "managerTitle": "Modelos e ações",
-      "manage": "Gerenciar modelos...",
-      "select": "Escolher modelo",
-      "regenerate": "Gerar novamente",
-      "addTemplate": "Novo modelo",
-      "editTemplate": "Editar modelo",
-      "namePlaceholder": "Nome do modelo",
-      "contextLabel": "Contexto",
-      "contextPlaceholder": "Que tipo de reunião é esta e em que o resumo deve se concentrar?",
-      "sectionsLabel": "Seções",
-      "addSection": "Adicionar seção",
-      "sectionHeadingPlaceholder": "Título da seção",
-      "sectionInstructionPlaceholder": "O que entra nesta seção?",
-      "moveSectionUp": "Mover seção para cima",
-      "moveSectionDown": "Mover seção para baixo",
-      "removeSection": "Remover seção",
-      "noSectionsHint": "Sem seções, o contexto é a instrução completa para o resumo.",
-      "noTemplates": "Nenhum modelo ainda",
-      "emptyEditorTitle": "Selecionar modelo",
-      "emptyEditorDescription": "Escolha um modelo da lista ou crie um novo",
-      "outputHint": "Aplicar um modelo cria ou substitui o resumo de IA usando suas notas e a transcrição."
-    },
-    "empty": {
-      "title": "Ainda não há notas aqui",
-      "description": "Crie sua primeira nota para começar a escrever",
-      "selectTitle": "Selecione uma nota",
-      "selectDescription": "Escolha uma nota na barra lateral",
-      "createNote": "Criar nota",
-      "emptyFolder": "Nenhuma nota nesta pasta"
-    },
-    "addToFolder": {
-      "title": "Adicionar notas",
-      "searchPlaceholder": "Pesquisar notas para adicionar...",
-      "addExisting": "Adicionar existentes",
-      "addCount": "Adicionar {{count}} notas",
-      "noResults": "Nenhuma nota encontrada",
-      "noNotesAvailable": "Nenhuma outra nota disponível"
-    },
-    "onboarding": {
-      "llm": {
-        "title": "Configure um modelo de IA",
-        "description": "As ações usam IA para transformar suas notas. Configure um modelo de linguagem para começar.",
-        "configured": "Modelo de IA configurado"
-      },
-      "templates": {
-        "title": "Modelos e ações",
-        "description": "Os modelos dão forma ao seu resumo com IA, de notas de reunião detalhadas a seções que você define. As ações rodam sobre uma nota, como escrever um e-mail de acompanhamento no chat.",
-        "builtInLabel": "Seus modelos",
-        "createTitle": "Crie seu próprio modelo",
-        "createDescription": "Descreva o resumo que você quer. Você pode adicionar seções, mais modelos e ações depois.",
-        "created": "Criado!"
-      },
-      "getStarted": "Começar",
-      "systemAudio": {
-        "title": "Áudio do sistema",
-        "description": "Capture o áudio de reuniões e outros aplicativos junto com o microfone.",
-        "grant": "Conceder permissão",
-        "enabled": "Ativado"
       }
-    },
-    "realtimeBanner": {
-      "message": "Transcrição em tempo real disponível no Pro",
-      "upgrade": "Fazer upgrade"
-    },
-    "enhance": {
-      "title": "Erro de aprimoramento"
     },
     "speaker": {
-      "you": "Você",
-      "them": "Outro",
       "unknown": "Participante desconhecido",
-      "label": "Participante {{n}}",
-      "identifyingSpeakers": "Identificando participantes...",
-      "liveAccuracyHint": "Ainda identificando participantes. A precisão dos rótulos melhorará quando a chamada terminar.",
-      "speakersIdentified": "Participantes identificados",
-      "typeNamePlaceholder": "Digite um nome",
-      "knownSpeakers": "Falantes conhecidos",
-      "thisIsMe": "Sou eu",
-      "meetingAttendees": "Participantes da reunião",
-      "assignName": "Atribuir nome",
-      "isThisPerson": "É {{name}}?",
-      "selected": "{{n}} selecionado(s)",
-      "assignTo": "Atribuir a…",
-      "deselectAll": "Desmarcar tudo",
-      "confirmed": "Confirmado",
-      "nameAssigned": "Nome atribuído",
-      "state": {
-        "provisional": "Provisório",
-        "confirmed": "Confirmado",
-        "suggested": "Sugerido",
-        "locked": "Bloqueado"
-      },
-      "createNewPrefix": "Criar",
-      "emailPlaceholder": "nome@exemplo.com",
-      "nameOrEmailPlaceholder": "Digite um nome ou e-mail",
-      "addContact": "Adicionar contato",
-      "save": "Salvar",
-      "cancel": "Cancelar",
-      "pill": {
-        "identifying": "Identificando participantes",
-        "notLabeled": "Participantes sem rótulo",
-        "finalizing": "Finalizando participantes…",
-        "justYou": "Só você",
-        "assumedHint": "assumindo 2 — ajuste se houver mais",
-        "speakersLabel": "Participantes",
-        "labelToggle": "Rotular participantes",
-        "toggleAria": "Alternar identificação de participantes para esta gravação",
-        "incAria": "Aumentar número esperado de participantes",
-        "decAria": "Diminuir número esperado de participantes"
-      },
-      "consentNotice": "Sempre obtenha consentimento ao gravar outras pessoas"
-    },
-    "overview": {
-      "subtitle": {
-        "team": "Notas visíveis para todos neste espaço.",
-        "private": "Só você pode ver estas notas."
-      },
-      "meta": {
-        "folders_one": "{{count}} pasta",
-        "folders_other": "{{count}} pastas",
-        "members_one": "{{count}} membro",
-        "members_other": "{{count}} membros"
-      },
-      "banner": {
-        "title": {
-          "team": "Seu espaço de equipe",
-          "private": "Seu espaço privado"
-        },
-        "body": {
-          "team": "Transforme conversas em conhecimento compartilhado. Publique entrevistas com usuários, ligações de vendas e reuniões de equipe onde todos possam encontrá-las.",
-          "private": "Guarde notas de reuniões, ideias e rascunhos em um só lugar — e pergunte sobre qualquer coisa neste espaço."
-        },
-        "dismiss": "Dispensar"
-      },
-      "ask": {
-        "placeholder": "Pergunte qualquer coisa",
-        "chips": {
-          "catchUp": "Me atualize",
-          "keyDecisions": "Liste as decisões principais",
-          "openActionItems": "Liste as tarefas pendentes"
-        }
-      },
-      "invite": "Convidar",
-      "author": {
-        "you": "Você"
-      }
-    },
-    "assistantUndo": {
-      "applied": "O assistente atualizou “{{title}}”",
-      "changed": "Esta nota mudou após a edição do assistente. Já não é possível desfazer.",
-      "failed": "Não foi possível desfazer a edição. Tente novamente."
-    },
-    "folderMore": {
-      "more": "Mais {{count}}",
-      "search": "Pesquisar {{count}} notas em {{folder}}",
-      "newest": "Mais recentes primeiro",
-      "openFolder": "Abrir pasta",
-      "empty": "Nenhuma nota correspondente",
-      "loading": "Carregando notas…",
-      "retry": "Não foi possível carregar as notas. Tentar novamente",
-      "results": "{{count}} de {{total}} notas"
+      "label": "Participante {{n}}"
     }
   },
   "dictionary": {
@@ -3346,60 +1245,12 @@
     "agentDefault": "Adicionado por padrão"
   },
   "sidebar": {
-    "insights": "Estatísticas",
     "home": "Início",
-    "notes": "Notas",
-    "upload": "Enviar",
     "dictionary": "Dicionário",
-    "referral": "Ganhe um mês grátis",
-    "inviteTeam": "Convide sua equipe",
     "settings": "Configurações",
-    "support": "Suporte",
-    "limitReached": "Limite semanal da nuvem atingido",
-    "limitReachedDescription": "Faça upgrade para Pro ou use sua própria chave API para uso ilimitado.",
-    "viewPlans": "Ver planos",
-    "upgradeTitle": "Fazer upgrade para Pro",
-    "upgradeDescription": "Transcrição ilimitada, mais precisa e mais rápida.",
-    "upgradeInstantSetup": "Configuração instantânea",
-    "upgradeZeroRetention": "Zero retenção de dados",
-    "upgradeEnterpriseSecurity": "Segurança empresarial SOC 2 Type II, HIPAA, ISO27001",
-    "learnMore": "Saiba mais",
-    "integrations": "Integrações",
-    "defaultUser": "Usuário",
-    "notSignedIn": "Não conectado",
-    "chat": "Chat",
     "collapse": "Recolher barra lateral",
     "expand": "Expandir barra lateral",
     "logs": "Logs"
-  },
-  "chat": {
-    "newChat": "Novo chat",
-    "search": "Pesquisar conversas...",
-    "archived": "Arquivadas",
-    "noConversations": "Nenhuma conversa ainda",
-    "allArchived": "Todas as conversas estão arquivadas",
-    "noConversationsDescription": "Suas conversas com o Assistente aparecerão aqui.",
-    "loadFailed": "Não foi possível carregar as conversas",
-    "noResults": "Nenhuma conversa encontrada",
-    "today": "Hoje",
-    "yesterday": "Ontem",
-    "previousWeek": "Últimos 7 dias",
-    "older": "Mais antigas",
-    "archive": "Arquivar",
-    "unarchive": "Desarquivar",
-    "delete": "Excluir",
-    "deleteConfirm": "Esta conversa será excluída permanentemente. Não é possível desfazer.",
-    "editTitle": "Clique duplo para editar o título",
-    "untitled": "Sem título",
-    "searchChats": "Pesquisar chats",
-    "searchTitle": "Pesquisar conversas",
-    "searchDescription": "Pesquisar em todas as conversas",
-    "inputPlaceholder": "Pergunte algo...",
-    "starters": {
-      "todos": "Liste minhas tarefas recentes",
-      "meeting": "Prepare-me para minha próxima reunião",
-      "sharedNotes": "Destaque minhas notas compartilhadas"
-    }
   },
   "rt0Setup": {
     "title": "Configurar o only-whispers",
@@ -3419,20 +1270,14 @@
     "addButton": "Adicionar"
   },
   "gpu": {
-    "transcriptionBanner": "Acelere a transcrição com GPU",
     "reasoningBanner": "Acelere o processamento de IA com GPU",
     "enableButton": "Ativar GPU",
     "active": "Aceleração GPU ativa",
     "ready": "Aceleração GPU pronta",
     "activating": "Ativando GPU...",
     "activationFailed": "Aceleração GPU indisponível",
-    "activationFailedDescription": "only-whispers mudou para a transcrição por CPU.",
     "reasoningActivationFailedDescription": "only-whispers mudou para o processamento por CPU.",
     "retryActivation": "Tentar aceleração por GPU novamente",
-    "redownloadNeeded": "O pacote GPU precisa ser baixado novamente",
-    "redownloadNeededDescription": "Esta versão do only-whispers não consegue usar o pacote GPU instalado. Baixe-o novamente para reativar a aceleração GPU.",
-    "redownloadButton": "Baixar o pacote GPU novamente",
-    "downloadFailed": "Não foi possível baixar o pacote GPU.",
     "remove": "Remover",
     "dismiss": "Agora não",
     "cancel": "Cancelar"
@@ -3449,15 +1294,6 @@
       },
       "addedToDict": "{{words}} adicionado ao seu dicionário",
       "undo": "Desfazer",
-      "accessibilityMissing": {
-        "title": "Permissões de acessibilidade necessárias",
-        "description": "O only-whispers precisa de permissões de acessibilidade para detectar seu atalho e colar texto. Ative-as no Painel de Controle."
-      },
-      "gpuFallback": {
-        "title": "Aceleração GPU indisponível",
-        "description": "only-whispers mudou para a transcrição por CPU.",
-        "retry": "Tentar GPU novamente"
-      },
       "gpuPackMigration": {
         "title": "O pacote GPU precisa ser baixado novamente",
         "description": "Esta versão não consegue usar o pacote GPU anterior ({{packs}}). Baixe-o novamente nas Configurações para reativar a aceleração GPU."
@@ -3468,7 +1304,6 @@
       }
     },
     "mic": {
-      "hotkeyToSpeak": "{{hotkey}} para falar",
       "isListening": "está ouvindo",
       "isProcessing": "está processando",
       "recording": "Gravando...",
@@ -3485,8 +1320,7 @@
       "startListening": "Começar a ouvir",
       "hideForNow": "Ocultar por agora",
       "askAssistant": "Perguntar ao assistente",
-      "busyRecording": "Termine primeiro a gravação atual",
-      "startMeetingRecording": "Iniciar gravação da reunião"
+      "busyRecording": "Termine primeiro a gravação atual"
     }
   },
   "dictationAgent": {
@@ -3525,7 +1359,6 @@
       "thinking": "Pensando...",
       "typeMessage": "Digite uma mensagem...",
       "send": "Enviar",
-      "voiceDraftStreamingOnly": "A entrada por voz não está disponível com seu provedor de transcrição: ele só suporta ditado ao vivo. Escolha outro provedor em Configurações → Fala para texto.",
       "commands": "Comandos",
       "slashNavigate": "para navegar",
       "slashSelect": "para selecionar",
@@ -3576,13 +1409,7 @@
       "copiedToClipboard": "Copiado para a área de transferência",
       "openNote": "Abrir nota",
       "unknownTool": "Ferramenta desconhecida: {{name}}",
-      "invalidArgs": "Argumentos de ferramenta inválidos para {{name}}",
-      "search_openwhispr_helpName": "Buscar ajuda do only-whispers",
-      "read_openwhispr_helpName": "Ler ajuda do only-whispers",
-      "get_openwhispr_contextName": "Ler configurações do only-whispers",
-      "search_openwhispr_helpStatus": "Pesquisando na ajuda do only-whispers...",
-      "read_openwhispr_helpStatus": "Lendo a ajuda do only-whispers...",
-      "get_openwhispr_contextStatus": "Lendo as configurações do only-whispers..."
+      "invalidArgs": "Argumentos de ferramenta inválidos para {{name}}"
     }
   },
   "assistant": {
@@ -3607,34 +1434,8 @@
       "toolFallback": "Ferramenta"
     }
   },
-  "calendar": {
-    "title": "Google Agenda",
-    "status": "Status",
-    "connected": "Conectado",
-    "disconnected": "Desconectado",
-    "notConnectedDescription": "Conectar para detectar e gravar reuniões",
-    "connectCta": {
-      "title": "Integração de Calendário",
-      "description": "Detectar reuniões automaticamente e gravar transcrições"
-    },
-    "connect": "Conectar Google Agenda",
-    "connecting": "Conectando...",
-    "disconnect": "Desconectar",
-    "disconnecting": "Desconectando...",
-    "sync": "Sincronizar",
-    "syncing": "Sincronizando...",
-    "calendarsTitle": "Calendários",
-    "upcomingTitle": "Próximos",
-    "noUpcoming": "Nenhum evento próximo",
-    "meetingStarting": "A reunião começa agora",
-    "today": "Hoje",
-    "tomorrow": "Amanhã"
-  },
   "transcriptionPreview": {
     "label": "Pré-visualização",
-    "listening": "Ouvindo...",
-    "polishing": "Aperfeiçoando...",
-    "ready": "Pronto",
     "copy": "Copiar",
     "copied": "Copiado",
     "collapse": "Recolher transcrição",
@@ -3644,8 +1445,7 @@
     "speaker": {
       "you": "Você",
       "others": "Outros"
-    },
-    "missingAudio": "[áudio ausente {{from}}-{{to}}]"
+    }
   },
   "providerErrors": {
     "authFailed": "{{provider}} rejeitou sua chave de API.",
@@ -3693,7 +1493,6 @@
   "toneStyle": {
     "title": "Tom e estilo",
     "description": "Defina seu tom e estilo em diferentes apps.",
-    "turnOnAndSetUp": "Ativar e configurar",
     "categories": {
       "personal": {
         "title": "Mensagens pessoais",
@@ -3755,25 +1554,6 @@
         "formal": "Por favor, renomeie `getUserName` para `fetchUserName` em `user.ts` e depois execute `pnpm test`.",
         "casual": "Renomeia `getUserName` para `fetchUserName` em `user.ts` e depois roda `pnpm test`"
       }
-    },
-    "setup": {
-      "introTitle": "Faça o only-whispers\nescrever como você fala",
-      "introDescription": "Defina seu tom e estilo em diferentes apps.",
-      "personalize": "Personalizar",
-      "cleanupOffTitle": "Ensine ao only-whispers\no seu estilo",
-      "cleanupOffDescription": "Ative a limpeza de texto e defina seu tom e estilo em diferentes apps.",
-      "stepDescription": "Escolha o exemplo que mais se parece com você.",
-      "progress": "Etapa {{current}} de {{total}}",
-      "finish": "Concluir"
-    },
-    "banner": {
-      "title": "Ensine ao only-whispers como você escreve",
-      "description": "Defina seu tom preferido para o trabalho, os amigos e tudo o que fica no meio.",
-      "start": "Começar",
-      "cleanupOffTitle": "Ensine ao only-whispers o seu estilo",
-      "cleanupOffDescription": "Ative a limpeza de texto e escolha um tom para mensagens, e-mails e mais.",
-      "notNow": "Agora não",
-      "decoration": "Suas palavras devem soar como você. Não importa o que você escreva, nem para quem."
     },
     "settings": {
       "saveChanges": "Salvar alterações",

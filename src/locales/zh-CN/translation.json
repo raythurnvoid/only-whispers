@@ -1,62 +1,4 @@
 {
-  "settings": {
-    "language": {
-      "sectionTitle": "语言",
-      "sectionDescription": "分别设置界面语言和转录语言",
-      "uiLabel": "界面语言",
-      "uiDescription": "选择 only-whispers 界面使用的语言",
-      "transcriptionLabel": "转录语言",
-      "transcriptionDescription": "选择你说话的语言，以提高转录准确率",
-      "chineseScriptLabel": "中文书写（听写）",
-      "chineseScriptDescription": "检测到中文时，将听写的转录结果转换为简体或繁体。口语听起来一样；Whisper 只会输出一种字形。",
-      "chineseScriptAsTranscribed": "保持转录原样",
-      "chineseScriptSimplified": "简体",
-      "chineseScriptTraditional": "繁体"
-    },
-    "noteFiles": {
-      "title": "将笔记保存为文件",
-      "description": "自动将笔记和转录保存为磁盘上的文件，按文件夹分类",
-      "path": "保存位置",
-      "changePath": "更改位置",
-      "rebuild": "重建所有文件",
-      "rebuildDescription": "将所有笔记和转录重新同步到磁盘",
-      "rebuildError": {
-        "title": "重建失败",
-        "description": "无法重建笔记文件。请确保已启用该功能，并且文件夹可写。"
-      }
-    },
-    "granolaImport": {
-      "title": "从 Granola 导入",
-      "description": "从 Granola 的 CSV 导出文件导入会议笔记",
-      "howTo": "在 Granola 中:Settings → Profile → Export historical data → Generate CSV。导出文件将通过邮件发送,通常在几小时内送达。",
-      "chooseFile": "选择 CSV 文件",
-      "preview": {
-        "title": "从 Granola 导入",
-        "summary": "共找到 {{total}} 条笔记:{{newCount}} 条新笔记,{{duplicateCount}} 条已导入",
-        "warnings": "{{warningCount}} 行存在问题(已跳过或导入时缺少日期)",
-        "confirm": "导入 {{newCount}} 条笔记",
-        "nothingNew": "此文件中的笔记均已导入。"
-      },
-      "done": {
-        "title": "导入完成",
-        "summary": "已将 {{imported}} 条笔记导入到“Imported”文件夹,跳过 {{skipped}} 条重复项"
-      },
-      "error": {
-        "title": "导入失败",
-        "EMPTY_FILE": "文件为空。",
-        "HEADERS_UNRECOGNIZED": "这看起来不像 Granola 的 CSV 导出文件。",
-        "NO_DATA_ROWS": "此文件中未找到笔记。",
-        "FILE_TOO_LARGE": "此文件过大,无法导入。",
-        "generic": "读取文件时出错。"
-      }
-    },
-    "meeting": {
-      "speakerDetection": {
-        "title": "识别并标记发言者",
-        "description": "关闭后，转写会显示\"你\"和\"其他人\""
-      }
-    }
-  },
   "tray": {
     "toggleDictation": {
       "show": "显示听写面板",
@@ -153,12 +95,8 @@
   },
   "common": {
     "continue": "继续",
-    "add": "添加",
     "retry": "重试",
     "back": "返回",
-    "logout": "退出登录",
-    "next": "下一步",
-    "complete": "完成",
     "reset": "重置",
     "refresh": "刷新",
     "download": "下载",
@@ -168,239 +106,32 @@
     "managedByOrg": "由您的组织管理",
     "signInRequired": "需要登录",
     "signIn": "登录",
-    "comingSoon": "即将推出",
-    "cloud": "云端",
-    "local": "本地",
     "apiKey": "API Key",
-    "model": "模型",
     "loading": "加载中...",
     "unknown": "未知",
     "availableModels": "可用模型",
-    "fast": "快速",
     "hold": "按住",
-    "private": "隐私",
     "tap": "点按",
     "close": "关闭",
-    "dismiss": "忽略",
     "save": "保存",
-    "saving": "保存中…",
-    "create": "创建",
-    "delete": "删除",
-    "actions": "操作",
     "error": "出了点问题",
     "unknownError": "发生未知错误",
     "copy": "复制",
     "copied": "已复制",
-    "done": "完成",
-    "skip": "跳过",
-    "policyAiProcessingRestricted": "AI 处理已被您的组织限制。",
-    "policyAgentRestricted": "AI 助手的使用已被您的组织限制。",
-    "policyTranscriptionRestricted": "转录已被您的组织限制。",
-    "policyUnresolved": "您所在组织的设置尚未加载完成。请稍后再试。",
-    "managedConfigLoading": "正在检查您组织的托管设置。请稍候再试。",
-    "managedConfigUnavailable": "托管企业访问不可用。请重新登录或联系管理员。",
-    "managedPolicyConflict": "托管访问已被您工作区的策略阻止。请联系管理员。",
-    "resizePanel": "调整面板大小"
+    "skip": "跳过"
   },
   "onboarding": {
     "rehaul": {
-      "permissions": {
-        "title": "3 分钟完成 only-whispers 设置",
-        "microphoneDescription": "仅在录音时收音。",
-        "accessibilityDescription": "把文字粘贴到任意应用。",
-        "systemAudioTitle": "系统音频",
-        "systemAudioDescription": "录下通话中的其他人。",
-        "screenContextDescription": "让助手看到你的屏幕。",
-        "enable": "启用",
-        "enabled": "已启用"
-      },
-      "languages": {
-        "title": "你会说哪些语言？",
-        "titleLineOne": "你会说",
-        "titleLineTwo": "哪些语言？",
-        "description": "选择所有适用的语言。这有助于 only-whispers 更准确地识别语言切换。"
-      },
-      "dictationHotkey": {
-        "title": "选择你的听写快捷键",
-        "titleLineOne": "选择你的",
-        "titleLineTwo": "听写快捷键",
-        "description": "想说话代替打字时按下它。在任何应用中都能用。",
-        "activation": "点按还是按住？"
-      },
-      "assistantHotkey": {
-        "title": "设置 only-whispers Assistant",
-        "titleLineOne": "设置",
-        "titleLineTwo": "only-whispers Assistant",
-        "description": "说出你的请求，only-whispers Assistant 会为你写好结果。"
-      },
-      "hotkey": {
-        "capture": "请按下你想使用的按键",
-        "chooseAnother": "选择其他快捷键",
-        "inUse": "该快捷键已被使用。请选择其他快捷键。",
-        "holding": "继续按住，或按下另一个键"
-      },
-      "dictationDemo": {
-        "title": "试试第一次听写",
-        "titleLineOne": "试试你的",
-        "titleLineTwo": "第一次听写",
-        "description": "按 {{hotkey}} 开始说话，only-whispers 会把你的语音转成文字。",
-        "founder": "你好，我是创始人 Gabe。感谢你试用 only-whispers！",
-        "prompt": "点击下面的输入框，按下快捷键，然后告诉我：你希望 only-whispers 为你做些什么？",
-        "placeholder": "点击这里，然后按下快捷键。only-whispers 可以在任何文本框中输入。"
-      },
       "assistantDemo": {
-        "title": "认识 only-whispers Assistant",
-        "titleLineOne": "认识一下",
-        "titleLineTwo": "only-whispers Assistant",
         "email": {
           "subject": "下周喝杯咖啡？",
           "senderName": "Maria Alvarez",
-          "recipient": "发送给我",
-          "body": "你好！很高兴昨天在聚会上认识你。下周有空一起喝杯咖啡吗？告诉我你什么时间方便。\n\nMaria",
-          "reply": "回复"
-        },
-        "scenarios": {
-          "calendarScreen": {
-            "description": "按 {{hotkey}} 并请它回复。助手会读取屏幕上的邮件，并在你的日历中查找空闲时间。",
-            "prompt": "试着说：“回复并推荐几个我下周有空的时间。”"
-          },
-          "screen": {
-            "description": "按 {{hotkey}} 并请它回复。助手会直接从你的屏幕读取这封邮件。",
-            "prompt": "试着说：“回复说我很愿意，并建议周三下午。”"
-          },
-          "calendar": {
-            "description": "按 {{hotkey}} 并请它回复。助手会在你的日历中查找空闲时间并写好回复。",
-            "prompt": "试着说：“回复 Maria 并推荐几个我下周有空的时间。”"
-          },
-          "general": {
-            "description": "按 {{hotkey}} 并请它回复。助手会替你写好。",
-            "prompt": "试着说：“回复 Maria 说我很愿意，并建议周三下午。”"
-          }
-        }
-      },
-      "demo": {
-        "listening": "正在聆听…",
-        "processing": "正在把你的语音转成文字…",
-        "stop": "停止",
-        "typing": "正在输入…"
-      },
-      "notes": {
-        "title": "用 only-whispers Notes 录制会议，无需机器人加入",
-        "titleLineOne": "无需机器人即可录制会议",
-        "titleLineTwoPrefix": "使用 only-whispers",
-        "titleLineTwoBrand": "Notes",
-        "description": "only-whispers 把你的对话变成清晰的笔记。不会有会议机器人加入你的通话。",
-        "hero": {
-          "description": "录制会议，让 only-whispers 把对话整理成清晰有条理的笔记。",
-          "chat": "与会议笔记对话",
-          "transcript": "查看完整转录",
-          "speakers": "查看谁说了什么"
-        },
-        "connectors": {
-          "connect": "连接",
-          "googleTitle": "Google 日历",
-          "googleDescription": "同步你的会议。",
-          "microsoftTitle": "Microsoft Outlook",
-          "microsoftDescription": "导入工作会议和邀请。",
-          "appleTitle": "Apple 日历",
-          "appleDescription": "同步你的 Mac 和 iPhone 上的日程。"
-        }
-      },
-      "setupChoice": {
-        "title": "选择你的 only-whispers 设置",
-        "titleLineOne": "选择你的",
-        "titleLineTwo": "only-whispers 设置",
-        "description": "选择最适合你工作方式的方案。",
-        "unavailable": {
-          "title": "没有可用的设置选项",
-          "description": "你的工作区策略不允许完整配置转录和 AI。请联系管理员。"
-        },
-        "cloud": {
-          "title": "only-whispers Cloud",
-          "description": "每周获得 2,000 个免费字数。你的设置会在各设备间保持同步。",
-          "continue": "免费继续",
-          "signIn": "登录以使用云端",
-          "features": {
-            "fast": "最快，无需设置",
-            "privacy": "Privacy-focused processing",
-            "sync": "设置在各设备间同步",
-            "features": "面向笔记和操作的 AI 功能"
-          }
-        },
-        "byok": {
-          "title": "自带密钥",
-          "description": "使用你自己的 API Key。"
-        },
-        "local": {
-          "title": "在你的设备上",
-          "description": "私密的离线转录。至少需要 {{minimumSpace}} GB 可用空间。",
-          "badge": "免费",
-          "download": "下载模型",
-          "features": {
-            "device": "在你的设备上运行",
-            "offline": "设置完成后可离线使用",
-            "models": "为听写和助手选择模型",
-            "free": "永久免费使用"
-          }
-        },
-        "warnings": {
-          "byok": {
-            "title": "你的数据由服务商处理",
-            "description": "你需要分别为听写和 Assistant 服务商添加凭据。将适用服务商的定价和数据保留政策。",
-            "continue": "设置 API 服务商",
-            "steps": {
-              "1": "为听写和 Assistant 选择服务商",
-              "2": "使用安全存储添加凭据",
-              "3": "启用前测试每个连接"
-            }
-          },
-          "local": {
-            "title": "本地设置需要多几个步骤",
-            "description": "本地处理会把你的语音保留在此设备上，但需要一次性设置和至少 {{minimumSpace}} GB 可用空间。",
-            "continue": "本地设置",
-            "steps": {
-              "1": "选择转录引擎",
-              "2": "配置或下载模型，约 {{modelSize}}",
-              "3": "等待安装和启用"
-            }
-          }
-        },
-        "useCloud": "改用云端",
-        "continueSetup": "继续设置",
-        "showMore": "显示更多选项",
-        "moreOptions": {
-          "title": "选择你的 API 设置方式",
-          "description": "添加 API Key 或连接自托管模型。",
-          "selfHosted": {
-            "title": "自托管",
-            "description": "连接你自己托管的模型。"
-          }
+          "body": "你好！很高兴昨天在聚会上认识你。下周有空一起喝杯咖啡吗？告诉我你什么时间方便。\n\nMaria"
         }
       },
       "provider": {
-        "progress": "服务商设置进度",
-        "dictation": "听写",
-        "assistant": "助手",
-        "title": "连接你的 AI 服务商",
-        "description": "选择服务商，添加凭据，然后测试连接。",
-        "descriptionLineOne": "选择服务商并添加",
-        "descriptionLineTwo": "你的 API Key。",
-        "selfHosted": "我有自托管模型的密钥",
-        "providerLabel": "服务商",
-        "providerPlaceholder": "选择模型服务商",
-        "modelLabel": "模型",
-        "modelPlaceholder": "选择模型",
         "apiKey": "API 密钥",
         "apiKeyPlaceholder": "粘贴你的 API Key",
-        "endpointUrl": "端点 URL",
-        "endpointPlaceholder": "粘贴你的端点 URL",
-        "optional": "可选",
-        "modelId": "模型 ID",
-        "modelIdPlaceholder": "填写你的模型 ID",
-        "proceed": "继续",
-        "clinical": "用于临床转录",
-        "clientId": "Client ID",
-        "clientSecret": "Client secret",
         "testing": "测试中…",
         "connected": "已连接",
         "connectionFailed": "无法验证此连接。",
@@ -419,157 +150,14 @@
           "timeout": "连接测试超时。",
           "network": "无法连接到服务商。"
         }
-      },
-      "local": {
-        "title": "设置本地模型",
-        "description": "选择你想在设备上运行的模型。",
-        "descriptionLineOne": "选择你想在设备上",
-        "descriptionLineTwo": "运行的模型。",
-        "providerLabel": "服务商",
-        "download": "下载",
-        "downloadingShort": "下载中",
-        "selected": "已选择",
-        "use": "使用",
-        "downloadInProgress": "下载进行中",
-        "cancelDownload": "取消下载 {{model}}",
-        "downloads": "模型下载",
-        "downloading": "正在下载… {{progress}}%",
-        "installing": "安装中"
       }
-    },
-    "steps": {
-      "welcome": "欢迎",
-      "setup": "设置",
-      "permissions": "权限",
-      "activation": "听写",
-      "useCase": "关于你",
-      "meeting": "会议",
-      "finish": "完成"
-    },
-    "hotkey": {
-      "couldNotRegisterTitle": "无法注册该快捷键",
-      "couldNotRegisterDescription": "该组合键可能已被占用，请尝试其他组合。"
-    },
-    "setup": {
-      "title": "设置",
-      "description": "选择语言并授予权限",
-      "language": "语言"
     },
     "permissions": {
-      "title": "权限",
-      "microphoneTitle": "麦克风",
-      "microphoneDescription": "将你的语音转为文字。按下快捷键之前不会录制任何内容。",
       "grant": "授权",
-      "grantAccess": "授予访问权限",
-      "accessibilityTitle": "辅助功能",
-      "accessibilityDescription": "将完成的文字直接输入到你正在使用的应用中 — 文档、邮件、聊天。",
-      "testAndGrant": "测试并授权",
-      "requiredForApp": "only-whispers 运行所必需的权限",
-      "microphoneRequired": "需要麦克风访问权限",
-      "openSystemSettings": "打开系统设置",
-      "systemAudioTitle": "系统音频",
-      "systemAudioDescription": "让会议录音机听到通话另一方的声音 — 会议、讲座、播客。你可以稍后在“设置”中开启。",
-      "optional": "可选",
-      "recommended": "推荐",
-      "accessibilityTroubleshooting": "在系统设置 → 辅助功能中，将 only-whispers 的开关关闭再重新打开。如果列表中根本没有 only-whispers，请点按 + 并从“应用程序”文件夹中添加。还是不行？请发邮件至 support@openwhispr.com。"
-    },
-    "transcription": {
-      "title": "转录设置",
-      "description": "选择模式和服务商",
-      "preferredLanguage": "首选语言"
+      "grantAccess": "授予访问权限"
     },
     "activation": {
-      "title": "听写设置",
-      "description": "配置触发听写的方式",
-      "hotkey": "快捷键",
-      "mode": "模式",
-      "tapDescription": "按下开始/停止",
-      "holdDescription": "按住说话",
-      "test": "测试",
-      "hotkeyToStartStop": "{{hotkey}} 开始/停止",
-      "holdHotkey": "按住 {{hotkey}}",
-      "textareaPlaceholder": "点击此处，然后使用快捷键进行听写..."
-    },
-    "connectivity": {
-      "title": "无法从该网络连接到 only-whispers Cloud",
-      "body": "{{cause}} 你可以切换到本地引擎，或继续并稍后重试。",
-      "useLocal": "使用本地引擎",
-      "continue": "仍然继续"
-    },
-    "useCase": {
-      "title": "你会如何使用 only-whispers？",
-      "titleLineOne": "你会如何使用",
-      "titleLineTwo": "only-whispers？",
-      "description": "选择所有适用项，我们会据此为你定制设置。",
-      "noteLabel": "还有什么想告诉我们的吗？",
-      "notePlaceholder": "告诉我们你打算如何使用 only-whispers（可选）",
-      "proceedToSetup": "继续设置",
-      "options": {
-        "dictation": {
-          "title": "更快地写作",
-          "description": "在任何应用中用说话代替打字。"
-        },
-        "meetings": {
-          "title": "会议笔记",
-          "description": "录制、转写并总结会议。"
-        },
-        "healthcare": {
-          "title": "临床记录",
-          "description": "创建病历、咨询记录和报告。"
-        },
-        "translation": {
-          "title": "边说边翻译",
-          "description": "说一种语言，写出另一种。"
-        },
-        "ai": {
-          "title": "与你的 AI 对话",
-          "description": "用语音使用 ChatGPT、Claude 等 AI 工具。"
-        },
-        "upload": {
-          "title": "转写音频文件",
-          "description": "上传音频文件进行转写。"
-        }
-      },
-      "selectHint": "可多选"
-    },
-    "meeting": {
-      "title": "会议笔记",
-      "description": "捕捉并总结你的会议",
-      "autoDetect": "only-whispers 会自动检测你是否在开会，并提议开始记录 — 未经你确认不会录制任何内容。",
-      "hotkeyLabel": "会议快捷键",
-      "hotkeyHint": "可选 — 在任何会议中按下即可立即开始记录。"
-    },
-    "finish": {
-      "title": "一切就绪",
-      "cloudDescription": "你正在使用 only-whispers Cloud — 快速、准确、零数据保留，每周免费 2,000 词。希望一切都在本地？可在“设置”中切换到本地处理。",
-      "localDescription": "你已配置本地处理或自带密钥。可随时在“设置”中调整音频处理方式。",
-      "cleanupNote": "AI 文本清理使用合理的默认设置，可随时在“设置”中调整。",
-      "openSettings": "打开设置",
-      "skipForNow": "暂时跳过",
-      "corti": {
-        "title": "你告诉我们你是为临床转写而来",
-        "description": "我们与 Corti 合作 — 临床级语音转文字，准确率最高，并符合 HIPAA。",
-        "createAccount": "创建你的 Corti 账户",
-        "creditBadge": "50 美元免费额度",
-        "regionHint": "选择音频处理地区 — 美国或欧盟。",
-        "llmHint": "语言模型功能也将在 Corti 模型上运行。",
-        "useCorti": "使用 Corti",
-        "skip": "暂不需要",
-        "step1": "在 corti.ai 注册",
-        "step2": "打开 Corti 控制台并创建 API 凭据",
-        "step3": "在下方粘贴 Client ID 和 Secret"
-      }
-    },
-    "requiredModels": {
-      "title": "安装必需的模型",
-      "description": "{{organization}}要求在此设备上安装这些模型后才能开始听写。",
-      "genericOrganization": "您的组织",
-      "installed": "已安装",
-      "queued": "排队中",
-      "failed": {
-        "title": "有一项下载未完成",
-        "description": "请检查网络连接和磁盘剩余空间，然后重试。如果仍然失败，请联系您的管理员。"
-      }
+      "holdDescription": "按住说话"
     },
     "permissionGuide": {
       "label": "权限引导",
@@ -589,47 +177,24 @@
   "streaming": {
     "errors": {
       "cloudUnreachable": {
-        "title": "无法连接到 only-whispers Cloud",
+        "title": "无法连接到转写服务",
         "generic": "网络请求失败，请检查你的连接。",
-        "dnsBlocked": "DNS 无法解析 openwhispr.com — 广告拦截器或过滤器可能阻止了它。",
+        "dnsBlocked": "DNS 找不到该服务的地址 — 广告拦截器或过滤器可能阻止了它。",
         "refused": "连接被拒绝 — 可能是防火墙或 VPN。",
         "timeout": "网络超时 — VPN、强制门户或网络不稳定。",
-        "tls": "TLS 握手失败 — 请检查系统时钟或企业代理。",
-        "fallback": "Cloud 不可用 — 本次录音将使用本地引擎。"
+        "tls": "TLS 握手失败 — 请检查系统时钟或企业代理。"
       }
     }
   },
   "controlPanel": {
-    "updateRequiredByOrg": {
-      "title": "需要更新",
-      "description": "您的组织要求使用 only-whispers {{version}} 或更高版本。请更新应用。"
-    },
     "update": {
       "readyTitle": "更新已准备就绪",
       "readyDescription": "点击“安装更新”以重启并安装最新版本。",
-      "installTitle": "安装更新",
-      "installDescription": "only-whispers 将重启以应用更新。当前进行中的工作将被保存。",
-      "couldNotInstallTitle": "无法安装更新",
-      "couldNotInstallDescription": "出了点问题，请重试。",
-      "couldNotDownloadTitle": "无法下载更新",
-      "couldNotDownloadDescription": "请检查网络连接后重试。",
-      "installing": "正在安装...",
-      "installButton": "安装更新",
-      "availableButton": "有可用更新"
-    },
-    "limit": {
-      "weeklyTitle": "已达本周云端上限",
-      "weeklyDescription": "你的额度按滚动方式重置。升级到 Pro 或使用自己的 API Key 可不受限制。"
+      "installButton": "安装更新"
     },
     "accessibilityMissing": {
       "title": "需要辅助功能权限",
       "description": "我们检测到 only-whispers 需要辅助功能权限才能正常工作。请在下方启用。"
-    },
-    "billing": {
-      "pastDueTitle": "我们无法处理你的付款",
-      "pastDueDescription": "别担心——你目前使用的是免费版。在设置中更新支付方式即可恢复 Pro 版。",
-      "bannerDescription": "你目前使用的是免费版——每周仍有 {{limit}} 个词的额度。更新支付方式即可恢复 Pro 版。",
-      "updatePayment": "更新支付方式"
     },
     "history": {
       "couldNotLoadTitle": "无法加载历史记录",
@@ -648,9 +213,7 @@
       "shortcutHint": "按 {{shortcut}} 开始说话。",
       "dataRetentionDisabled": "数据保留已关闭。转录和音频不会保存到历史记录。",
       "welcomeBack": "欢迎回来",
-      "welcomeBackNamed": "欢迎回来，{{name}}",
       "welcome": "欢迎",
-      "welcomeNamed": "欢迎，{{name}}",
       "dateGroups": {
         "today": "今天",
         "yesterday": "昨天"
@@ -679,12 +242,8 @@
       "showInFolderWindows": "在资源管理器中显示",
       "showInFolderLinux": "在文件管理器中显示",
       "retryTranscription": "重新转录",
-      "retrying": "正在重新转录…",
       "retrySuccess": "转录已更新",
       "retryError": "重新转录失败",
-      "retryErrors": {
-        "invalidResponse": "转录引擎返回了意外的响应。请重试。"
-      },
       "audioNotFound": "音频文件未找到或已过期",
       "noAiProcessing": "此转录未应用 AI 处理",
       "rawTranscript": "原始转录",
@@ -697,7 +256,6 @@
         "recover": "恢复",
         "recovered": "已恢复"
       },
-      "retryTranslationMode": "翻译模式",
       "uploadAudio": "上传音频",
       "editItem": "编辑",
       "newTranscript": "新建转录",
@@ -710,33 +268,14 @@
       "description": "在你说话的同时，自动修正语法、标点和格式。",
       "enable": "启用 AI 增强"
     },
-    "loading": "加载中...",
-    "gpu": {
-      "bannerTitle": "GPU 加速可用",
-      "bannerDescription": "启用 GPU 加速以获得更快的性能。",
-      "enableButton": "启用 GPU",
-      "dismissButton": "暂不启用"
-    },
-    "backToNotes": "返回笔记",
-    "requiredModelsByOrg": {
-      "title": "缺少必需的模型",
-      "description": "您的组织要求在此设备上安装这些模型：{{models}}。",
-      "download": "下载"
-    },
-    "cloudNudge": {
-      "title": "你已登录",
-      "description": "听写仍在使用你自己的配置。你可以随时切换到 only-whispers Cloud。",
-      "action": "打开设置"
-    }
+    "loading": "加载中..."
   },
   "reasoning": {
     "mode": {
       "cloud": "云端",
       "local": "本地",
-      "enterprise": "企业",
       "localDescription": "在你的设备上运行，完全隐私，离线可用。",
-      "cloudDescription": "通过 API 使用高级模型，快速且强大，需要联网。",
-      "enterpriseDescription": "使用你组织的云服务商凭据。"
+      "cloudDescription": "通过 API 使用高级模型，快速且强大，需要联网。"
     },
     "custom": {
       "endpointWithProtocol": "请输入包含协议的完整 URL（例如 https://server/v1）。",
@@ -745,8 +284,6 @@
       "endpointUnauthorized": "端点拒绝了请求（401/403）。请添加 API Key 或调整服务器认证设置。",
       "endpointTitle": "端点 URL",
       "endpointExamples": "示例：",
-      "ollama": "（Ollama）",
-      "localAi": "（LocalAI）",
       "apiKeyOptional": "API Key（可选）",
       "apiKeyHelp": "可选。作为 Bearer token 用于身份验证，与 OpenAI API Key 无关。",
       "applyAndRefresh": "应用并刷新",
@@ -796,8 +333,6 @@
       "endpointHelp": "指向本地网络中兼容 OpenAI 的服务器（例如 Ollama、LM Studio、vLLM 或 llama-server）。"
     },
     "enterprise": {
-      "title": "企业级提供商",
-      "description": "使用你组织的凭据连接云端提供商。",
       "testConnection": "测试连接",
       "testing": "测试中…",
       "testSuccess": "已连接",
@@ -825,12 +360,10 @@
       "allModels": "{{region}} 的全部模型",
       "modelListError": "无法加载模型。",
       "bedrock": {
-        "ssoHelp": "使用你的 AWS CLI SSO 配置。请确保已运行 'aws sso login'。",
-        "keysHelp": "输入你的 AWS IAM 访问密钥。"
+        "ssoHelp": "使用你的 AWS CLI SSO 配置。请确保已运行 'aws sso login'。"
       },
       "errors": {
         "bedrock": {
-          "temporaryAccessExpired": "AWS 临时访问权限已过期。",
           "ssoExpired": "AWS SSO 会话已过期。",
           "credentialsRejected": "AWS 拒绝了这些凭证。请检查访问密钥 ID、密钥和会话令牌。",
           "accessDenied": "AWS Bedrock 拒绝了此请求。请让 AWS 管理员授予在区域 {{region}} 中调用所选模型的权限。",
@@ -843,7 +376,6 @@
           "network": "无法连接到 AWS Bedrock。请检查互联网连接并重试。",
           "unknown": "AWS Bedrock 错误：{{error}}",
           "actions": {
-            "refreshManagedAccess": "请退出并重新登录以刷新公司访问权限，然后重试。",
             "reauthenticate": "请在终端中运行以下命令以重新进行身份验证："
           }
         }
@@ -887,42 +419,13 @@
     }
   },
   "transcription": {
-    "modelCard": "模型卡",
     "deleteModel": {
       "title": "删除模型",
       "description": "确定要删除此模型吗？如果需要再次使用，你需要重新下载。"
-    },
-    "parakeet": {
-      "multilingual": "25 种语言",
-      "english": "英语",
-      "requiresMacOS": "macOS {{version}}+",
-      "unavailable": "不可用"
-    },
-    "apiKeyOptional": "API Key（可选）",
-    "getKey": "获取密钥 ->",
-    "endpointUrl": "端点 URL",
-    "azureHint": "Azure AI Foundry：输入你的资源终结点（例如 https://your-resource.cognitiveservices.azure.com），并将“模型”设置为你的确切部署名称。",
-    "customProvider": "自定义",
-    "fallback": {
-      "whisperModelDescription": "模型",
-      "parakeetModelDescription": "NVIDIA Parakeet 模型"
-    },
-    "whisperModels": "Whisper 模型",
-    "corti": {
-      "clientId": "客户端 ID",
-      "clientSecret": "客户端密钥",
-      "apiKey": "API Key",
-      "environment": "数据区域",
-      "tenant": "租户"
-    },
-    "tinfoil": {
-      "transportNote": "Tinfoil 流式转录使用 Voxtral Mini 4B，批量转录使用 Voxtral Small 24B。",
-      "docsLink": "查看文档"
     }
   },
   "hooks": {
     "audioRecording": {
-      "cleanupSignedOut": "AI 清理使用 only-whispers Cloud，但你尚未登录。",
       "cleanupUnconfigured": "已开启 AI 清理，但尚未设置清理模型。",
       "errorTitles": {
         "sessionExpired": "会话已过期",
@@ -931,10 +434,6 @@
         "screenContextSkipped": "已跳过屏幕上下文",
         "cloudLimitReached": "已达本周云端上限",
         "providerRateLimited": "服务商速率限制"
-      },
-      "fallback": {
-        "title": "回退模式",
-        "description": "本地 Whisper 失败，已改用 OpenAI API。"
       },
       "errorActions": {
         "viewTranscript": "查看转录"
@@ -945,8 +444,7 @@
       },
       "micDisconnected": {
         "title": "麦克风已断开",
-        "description": "录音仍在进行中，麦克风可用后将自动恢复。",
-        "meetingDescription": "会议仍在录制系统音频，麦克风录制将自动恢复。"
+        "description": "录音仍在进行中，麦克风可用后将自动恢复。"
       },
       "micRestored": {
         "title": "麦克风已恢复",
@@ -957,28 +455,13 @@
         "description": "部分录音内容无法转录。"
       },
       "errorDescriptions": {
-        "sessionExpired": "only-whispers Cloud 会话不可用。请到「设置」中重新登录。",
-        "offline": "你目前离线。云端转录需要互联网连接。",
-        "dailyLimitReached": "已达今日转录上限。请明天再试或升级你的套餐。",
         "providerRateLimited": "你的转录服务商限制了请求频率。请稍候再试。",
-        "chunkLoss": "网络问题导致录音大部分丢失。请从历史记录中重新转录。",
         "agentReasoningFailed": "语音助手无法处理该命令，已改为插入原始转录文本。",
         "screenContextSkipped": "截图无法发送，因此已在没有屏幕上下文的情况下执行你的命令。",
-        "customEndpointInvalid": "自定义转写端点未配置或其 URL 无效。请在“设置 → 语音转文字”中更新。",
-        "managedTranscriptionUnavailable": "托管转录目前不可用。请稍候再试。",
-        "managedRouteInvalid": "由于配置不匹配，托管转录无法启动。请重试或联系管理员。",
-        "managedAuthRejected": "您组织的托管转录凭证被拒绝。请联系管理员。",
-        "streamingOnlyProvider": "该服务商仅支持实时转录。请为文件上传和重试选择其他服务商。",
         "providerKeyMissing": "尚未为您的转录服务商设置 API 密钥。请在“设置 → 语音转文字”中添加。",
         "cleanupTruncated": "AI 模型的输出长度达到上限，未能完成听写清理。",
         "cleanupDuplicated": "AI 清理重复了转录内容。已保留原始文本。",
         "cleanupEmptyReply": "AI 模型返回了空响应，没有生成清理后的文本。"
-      },
-      "translationFallback": {
-        "unreachableTitle": "翻译不可用",
-        "unreachableDescription": "你的口述内容已按原文粘贴，未经翻译。请检查翻译设置。",
-        "failedTitle": "翻译失败",
-        "failedDescription": "已粘贴原始文本。你可以在历史记录中重试。"
       },
       "pushForceStopped": {
         "title": "转录内容未粘贴",
@@ -1072,7 +555,6 @@
       },
       "modelDeleted": {
         "title": "模型已删除",
-        "descriptionWithSpace": "模型删除成功！释放了 {{sizeMb}}MB 磁盘空间。",
         "description": "模型删除成功！"
       },
       "deleteFailed": {
@@ -1114,31 +596,8 @@
       "micUnavailable": "此环境中麦克风 API 不可用，请重启应用。",
       "titles": {
         "microphoneUnavailable": "麦克风不可用",
-        "microphonePermissionRequired": "需要麦克风权限",
-        "accessibilityNeeded": "需要辅助功能权限",
-        "readyToGo": "准备就绪！",
-        "waylandClipboardMode": "Wayland 上的剪贴板模式",
-        "optionalPasteTool": "可选：安装粘贴工具"
+        "microphonePermissionRequired": "需要麦克风权限"
       },
-      "descriptions": {
-        "accessibilityNeeded": "请在系统设置中授予辅助功能权限，以启用自动粘贴。",
-        "windowsReady": "Windows 无需特殊权限即可自动粘贴，一切就绪！",
-        "linuxReadyWithMethod": "可使用 {{method}} 进行自动粘贴，一切就绪！",
-        "waylandClipboardMode": "此 Wayland 会话不支持自动粘贴。only-whispers 会将文本复制到剪贴板，你可以使用 Ctrl+V 粘贴。",
-        "optionalPasteTool": "如需自动粘贴功能，请安装 {{tool}}：\n\n{{installCmd}}{{waylandNote}}\n\n即使不安装，你仍然可以使用 only-whispers——文本会被复制到剪贴板，你可以使用 Ctrl+V 粘贴。"
-      },
-      "alerts": {
-        "accessibilityNeeded": "需要辅助功能权限！请在系统设置中授权。"
-      },
-      "notes": {
-        "waylandWtype": "\n\n注意：对于 XWayland 应用，xdotool 也适用。",
-        "waylandXwaylandOnly": "\n\n注意：自动粘贴仅适用于 XWayland 应用。"
-      },
-      "labels": {
-        "defaultPasteTool": "xdotool",
-        "xdotoolXwayland": "xdotool（XWayland 应用）"
-      },
-      "accessibilityTestText": "only-whispers 辅助功能测试",
       "warning": {
         "messages": {
           "macos": "请检查声音设置以选择输入设备",
@@ -1149,86 +608,6 @@
         "privacyLabel": "隐私"
       }
     }
-  },
-  "auth": {
-    "cloudNotConfigured": "云端未配置",
-    "common": {
-      "back": "返回",
-      "continue": "继续",
-      "or": "或"
-    },
-    "emailStep": {
-      "checkingEmail": "正在检查您的邮箱...",
-      "continueWithEmail": "使用邮箱继续",
-      "continueWithoutAccount": "无需账户，继续使用",
-      "emailLabel": "邮箱",
-      "emailPlaceholder": "you@example.com",
-      "useDifferentEmail": "使用其他邮箱"
-    },
-    "errors": {
-      "accountExistsSignIn": "此邮箱已注册账户，请直接登录。",
-      "accountNotFoundCreate": "未找到此邮箱的账户，请先注册。",
-      "authNotConfigured": "身份验证未配置",
-      "createAccountFailed": "创建账户失败",
-      "failedProviderSignIn": "使用 {{provider}} 登录失败",
-      "failedUserCheck": "检查用户账户失败",
-      "generic": "出了点问题，请重试。",
-      "invalidCredentials": "邮箱或密码无效",
-      "invalidEmail": "请输入有效的邮箱地址"
-    },
-    "getStarted": "开始使用",
-    "legal": {
-      "and": "和",
-      "prefix": "继续即表示你同意我们的",
-      "privacy": "隐私政策",
-      "suffix": "",
-      "terms": "服务条款"
-    },
-    "passwordForm": {
-      "createAccount": "创建账户",
-      "createAccountButton": "使用邮箱继续",
-      "createAccountLink": "创建账户",
-      "createPasswordPlaceholder": "创建密码",
-      "creatingAccount": "正在创建账户...",
-      "enterPasswordPlaceholder": "输入密码",
-      "forgotPassword": "忘记密码？",
-      "fullNamePlaceholder": "填写你的姓名",
-      "nameLabel": "姓名",
-      "passwordLabel": "密码",
-      "haveAccount": "已有账户？",
-      "newHere": "新用户？",
-      "passwordMinLength": "密码至少需要 8 个字符",
-      "signIn": "使用邮箱继续",
-      "signInLink": "登录",
-      "signingIn": "正在登录...",
-      "welcomeBack": "欢迎回来"
-    },
-    "signedIn": {
-      "welcomeBack": "欢迎回来",
-      "welcomeBackNamed": "欢迎回来，{{name}}",
-      "notYou": "不是你？退出登录"
-    },
-    "sso": {
-      "continueWithSSO": "使用 SSO 登录",
-      "workEmailLabel": "工作邮箱",
-      "emailPlaceholder": "添加您的邮箱",
-      "emailRequired": "输入您的工作邮箱以使用 SSO。",
-      "failed": "单点登录失败，请重试。",
-      "companySignInTitle": "使用公司登录",
-      "requiredDescription": "{{domain}} 要求通过 SSO 登录 only-whispers。",
-      "availableDescription": "您的 {{domain}} 账户已可使用公司 SSO。",
-      "useEmailInstead": "改用邮箱和密码"
-    },
-    "social": {
-      "completeInBrowser": "在浏览器中完成登录",
-      "continueWithApple": "使用 Apple 继续",
-      "continueWithGoogle": "使用 Google 继续",
-      "continueWithMicrosoft": "使用 Microsoft 继续",
-      "protocolUnavailable": "无法通过浏览器登录 — 请在系统的“默认应用”设置中重新注册 openwhispr:// 协议。"
-    },
-    "welcomeSubtitle": "你的声音，由你掌控。",
-    "welcomeTitle": "欢迎使用 only-whispers",
-    "sessionExpired": "会话已过期，请重新登录。"
   },
   "cleanupPrompt": "文本整理",
   "dictionarySuffix": "词典后缀",
@@ -1267,7 +646,6 @@
     "inputDevice": "输入设备",
     "noBuiltInDetected": "未检测到内置麦克风，正在使用系统默认设备。",
     "preferBuiltIn": {
-      "description": "外接麦克风可能导致延迟或降低转录质量",
       "label": "优先使用内置麦克风"
     },
     "selectPlaceholder": "选择麦克风",
@@ -1363,42 +741,24 @@
       "none": "无",
       "outputLabel": "输出",
       "processing": "处理中...",
-      "openwhisprCloud": "only-whispers Cloud",
       "providerLabel": "服务商",
       "run": "运行测试",
       "customEndpoint": "自定义端点",
       "apiKeyMissing": "未配置 {{provider}} API 密钥，请在 AI 模型设置中添加。",
-      "translateHint": "文本将翻译为{{language}}",
-      "translation": "翻译",
-      "translationDisabled": "启用听写翻译以测试此提示词",
-      "noTargetLanguage": "请先选择目标语言",
       "agentDisabled": "启用语音助手以测试此提示词"
     },
     "view": {
       "customPrompt": "自定义提示词",
       "defaultPrompt": "默认提示词",
       "modified": "已修改"
-    },
-    "defaultTestInputTranslate": "今天天气真好，要不要出去走走？"
+    }
   },
   "settingsModal": {
-    "managedByOrg": "部分设置由您的组织管理。",
-    "managedAccount": "受管理的账户",
     "groups": {
-      "account": "账户",
       "app": "应用",
-      "aiModels": "AI 模型",
-      "system": "系统"
+      "aiModels": "AI 模型"
     },
     "sections": {
-      "account": {
-        "description": "个人资料与登录",
-        "label": "个人资料"
-      },
-      "plansBilling": {
-        "description": "套餐、用量与账单",
-        "label": "套餐与账单"
-      },
       "general": {
         "description": "外观、声音与启动",
         "label": "偏好设置"
@@ -1418,275 +778,11 @@
       "llms": {
         "description": "用于清理、笔记格式化和聊天的模型",
         "label": "语言模型"
-      },
-      "privacyData": {
-        "description": "隐私、权限与数据分析",
-        "label": "隐私与数据"
-      },
-      "system": {
-        "description": "更新、存储与开发者工具",
-        "label": "系统"
-      },
-      "workspace": {
-        "description": "成员、团队空间和 API 密钥",
-        "label": "工作区"
       }
     },
     "title": "设置"
   },
   "settingsPage": {
-    "unifiedBilling": {
-      "workspaceTitle": "工作区账单",
-      "workspaceDescription": "每个工作区都有自己的套餐、席位和账单负责人。",
-      "billableSeat": "您的席位需计费",
-      "nonBillableSeat": "仅管理员访问 · 无付费席位",
-      "managedBy": "账单由 {{owner}} 管理。",
-      "addSeat": "添加席位",
-      "seatUpdated_one": "工作区容量已更新为 {{count}} 个席位",
-      "seatUpdated_other": "工作区容量已更新为 {{count}} 个席位",
-      "seatUpdateFailed": "无法更新工作区席位",
-      "businessWorkspaceOnly": "适用于工作区",
-      "personalPlanTitle": "个人套餐",
-      "providedBy": "个人套餐：免费版 · 付费权限由 {{workspaces}} 提供",
-      "confirmSeats": {
-        "title": "要添加工作区席位吗？",
-        "description_one": "将 {{workspace}} 增加到 {{count}} 个席位。Stripe 将按比例计费。",
-        "description_other": "将 {{workspace}} 增加到 {{count}} 个席位。Stripe 将按比例计费。",
-        "newCapacity": "新容量",
-        "chargeToday": "今日收费",
-        "confirm": "添加席位"
-      }
-    },
-    "account": {
-      "badges": {
-        "free": "免费版",
-        "limitReached": "已达云端上限",
-        "pastDue": "逾期未付",
-        "pro": "Pro",
-        "business": "Business",
-        "trial": "试用"
-      },
-      "billing": {
-        "couldNotOpenDescription": "打开账单页面时出错，请重试。",
-        "couldNotOpenTitle": "无法打开账单",
-        "manageBilling": "管理账单",
-        "opening": "正在打开...",
-        "updatePaymentMethod": "更新支付方式",
-        "contactOwnerTitle": "请联系工作区所有者",
-        "contactOwnerDescription": "只有工作区所有者才能更新该工作区的账单。",
-        "manageInAppStore": "在 App Store 中管理",
-        "manageInGooglePlay": "在 Google Play 中管理",
-        "managedInMobileStore": "通过手机应用商店计费。请在手机上管理订阅。"
-      },
-      "checkout": {
-        "couldNotOpenDescription": "打开结账页面时出错，请重试。",
-        "couldNotOpenTitle": "无法打开结账页",
-        "opening": "正在打开...",
-        "upgradeToPro": "升级到 Pro"
-      },
-      "disabled": "已禁用",
-      "featuresDisabled": "账户功能已禁用",
-      "featuresDisabledDescription": "在 .env 文件中设置 VITE_AUTH_URL 以启用账户功能。",
-      "notConfigured": "身份验证未配置",
-      "notSignedIn": "未登录",
-      "notSignedInDescription": "创建账户以解锁高级功能。",
-      "offline": "离线",
-      "pastDue": {
-        "description": "你目前使用的是免费版。更新支付方式即可恢复 Pro 版。",
-        "title": "我们无法处理你的付款"
-      },
-      "planDescriptions": {
-        "freeUsage": "本周 only-whispers Cloud 已使用 {{used}} / {{limit}} 个词",
-        "byokUnlimited": "使用自己的 API 密钥和本地模型仍不受此限制。",
-        "nextBilling": "下次扣费：{{date}}",
-        "pastDue": "本周 only-whispers Cloud 已使用 {{used}} / {{limit}} 个词——更新支付方式以恢复 Pro",
-        "trial": "剩余 {{days}} 天——无限转录",
-        "unlimited": "无限制",
-        "accessUntil": "可使用至 {{date}}",
-        "storePaymentIssue": "应用商店未能续订此订阅。请在应用商店中更新付款方式以继续使用当前套餐。"
-      },
-      "planLabels": {
-        "free": "免费版",
-        "pro": "Pro",
-        "business": "Business",
-        "trial": "试用"
-      },
-      "rollingWeeklyLimit": "滚动周限额",
-      "signOut": {
-        "failedDescription": "退出登录时出错，请重试。",
-        "failedTitle": "无法退出登录",
-        "signOut": "退出登录",
-        "signingOut": "正在退出..."
-      },
-      "title": "账户",
-      "toasts": {
-        "approachingLimit": {
-          "description": "本周已使用 {{used}} / {{limit}} 个 only-whispers Cloud 词。升级到 Pro 可享受无限使用。",
-          "title": "即将达到云端字数上限"
-        }
-      },
-      "trialCta": {
-        "button": "免费创建账户",
-        "description": "无限转录、优先处理等更多功能。",
-        "title": "免费试用 Pro 版 7 天"
-      },
-      "pricing": {
-        "title": "套餐",
-        "billedYearly": "按年计费",
-        "free": {
-          "name": "Free",
-          "price": "$0",
-          "period": "永久",
-          "features": [
-            "## only-whispers Cloud",
-            "每周 2,000 字转录",
-            "每月 5 小时会议录制",
-            "## 永久免费",
-            "无限本地 AI 模型",
-            "使用自己的 API 密钥无限云端转录",
-            "支持 100+ 种语言",
-            "自定义词典",
-            "零数据留存",
-            "社区支持"
-          ]
-        },
-        "pro": {
-          "name": "Pro",
-          "monthlyPrice": "$8",
-          "monthlyPeriod": "/月",
-          "annualPrice": "$80",
-          "annualPeriod": "/年",
-          "annualEquivalent": "$6.67",
-          "includesPrefix": "所有 Free 功能 +",
-          "features": [
-            "无限云端转录",
-            "每月 20 小时会议录制",
-            "跨设备同步",
-            "通过公开链接分享笔记",
-            "个人 API 访问",
-            "在所有应用中集成 MCP",
-            "移动应用",
-            "邮件支持"
-          ],
-          "cta": "开始使用",
-          "switchToAnnual": "切换为年付"
-        },
-        "business": {
-          "name": "Business",
-          "monthlyPrice": "$16",
-          "monthlyPeriod": "/月",
-          "annualPrice": "$160",
-          "annualPeriod": "/年",
-          "annualEquivalent": "$13.33",
-          "includesPrefix": "所有 Pro 功能 +",
-          "badge": "最受欢迎",
-          "features": [
-            "无限会议录制",
-            "工作区角色与成员管理",
-            "助手模式",
-            "与您的数据对话",
-            "优先支持"
-          ],
-          "cta": "开始使用",
-          "switchToAnnual": "切换为年付"
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "自定义",
-          "subtitle": "提供高级安全保障与支持",
-          "includesPrefix": "所有 Business 功能 +",
-          "features": [
-            "托管 API 额度",
-            "跨设备云端同步",
-            "团队功能与管理",
-            "SSO 与合规",
-            "专属支持"
-          ],
-          "cta": "联系销售",
-          "upgradeCta": "升级到 Enterprise",
-          "askOwner": "请 {{name}} 升级您的工作区。"
-        },
-        "currentPlan": "当前套餐",
-        "coveredByWorkspace": "已包含在您的工作区套餐中",
-        "upgrade": "升级",
-        "downgrade": "降级",
-        "planSwitched": "套餐已成功更新",
-        "confirmSwitch": {
-          "title": "确认更换套餐",
-          "description": "切换至 {{plan}}（{{interval}}）",
-          "monthly": "月付",
-          "yearly": "年付",
-          "chargeToday": "今日收费",
-          "accountCredit": "账户余额",
-          "newPrice": "新价格",
-          "nextBilling": "下次计费",
-          "mo": "月",
-          "yr": "年",
-          "cancel": "取消",
-          "confirm": "确认"
-        }
-      },
-      "signedOutPlans": {
-        "button": "免费创建账户"
-      },
-      "user": "用户",
-      "wordsRemaining": "剩余 {{remaining}} 个词",
-      "deleteAccount": {
-        "label": "删除账户",
-        "labelDescription": "永久删除您的账户和个人云端数据。其他本地用户和工作区所有的内容将被保留。",
-        "button": "删除我的账户",
-        "deleting": "正在删除...",
-        "title": "删除您的账户？",
-        "description": "这将永久删除您的 only-whispers 账户和个人数据。工作区所有的内容及其他本地用户的数据会保留在此设备上。",
-        "confirmText": "删除账户",
-        "eraseDeviceLabel": "同时清除此设备上的所有数据",
-        "eraseDeviceDescription": "删除所有本地用户的笔记和工作区缓存、已下载模型、设置、日历连接、凭据和录音。",
-        "eraseDeviceWarning": "此设备级清除无法撤销，并会影响所有本地用户。",
-        "successTitle": "账户已删除",
-        "successDescription": "您的账户和个人数据已删除。其他本地用户、工作区、模型和设备设置均已保留。",
-        "partialCleanupDescription": "您的账户已删除，但部分本地清理未能完成。其他用户和工作区所有的内容均已保留。",
-        "failedTitle": "删除失败",
-        "failedDescription": "无法完成账户删除。未启动设备级清除。请重试。"
-      },
-      "profile": {
-        "name": {
-          "label": "显示名称",
-          "placeholder": "您的姓名",
-          "save": "保存",
-          "saving": "保存中...",
-          "saved": "显示名称已更新",
-          "error": "无法更新您的姓名"
-        },
-        "password": {
-          "label": "密码",
-          "description": "更改您用于登录的密码。",
-          "change": "更改密码",
-          "dialogTitle": "更改密码",
-          "dialogDescription": "输入您的当前密码并设置新密码。",
-          "currentLabel": "当前密码",
-          "newLabel": "新密码",
-          "confirmLabel": "确认新密码",
-          "minLength": "密码至少需要 8 个字符",
-          "mismatch": "两次输入的密码不一致",
-          "revokeOthers": "在其他设备上退出登录",
-          "submit": "更新密码",
-          "saving": "更新中...",
-          "cancel": "取消",
-          "saved": "密码已更新"
-        },
-        "errors": {
-          "invalidPassword": "您的当前密码不正确。",
-          "passwordTooShort": "密码至少需要 8 个字符。",
-          "passwordTooLong": "密码过长。",
-          "noPassword": "此账户未设置密码。",
-          "generic": "出了点问题，请重试。"
-        }
-      },
-      "planUnavailable": {
-        "title": "无法获取方案",
-        "description": "暂时无法加载你的方案，你的使用权限不受影响。"
-      }
-    },
     "agentConfig": {
       "agentName": "助手名称",
       "description": "为你的 AI 助手取个名字，这样你就能在听写时直接呼唤它",
@@ -1709,133 +805,29 @@
       }
     },
     "aiModels": {
-      "customSetup": "自定义设置",
-      "customSetupDescription": "使用你自己的服务商和 API Key。",
-      "description": "整理转录文本、处理指令、修正错误，同时保留你的语气风格。",
       "enableTextCleanup": "启用文本整理",
       "enableTextCleanupDescription": "AI 去除语气词，修正语法和标点",
       "modes": {
-        "openwhispr": "only-whispers Cloud",
         "providers": "自带密钥",
         "local": "本地",
         "selfHosted": "自托管",
-        "openwhisprDesc": "准确可靠，无需设置。",
         "providersDesc": "使用你自己的 API Key 连接你首选的 LLM 服务商。",
         "localDesc": "设备端模型，完全私密。",
         "selfHostedDesc": "你的服务器，在你的网络上。",
         "enterprise": "企业级",
         "enterpriseDesc": "使用你组织的云账号（AWS、Azure、GCP）。"
-      },
-      "openwhisprCloud": "only-whispers Cloud",
-      "openwhisprCloudDescription": "准确可靠，无需设置。",
-      "title": "AI 文本增强",
-      "toasts": {
-        "switchedCloud": {
-          "description": "文本增强将使用 only-whispers 云端服务。",
-          "title": "已切换到 only-whispers 云端"
-        },
-        "switchedCustom": {
-          "description": "请配置你的服务商和 API Key。",
-          "title": "已切换到自定义设置"
-        },
-        "switchedProviders": {
-          "title": "自带密钥",
-          "description": "使用你自己的 API Key。"
-        },
-        "switchedLocal": {
-          "title": "本地运行",
-          "description": "AI 在你的设备上本地运行。"
-        },
-        "switchedSelfHosted": {
-          "title": "自托管",
-          "description": "使用你自己的服务器。"
-        },
-        "switchedEnterprise": {
-          "title": "企业级",
-          "description": "正在使用你组织的云账号。"
-        }
-      },
-      "managedEnterprise": {
-        "errorTitle": "托管企业 AI 需要处理",
-        "title": "由您的组织管理",
-        "description": "登录后会自动获取短期访问权限，无需云密钥或 CLI 配置。",
-        "usePersonalSetup": "使用个人配置",
-        "availableTitle": "可使用组织配置",
-        "availableDescription": "使用 {{provider}}，无需管理凭据。",
-        "useManaged": "使用托管配置"
       }
     },
-    "developer": {
-      "clearCache": "清除缓存",
-      "dataManagementDescription": "管理缓存模型和应用数据",
-      "dataManagementTitle": "数据管理",
-      "modelCache": "模型缓存",
-      "open": "打开",
-      "removeModels": {
-        "confirmText": "删除模型",
-        "description": "这将删除所有本地缓存的 Whisper 模型（{{path}}）并释放磁盘空间。你可以从模型选择器中重新下载。",
-        "failedDescription": "删除模型时出错，请重试。",
-        "failedDescriptionShort": "无法删除缓存的模型。",
-        "failedTitle": "无法删除模型",
-        "successDescription": "所有缓存的模型已删除。",
-        "successTitle": "模型已删除",
-        "title": "删除已下载的模型？"
-      },
-      "removing": "正在删除...",
-      "resetAll": {
-        "confirmText": "删除所有数据",
-        "description": "这将永久删除所有本地设置、转录、音频录制、下载的 AI 模型、日历连接和缓存数据。云端数据和您的账户不会受到影响。应用将在重置后重启。",
-        "failedDescription": "出了点问题，请重试或重新安装应用。",
-        "failedTitle": "无法重置",
-        "successDescription": "所有数据已重置，应用将立即重启。",
-        "successTitle": "全部完成",
-        "title": "重置所有应用数据"
-      },
-      "resetAppData": "重置应用数据",
-      "resetAppDataDescription": "永久删除所有本地设置、转录、音频录制、下载的模型和缓存数据"
-    },
     "dictionary": {
-      "title": "自定义词典",
-      "description": "教 AI 你的词汇 — 名字、术语和它可能遗漏的词语",
-      "addWordOrPhrase": "添加单词或短语",
-      "placeholder": "添加一个单词或短语...",
-      "add": "添加",
-      "pressEnterToAdd": "按 Enter 添加",
       "autoLearnTitle": "从纠正中自动学习",
-      "autoLearnDescription": "当你在目标应用中纠正转录时，纠正后的词语会自动添加到你的词典中。",
-      "yourWords": "你的词语",
-      "clearDictionaryTitle": "清除词典？",
-      "clearDictionaryDescription": "这将删除自定义词典中的所有词语。此操作无法撤消。",
-      "clearAll": "全部清除",
-      "agentNameAutoManaged": "自动管理 — 与助手名称同步",
-      "removeWord": "移除词语",
-      "noWords": "暂无词语",
-      "wordsAppearHere": "你添加的词语将显示在这里",
-      "howItWorksTitle": "工作原理",
-      "howItWorksDescription": "词语作为上下文提示提供给语音模型，帮助它识别不常见的术语。对于难以识别的词语，可以尝试添加上下文，例如在词语旁添加 \"The word is Synty\"。",
-      "tipLabel": "提示",
-      "tipDescription": "用逗号分隔多个词语。添加上下文短语如 \"The word is Synty\" 以获得更好的识别效果。"
+      "autoLearnDescription": "当你在目标应用中纠正转录时，纠正后的词语会自动添加到你的词典中。"
     },
     "general": {
-      "appearance": {
-        "auto": "自动",
-        "dark": "深色",
-        "description": "控制 only-whispers 的外观",
-        "light": "浅色",
-        "theme": "主题",
-        "themeDescription": "选择浅色、深色或跟随系统",
-        "title": "外观"
-      },
       "floatingIcon": {
         "alwaysVisible": "始终显示",
         "alwaysVisibleDescription": "未在听写时也在屏幕上显示图标",
         "description": "控制听写图标在屏幕上的显示",
-        "title": "悬浮图标",
-        "startPosition": "起始位置",
-        "startPositionDescription": "语音录制面板在屏幕上的显示位置",
-        "bottomRight": "右下角",
-        "center": "底部居中",
-        "bottomLeft": "左下角"
+        "title": "悬浮图标"
       },
       "hotkey": {
         "activationMode": "激活模式",
@@ -1852,11 +844,7 @@
         "hyprlandUnbindDescription": "在 Hyprland 上，only-whispers 会占用所选快捷键。only-whispers 注册快捷键时，任何使用相同组合键的现有 Hyprland 绑定都会被解除。"
       },
       "meetingHotkey": {
-        "title": "会议模式快捷键",
-        "description": "启动会议模式并将面板固定到屏幕侧边",
-        "layoutLabel": "通过快捷键触发时,打开方式:",
-        "layoutFullWidth": "全宽",
-        "layoutSidePanel": "侧边栏"
+        "title": "会议模式快捷键"
       },
       "voiceAgentHotkey": {
         "title": "语音助手快捷键",
@@ -1867,43 +855,6 @@
         "title": "麦克风",
         "muteOtherApps": "听写时静音其他应用",
         "muteOtherAppsDescription": "将其他应用的声音静音，以免干扰听写"
-      },
-      "soundEffects": {
-        "dictationSounds": "听写音效",
-        "dictationSoundsDescription": "在录音开始和停止时播放提示音",
-        "pauseMedia": "暂停媒体",
-        "pauseMediaDescription": "开始听写时自动暂停音乐",
-        "title": "音效"
-      },
-      "notifications": {
-        "title": "通知",
-        "description": "设置 only-whispers 可以显示哪些通知",
-        "disableAll": "禁用所有通知",
-        "disableAllDescription": "静音除错误消息外的所有内容",
-        "meetingDetection": "会议检测",
-        "meetingDetectionDescription": "检测到会议时通知您以便开始录音",
-        "calendarReminders": "日历提醒",
-        "calendarRemindersDescription": "预定会议即将开始时通知您"
-      },
-      "clipboard": {
-        "title": "剪贴板",
-        "autoPaste": "自动粘贴",
-        "autoPasteDescription": "听写结束后自动将转录文本粘贴到当前活动的应用中",
-        "keepInClipboard": "将转录内容保留在剪贴板",
-        "keepInClipboardDescription": "将听写文本保留在剪贴板中，以便在需要时手动粘贴"
-      },
-      "startup": {
-        "launchAtLogin": "登录时启动",
-        "launchAtLoginDescription": "登录时在后台启动 only-whispers",
-        "title": "启动",
-        "description": "控制 only-whispers 启动时的行为",
-        "startMinimized": "启动时最小化",
-        "startMinimizedDescription": "启动时不显示控制面板窗口",
-        "needsApproval": {
-          "title": "需要在系统设置中批准",
-          "description": "macOS 已将 only-whispers 注册为登录项，但仍在等待你在“登录项”中允许它。",
-          "action": "打开登录项"
-        }
       },
       "waylandPaste": {
         "title": "Wayland 粘贴设置",
@@ -1976,70 +927,9 @@
           "detected": "已检测到",
           "manualTitle": "将以下内容添加到您的配置中",
           "manualDesc": "自行配置后重新构建。",
-          "flakeTitle": "通过我们的 flake 安装？",
-          "flakeDesc": "如果您通过 flake 安装 only-whispers，programs.openwhispr.enable 会自动为您启用 ydotool、uinput 模块以及相应的用户组权限。",
           "rebuildNote": "运行 sudo nixos-rebuild switch，然后注销并重新登录，使组变更和 /dev/uinput 规则生效。将 <you> 替换为您的用户名。"
         },
         "wlCopyDesc": "此桌面上 Wayland 应用读取粘贴文本所用的剪贴板工具"
-      },
-      "updates": {
-        "automaticUpdates": "自动更新",
-        "automaticUpdatesDescription": "在后台下载并安装更新",
-        "badges": {
-          "dev": "开发版",
-          "latest": "最新",
-          "update": "更新"
-        },
-        "checkForUpdates": "检查更新",
-        "checking": "检查中...",
-        "currentVersion": "当前版本",
-        "devMode": "正在开发模式下运行",
-        "dialogs": {
-          "almostThere": {
-            "description": "更新即将就绪，请稍候。",
-            "title": "即将完成"
-          },
-          "checkFailed": {
-            "description": "检查更新时出错，请稍后重试。",
-            "title": "无法检查更新"
-          },
-          "downloadFailed": {
-            "description": "下载更新时出错，请重试。",
-            "title": "无法下载更新"
-          },
-          "installFailed": {
-            "description": "安装更新时出错，请重试。",
-            "title": "无法安装更新"
-          },
-          "installUpdate": {
-            "confirmText": "安装并重启",
-            "description": "only-whispers 将重启以应用更新。",
-            "title": "安装更新"
-          },
-          "noUpdates": {
-            "description": "你已经是最新版本。",
-            "title": "无可用更新"
-          },
-          "updateAvailable": {
-            "description": "有可用更新：v{{version}}",
-            "title": "有可用更新"
-          }
-        },
-        "downloadUpdate": "下载更新 {{version}}",
-        "downloading": "下载中... {{progress}}%",
-        "installAndRestart": "安装并重启",
-        "latestVersion": "你已经是最新版本",
-        "managedByPackageManager": "更新通过您的包管理器安装",
-        "newVersion": "有更新的版本可用",
-        "newVersionAvailable": "有新版本可用",
-        "restarting": "正在重启...",
-        "title": "更新",
-        "versionPlaceholder": "—",
-        "whatsNew": "v{{version}} 更新内容"
-      },
-      "translationHotkey": {
-        "title": "翻译快捷键",
-        "description": "用任何语言听写——粘贴的文本会自动翻译"
       }
     },
     "permissions": {
@@ -2054,69 +944,14 @@
         "rowDescription": "重新安装或重新构建应用后，通过在系统设置中移除并重新添加 only-whispers 来解决问题",
         "title": "重置辅助功能权限"
       },
-      "optional": "可选",
-      "systemAudioTitle": "系统音频",
-      "systemAudioDescription": "转录会议、通话、讲座、播客和其他系统音频。",
       "grantAccess": "授予访问权限",
-      "test": "测试",
-      "testAndGrant": "测试并授权",
       "title": "权限",
       "troubleshoot": "排查问题",
       "troubleshootingTitle": "问题排查"
     },
-    "privacy": {
-      "cloudBackup": "云端备份",
-      "cloudBackupDescription": "将转录记录和笔记备份到云端，实现跨设备无缝访问。",
-      "cloudBackupTeamCaveat": "团队空间中的笔记和您已分享的笔记会始终同步，不受此设置影响。",
-      "cloudNotesMigration": "正在备份笔记… {{done}} / {{total}}",
-      "cloudNotesMigrationDone": "所有笔记已备份",
-      "description": "控制哪些数据会离开你的设备。默认全部关闭。",
-      "title": "隐私",
-      "insightsSync": "同步个人统计",
-      "insightsSyncDescription": "在你的设备之间同步字数、每次听写的日期和精确时间、时长和模型类型。转录内容永远不会包含在内。登录后清除历史记录，也会从此设备和你的账户中删除这些统计数据。",
-      "insightsSyncRequiresAccount": "登录后即可在设备之间同步不含内容的统计数据。",
-      "insightsSyncRequiresHistory": "开启数据保留后才会记录统计，之后才能跨设备同步。",
-      "leaderboardDescription": "在符合条件的工作区和工作域排行榜中显示你的姓名、电子邮件和活动。转录内容保持私密。",
-      "leaderboardRequiresAccount": "登录后即可管理排行榜参与状态。",
-      "leaderboardRequiresHistory": "加入排行榜前，请先开启数据保留。",
-      "usageAnalytics": "使用分析",
-      "usageAnalyticsDescription": "通过分享匿名性能数据帮助我们改进 only-whispers。我们绝不发送转录内容——仅发送计时和错误数据。",
-      "dataRetention": "数据保留",
-      "dataRetentionDescription": "将转录和音频本地保存到历史记录中。禁用后，转录内容会被粘贴但不会被保存。",
-      "transcriptRetention": "转录保留",
-      "transcriptRetentionDescription": "在此期限后自动删除已保存的转录、其音频及其 Insights 计数。",
-      "transcriptRetentionForever": "永久",
-      "hoursAgo": "{{count}}小时前",
-      "justNow": "刚刚",
-      "lastSynced": "上次同步 {{time}}",
-      "minutesAgo": "{{count}}分钟前",
-      "audioRetention": "音频保留",
-      "audioRetentionDescription": "在本地存储听写音频以便重新转录和下载。文件会在保留期过后自动删除。会议音频绝不会被存储。",
-      "audioRetentionDisabled": "已禁用",
-      "retentionDays_one": "{{count}} 天",
-      "retentionDays_other": "{{count}} 天",
-      "audioStorageUsage": "存储用量",
-      "audioStorageUsageDescription": "存储在此设备上的音频文件",
-      "audioStorageFiles": "{{count}} 个文件，{{size}}",
-      "audioStorageEmpty": "没有存储的音频文件",
-      "clearAllAudio": "清除所有音频",
-      "clearAllAudioConfirm": "删除所有已存储的音频文件？此操作无法撤销。",
-      "saveDiscarded": "保存已放弃的听写",
-      "saveDiscardedDescription": "用 Escape 取消听写时，将其音频保留在历史记录中以便恢复。需开启数据和音频保留。"
-    },
-    "prompts": {
-      "description": "查看、自定义和测试用于文本整理和指令识别的统一系统提示词",
-      "title": "提示词工作室"
-    },
     "speechToText": {
       "title": "语音转文字",
-      "description": "为听写和笔记录音选择一个引擎",
-      "tabs": {
-        "dictation": "听写",
-        "noteRecording": "笔记录音",
-        "upload": "上传音频"
-      },
-      "selfHostedStreamingNote": "需要支持流式转录的服务器。"
+      "description": "为听写和笔记录音选择一个引擎"
     },
     "llms": {
       "title": "语言模型",
@@ -2124,363 +959,8 @@
       "tabs": {
         "dictationCleanup": "听写清理",
         "dictationAgent": "语音助手",
-        "noteFormatting": "笔记格式化",
-        "chatIntelligence": "聊天",
-        "dictationTranslation": "翻译"
+        "chatIntelligence": "聊天"
       }
-    },
-    "noteFormatting": {
-      "autoGenerateTitle": "自动生成笔记标题",
-      "autoGenerateTitleDescription": "使用 AI 在转录或增强后为笔记生成简短标题"
-    },
-    "transcription": {
-      "customSetup": "自定义设置",
-      "customSetupDescription": "使用你自己的服务商和 API Key。",
-      "description": "选择 only-whispers 转录语音的方式",
-      "modes": {
-        "openwhispr": "only-whispers Cloud",
-        "providers": "云服务商",
-        "local": "本地",
-        "selfHosted": "自托管",
-        "openwhisprDesc": "准确可靠，无需设置。",
-        "providersDesc": "使用你自己的 API Key。",
-        "localDesc": "设备端模型，完全私密。",
-        "selfHostedDesc": "你的服务器，在你的网络上。",
-        "enterprise": "企业云",
-        "enterpriseDesc": "音频将发送到贵组织自己的云。"
-      },
-      "openwhisprCloud": "only-whispers Cloud",
-      "openwhisprCloudDescription": "准确可靠，无需设置。",
-      "title": "语音转文字",
-      "toasts": {
-        "switchedCloud": {
-          "description": "转录将使用 only-whispers 云端服务。",
-          "title": "已切换到 only-whispers 云端"
-        },
-        "switchedCustom": {
-          "description": "请配置你的服务商和 API Key。",
-          "title": "已切换到自定义设置"
-        },
-        "switchedProviders": {
-          "title": "云服务商",
-          "description": "使用你自己的 API Key。"
-        },
-        "switchedLocal": {
-          "title": "本地运行",
-          "description": "转录在你的设备上本地运行。"
-        },
-        "switchedSelfHosted": {
-          "title": "自托管",
-          "description": "使用你自己的服务器。"
-        },
-        "switchedEnterprise": {
-          "title": "已选择企业云",
-          "description": "听写现在使用贵组织管理的转录部署。"
-        }
-      },
-      "gpuDevice": {
-        "title": "转录 GPU",
-        "description": "用于本地语音识别的 GPU"
-      },
-      "diarization": {
-        "title": "说话人识别",
-        "description": "识别会议录音中的各个说话人",
-        "modelsReady": "模型已就绪",
-        "deleteModels": "删除模型"
-      },
-      "transcriptionPreview": "实时转录预览",
-      "transcriptionPreviewDescription": "在浮动窗口中显示转录结果，然后再进行文本整理",
-      "aec": {
-        "toggle": {
-          "title": "会议回声消除",
-          "description": "消除泄漏到麦克风中的会议音频。使用耳机或耳塞时请关闭此功能——没有需要消除的回声，而且它可能会完全抑制您的声音。"
-        }
-      },
-      "vad": {
-        "title": "语音活动检测",
-        "description": "配置 Silero VAD 如何为本地 Whisper 转录检测并切分语音",
-        "toggles": {
-          "dictation": {
-            "title": "听写使用 Silero VAD",
-            "description": "为本地听写启用语音活动检测"
-          },
-          "noteRecording": {
-            "title": "笔记录音使用 Silero VAD",
-            "description": "为本地笔记录音启用语音活动检测"
-          },
-          "meeting": {
-            "title": "会议使用 Silero VAD",
-            "description": "为本地会议转录启用语音活动检测"
-          }
-        },
-        "fields": {
-          "threshold": {
-            "label": "VAD 阈值",
-            "info": "高于该概率的帧会被判定为语音。"
-          },
-          "minSpeechDurationMs": {
-            "label": "最小语音时长 (毫秒)",
-            "info": "短于此时长的语音片段会作为噪声或误判被丢弃。"
-          },
-          "minSilenceDurationMs": {
-            "label": "最小静音时长 (毫秒)",
-            "info": "静音必须达到该时长才会结束一个语音片段。更短的停顿会保留在片段内。"
-          },
-          "maxSpeechDurationS": {
-            "label": "最大语音时长 (秒)",
-            "info": "更长的片段会在静音处自动拆分，以便保持可控大小。"
-          },
-          "speechPadMs": {
-            "label": "语音填充 (毫秒)",
-            "info": "在每个语音片段前后添加的填充，避免切断词语边缘。"
-          },
-          "samplesOverlap": {
-            "label": "样本重叠 (秒)",
-            "info": "将每个片段延伸到下一个片段的音频量，避免拼接时出现突兀的截断。"
-          }
-        }
-      },
-      "meetingEnterpriseOnly": "贵组织仅允许企业云转录，暂不支持会议录音。",
-      "meetingCloudSignedOut": "未登录时，无法使用 only-whispers Cloud 开始笔记录音。请在上方选择其他引擎。"
-    },
-    "intelligence": {
-      "gpuDevice": {
-        "title": "智能处理 GPU",
-        "description": "用于本地 AI 处理的 GPU"
-      }
-    },
-    "selfHosted": {
-      "endpointUrl": "端点 URL",
-      "serverUrl": "服务器 URL",
-      "apiKeyOptional": "API Key（可选）"
-    },
-    "workspace": {
-      "title": "工作区",
-      "description": "在一处与同事协作、共享笔记并管理工作区访问权限。",
-      "empty": {
-        "title": "创建你的第一个工作区",
-        "description": "工作区让你与同事协作并共享笔记。",
-        "create": "创建工作区"
-      },
-      "loadError": {
-        "title": "无法加载工作区",
-        "description": "请检查网络连接后重试。",
-        "retry": "重试"
-      },
-      "tab": {
-        "general": "常规",
-        "members": "成员",
-        "teams": "群组",
-        "developer": "开发者"
-      },
-      "role": {
-        "owner": "所有者",
-        "admin": "管理员",
-        "member": "成员"
-      },
-      "general": {
-        "nameLabel": "工作区名称",
-        "saved": "工作区已更新",
-        "dangerTitle": "删除工作区",
-        "dangerDescription": "所有共享笔记、文件夹和集成都将被删除。此操作无法撤销。",
-        "delete": "删除工作区",
-        "confirmTitle": "删除 {{name}}？",
-        "confirmDescription": "这将取消订阅并永久删除工作区的所有数据。",
-        "deleting": "删除中…",
-        "deleted": "工作区已删除",
-        "leaveTitle": "退出工作区",
-        "leaveDescription": "你将失去对此工作区及其共享笔记的访问权限。",
-        "leave": "退出工作区",
-        "leaving": "退出中…",
-        "leaveConfirm": {
-          "title": "退出 {{name}}？",
-          "description": "你将立即失去访问权限。管理员可以重新邀请你。"
-        },
-        "left": "你已退出 {{name}}"
-      },
-      "members": {
-        "title": "成员",
-        "description": "已使用 {{count}}/{{seats}} 个席位。",
-        "invite": "邀请",
-        "empty": "暂无成员。",
-        "loadError": "无法加载成员。",
-        "roleUpdated": "角色已更新",
-        "removed": "已移除 {{name}}",
-        "promote": "设为管理员",
-        "demote": "设为成员",
-        "transferOwnership": "转让所有权",
-        "remove": "从工作区移除",
-        "removeConfirm": {
-          "title": "移除此成员？",
-          "description": "{{name}} 将立即失去对 {{workspace}} 的访问权限。"
-        },
-        "transferConfirm": {
-          "title": "转让所有权？",
-          "description": "{{name}} 将成为 {{workspace}} 的所有者。你的角色将变为管理员，只有新所有者才能转回所有权。"
-        }
-      },
-      "joinRequests": {
-        "title": "加入申请",
-        "approve": "批准",
-        "deny": "拒绝",
-        "approved": "{{name}} 已加入工作区",
-        "denied": "已拒绝申请",
-        "errorTitle": "无法更新申请"
-      },
-      "teams": {
-        "title": "群组",
-        "description": "可一次性获得团队空间访问权限的工作区成员群组。",
-        "new": "新建群组",
-        "empty": "还没有群组。",
-        "createFirst": "创建你的第一个群组",
-        "addMembersLabel": "添加成员",
-        "createTitle": "创建群组",
-        "nameLabel": "群组名称",
-        "memberCount_one": "{{count}} 名成员",
-        "memberCount_other": "{{count}} 名成员",
-        "membersButton": "成员",
-        "grantsAccessToSpaces_one": "授予 {{count}} 个空间的访问权限",
-        "grantsAccessToSpaces_other": "授予 {{count}} 个空间的访问权限",
-        "couldNotCreate": "无法创建群组",
-        "created": "已创建 {{team}}",
-        "deleted": "已删除 {{team}}",
-        "deleteConfirmTitle": "删除 {{team}}？",
-        "deleteConfirmDescription": "这将归档该群组。其成员将失去它授予的访问权限。",
-        "deleteConfirmSpaceAccess_one": "该群组授予 {{count}} 个空间的访问权限。其成员将失去该访问权限。",
-        "deleteConfirmSpaceAccess_other": "该群组授予 {{count}} 个空间的访问权限。其成员将失去该访问权限。",
-        "members": {
-          "title": "{{team}} 的成员",
-          "removeConfirm": "将 {{name}} 从 {{team}} 移除？",
-          "leave": "退出群组",
-          "leftTeam": "你已退出 {{team}}",
-          "leaveConfirm": "退出 {{team}}？",
-          "leaveConfirmDescription": "除非你被直接添加或其他群组包含你，否则你将失去通过该群组获得的空间访问权限。"
-        }
-      },
-      "invites": {
-        "title": "待处理的邀请",
-        "expiresIn_one": "{{count}} 天后过期",
-        "expiresIn_other": "{{count}} 天后过期",
-        "expired": "已过期",
-        "loadError": "无法加载邀请。",
-        "resend": "重新发送",
-        "resending": "重新发送中…",
-        "revoke": "撤销",
-        "resent": "邀请已重新发送",
-        "resentNoEmail": "邀请已更新，但邮件无法送达。",
-        "revoked": "邀请已撤销",
-        "revokeFailed": "无法撤销邀请",
-        "revokeConfirm": {
-          "title": "撤销此邀请？",
-          "description": "发送给 {{email}} 的邀请链接将失效。"
-        }
-      },
-      "billing": {
-        "plan": "套餐",
-        "seats": "席位",
-        "ownerOnly": "只有工作区所有者可以管理订阅。",
-        "nextInvoice": "下一张账单",
-        "manageStripe": "在 Stripe 中管理",
-        "startSubscription": "开始订阅",
-        "planLabel": {
-          "business": "Business",
-          "pro": "Pro",
-          "free": "免费版",
-          "enterprise": "Enterprise"
-        },
-        "status": {
-          "active": "生效中",
-          "trialing": "试用中",
-          "past_due": "逾期未付",
-          "canceled": "已取消",
-          "incomplete": "未完成",
-          "unpaid": "未支付"
-        }
-      },
-      "developer": {
-        "title": "API 密钥",
-        "description": "仅限此工作区的编程访问。",
-        "empty": "暂无 API 密钥。创建一个即可与此工作区集成。",
-        "loadError": "无法加载 API 密钥。",
-        "new": "新建密钥",
-        "create": "创建密钥",
-        "createTitle": "创建 API 密钥",
-        "createDescription": "选择此密钥所需的权限。你可以随时撤销。",
-        "nameLabel": "密钥名称",
-        "namePlaceholder": "生产环境集成",
-        "revoke": "撤销密钥",
-        "revoked": "已撤销密钥 {{name}}",
-        "lastUsed": "上次使用于 {{date}}",
-        "neverUsed": "从未使用",
-        "keyCreatedTitle": "API 密钥已创建",
-        "keyCreatedDescription": "请立即复制此密钥——之后将无法再次查看。",
-        "revokeConfirm": {
-          "title": "撤销此密钥？",
-          "description": "{{name}} 将立即失效。使用它的所有集成都将开始报错。"
-        },
-        "scopes": {
-          "notes": {
-            "title": "笔记",
-            "read": "读取笔记",
-            "write": "写入笔记"
-          },
-          "folders": {
-            "title": "文件夹",
-            "read": "读取文件夹",
-            "write": "写入文件夹"
-          },
-          "transcriptions": {
-            "title": "转录",
-            "read": "读取转录"
-          },
-          "members": {
-            "title": "成员",
-            "read": "读取成员",
-            "write": "管理成员"
-          },
-          "billing": {
-            "title": "账单",
-            "read": "读取账单"
-          },
-          "full": {
-            "title": "完全访问",
-            "admin": "工作区管理员"
-          }
-        }
-      },
-      "enterpriseConsole": {
-        "title": "Enterprise 控制台",
-        "description": "在网页端管理 SSO、策略和成员",
-        "open": "打开控制台"
-      }
-    },
-    "enterpriseCheckout": {
-      "title": "升级到 Enterprise",
-      "description": "选择工作区、席位数量和计费周期。付款将在 Stripe Checkout 中完成。",
-      "allSubscribed": "您拥有的工作区已在 Enterprise 方案或无法在此更改。如需更改方案，请联系销售。",
-      "workspaceLabel": "工作区",
-      "seatsLabel": "席位",
-      "seatsHint_one": "当前已使用 {{count}} 个席位",
-      "seatsHint_other": "当前已使用 {{count}} 个席位",
-      "intervalLabel": "计费周期",
-      "interval": {
-        "monthly": "按月",
-        "annual": "按年"
-      },
-      "proratedCharge": "按比例费用",
-      "prorationNote": "按比例计算的差额将计入下一张账单。",
-      "errors": {
-        "previewFailed": "无法加载升级预览。",
-        "alreadyEnterprise": "该工作区已在 Enterprise 计划中。",
-        "subscriptionInactive": "该工作区的订阅未激活。请更新账单信息后重试。",
-        "priceNotConfigured": "Enterprise 价格暂不可用。请联系销售。"
-      },
-      "priceNote": "最终价格将在结账时显示。",
-      "continueCta": "继续结账",
-      "upgradeDescription": "将 {{workspace}} 从{{plan}}升级到 Enterprise。席位和计费周期保持不变，更改立即生效。",
-      "upgradeCta": "立即升级",
-      "upgradedTitle": "已升级到 Enterprise",
-      "upgradedDescription": "{{workspace}} 现已升级到 Enterprise。"
     }
   },
   "models": {
@@ -2632,424 +1112,22 @@
     }
   },
   "notes": {
-    "mutationErrors": {
-      "folderNameRequired": "请输入文件夹名称。",
-      "folderAlreadyExists": "已存在同名文件夹。",
-      "folderNotFound": "找不到该文件夹。",
-      "defaultFolderImmutable": "无法更改默认文件夹。",
-      "spaceNameRequired": "请输入空间名称。",
-      "spaceNotFound": "找不到该空间。",
-      "privateSpaceImmutable": "无法更改你的个人空间。",
-      "generic": "无法完成更改，请重试。"
-    },
-    "sidebar": {
-      "newNote": "新建笔记",
-      "searchNotes": "搜索笔记",
-      "templatesAndActions": "模板和操作"
-    },
-    "spaces": {
-      "privateSpaces": "私人笔记",
-      "teamSpaces": "Teamspaces",
-      "personal": "个人",
-      "privateTooltip": "只有你可以看到你的个人空间",
-      "newSpace": "新建团队空间",
-      "newSpaceInWorkspace": "在 {{workspace}} 中新建团队空间",
-      "createTitle": "创建团队空间",
-      "createDescription": "工作区内的共享区域，供你添加的人员和群组访问。",
-      "nameAndIconLabel": "名称和图标",
-      "create": "创建",
-      "couldNotCreate": "无法创建空间",
-      "created": "已创建 {{space}}",
-      "changeEmoji": "更改表情符号",
-      "settings": "设置",
-      "settingsTitle": "空间设置",
-      "couldNotRename": "无法重命名空间",
-      "couldNotChangeEmoji": "无法更改表情",
-      "deleteSpace": "删除空间",
-      "deleteHintTeam": "为所有人移除此空间，其群组会保留。",
-      "deleteHintLocal": "永久删除此空间以及此设备上的文件夹和笔记。",
-      "leaveTitle": "退出空间",
-      "leaveDescription": "你的笔记仍可供其他成员访问。",
-      "leave": "退出空间",
-      "leaveConfirmTitle": "退出 {{space}}？",
-      "leaveConfirmDescription": "你将从 {{teams}} 中移除，并失去这些群组可访问的其他空间的权限。",
-      "leaveDirectDescription": "你将失去对此空间的访问权限。",
-      "leaveKeepsGroupAccess": "你将保留通过 {{groups}} 的访问权限。",
-      "left": "已退出 {{space}}",
-      "stillViaGroups": "你仍可通过 {{groups}} 访问 {{space}}。",
-      "couldNotLeave": "无法退出空间",
-      "deleteConfirmTitle": "删除空间？",
-      "deleteConfirmDescription": "这将从此设备永久删除 {{space}} 及其所有文件夹和笔记。",
-      "deleteConfirmTeamDescription": "这将为所有人删除 {{space}}。群组会保留，但成员将失去对其所有文件夹和笔记的访问权限。",
-      "deleteTypeName": "输入 {{space}} 以确认",
-      "couldNotDelete": "无法删除空间",
-      "deleted": "已删除 {{space}}",
-      "moveTo": "移动到",
-      "moveToSpace": "移动到空间…",
-      "searchSpaces": "搜索空间...",
-      "noSpacesFound": "未找到空间",
-      "spaceRoot": "空间根目录",
-      "moveConfirm": "移动",
-      "confirmMoveInTitle": "移动到 {{space}}？",
-      "confirmMoveIn": "{{space}} 中的所有人都将能查看和编辑此笔记。此后笔记将无法移出团队空间。",
-      "confirmMoveInFolder": "{{space}} 中的所有人都将能查看和编辑此文件夹及其笔记。此后文件夹及其笔记将无法移出团队空间。",
-      "cantMoveOut": "笔记无法移出团队空间。",
-      "cantMoveTeammate": "只有笔记所有者或工作区管理员才能将其移至其他空间。",
-      "moved": "已将“{{title}}”移动到 {{target}}",
-      "couldNotMove": "无法移动文件夹",
-      "couldNotMoveNote": "无法移动笔记",
-      "folderNameTaken": "无法移动“{{name}}”：该位置已存在同名文件夹",
-      "undo": "撤销",
-      "emptySpace": "还没有笔记。这里的笔记对 {{space}} 中的所有人可见。",
-      "emptyTeamHint": "与你共享的空间将显示在这里。",
-      "emptyTeamTitle": "暂无共享空间",
-      "noteCount_one": "{{count}} 条笔记",
-      "noteCount_other": "{{count}} 条笔记",
-      "accessRevoked": "你已无法访问 {{space}}",
-      "accessRevokedActiveNote": "你已无法访问 {{space}} — “{{title}}”在此设备上不再可用",
-      "movedToPersonal": "你已无法访问 {{space}}，“{{title}}”已移至你的个人空间",
-      "updateDeniedNote": "你没有权限更改“{{title}}”——未同步的编辑已作为副本保存到你的个人空间",
-      "deleteDeniedNote": "“{{title}}”未被删除——只有笔记所有者或管理员才能删除它",
-      "updateDeniedFolder": "你没有权限更改“{{name}}”——未同步的内容已保存到你的个人空间",
-      "deleteDeniedFolder": "“{{name}}”未被删除——只有管理员才能删除空间文件夹",
-      "conflictBanner": "此笔记存在更新的版本。",
-      "conflictRefresh": "刷新",
-      "conflictKeep": "继续编辑",
-      "editedBy": "由 {{name}} 编辑 · {{time}}",
-      "members": {
-        "addPeople": "添加成员",
-        "addedToTeam": "已将 {{name}} 添加到 {{team}}",
-        "removedFromTeam": "已将 {{name}} 从 {{team}} 移除",
-        "stillViaGroups": "{{name}} 仍可通过 {{groups}} 访问",
-        "roleUpdated": "角色已更新",
-        "you": "你",
-        "addFailed": "{{total}} 人中有 {{failed}} 人无法添加",
-        "searchPlaceholder": "搜索成员…",
-        "noResults": "未找到成员",
-        "roleAdmin": "管理员",
-        "roleMember": "成员",
-        "roleAdminDescription": "管理成员和设置。",
-        "roleMemberDescription": "可以查看和编辑笔记。",
-        "remove": "移除",
-        "removeConfirm": "将 {{name}} 从 {{space}} 中移除？",
-        "removeConfirmDescription": "对方将无法再访问此空间的所有笔记。",
-        "removeKeepsGroupAccess": "他们将保留通过 {{groups}} 的访问权限。",
-        "inviteFooter": "邀请 {{email}} 加入工作区…",
-        "empty": "尚未添加任何成员",
-        "viaGroup": "通过 {{group}}",
-        "managedByGroup": "通过 {{group}} 添加。请在该群组中移除。",
-        "roleFromGroup": "通过 {{group}} 获得管理员身份，请在该群组中更改。",
-        "invited": "已向 {{email}} 发送邀请"
-      },
-      "invitedTo_one": "你将加入 {{count}} 个团队空间",
-      "invitedTo_other": "你将加入 {{count}} 个团队空间",
-      "invitedToSpaces": "你将加入 {{spaces}}",
-      "teamsMembers": {
-        "title": "{{space}} 的成员",
-        "noTeams": "尚无群组可访问此空间。",
-        "addTeamLabel": "向此空间添加群组",
-        "chooseTeam": "选择群组…",
-        "teamAdded": "已将 {{team}} 添加到 {{space}}",
-        "teamRemoved": "已将 {{team}} 从 {{space}} 移除",
-        "removeTeamFromSpace": "从空间移除",
-        "removeTeamConfirm": "将 {{team}} 从 {{space}} 移除？",
-        "removeTeamConfirmDescription": "除非这些成员被直接添加或其他已分配的群组包含他们，否则他们将失去对此空间的访问权限。",
-        "accessLabel": "空间访问权限",
-        "accessAdmin": "管理员",
-        "accessMember": "成员",
-        "accessChanged": "已更新 {{team}} 的访问权限",
-        "accessHint": "仅当访问权限设为“管理员”时，{{team}} 的管理员才能管理此空间。"
-      },
-      "teams": {
-        "newTeam": "新建群组",
-        "loadError": "无法加载群组。"
-      },
-      "groups": {
-        "title": "有访问权限的群组",
-        "optional": "群组（可选）"
-      }
-    },
-    "structureIntro": {
-      "title": "笔记存放在哪里",
-      "description": "only-whispers 将个人想法与协作内容分开，让合适的人看到合适的笔记。",
-      "personal": {
-        "title": "个人空间",
-        "description": "只有你能看到这里的文件夹和笔记。"
-      },
-      "workspace": {
-        "title": "工作区",
-        "description": "集中管理工作区的成员、角色和团队空间。"
-      },
-      "teamSpace": {
-        "title": "团队空间",
-        "description": "工作区内的共享区域。添加人员或群组以授予访问权限。"
-      },
-      "contents": "每个空间都可以包含文件夹和笔记。",
-      "done": "知道了",
-      "reopen": "了解空间的组织方式"
-    },
-    "folders": {
-      "defaults": {
-        "personal": "个人",
-        "meetings": "会议",
-        "videos": "视频"
-      },
-      "title": "文件夹",
-      "soon": "即将推出",
-      "folderName": "文件夹名称",
-      "couldNotCreate": "无法创建文件夹",
-      "couldNotRename": "无法重命名文件夹",
-      "couldNotDelete": "无法删除文件夹",
-      "deleteTitle": "删除文件夹？",
-      "deleteDescription": "这将永久删除「{{name}}」及其 {{count}} 条笔记。此操作无法撤销。",
-      "deleteDescriptionEmpty": "这将永久删除「{{name}}」。此操作无法撤销。",
-      "deleteConfirm": "删除文件夹和笔记"
-    },
     "list": {
-      "title": "笔记",
-      "newNote": "新建笔记",
-      "untitled": "无标题",
-      "untitledNote": "无标题笔记",
-      "shared": "已分享",
       "timeNow": "刚刚",
       "minutesAgo": "{{count}} 分钟前",
       "hoursAgo": "{{count}} 小时前",
       "daysAgo": "{{count}} 天前"
     },
-    "createMenu": {
-      "note": "笔记",
-      "assistantChat": "助手聊天",
-      "chooseType": "选择要创建的内容"
-    },
     "editor": {
-      "untitled": "无标题",
-      "noteTitle": "笔记标题",
       "stop": "停止",
       "transcribe": "转录",
-      "processing": "处理中...",
-      "export": "导出",
-      "asMarkdown": "导出为 Markdown",
-      "asPlainText": "导出为纯文本",
-      "asTranscriptText": "导出为纯文本 (.txt)",
-      "asSubtitles": "导出为字幕 (.srt)",
-      "asJson": "导出为 JSON (.json)",
-      "asTranscriptMarkdown": "导出为 Markdown (.md)",
-      "raw": "原始内容",
-      "aiSummary": "AI 摘要",
-      "saving": "保存中",
-      "transcriptEmptyTitle": "暂无转录",
-      "transcriptEmptyDescription": "开始录音后，所说的一切都会显示在这里。",
-      "startRecording": "开始录制",
-      "generateSummary": "生成 AI 摘要",
-      "startWriting": "开始书写...",
-      "staleIndicator": "内容在增强后已更改",
-      "live": "实时",
-      "transcript": "转录",
-      "notes": "你的笔记",
-      "conversationWillAppear": "对话将显示在这里...",
-      "linkedEvent": "关联日程",
-      "noFolder": "无文件夹",
-      "participants": "参与者",
-      "table": {
-        "actions": "表格操作",
-        "insertRowAbove": "在上方插入行",
-        "insertRowBelow": "在下方插入行",
-        "insertColumnLeft": "在左侧插入列",
-        "insertColumnRight": "在右侧插入列",
-        "deleteRow": "删除行",
-        "deleteColumn": "删除列",
-        "deleteTable": "删除表格"
-      },
-      "format": {
-        "toolbar": "格式",
-        "withShortcut": "{{action}}（{{shortcut}}）",
-        "bold": "粗体",
-        "italic": "斜体",
-        "strike": "删除线",
-        "code": "代码",
-        "textStyle": "文本样式",
-        "paragraph": "正文",
-        "heading1": "标题 1",
-        "heading2": "标题 2",
-        "heading3": "标题 3",
-        "bulletList": "项目符号列表",
-        "orderedList": "编号列表",
-        "taskList": "清单",
-        "blockquote": "引用",
-        "table": "插入表格"
-      }
-    },
-    "participants": {
-      "attendee": "位参会者",
-      "attendees": "位参会者",
-      "addAttendees": "添加参会者",
-      "addPlaceholder": "添加参会者...",
-      "typeEmail": "输入邮箱以添加...",
-      "me": "（我）"
-    },
-    "eventLink": {
-      "selectEvent": "选择日历事件",
-      "searchPlaceholder": "搜索事件…",
-      "back": "返回",
-      "removeEvent": "移除日历事件",
-      "allDay": "全天",
-      "noEventsOnDay": "这一天没有事件",
-      "searchOtherDays": "搜索以查找其他日期的事件",
-      "outsideWindow": "只能关联最近 {{days}} 天内的事件",
-      "noResults": "没有匹配的事件",
-      "noCalendar": "请在“集成”中连接日历以关联事件",
-      "loadFailed": "无法加载日历事件",
-      "join": "加入",
-      "calendar": "日历",
-      "openInGoogle": "在 Google Calendar 中打开",
-      "openInOutlook": "在 Outlook 中打开",
-      "linkedEvent": "日历事件",
-      "unavailable": "此设备上的日历中没有这个事件"
+      "participants": "参与者"
     },
     "upload": {
-      "title": "上传音频",
-      "using": "使用 {{model}}",
-      "dropOrBrowse": "拖放音频或视频文件，或点击浏览",
-      "supportedFormats": "MP3、WAV、M4A、MP4、MOV 及大多数其他音频或视频格式",
-      "unsupportedFiles": "已跳过 {{names}}：不支持的音频或视频格式。",
-      "dropToUpload": "拖放以上传",
-      "transcribe": "转录",
-      "cancel": "取消",
-      "transcribingCloud": "正在通过云端转录...",
-      "transcribingLocal": "正在本地转录...",
-      "transcribingProvider": "正在通过 {{provider}} 转录...",
-      "cancelTranscription": "取消转录",
-      "transcriptionComplete": "转录完成",
-      "partialWarning": "部分音频内容无法转录。",
-      "partialWarningCount": "{{total}}个音频片段中有{{failed}}个无法转写。",
-      "diarizationWarning": "无法应用说话人识别。转写已保存，但不包含说话人标签。",
-      "chunkLossExceeded": "由于网络问题丢失了过多音频。请检查网络连接后重试。",
-      "openNote": "打开笔记",
-      "uploadAnother": "上传另一个",
-      "retry": "重试",
-      "startOver": "重新开始",
-      "newFolder": "新建文件夹",
-      "folderName": "文件夹名称",
-      "create": "创建",
-      "openwhisprCloud": "only-whispers Cloud",
-      "custom": "自定义",
-      "selectFolder": "选择文件夹",
       "transcriptionFailed": "转录失败",
-      "errorOccurred": "发生错误",
-      "noSpeechDetected": "未在此音频中检测到语音。",
-      "noProviderTitle": "尚未设置转录服务商",
-      "noProviderDescription": "添加 API Key 或下载本地模型以开始转录。",
-      "noProviderAction": "打开转录设置",
-      "fileTooLarge": "此文件超过了 500 MB 的大小限制。",
-      "largeFileNote": "大文件将被分割并平行转录。",
-      "chunkProgress": "正在转录第 {{completed}} 部分，共 {{total}} 部分...",
-      "paidPlanRequired": "超过 25 MB 的文件需要付费计划才能使用云端转录。大文件通过 only-whispers Cloud 处理，确保可靠、高质量的结果。",
-      "byokTooLarge": "第三方 API 密钥仅支持 {{size}} MB 以内的文件。",
-      "byokTooLargeDetail": "超过 {{size}} MB 的文件由 only-whispers Cloud 负责分割、并行处理和重组——无需依赖第三方服务限制，即可获得可靠的结果。",
-      "byokTooLargeNeedsAccount": "创建账户并升级到付费计划，即可使用 only-whispers Cloud 转录更大的文件。",
-      "byokTooLargeNeedsUpgrade": "升级到付费计划，即可使用 only-whispers Cloud 转录更大的文件。",
-      "switchToCloudForLargeFiles": "切换到 only-whispers Cloud 来转录此文件。",
-      "createAccount": "创建账户",
-      "upgrade": "升级",
-      "switchToCloud": "only-whispers Cloud",
-      "orDivider": "或",
-      "urlPlaceholder": "粘贴 YouTube 或音频 URL",
-      "urlDownloading": "正在下载音频...",
-      "urlResolving": "正在解析 URL...",
-      "urlInvalid": "无效的 URL。请粘贴 YouTube 链接或直接音频文件 URL。",
-      "urlVideoUnavailable": "此视频不可用。可能是私密、已删除或受地区限制。",
-      "urlPlaylistNotSupported": "不支持播放列表。请粘贴单个视频的 URL。",
-      "urlContentTypeInvalid": "此 URL 不指向音频或视频文件。",
-      "urlDownloadFailed": "下载失败。请检查 URL 后重试。",
-      "urlCancelDownload": "取消下载",
-      "addToQueue": "添加到队列",
-      "queueProgress": "{{completed}}/{{total}} 已完成",
-      "cancelAll": "取消全部",
-      "clearQueue": "清除",
-      "pasteUrls": "粘贴 URL（每行一个）",
-      "speakerDetection": "说话人检测",
-      "speakerDetectionDescription": "识别音频中的不同说话人",
-      "numSpeakersPlaceholder": "自动检测",
-      "numSpeakersLabel": "说话人数",
-      "numSpeakersHint": "将自动检测说话人，不超过此人数。",
-      "downloadingModels": "正在下载模型...",
-      "openaiDiarizeNote": "将替换您的转录模型为 gpt-4o-transcribe-diarize，这是唯一支持说话人检测的 OpenAI 模型。费用可能与您选择的模型不同。",
-      "mistralDiarizeNote": "使用 Voxtral 时说话人检测无需额外费用。",
-      "groqDiarizeNote": "Groq 不支持说话人检测。将改用本地分离。",
-      "batchCancelled": "已取消",
-      "batchTranscriptionFailed": "转录失败",
-      "batchSaveFailed": "保存笔记失败",
-      "batchUnknownError": "未知错误",
-      "removeFromQueue": "从队列中移除",
-      "diarizationRunsLocally": "说话人检测在您的设备上本地运行。",
-      "urlSubmit": "添加链接",
-      "urlsSkipped": "部分链接无法添加（{{n}} 个）",
-      "queueFailed": "{{n}} 个失败",
-      "urlFileTooLarge": "文件过大，无法下载。最大大小为 500 MB。",
-      "urlYoutubeBlocked": "YouTube 暂时阻止了来自您网络的下载。请稍后重试。",
-      "customEndpointInvalid": "自定义转写端点未配置或无效。请在设置中更新。",
-      "streamingOnlyProvider": "该服务商仅支持实时转录。请为文件上传和重试选择其他服务商。"
-    },
-    "meeting": {
-      "title": "会议笔记",
-      "description": "转录与结构化摘要",
-      "back": "返回",
-      "restrictedByOrg": "会议转录已被您的组织限制。",
-      "unsupportedSelfHosted": "笔记录音暂不支持自托管端点。请打开设置，选择本地或支持流式传输的服务商。",
-      "unsupportedProvider": "笔记录音无法使用 {{provider}} 进行实时转录。请打开设置，选择本地或支持流式传输的服务商。",
-      "noProviderSelected": "尚未为笔记录音选择服务商。请打开设置，选择本地或支持流式传输的服务商。",
-      "signInRequired": "笔记录音需要登录，请先登录。",
-      "signInExpired": "登录已过期，笔记录音无法更新连接，可能会中断。请在本次录音结束后重新登录。",
-      "systemAudioSilent": {
-        "title": "尚未检测到会议音频",
-        "description": "到目前为止，只有您的麦克风采集到声音。正在进行视频通话？请检查会议音频是否正在此电脑上播放且未被静音。正在进行现场录音？您可以忽略此提示——您的麦克风会采集房间内的声音。"
-      },
-      "systemAudioInterrupted": {
-        "title": "会议音频已中断",
-        "description": "系统音频采集已停止，正在重新启动。转录中可能会缺少几秒钟的通话内容。"
-      },
-      "systemAudioStopped": {
-        "title": "会议音频已停止",
-        "description": "only-whispers 已无法采集其他参会者的声音。请停止录制后重新开始，或检查您的音频输出设备。"
-      },
-      "systemAudioQuiet": {
-        "title": "会议音频已静默",
-        "description": "已有几分钟未检测到任何人声。如果通话仍在进行，请检查您的声音输出设备。"
-      }
-    },
-    "meetingPill": {
-      "returnToNote": "返回到录音",
-      "waitingForMicrophone": "等待麦克风"
-    },
-    "context": {
-      "moveToFolder": "移动到文件夹",
-      "delete": "删除",
-      "rename": "重命名",
-      "searchFolders": "搜索文件夹...",
-      "noResults": "未找到文件夹",
-      "newFolder": "新建文件夹",
-      "showInFileManager": "在{{manager}}中显示"
+      "noSpeechDetected": "未在此音频中检测到语音。"
     },
     "actions": {
-      "allActions": "全部操作",
-      "selectAction": "选择操作",
-      "manage": "管理操作...",
-      "addAction": "新建操作",
-      "editAction": "编辑操作",
-      "namePlaceholder": "操作名称",
-      "descriptionPlaceholder": "简要描述（可选）",
-      "promptPlaceholder": "AI 应如何处理笔记内容？",
-      "builtIn": "内置",
-      "save": "保存",
-      "update": "更新",
-      "cancel": "取消",
-      "noActions": "暂无自定义操作",
-      "promptLabel": "提示词",
-      "emptyEditorTitle": "选择操作",
-      "emptyEditorDescription": "从列表中选择一个操作或创建新操作",
-      "done": "完成",
-      "chunkProgress": "第 {{step}} 部分，共 {{total}} 部分",
-      "emptyReply": "模型返回了空回复。请重试，或选择其他模型。",
       "builtin": {
         "generateNotes": {
           "name": "AI 摘要",
@@ -3108,190 +1186,11 @@
           "description": "用有依据的细节扩充已保存的 AI 摘要",
           "cta": "扩充笔记"
         }
-      },
-      "errors": {
-        "noModel": "未选择 AI 模型。请在设置中配置。",
-        "actionFailed": "操作失败",
-        "noEndpoint": "未设置自托管服务器 URL。请在设置中配置。",
-        "outputTruncated": "AI 模型在完成之前就用完了输出空间，因此笔记保持不变。",
-        "outputSpentThinking": "AI 模型把全部输出额度都用在了思考上，没有写出笔记，因此笔记保持不变。请在“设置 → 语言模型 → 笔记格式化”中开启“禁用思考输出”，或选择思考较少的模型，然后重试。",
-        "outputSpentThinkingDisabled": "即使已开启“禁用思考输出”，AI 模型仍把全部输出额度用在了思考上，没有写出笔记，因此笔记保持不变。请在“设置 → 语言模型 → 笔记格式化”中选择其他模型。",
-        "outputSpentThinkingOtherModel": "AI 模型把全部输出额度都用在了思考上，没有写出笔记，因此笔记保持不变。请在“设置 → 语言模型 → 笔记格式化”中选择思考较少的模型。",
-        "nothingToSummarize": "这条笔记还没有可以总结的内容，因此 AI 摘要保持不变。",
-        "saveFailed": "无法保存。请检查是否有内容过长，然后重试。"
-      },
-      "tab": "操作",
-      "output": {
-        "chat": "聊天",
-        "summary": "AI 摘要",
-        "chatHint": "此操作会在聊天中回复，不会更改已保存的 AI 摘要。",
-        "summaryHint": "此内置操作会更新已保存的 AI 摘要。你可以撤销更改。"
-      },
-      "applied": "已使用 {{name}} 更新 AI 摘要"
-    },
-    "templates": {
-      "tab": "模板",
-      "managerTitle": "模板和操作",
-      "manage": "管理模板...",
-      "select": "选择模板",
-      "regenerate": "重新生成",
-      "addTemplate": "新建模板",
-      "editTemplate": "编辑模板",
-      "namePlaceholder": "模板名称",
-      "contextLabel": "背景",
-      "contextPlaceholder": "这是什么类型的会议？摘要应侧重什么？",
-      "sectionsLabel": "章节",
-      "addSection": "添加章节",
-      "sectionHeadingPlaceholder": "章节标题",
-      "sectionInstructionPlaceholder": "这个章节写什么？",
-      "moveSectionUp": "上移章节",
-      "moveSectionDown": "下移章节",
-      "removeSection": "移除章节",
-      "noSectionsHint": "没有章节时，背景就是摘要的全部指令。",
-      "noTemplates": "暂无模板",
-      "emptyEditorTitle": "选择模板",
-      "emptyEditorDescription": "从列表中选择一个模板或创建新模板",
-      "outputHint": "应用模板会根据你的笔记和转录内容创建或替换 AI 摘要。"
-    },
-    "empty": {
-      "title": "这里还没有笔记",
-      "description": "创建你的第一条笔记，开始书写",
-      "selectTitle": "选择笔记",
-      "selectDescription": "从侧边栏选择一条笔记",
-      "createNote": "创建笔记",
-      "emptyFolder": "此文件夹中没有笔记"
-    },
-    "addToFolder": {
-      "title": "添加笔记",
-      "searchPlaceholder": "搜索要添加的笔记...",
-      "addExisting": "添加已有笔记",
-      "addCount": "添加 {{count}} 条笔记",
-      "noResults": "没有匹配的笔记",
-      "noNotesAvailable": "没有其他可用笔记"
-    },
-    "onboarding": {
-      "llm": {
-        "title": "配置 AI 模型",
-        "description": "操作使用 AI 来处理你的笔记。设置一个语言模型以开始使用。",
-        "configured": "AI 模型已配置"
-      },
-      "templates": {
-        "title": "模板和操作",
-        "description": "模板决定 AI 摘要的样式，从详细的会议记录到你自定义的章节。操作在笔记上运行，例如在聊天中起草跟进邮件。",
-        "builtInLabel": "你的模板",
-        "createTitle": "创建你的模板",
-        "createDescription": "描述你想要的摘要。你之后可以添加章节、更多模板和操作。",
-        "created": "已创建！"
-      },
-      "getStarted": "开始使用",
-      "systemAudio": {
-        "title": "系统音频",
-        "description": "在使用麦克风的同时捕获会议和其他应用程序的音频。",
-        "grant": "授予权限",
-        "enabled": "已启用"
       }
-    },
-    "realtimeBanner": {
-      "message": "Pro 版可使用实时转录",
-      "upgrade": "升级"
-    },
-    "enhance": {
-      "title": "增强错误"
     },
     "speaker": {
-      "you": "你",
-      "them": "对方",
       "unknown": "未知发言者",
-      "label": "发言者 {{n}}",
-      "identifyingSpeakers": "正在识别发言者...",
-      "liveAccuracyHint": "正在识别发言者。通话结束后，标签准确性会提升。",
-      "speakersIdentified": "已识别发言者",
-      "typeNamePlaceholder": "输入姓名",
-      "knownSpeakers": "已知说话者",
-      "thisIsMe": "这是我",
-      "meetingAttendees": "会议参与者",
-      "assignName": "分配姓名",
-      "isThisPerson": "这是{{name}}吗？",
-      "selected": "已选 {{n}} 个",
-      "assignTo": "分配给…",
-      "deselectAll": "取消全选",
-      "confirmed": "已确认",
-      "nameAssigned": "姓名已分配",
-      "state": {
-        "provisional": "临时",
-        "confirmed": "已确认",
-        "suggested": "建议",
-        "locked": "锁定"
-      },
-      "createNewPrefix": "创建",
-      "emailPlaceholder": "name@example.com",
-      "nameOrEmailPlaceholder": "输入姓名或邮箱",
-      "addContact": "添加联系人",
-      "save": "保存",
-      "cancel": "取消",
-      "pill": {
-        "identifying": "正在识别发言者",
-        "notLabeled": "发言者未标记",
-        "finalizing": "正在完成发言者识别…",
-        "justYou": "只有你",
-        "assumedHint": "默认 2 人——如有更多请调整",
-        "speakersLabel": "发言人数",
-        "labelToggle": "标记发言者",
-        "toggleAria": "切换本次录音的发言者识别",
-        "incAria": "增加预计发言人数",
-        "decAria": "减少预计发言人数"
-      },
-      "consentNotice": "录制他人时请务必征得同意"
-    },
-    "overview": {
-      "subtitle": {
-        "team": "此空间中的所有成员都可以查看这些笔记。",
-        "private": "只有你可以查看这些笔记。"
-      },
-      "meta": {
-        "folders_one": "{{count}} 个文件夹",
-        "folders_other": "{{count}} 个文件夹",
-        "members_one": "{{count}} 位成员",
-        "members_other": "{{count}} 位成员"
-      },
-      "banner": {
-        "title": {
-          "team": "你的团队空间",
-          "private": "你的私人空间"
-        },
-        "body": {
-          "team": "把对话变成共享知识。将用户访谈、销售通话和团队会议发布到大家都能找到的地方。",
-          "private": "将会议笔记、想法和草稿集中在一处，并随时询问此空间中的任何内容。"
-        },
-        "dismiss": "关闭"
-      },
-      "ask": {
-        "placeholder": "随便问点什么",
-        "chips": {
-          "catchUp": "帮我补上进展",
-          "keyDecisions": "列出关键决定",
-          "openActionItems": "列出待办事项"
-        }
-      },
-      "invite": "邀请",
-      "author": {
-        "you": "你"
-      }
-    },
-    "assistantUndo": {
-      "applied": "助手已更新“{{title}}”",
-      "changed": "助手编辑后，这篇笔记又发生了更改，无法撤销。",
-      "failed": "无法撤销编辑，请重试。"
-    },
-    "folderMore": {
-      "more": "还有 {{count}} 篇",
-      "search": "在 {{folder}} 中搜索 {{count}} 篇笔记",
-      "newest": "最新优先",
-      "openFolder": "打开文件夹",
-      "empty": "没有匹配的笔记",
-      "loading": "正在加载笔记…",
-      "retry": "无法加载笔记。重试",
-      "results": "{{count}} / {{total}} 篇笔记"
+      "label": "发言者 {{n}}"
     }
   },
   "dictionary": {
@@ -3346,60 +1245,12 @@
     "agentDefault": "默认添加"
   },
   "sidebar": {
-    "insights": "统计",
     "home": "首页",
-    "notes": "笔记",
-    "upload": "上传",
     "dictionary": "词典",
-    "referral": "获取免费一个月",
-    "inviteTeam": "邀请你的团队",
     "settings": "设置",
-    "support": "支持",
-    "limitReached": "已达本周云端上限",
-    "limitReachedDescription": "升级到 Pro 或使用自己的 API Key 可不受限制。",
-    "viewPlans": "查看套餐",
-    "upgradeTitle": "升级到 Pro",
-    "upgradeDescription": "无限量、更准确、更快速的转录。",
-    "upgradeInstantSetup": "即时设置",
-    "upgradeZeroRetention": "零数据保留",
-    "upgradeEnterpriseSecurity": "企业级安全 SOC 2 Type II, HIPAA, ISO27001",
-    "learnMore": "了解更多",
-    "integrations": "集成",
-    "defaultUser": "用户",
-    "notSignedIn": "未登录",
-    "chat": "聊天",
     "collapse": "折叠侧边栏",
     "expand": "展开侧边栏",
     "logs": "日志"
-  },
-  "chat": {
-    "newChat": "新对话",
-    "search": "搜索对话...",
-    "archived": "已归档",
-    "noConversations": "暂无聊天",
-    "allArchived": "所有聊天均已归档",
-    "noConversationsDescription": "与助手的聊天会显示在这里。",
-    "loadFailed": "无法加载聊天记录",
-    "noResults": "没有匹配的对话",
-    "today": "今天",
-    "yesterday": "昨天",
-    "previousWeek": "最近 7 天",
-    "older": "更早",
-    "archive": "归档",
-    "unarchive": "取消归档",
-    "delete": "删除",
-    "deleteConfirm": "此对话将被永久删除，无法撤消。",
-    "editTitle": "双击编辑标题",
-    "untitled": "无标题",
-    "searchChats": "搜索聊天",
-    "searchTitle": "搜索对话",
-    "searchDescription": "搜索所有对话",
-    "inputPlaceholder": "随便问点什么...",
-    "starters": {
-      "todos": "列出我最近的待办事项",
-      "meeting": "帮我准备下一场会议",
-      "sharedNotes": "突出显示我的共享笔记"
-    }
   },
   "rt0Setup": {
     "title": "设置 only-whispers",
@@ -3419,20 +1270,14 @@
     "addButton": "添加密钥"
   },
   "gpu": {
-    "transcriptionBanner": "使用 GPU 加速转录",
     "reasoningBanner": "使用 GPU 加速 AI 处理",
     "enableButton": "启用 GPU",
     "active": "GPU 加速已启用",
     "ready": "GPU 加速已就绪",
     "activating": "正在激活 GPU...",
     "activationFailed": "GPU 加速不可用",
-    "activationFailedDescription": "only-whispers 已切换为 CPU 转录。",
     "reasoningActivationFailedDescription": "only-whispers 已切换为 CPU 处理。",
     "retryActivation": "重试 GPU 加速",
-    "redownloadNeeded": "需要重新下载 GPU 加速包",
-    "redownloadNeededDescription": "此版本的 only-whispers 无法使用已安装的 GPU 加速包。请重新下载以重新启用 GPU 加速。",
-    "redownloadButton": "重新下载 GPU 加速包",
-    "downloadFailed": "无法下载 GPU 加速包。",
     "remove": "移除",
     "dismiss": "暂不启用",
     "cancel": "取消"
@@ -3449,15 +1294,6 @@
       },
       "addedToDict": "已将 {{words}} 添加到你的词典",
       "undo": "撤消",
-      "accessibilityMissing": {
-        "title": "需要辅助功能权限",
-        "description": "only-whispers 需要辅助功能权限来检测快捷键和粘贴文本。请在控制面板中启用。"
-      },
-      "gpuFallback": {
-        "title": "GPU 加速不可用",
-        "description": "only-whispers 已切换为 CPU 转录。",
-        "retry": "重试 GPU"
-      },
       "gpuPackMigration": {
         "title": "需要重新下载 GPU 加速包",
         "description": "此版本无法使用之前的 GPU 加速包（{{packs}}）。请在设置中重新下载以重新启用 GPU 加速。"
@@ -3468,7 +1304,6 @@
       }
     },
     "mic": {
-      "hotkeyToSpeak": "{{hotkey}} 说话",
       "isListening": "正在聆听",
       "isProcessing": "正在处理",
       "recording": "录音中...",
@@ -3485,8 +1320,7 @@
       "startListening": "开始录音",
       "hideForNow": "暂时隐藏",
       "askAssistant": "询问助手",
-      "busyRecording": "请先结束当前录音",
-      "startMeetingRecording": "开始会议录音"
+      "busyRecording": "请先结束当前录音"
     }
   },
   "dictationAgent": {
@@ -3525,7 +1359,6 @@
       "thinking": "正在思考...",
       "typeMessage": "输入消息...",
       "send": "发送",
-      "voiceDraftStreamingOnly": "当前转录服务商仅支持实时听写，因此无法使用语音输入。请在“设置 → 语音转文字”中选择其他服务商。",
       "commands": "命令",
       "slashNavigate": "导航",
       "slashSelect": "选择",
@@ -3576,13 +1409,7 @@
       "copiedToClipboard": "已复制到剪贴板",
       "openNote": "打开笔记",
       "unknownTool": "未知工具：{{name}}",
-      "invalidArgs": "{{name}} 的工具参数无效",
-      "search_openwhispr_helpName": "搜索 only-whispers 帮助",
-      "read_openwhispr_helpName": "阅读 only-whispers 帮助",
-      "get_openwhispr_contextName": "读取 only-whispers 设置",
-      "search_openwhispr_helpStatus": "正在搜索 only-whispers 帮助...",
-      "read_openwhispr_helpStatus": "正在阅读 only-whispers 帮助...",
-      "get_openwhispr_contextStatus": "正在读取 only-whispers 设置..."
+      "invalidArgs": "{{name}} 的工具参数无效"
     }
   },
   "assistant": {
@@ -3607,34 +1434,8 @@
       "toolFallback": "工具"
     }
   },
-  "calendar": {
-    "title": "Google 日历",
-    "status": "状态",
-    "connected": "已连接",
-    "disconnected": "未连接",
-    "notConnectedDescription": "连接以检测和录制会议",
-    "connectCta": {
-      "title": "日历集成",
-      "description": "自动检测会议并录制转录"
-    },
-    "connect": "连接 Google 日历",
-    "connecting": "连接中...",
-    "disconnect": "断开连接",
-    "disconnecting": "断开中...",
-    "sync": "同步",
-    "syncing": "同步中...",
-    "calendarsTitle": "日历",
-    "upcomingTitle": "即将到来",
-    "noUpcoming": "没有即将到来的事件",
-    "meetingStarting": "会议即将开始",
-    "today": "今天",
-    "tomorrow": "明天"
-  },
   "transcriptionPreview": {
     "label": "预览",
-    "listening": "正在聆听...",
-    "polishing": "正在润色...",
-    "ready": "就绪",
     "copy": "复制",
     "copied": "已复制",
     "collapse": "折叠转录",
@@ -3644,8 +1445,7 @@
     "speaker": {
       "you": "你",
       "others": "其他人"
-    },
-    "missingAudio": "[音频缺失 {{from}}-{{to}}]"
+    }
   },
   "providerErrors": {
     "authFailed": "{{provider}} 拒绝了你的 API 密钥。",
@@ -3693,7 +1493,6 @@
   "toneStyle": {
     "title": "语气与风格",
     "description": "为不同的应用设置你的语气和风格。",
-    "turnOnAndSetUp": "开启并设置",
     "categories": {
       "personal": {
         "title": "私人消息",
@@ -3755,25 +1554,6 @@
         "formal": "请将 `user.ts` 中的 `getUserName` 重命名为 `fetchUserName`,然后运行 `pnpm test`。",
         "casual": "把 `user.ts` 里的 `getUserName` 改成 `fetchUserName`,然后跑 `pnpm test`"
       }
-    },
-    "setup": {
-      "introTitle": "让 only-whispers\n照你说话的方式写",
-      "introDescription": "为不同的应用设置你的语气和风格。",
-      "personalize": "开始个性化",
-      "cleanupOffTitle": "让 only-whispers\n学会你的风格",
-      "cleanupOffDescription": "开启文本整理，然后为不同的应用设置你的语气和风格。",
-      "stepDescription": "选出最像你的示例。",
-      "progress": "第 {{current}} 步，共 {{total}} 步",
-      "finish": "完成"
-    },
-    "banner": {
-      "title": "教 only-whispers 学会你的写法",
-      "description": "为工作、朋友以及两者之间的一切设置你偏好的语气。",
-      "start": "立即开始",
-      "cleanupOffTitle": "让 only-whispers 学会你的风格",
-      "cleanupOffDescription": "开启文本整理，为消息、邮件和其他地方选一种语气。",
-      "notNow": "暂不",
-      "decoration": "你的文字应该听起来就像你。无论你写什么，写给谁。"
     },
     "settings": {
       "saveChanges": "保存更改",

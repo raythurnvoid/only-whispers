@@ -411,24 +411,6 @@ body.dark:has(.onboarding-canvas) {
   --onboarding-scrim: rgb(0 0 0 / 0.55);
 }
 
-/* Authentication also appears in the control-panel sign-in dialog. Give that
-   embedded version the same semantic names without applying onboarding's page
-   chrome or overriding the dialog's existing theme. */
-.onboarding-embedded-auth {
-  --onboarding-accent: var(--color-primary);
-  --onboarding-accent-foreground: var(--color-primary-foreground);
-  --onboarding-text-primary: var(--color-foreground);
-  --onboarding-text-secondary: var(--color-muted-foreground);
-  --onboarding-text-tertiary: color-mix(in srgb, var(--color-muted-foreground) 75%, transparent);
-  --onboarding-control-border: var(--color-border);
-  --onboarding-surface: var(--color-background);
-  --onboarding-surface-secondary: var(--color-muted);
-  --onboarding-surface-tertiary: var(--color-secondary);
-  --onboarding-surface-hover: var(--color-surface-1);
-  --onboarding-inverse-surface: var(--color-foreground);
-  --onboarding-inverse-text: var(--color-background);
-}
-
 /* Remaps the app-wide shadcn tokens onto the onboarding palette, so any shared
    ui/ primitive dropped into a step (Button, Input, Select) picks up the
    onboarding theme instead of the control panel's. Bound to the --onboarding-*
@@ -917,8 +899,7 @@ h1 {
 }
 
 /* The shared credential field (ui/ProviderCheckField.tsx). Outside onboarding these names
-   are unset, so each falls back to the app theme: the mapping .onboarding-embedded-auth
-   gives the control panel's sign-in dialog. Onboarding defines them, so it keeps its own. */
+   are unset, so each falls back to the app theme. Onboarding defines them, so it keeps its own. */
 .onboarding-provider-input,
 .onboarding-provider-input:hover,
 .onboarding-provider-input:focus-visible,

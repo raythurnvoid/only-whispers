@@ -16,30 +16,9 @@ const MESSAGE_KEY = /\bmessageKey\s*[:=]\s*(['"`])([A-Za-z0-9_.-]+)\1/g;
 const INTERPOLATION = /\{\{\s*([\w.]+)/g;
 const ARABIC_PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
 const ARABIC_PLURAL_BASES = [
-  "settingsPage.workspace.members.description",
-  "settingsPage.workspace.teams.memberCount",
-  "settingsPage.workspace.teams.grantsAccessToSpaces",
-  "settingsPage.workspace.teams.deleteConfirmSpaceAccess",
-  "settingsPage.workspace.invites.expiresIn",
-  "settingsPage.unifiedBilling.seatUpdated",
-  "settingsPage.unifiedBilling.confirmSeats.description",
-  "settingsPage.privacy.retentionDays",
-  "settingsPage.privacy.audioStorageFiles",
-  "settingsPage.privacy.hoursAgo",
-  "settingsPage.privacy.minutesAgo",
-  "settingsPage.enterpriseCheckout.seatsHint",
-  "notes.spaces.noteCount",
-  "notes.spaces.invitedTo",
-  "notes.addToFolder.addCount",
-  "notes.overview.meta.folders",
-  "notes.overview.meta.members",
   "dictionary.wordsReady",
 ];
 const ARABIC_NUMBER_NEUTRAL_TEMPLATES = {
-  "notes.spaces.members.addFailed": "عدد الأشخاص الذين تعذرت إضافتهم: {{failed}} من أصل {{total}}",
-  "notes.upload.partialWarningCount":
-    "عدد الأجزاء الصوتية التي تعذر تفريغها: {{failed}} من أصل {{total}}.",
-  "settingsPage.account.planDescriptions.trial": "عدد الأيام المتبقية: {{days}} - تفريغ غير محدود",
   "dictionary.promptLimitNotice":
     "عدد أحرف قاموسك: {{chars}}. لا تقرأ نماذج Groq وWhisper سوى بضع مئات من الأحرف الأخيرة منه، لذا تعمل القوائم الأقصر بشكل أفضل معها. أما النماذج الأخرى فتحصل على القائمة كاملة.",
 };

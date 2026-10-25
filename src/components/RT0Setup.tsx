@@ -89,7 +89,7 @@ export default function RT0Setup({ onComplete }: { onComplete: () => void }) {
 
   return (
     <OnboardingShell compact stepKey="rt0-setup">
-      <CompactOnboardingFrame showLegalNotice={false}>
+      <CompactOnboardingFrame>
         <div className="onboarding-shell-scroll relative flex h-full flex-col overflow-y-auto px-5 pb-6 pt-45">
           <h1 className="onboarding-display-title mx-auto max-w-96 text-balance text-center text-3xl!">
             {t("rt0Setup.title")}
