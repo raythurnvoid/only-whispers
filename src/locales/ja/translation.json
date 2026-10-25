@@ -812,7 +812,7 @@
     "logs": "ログ"
   },
   "appSetup": {
-    "description": "ホットキーを押しながら話すと、どのアプリにも整った文章が入力されます。始めるには 2 つを追加してください。",
+    "description": "キーボードはもう不要。話すだけで、どのアプリにも整った文章が入力されます。\n始めるには 2 つを追加してください。",
     "mistralKey": "Mistral API キー(音声認識)",
     "getMistralKey": "Mistral admin でキーを取得",
     "start": "音声入力を開始"

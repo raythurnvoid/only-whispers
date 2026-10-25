@@ -812,7 +812,7 @@
     "logs": "Log"
   },
   "appSetup": {
-    "description": "Tieni premuto il tasto, parla e il testo pulito appare in qualsiasi app. Aggiungi due cose per iniziare.",
+    "description": "Dimentica la tastiera, parla e il testo pulito appare in qualsiasi app.\nAggiungi due cose per iniziare.",
     "mistralKey": "Chiave API Mistral (voce in testo)",
     "getMistralKey": "Ottieni una chiave in Mistral admin",
     "start": "Inizia a dettare"

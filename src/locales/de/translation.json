@@ -812,7 +812,7 @@
     }
   },
   "appSetup": {
-    "description": "Halte die Taste gedrückt, sprich, und sauberer Text erscheint in jeder App. Füge zwei Dinge hinzu, um zu starten.",
+    "description": "Vergiss die Tastatur, sprich, und sauberer Text erscheint in jeder App.\nFüge zwei Dinge hinzu, um zu starten.",
     "mistralKey": "Mistral-API-Schlüssel (Sprache zu Text)",
     "getMistralKey": "Schlüssel in Mistral admin erstellen",
     "start": "Diktieren starten"

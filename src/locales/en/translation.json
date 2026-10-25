@@ -812,7 +812,7 @@
     }
   },
   "appSetup": {
-    "description": "Hold the hotkey, speak, and clean text appears in any app. Add two things to start.",
+    "description": "Forget the keyboard, speak, and clean text appears in any app.\nAdd two things to start.",
     "mistralKey": "Mistral API key (speech-to-text)",
     "getMistralKey": "Get a key in Mistral admin",
     "start": "Start dictating"

@@ -812,7 +812,7 @@
     "logs": "日志"
   },
   "appSetup": {
-    "description": "按住快捷键说话,整洁的文字就会出现在任何应用中。添加两项即可开始。",
+    "description": "忘掉键盘,开口说话,整洁的文字就会出现在任何应用中。\n添加两项即可开始。",
     "mistralKey": "Mistral API 密钥(语音转文字)",
     "getMistralKey": "在 Mistral admin 获取密钥",
     "start": "开始听写"

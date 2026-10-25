@@ -109,7 +109,7 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
         <div className="mx-auto flex max-w-[26rem] flex-col">
           {/* The same logo as the control panel sidebar and the website. */}
           <LaurelLogo />
-          <p className="mx-auto max-w-sm text-center text-[15px] italic text-muted-foreground">
+          <p className="whitespace-pre-line text-balance text-center text-[15px] italic text-muted-foreground">
             {t("appSetup.description")}
           </p>
 

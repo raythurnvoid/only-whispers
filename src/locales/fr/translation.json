@@ -812,7 +812,7 @@
     }
   },
   "appSetup": {
-    "description": "Maintenez la touche, parlez, et un texte propre apparaît dans n'importe quelle app. Ajoutez deux éléments pour commencer.",
+    "description": "Oubliez le clavier, parlez, et un texte propre apparaît dans n'importe quelle app.\nAjoutez deux éléments pour commencer.",
     "mistralKey": "Clé API Mistral (parole en texte)",
     "getMistralKey": "Obtenir une clé dans Mistral admin",
     "start": "Commencer à dicter"
