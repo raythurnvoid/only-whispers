@@ -197,7 +197,10 @@ test("the safety ceiling reports a forced stop before the stop it causes", (t) =
   t.after(() => t.mock.timers.reset());
 
   const { sent, channels } = startPush(t);
-  t.mock.timers.tick(300_000); // MAX_PUSH_DURATION_MS
+  // MAX_PUSH_DURATION_MS: nothing stops before 15 minutes.
+  t.mock.timers.tick(900_000 - 200);
+  assert.deepEqual(channels(), ["prepare-dictation", "start-dictation"]);
+  t.mock.timers.tick(200);
 
   assert.deepEqual(channels(), [
     "prepare-dictation",
@@ -219,7 +222,9 @@ test("the macOS compound ceiling reports a forced stop on the same channel", (t)
   t.mock.timers.tick(150);
   assert.deepEqual(harness.channels(), ["prepare-dictation", "start-dictation"]);
 
-  t.mock.timers.tick(300_000);
+  t.mock.timers.tick(900_000 - 200);
+  assert.deepEqual(harness.channels(), ["prepare-dictation", "start-dictation"]);
+  t.mock.timers.tick(200);
 
   assert.deepEqual(harness.channels(), [
     "prepare-dictation",
@@ -239,11 +244,11 @@ test("a forced stop leaves the window up for the transcript still being processe
   const mac = makeManager();
   mac.manager.startMacCompoundPushToTalk("Control+Option");
   t.mock.timers.tick(150);
-  t.mock.timers.tick(300_000);
+  t.mock.timers.tick(900_000);
   assert.deepEqual(mac.hides, [], "macOS compound");
 
   const win = startPush(t);
-  t.mock.timers.tick(300_000);
+  t.mock.timers.tick(900_000);
   assert.deepEqual(win.hides, [], "windows/linux");
 });
 

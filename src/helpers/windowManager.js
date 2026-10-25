@@ -701,7 +701,7 @@ class WindowManager {
     }
 
     const MIN_HOLD_DURATION_MS = 150;
-    const MAX_PUSH_DURATION_MS = 300000; // 5 minutes max recording
+    const MAX_PUSH_DURATION_MS = 900000; // 15 minutes max recording
     const downTime = Date.now();
 
     const targetPidPromise = this.textEditMonitor?.captureTargetPid?.();
@@ -869,7 +869,7 @@ class WindowManager {
     // Short enough that the start cue feels instant, long enough to ignore a
     // brushed key. The mic already records pre-roll from key-down.
     const MIN_HOLD_DURATION_MS = 60;
-    const MAX_PUSH_DURATION_MS = 300000;
+    const MAX_PUSH_DURATION_MS = 900000; // 15 minutes max recording
     const downTime = Date.now();
 
     this.showDictationPanel({ reposition: true });
