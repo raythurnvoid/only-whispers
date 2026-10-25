@@ -194,11 +194,8 @@ export const useAudioRecording = (toast, options = {}) => {
           audioManagerRef.current.beginSelectionCapture();
         }
 
-        // Tone & Style names the app being dictated into while the user speaks,
-        // for cleanup and for an assistant answer typed or edited in place there.
-        if (getSettings().toneStyleEnabled) {
-          audioManagerRef.current.beginToneStyleCapture();
-        }
+        // Tone & Style is hidden in this release, so its app capture never starts,
+        // even when an older build saved toneStyleEnabled.
 
         // Opens the ChatGPT plan socket while the user speaks, so cleanup skips
         // the connect. It does nothing when not signed in with ChatGPT.

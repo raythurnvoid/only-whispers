@@ -292,10 +292,6 @@ class TrayManager {
             ? this.windowManager?.sendStopDictation()
             : this.windowManager?.sendStartDictation(),
       },
-      {
-        label: i18nMain.t("app.commandMenu.askAssistant"),
-        click: () => this.windowManager?.sendOpenAssistantPanel(),
-      },
       { type: "separator" },
       {
         label: dictationVisible

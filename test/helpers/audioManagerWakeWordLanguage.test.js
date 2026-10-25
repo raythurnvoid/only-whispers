@@ -175,7 +175,9 @@ test("the saved transcription uses the propagated occurrence time", async (t) =>
   assert.equal(saveOptions.analyticsOccurredAt, analyticsOccurredAt);
 });
 
-test("generic auto-language routing infers Arabic before an English UI fallback", async (t) => {
+// The assistant is hidden in this release, so the wake word never routes to it
+// (resolveReasoningRoute in audioManager.js). The skipped tests come back with it.
+test.skip("generic auto-language routing infers Arabic before an English UI fallback", async (t) => {
   const { setSettings, createBankingManager } = await loadAudioManager(t);
   setSettings({
     preferredLanguage: "auto",
@@ -195,7 +197,7 @@ test("generic auto-language routing infers Arabic before an English UI fallback"
   assert.equal(manager.pendingAssistantConversation?.transcript, "لخّص هذه الملاحظة");
 });
 
-test("streaming auto-language routing detects and strips Arabic with an English UI", async (t) => {
+test.skip("streaming auto-language routing detects and strips Arabic with an English UI", async (t) => {
   const { window, setSettings, createStreamingManager } = await loadAudioManager(t);
   setSettings({
     preferredLanguage: "auto",
@@ -250,7 +252,7 @@ test("a name inside a snippet trigger does not route to the agent", async (t) =>
   assert.equal(result.text, "cleanup output");
 });
 
-test("a real address still routes to the agent when a trigger is also spoken", async (t) => {
+test("an address to the agent goes to cleanup while the assistant is hidden", async (t) => {
   const { window, setSettings, createManager } = await loadAudioManager(t);
 
   setSettings(snippetSettings);
@@ -260,10 +262,10 @@ test("a real address still routes to the agent when a trigger is also spoken", a
 
   const result = await createManager().processWithOpenAIAPI(snippetAudioBlob);
 
-  assert.equal(result.text, "agent output");
+  assert.equal(result.text, "cleanup output");
 });
 
-test("the banked agent command drops the address, not the snippet trigger", async (t) => {
+test.skip("the banked agent command drops the address, not the snippet trigger", async (t) => {
   const { window, setSettings, createBankingManager } = await loadAudioManager(t);
 
   setSettings(snippetSettings);
@@ -282,7 +284,7 @@ test("the banked agent command drops the address, not the snippet trigger", asyn
 // update_snippets tool, the startup SQLite sync — land between them, so the
 // address is spliced out of a different reading of the transcript than the one
 // that chose the route.
-test("a snippets edit between routing and stripping cannot desync them", async (t) => {
+test.skip("a snippets edit between routing and stripping cannot desync them", async (t) => {
   const { window, setSettings, createBankingManager } = await loadAudioManager(t);
 
   setSettings(snippetSettings);

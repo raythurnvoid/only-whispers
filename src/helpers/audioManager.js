@@ -44,11 +44,7 @@ import { transcriptionFailureOutcome } from "./transcriptionFailureOutcome";
 import { errorFromIpcResult } from "./ipcErrorFields";
 import { PROVIDER_ERROR_CODES, asProviderError, providerError } from "./providerHttpErrors";
 import { hasTextContent } from "./textContent";
-import {
-  detectAgentName,
-  stripAgentAddress,
-  stripAgentAddressPreservingFormatting,
-} from "../config/agentDetection";
+import { stripAgentAddress, stripAgentAddressPreservingFormatting } from "../config/agentDetection";
 import {
   cleanupUnconfiguredNotice,
   resolveDictationRouteKind,
@@ -162,8 +158,9 @@ function resolveReasoningRoute(
   const kind = resolveDictationRouteKind({
     cleanupReachable,
     agentReachable: agent.reachable,
-    agentInvoked:
-      !!agentName && detectAgentName(text, agentName, wakeWordLanguage, settings.snippets),
+    // The assistant is hidden in this release, so "Hey <AgentName>" never routes
+    // a dictation to it, even with an agent model saved by an older build.
+    agentInvoked: false,
     voiceAgentRequested,
   });
   logger.logReasoning("ROUTE_RESOLVED", {

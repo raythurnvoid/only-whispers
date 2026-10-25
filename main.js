@@ -527,23 +527,8 @@ async function startApp() {
     windowManager.sendToggleVoiceAgent();
   };
   windowManager._voiceAgentHotkeyCallback = voiceAgentHotkeyCallback;
-
-  const savedVoiceAgentKey = environmentManager.getVoiceAgentKey?.() || "";
-  if (savedVoiceAgentKey) {
-    const result = await hotkeyManager.registerSlot(
-      "voiceAgent",
-      savedVoiceAgentKey,
-      voiceAgentHotkeyCallback
-    );
-    if (!result.success) {
-      debugLogger.warn(
-        "Failed to restore voice agent hotkey",
-        { hotkey: savedVoiceAgentKey },
-        "hotkey"
-      );
-    }
-    hotkeyManager.notifyRestoreFailures(savedVoiceAgentKey, result);
-  }
+  // The voice assistant is hidden in this release, so a hotkey saved by an older
+  // build is not registered: it would open a panel the user can't turn off.
 
   // Phase 2: Initialize remaining managers after windows are visible
   initializeDeferredManagers();

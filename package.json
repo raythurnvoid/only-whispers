@@ -35,7 +35,7 @@
     "build:mac": "pnpm run build:renderer && electron-builder --mac",
     "build:mac:arm64": "pnpm run build:renderer && electron-builder --mac --arm64",
     "build:mac:x64": "pnpm run build:renderer && electron-builder --mac --x64",
-    "prebuild:win": "pnpm run compile:native && pnpm run download:llama-server && pnpm run download:nircmd && pnpm run download:windows-fast-paste && pnpm run download:windows-key-listener",
+    "prebuild:win": "pnpm run compile:native && pnpm run download:llama-server && pnpm run download:windows-fast-paste && pnpm run download:windows-key-listener",
     "build:win": "pnpm run build:renderer && electron-builder --win",
     "release:win": "node scripts/release-win.js",
     "prebuild:linux": "pnpm run compile:native && pnpm run download:llama-server",

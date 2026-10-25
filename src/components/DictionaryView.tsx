@@ -7,7 +7,6 @@ import {
   PanelRight,
   Pencil,
   Plus,
-  Sparkles,
   Upload,
   X,
 } from "./icons";
@@ -179,7 +178,8 @@ export default function DictionaryView() {
       <div className="relative z-10 w-full min-w-0 md:w-3/5">
         <h2 className="text-xl font-normal text-foreground">{t("dictionary.emptyTitle")}</h2>
         <p className="mt-3 max-w-xl text-base leading-relaxed text-foreground/50 dark:text-foreground/65">
-          {t("dictionary.emptyDescription", { agentName })}
+          {/* The assistant is hidden, so the app name stands in for the agent name. */}
+          {t("dictionary.emptyDescription", { agentName: "only-whispers" })}
         </p>
         {showEmptyInput ? (
           <div className="mt-6 max-w-md">{addWordInput}</div>
@@ -262,26 +262,6 @@ export default function DictionaryView() {
                   </Button>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* ─── Agent name (always recognized) ─── */}
-          {userWords.length > 0 && (
-            <div
-              className={cn(
-                CARD_SURFACE_CLASS,
-                "flex items-center justify-between gap-3 px-5 py-3"
-              )}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Sparkles size={14} className="text-accent shrink-0" />
-                <span dir="auto" className="text-base text-foreground truncate">
-                  {agentName}
-                </span>
-              </div>
-              <span className="text-sm italic text-muted-foreground shrink-0">
-                {t("dictionary.agentDefault")}
-              </span>
             </div>
           )}
 

@@ -61,9 +61,8 @@ test("the announcer is there from the start and says only what the check found",
   }
 });
 
-test("Settings' sections and sub-tabs use the shared TabPanel", () => {
+// The AI models sub-tabs are hidden with the assistant, so Settings has no tabs now.
+test("Settings keeps no TabPanel copy of its own", () => {
   const settings = source("src/components/SettingsPage.tsx");
-  assert.match(settings, /import \{ TabPanel \} from "\.\/ui\/TabPanel";/);
   assert.doesNotMatch(settings, /function TabPanel\(/);
-  assert.equal(settings.match(/<TabPanel active=/g).length, 3);
 });

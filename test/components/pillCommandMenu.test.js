@@ -21,7 +21,6 @@ async function renderMenu(t, props) {
       isHovered: false,
       setWindowInteractivity: () => {},
       onToggleListening: () => {},
-      onAskAssistant: () => {},
       onStartMeeting: () => {},
       onHide: () => {},
       onClose: () => {},
@@ -30,9 +29,10 @@ async function renderMenu(t, props) {
   );
 }
 
-test("the command menu hides Ask Assistant while a recording is active", async (t) => {
+// The voice assistant is hidden in this release, so the menu never offers it.
+test("the command menu has no Ask Assistant item", async (t) => {
   const idleMarkup = await renderMenu(t, { isRecording: false });
-  assert.match(idleMarkup, /askAssistant/);
+  assert.doesNotMatch(idleMarkup, /askAssistant/);
 
   const recordingMarkup = await renderMenu(t, { isRecording: true });
   assert.doesNotMatch(recordingMarkup, /askAssistant/);

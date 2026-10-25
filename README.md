@@ -13,8 +13,8 @@
 
 ## Install (Windows)
 
-1. Download **[only-whispers-Setup.exe](https://github.com/raythurnvoid/only-whispers/releases/latest/download/only-whispers-Setup.exe)** from the [latest release](https://github.com/raythurnvoid/only-whispers/releases/latest).
-2. Run it. The installer is not signed, so Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**.
+1. Download `only-whispers-Setup-<version>.exe` from the [latest release](https://github.com/raythurnvoid/only-whispers/releases/latest).
+2. Run it. Until signed releases start (see [Code signing policy](#code-signing-policy)), Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**.
 3. Open only-whispers and follow the setup screen (see [Setup](#setup)).
 
 ## How it works
@@ -75,21 +75,30 @@ Useful commands:
 
 ## Publish a new installer
 
-1. Build it: `pnpm run build:win`.
-2. Upload it as the latest release. Keep the asset name `only-whispers-Setup.exe`, so the download link above keeps working:
+1. Set `version` in `package.json`, then commit and push.
+2. Signed release: run the **Release Windows (signed)** workflow in GitHub Actions. It builds the installer, has SignPath sign it, and publishes the release.
+3. Unsigned release from your computer: `pnpm run release:win`.
 
-```bash
-cp "dist/only-whispers Setup 0.1.0.exe" dist/only-whispers-Setup.exe
-git tag only-whispers-v0.1.0
-git push origin only-whispers-v0.1.0
-gh release create only-whispers-v0.1.0 dist/only-whispers-Setup.exe --repo raythurnvoid/only-whispers --verify-tag --title "only-whispers 0.1.0" --latest
-```
+Installed apps read `latest.yml` from the latest release to update themselves.
 
-Change the version and the tag to match `package.json`. Keep `--repo`: this clone also has the OpenWhispr `upstream` remote, and without `--repo` the GitHub CLI may pick that repo.
+## Code signing policy
 
-## Voice assistant
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
 
-Select some text, hold the hotkey, and say "Hey Wisper, make this more formal". The selected text is replaced with the result. You can change the name in Settings → Language Models → Voice Assistant.
+- Committers and reviewers: [raythurnvoid](https://github.com/raythurnvoid)
+- Approvers: [raythurnvoid](https://github.com/raythurnvoid)
+
+Only files built from this repository are signed. Upstream binaries in the installer, such as llama-server, are shipped as their authors publish them.
+
+### Privacy
+
+only-whispers sends data to other networked systems only to do what you ask:
+
+- Your recorded audio goes to [Mistral](https://mistral.ai/terms#privacy-policy) for speech-to-text, with your own API key.
+- The transcribed text goes to [OpenAI](https://openai.com/policies/privacy-policy/) for cleanup, through your own ChatGPT sign-in.
+- The app checks GitHub for updates.
+
+Nothing else leaves your computer. Your history stays on your computer.
 
 ## Limits
 

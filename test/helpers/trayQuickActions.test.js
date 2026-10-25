@@ -25,18 +25,15 @@ function createTrayManager(calls, { dictating = false } = {}) {
   return trayManager;
 }
 
+// The voice assistant is hidden in this release, so the tray has no Ask assistant item.
 test("the tray menu leads with the dictation pill's quick actions", () => {
   const calls = [];
-  const [listen, assistant, separator] = createTrayManager(calls).buildContextMenuTemplate();
+  const [listen, separator] = createTrayManager(calls).buildContextMenuTemplate();
 
-  assert.deepEqual(
-    [listen.label, assistant.label, separator.type],
-    ["app.commandMenu.startListening", "app.commandMenu.askAssistant", "separator"]
-  );
+  assert.deepEqual([listen.label, separator.type], ["app.commandMenu.startListening", "separator"]);
 
   listen.click();
-  assistant.click();
-  assert.deepEqual(calls, ["start-dictation", "assistant"]);
+  assert.deepEqual(calls, ["start-dictation"]);
 });
 
 test("the tray's listen item stops the recording it reflects", () => {

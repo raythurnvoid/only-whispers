@@ -2,19 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { BIDI_VALUE_TOKEN, BidiInterpolatedText } from "./ui/BidiInterpolatedText";
-import {
-  Mic,
-  Shield,
-  Sparkles,
-  Info,
-  CircleCheck,
-  CircleX,
-  RotateCw,
-  BookOpen,
-  Copy,
-  MessageSquare,
-  Wand2,
-} from "./icons";
+import { Mic, Shield, Info, CircleCheck, CircleX, RotateCw, BookOpen, Copy } from "./icons";
 import MicPermissionWarning from "./ui/MicPermissionWarning";
 import MicrophoneSettings from "./ui/MicrophoneSettings";
 import PermissionCard from "./ui/PermissionCard";
@@ -36,11 +24,9 @@ import { useDialogs } from "../hooks/useDialogs";
 import { usePermissions } from "../hooks/usePermissions";
 import { useClipboard } from "../hooks/useClipboard";
 import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
-import { ProviderTabs } from "./ui/ProviderTabs";
 import { HotkeyListInput } from "./ui/HotkeyListInput";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
 import { useHotkeyModeInfo } from "../hooks/useHotkeyModeInfo";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import { validateHotkeyForSlot } from "../utils/hotkeyValidation";
 import { getCachedPlatform } from "../utils/platform";
 import { formatHotkeyLabel } from "../utils/hotkeys";
@@ -51,22 +37,18 @@ import {
 import { ActivationModeSelector } from "./ui/ActivationModeSelector";
 import LinuxPttSetupInfo from "./ui/LinuxPttSetupInfo";
 import { Toggle } from "./ui/toggle";
-import ChatAgentSettings from "./settings/ChatAgentSettings";
-import DictationAgentSettings from "./settings/DictationAgentSettings";
-import ToneStyleSection from "./settings/ToneStyleSection";
 import { useToast } from "./ui/useToast";
 import logger from "../utils/logger";
 import { SettingsRow, SettingsPanel, SettingsPanelRow } from "./ui/SettingsSection";
 import { FieldLabel, ProviderCheckField } from "./ui/ProviderCheckField";
-import { TabPanel } from "./ui/TabPanel";
-import { useSettingsStore, type HotkeyRegistrationResult } from "../stores/settingsStore";
+import { useSettingsStore } from "../stores/settingsStore";
 
-export type SettingsSectionType = "general" | "hotkeys" | "toneStyle" | "speechToText" | "llms";
+export type SettingsSectionType = "general" | "hotkeys" | "speechToText" | "llms";
 
 interface SettingsPageProps {
   activeSection?: SettingsSectionType;
+  // Unused while the AI models section has no sub-tabs (the assistant is hidden).
   onNavigateToSection?: (section: SettingsSectionType, subTab?: string) => void;
-  /** A deep link can land on one tab of the AI models section. */
   initialSubTab?: string;
 }
 
@@ -164,62 +146,19 @@ function CleanupSection() {
   );
 }
 
-type LlmTab = "dictationCleanup" | "dictationAgent" | "chatIntelligence";
-
-const LLM_TABS: LlmTab[] = ["dictationCleanup", "dictationAgent", "chatIntelligence"];
-
-function LlmsTabs({ initialTab }: { initialTab?: LlmTab }) {
+// 0.1.0 ships cleanup only, so the assistant tabs are not shown.
+function LlmsSection() {
   const { t } = useTranslation();
-  const [storedTab, setTab] = useLocalStorage<LlmTab>(
-    "settings.llmsTab",
-    initialTab ?? LLM_TABS[0]
-  );
-  useEffect(() => {
-    if (initialTab && initialTab !== storedTab) setTab(initialTab);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTab]);
-  const tab = LLM_TABS.includes(storedTab) ? storedTab : LLM_TABS[0];
-
-  const subTabs = [
-    { id: "dictationCleanup", name: t("settingsPage.llms.tabs.dictationCleanup") },
-    { id: "dictationAgent", name: t("settingsPage.llms.tabs.dictationAgent") },
-    { id: "chatIntelligence", name: t("settingsPage.llms.tabs.chatIntelligence") },
-  ];
 
   return (
     <div className="space-y-4">
-      <SectionHeader
-        title={t("settingsPage.llms.title")}
-        description={t("settingsPage.llms.description")}
-      />
-      <ProviderTabs
-        providers={subTabs}
-        selectedId={tab}
-        onSelect={(id) => setTab(id as LlmTab)}
-        renderIcon={(id) => {
-          if (id === "dictationCleanup") return <Wand2 className="w-3.5 h-3.5" />;
-          if (id === "dictationAgent") return <Sparkles className="w-3.5 h-3.5" />;
-          return <MessageSquare className="w-3.5 h-3.5" />;
-        }}
-      />
-      <TabPanel active={tab === "dictationCleanup"}>
-        <CleanupSection />
-      </TabPanel>
-      <TabPanel active={tab === "dictationAgent"}>
-        <DictationAgentSettings />
-      </TabPanel>
-      <TabPanel active={tab === "chatIntelligence"}>
-        <ChatAgentSettings />
-      </TabPanel>
+      <SectionHeader title={t("settingsPage.llms.title")} />
+      <CleanupSection />
     </div>
   );
 }
 
-export default function SettingsPage({
-  activeSection = "general",
-  onNavigateToSection,
-  initialSubTab,
-}: SettingsPageProps) {
+export default function SettingsPage({ activeSection = "general" }: SettingsPageProps) {
   const {
     confirmDialog,
     alertDialog,
@@ -248,9 +187,6 @@ export default function SettingsPage({
     muteAppsOnDictation,
     setMuteAppsOnDictation,
   } = useSettings();
-
-  const voiceAgentKey = useSettingsStore((s) => s.voiceAgentKey);
-  const setVoiceAgentKey = useSettingsStore((s) => s.setVoiceAgentKey);
 
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -299,42 +235,11 @@ export default function SettingsPage({
     showAlert: showAlertDialog,
   });
 
-  // Agent hotkey setters resolve to false when main-process registration fails;
-  // surface it and return the result so HotkeyListInput rolls the row back.
-  const [isAgentHotkeyCommitting, setIsAgentHotkeyCommitting] = useState(false);
-  const commitAgentHotkey = useCallback(
-    async (setter: (key: string) => Promise<HotkeyRegistrationResult>, key: string) => {
-      setIsAgentHotkeyCommitting(true);
-      try {
-        const result = await setter(key);
-        if (!result.success) {
-          showAlertDialog({
-            title: t("hooks.hotkeyRegistration.titles.notRegistered"),
-            description: result.message || t("hooks.hotkeyRegistration.errors.failedToRegister"),
-          });
-        }
-        return result.success;
-      } finally {
-        setIsAgentHotkeyCommitting(false);
-      }
-    },
-    [showAlertDialog, t]
-  );
-
+  // The voice assistant hotkey is hidden and never registered, so there is no
+  // other slot to conflict with.
   const validateDictationHotkey = useCallback(
-    (hotkey: string) =>
-      validateHotkeyForSlot(
-        hotkey,
-        { "settingsPage.general.voiceAgentHotkey.title": voiceAgentKey },
-        t
-      ),
-    [voiceAgentKey, t]
-  );
-
-  const validateVoiceAgentHotkey = useCallback(
-    (hotkey: string) =>
-      validateHotkeyForSlot(hotkey, { "settingsPage.general.hotkey.title": dictationKey }, t),
-    [dictationKey, t]
+    (hotkey: string) => validateHotkeyForSlot(hotkey, {}, t),
+    [t]
   );
 
   const {
@@ -389,13 +294,6 @@ export default function SettingsPage({
 
   const renderSectionContent = () => {
     switch (activeSection) {
-      case "toneStyle":
-        return (
-          <ToneStyleSection
-            onOpenCleanupSettings={() => onNavigateToSection?.("llms", "dictationCleanup")}
-          />
-        );
-
       case "general":
         return (
           <div className="space-y-6">
@@ -1132,26 +1030,6 @@ EOF`,
                 )}
               </SettingsPanel>
             </div>
-
-            {/* Voice Agent Hotkey */}
-            <div>
-              <SectionHeader
-                title={t("settingsPage.general.voiceAgentHotkey.title")}
-                description={t("settingsPage.general.voiceAgentHotkey.description")}
-              />
-              <SettingsPanel>
-                <SettingsPanelRow>
-                  <HotkeyListInput
-                    value={voiceAgentKey}
-                    onChange={(list) => commitAgentHotkey(setVoiceAgentKey, list)}
-                    onClear={() => commitAgentHotkey(setVoiceAgentKey, "")}
-                    validate={validateVoiceAgentHotkey}
-                    disabled={isAgentHotkeyCommitting}
-                    maxHotkeys={isUsingNativeShortcut ? 1 : undefined}
-                  />
-                </SettingsPanelRow>
-              </SettingsPanel>
-            </div>
           </div>
         );
 
@@ -1159,7 +1037,7 @@ EOF`,
         return <MistralKeySection />;
 
       case "llms":
-        return <LlmsTabs initialTab={initialSubTab as LlmTab | undefined} />;
+        return <LlmsSection />;
 
       default:
         return null;

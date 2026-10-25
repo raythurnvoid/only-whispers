@@ -797,10 +797,6 @@ export default function App() {
               onToggleListening={() => {
                 toggleListening();
               }}
-              onAskAssistant={() => {
-                setIsCommandMenuOpen(false);
-                void openAssistantPanel();
-              }}
               onHide={() => {
                 setIsCommandMenuOpen(false);
                 setWindowInteractivity(false);

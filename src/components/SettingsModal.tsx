@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sliders, Mic, Brain, Keyboard, SquareSparkle } from "./icons";
+import { Sliders, Mic, Brain, Keyboard } from "./icons";
 import SidebarModal, { type SidebarItem } from "./ui/SidebarModal";
 import SettingsPage, { SettingsSectionType } from "./SettingsPage";
 
@@ -27,13 +27,7 @@ const LEGACY_SUB_TAB: Record<string, string> = {
   prompts: "dictationCleanup",
 };
 
-const SECTION_IDS: SettingsSectionType[] = [
-  "general",
-  "hotkeys",
-  "toneStyle",
-  "speechToText",
-  "llms",
-];
+const SECTION_IDS: SettingsSectionType[] = ["general", "hotkeys", "speechToText", "llms"];
 
 interface SettingsModalProps {
   open: boolean;
@@ -57,13 +51,6 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
         label: t("settingsModal.sections.hotkeys.label"),
         icon: Keyboard,
         description: t("settingsModal.sections.hotkeys.description"),
-        group: t("settingsModal.groups.app"),
-      },
-      {
-        id: "toneStyle",
-        label: t("settingsModal.sections.toneStyle.label"),
-        icon: SquareSparkle,
-        description: t("settingsModal.sections.toneStyle.description"),
         group: t("settingsModal.groups.app"),
       },
       {
