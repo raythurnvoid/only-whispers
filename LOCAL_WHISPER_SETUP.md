@@ -1,6 +1,6 @@
 # Local Whisper Setup
 
-OpenWhispr supports local speech-to-text processing using whisper.cpp. This keeps your audio completely private—nothing leaves your device.
+only-whispers supports local speech-to-text processing using whisper.cpp. This keeps your audio completely private—nothing leaves your device.
 
 ## Quick Start
 
@@ -31,14 +31,14 @@ Local Whisper can run on your GPU for much faster transcription:
 - **NVIDIA (Windows/Linux)**: one-click CUDA runtime download from the GPU card in the transcription model picker
 - **AMD / Intel (Windows/Linux)**: one-click Vulkan runtime download from the same GPU card — covers Radeon and Arc/integrated GPUs
 
-The GPU runtime is downloaded on demand with SHA-256-verified checksums. If the GPU server crashes or fails to start (unsupported GPU, out of VRAM), OpenWhispr automatically falls back to CPU transcription and shows a notice — dictation keeps working.
+The GPU runtime is downloaded on demand with SHA-256-verified checksums. If the GPU server crashes or fails to start (unsupported GPU, out of VRAM), only-whispers automatically falls back to CPU transcription and shows a notice — dictation keeps working.
 
 ## How It Works
 
-OpenWhispr uses whisper.cpp, a high-performance C++ implementation of OpenAI's Whisper model:
+only-whispers uses whisper.cpp, a high-performance C++ implementation of OpenAI's Whisper model:
 
 1. whisper.cpp binary is bundled with the app (or uses system installation as fallback)
-2. GGML models are downloaded on first use to `~/.cache/openwhispr/whisper-models/`
+2. GGML models are downloaded on first use to `~/.cache/only-whispers/whisper-models/`
 3. Audio is processed locally using FFmpeg (bundled with the app)
 
 ## Requirements
@@ -49,7 +49,7 @@ OpenWhispr uses whisper.cpp, a high-performance C++ implementation of OpenAI's W
 
 ## Running From Source
 
-If you're running OpenWhispr locally from a git checkout (not a packaged app), download the whisper.cpp binary for your current platform:
+If you're running only-whispers locally from a git checkout (not a packaged app), download the whisper.cpp binary for your current platform:
 
 ```bash
 npm run download:whisper-cpp
@@ -63,9 +63,9 @@ npm run download:whisper-cpp:all
 
 ## File Locations
 
-| Data   | macOS                                 | Windows                                           | Linux                                 |
-| ------ | ------------------------------------- | ------------------------------------------------- | ------------------------------------- |
-| Models | `~/.cache/openwhispr/whisper-models/` | `%USERPROFILE%\.cache\openwhispr\whisper-models\` | `~/.cache/openwhispr/whisper-models/` |
+| Data   | macOS                                    | Windows                                              | Linux                                    |
+| ------ | ---------------------------------------- | ---------------------------------------------------- | ---------------------------------------- |
+| Models | `~/.cache/only-whispers/whisper-models/` | `%USERPROFILE%\.cache\only-whispers\whisper-models\` | `~/.cache/only-whispers/whisper-models/` |
 
 ## Troubleshooting
 

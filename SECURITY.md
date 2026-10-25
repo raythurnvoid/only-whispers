@@ -4,15 +4,14 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.10.x  | :white_check_mark: |
-| < 1.10  | :x:                |
+| 0.1.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
 **Please do not open public issues for security vulnerabilities.**
 
-Use [GitHub's private vulnerability reporting](https://github.com/OpenWhispr/openwhispr/security/advisories/new)
-to submit a report. You can also email security@openwhispr.com.
+Use [GitHub's private vulnerability reporting](https://github.com/raythurnvoid/only-whispers/security/advisories/new)
+to submit a report.
 
 We will acknowledge your report within **48 hours** and aim to release a fix
 within **7 days** for critical issues.
@@ -51,12 +50,6 @@ Out of scope:
   utilities) are compiled from source during the build process.
 - **Context isolation** — The Electron renderer runs with context isolation
   enabled and a restricted preload bridge.
-
-## Automated Scanning
-
-[`.oss-scanner/`](.oss-scanner/) holds the build image and threat model for Anthropic's
-[OSS Scanner](https://github.com/anthropics/oss-scanner), which sends its model-generated
-vulnerability reports for both the desktop and mobile apps to security@openwhispr.com.
 
 ## Disclosure Policy
 

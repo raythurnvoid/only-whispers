@@ -31,7 +31,7 @@
 **macOS:**
 
 1. Open System Settings → Privacy & Security → Microphone
-2. Ensure OpenWhispr is listed and enabled
+2. Ensure only-whispers is listed and enabled
 3. If not listed, click "Grant Access" in the app to trigger the permission prompt
 4. You can also click "Open Microphone Privacy" button in the app
 
@@ -39,7 +39,7 @@
 
 1. Open Settings → Privacy → Microphone
 2. Ensure "Allow apps to access your microphone" is ON
-3. Ensure OpenWhispr is listed and enabled
+3. Ensure only-whispers is listed and enabled
 4. You can also click "Open Privacy Settings" button in the app
 
 **Linux:**
@@ -99,10 +99,10 @@
 3. If bundled binary fails, install via package manager:
    - macOS: `brew install whisper-cpp`
    - Linux: Build from source at https://github.com/ggml-org/whisper.cpp
-4. Clear model cache: `rm -rf ~/.cache/openwhispr/whisper-models`
+4. Clear model cache: `rm -rf ~/.cache/only-whispers/whisper-models`
 5. Try cloud transcription as fallback
 
-**GPU acceleration (CUDA / Vulkan):** If the GPU-accelerated whisper-server crashes at startup (unsupported GPU, out of VRAM), OpenWhispr automatically restarts it on CPU, retries the same request, and shows a "using CPU instead" notice — the dictation still completes. GPU acceleration can be toggled off from the GPU card in the transcription model picker. That card also shows the error line that caused the fallback (for example `vk::PhysicalDevice::createDevice: ErrorDeviceLost`); include it, or a screenshot of the card, when you report a GPU problem.
+**GPU acceleration (CUDA / Vulkan):** If the GPU-accelerated whisper-server crashes at startup (unsupported GPU, out of VRAM), only-whispers automatically restarts it on CPU, retries the same request, and shows a "using CPU instead" notice — the dictation still completes. GPU acceleration can be toggled off from the GPU card in the transcription model picker. That card also shows the error line that caused the fallback (for example `vk::PhysicalDevice::createDevice: ErrorDeviceLost`); include it, or a screenshot of the card, when you report a GPU problem.
 
 ### Wayland Clipboard Issues (Linux)
 
@@ -116,36 +116,36 @@
    - Debian/Ubuntu: `sudo apt install wl-clipboard`
    - Fedora/RHEL: `sudo dnf install wl-clipboard`
    - Arch: `sudo pacman -S wl-clipboard`
-2. OpenWhispr chooses a compositor-specific paste method:
+2. only-whispers chooses a compositor-specific paste method:
    - Hyprland: `wtype`, then `hyprctl dispatch sendshortcut`
    - Sway and other wlroots compositors: `wtype`
    - GNOME and KDE Plasma: the RemoteDesktop keyboard portal
    - `ydotool` is a fallback and requires the `ydotoold` daemon
-3. Restart OpenWhispr after installing
+3. Restart only-whispers after installing
 
-OpenWhispr tries clipboard methods in order: `wl-copy` (most reliable) → renderer `navigator.clipboard` → X11 fallback.
+only-whispers tries clipboard methods in order: `wl-copy` (most reliable) → renderer `navigator.clipboard` → X11 fallback.
 
-On GNOME and KDE, the first automatic paste can show a remote-interaction permission dialog. Approval is remembered in `~/.cache/openwhispr/portal-paste-token`; revoking permission or invalidating that token makes the prompt return. If automatic paste fails, the transcription remains in the clipboard for manual paste.
+On GNOME and KDE, the first automatic paste can show a remote-interaction permission dialog. Approval is remembered in `~/.cache/only-whispers/portal-paste-token`; revoking permission or invalidating that token makes the prompt return. If automatic paste fails, the transcription remains in the clipboard for manual paste.
 
 ### Linux Window Flicker
 
 **Symptoms:** The dictation pill or other transparent windows flicker
 
-**Cause:** OpenWhispr composites on the GPU, except whenever an NVIDIA driver is loaded, where it already composites on the CPU. Some other drivers can flicker transparent windows too.
+**Cause:** only-whispers composites on the GPU, except whenever an NVIDIA driver is loaded, where it already composites on the CPU. Some other drivers can flicker transparent windows too.
 
 **Fix:**
 
-1. With the official AppImage, deb, rpm or tar.gz build, add this line to `~/.config/open-whispr-flags.conf` (`$XDG_CONFIG_HOME/open-whispr-flags.conf` if you set `XDG_CONFIG_HOME`; create the file if it doesn't exist, and save it with Unix (LF) line endings):
+1. With the official AppImage, deb, rpm or tar.gz build, add this line to `~/.config/only-whispers-flags.conf` (`$XDG_CONFIG_HOME/only-whispers-flags.conf` if you set `XDG_CONFIG_HOME`; create the file if it doesn't exist, and save it with Unix (LF) line endings):
 
    ```text
    --disable-gpu-compositing
    ```
 
-2. Quit OpenWhispr and start it again. Closing the window only hides it, so quit from the tray icon, or, if your desktop shows no tray icon (GNOME without the AppIndicator extension), run `pkill -x open-whispr-app`.
+2. Quit only-whispers and start it again. Closing the window only hides it, so quit from the tray icon, or, if your desktop shows no tray icon (GNOME without the AppIndicator extension), run `pkill -x only-whispers-app`.
 
 The interface then composites on the CPU, so hover effects and scrolling can feel slower. Delete the line to undo it.
 
-When you report the flicker, add `--log-level=debug` on its own line in the same file, restart, and attach the newest `~/.config/OpenWhispr/logs/debug-*.log`. Its "Linux GPU compositing" line shows which mode OpenWhispr started in.
+When you report the flicker, add `--log-level=debug` on its own line in the same file, restart, and attach the newest `~/.config/only-whispers/logs/debug-*.log`. Its "Linux GPU compositing" line shows which mode only-whispers started in.
 
 ### Linux System Audio PipeWire Issues
 
@@ -159,8 +159,8 @@ When you report the flicker, add `--log-level=debug` on its own line in the same
    - Arch: `sudo pacman -S pipewire`
 2. Make sure the PipeWire user service is running for the current session
 3. Sign out and back in after installing or updating PipeWire packages
-4. Restart OpenWhispr and start meeting transcription again
-5. No screen-share chooser is expected for Linux system audio; OpenWhispr captures the default sink monitor directly through PipeWire
+4. Restart only-whispers and start meeting transcription again
+5. No screen-share chooser is expected for Linux system audio; only-whispers captures the default sink monitor directly through PipeWire
 
 ### Meeting Transcription Issues
 
@@ -168,15 +168,15 @@ When you report the flicker, add `--log-level=debug` on its own line in the same
 
 **macOS:**
 
-1. Grant Screen Recording permission: System Settings → Privacy & Security → Screen Recording → enable OpenWhispr
+1. Grant Screen Recording permission: System Settings → Privacy & Security → Screen Recording → enable only-whispers
 2. Restart the app after granting permission
 3. Ensure Google Calendar is connected in Integrations
 
 **Windows:**
 
 1. System audio is captured by `windows-system-audio-helper.exe` (WASAPI process loopback), which hears every app on every output device — no permission prompt is needed
-2. If the helper is missing or fails (requires Windows 10 2004+), OpenWhispr automatically falls back to Chromium loopback, which only hears the _default_ output device — make sure your meeting app plays through the default device in that case
-3. On some machines the helper starts successfully but captures only digital silence — and Microsoft Teams call audio appears to be hidden from it regardless of configuration. OpenWhispr detects this a few seconds in (its capture is silent while an output device is still metering audio), starts Chromium loopback alongside, and switches the recording to it once it hears audio the helper is missing; the debug log shows `Windows system audio helper captured only silence, starting renderer loopback beside it`, then `Renderer loopback took over system audio capture`. The check runs for the whole meeting, so a call that goes missing after some other sound was captured still switches over — though audio playing continuously alongside the meeting (music in a browser tab, say) can mask it, since our capture never falls silent
+2. If the helper is missing or fails (requires Windows 10 2004+), only-whispers automatically falls back to Chromium loopback, which only hears the _default_ output device — make sure your meeting app plays through the default device in that case
+3. On some machines the helper starts successfully but captures only digital silence — and Microsoft Teams call audio appears to be hidden from it regardless of configuration. only-whispers detects this a few seconds in (its capture is silent while an output device is still metering audio), starts Chromium loopback alongside, and switches the recording to it once it hears audio the helper is missing; the debug log shows `Windows system audio helper captured only silence, starting renderer loopback beside it`, then `Renderer loopback took over system audio capture`. The check runs for the whole meeting, so a call that goes missing after some other sound was captured still switches over — though audio playing continuously alongside the meeting (music in a browser tab, say) can mask it, since our capture never falls silent
 4. If transcription shows "Continuing with microphone only", system audio capture failed entirely; check debug logs for `windows-system-audio-helper` entries
 
 **All Platforms:**
@@ -195,7 +195,7 @@ When you report the flicker, add `--log-level=debug` on its own line in the same
 1. Check your chat model under Settings → AI Models → Chat (the panel runs on the chat scope); the Voice Assistant toggle only gates in-place selection edits
 2. Check that you have a valid API key for your selected provider
 3. Verify the Voice Assistant hotkey doesn't conflict with other global shortcuts
-4. Remember there is no separate assistant window. Press the Voice Assistant hotkey (or use the pill) and speak: highlighted text is edited in place; with auto-paste enabled, an answer pastes at a focused writable cursor. Without a writable cursor—or if the target changes while the answer is generated—OpenWhispr leaves the field untouched, opens the floating panel attached to the dictation pill, and copies the completed answer to the clipboard for manual paste
+4. Remember there is no separate assistant window. Press the Voice Assistant hotkey (or use the pill) and speak: highlighted text is edited in place; with auto-paste enabled, an answer pastes at a focused writable cursor. Without a writable cursor—or if the target changes while the answer is generated—only-whispers leaves the field untouched, opens the floating panel attached to the dictation pill, and copies the completed answer to the clipboard for manual paste
 5. For local models: ensure the model is downloaded and llama-server is running
 6. For Metal OOM on macOS: try a smaller local model
 
@@ -203,36 +203,36 @@ When you report the flicker, add `--log-level=debug` on its own line in the same
 
 **No window appears (process running in Task Manager but invisible):**
 
-1. Check the system tray (click the `^` caret) for the OpenWhispr icon
-2. Run with debug logging: `OpenWhispr.exe --log-level=debug`
-3. Try disabling GPU acceleration: `OpenWhispr.exe --disable-gpu`
+1. Check the system tray (click the `^` caret) for the only-whispers icon
+2. Run with debug logging: `only-whispers.exe --log-level=debug`
+3. Try disabling GPU acceleration: `only-whispers.exe --disable-gpu`
 
 **Antivirus / Windows Defender blocking binaries:**
 
-whisper.cpp and FFmpeg may be quarantined silently. Add OpenWhispr to exclusions: Settings → Virus & threat protection → Exclusions.
+whisper.cpp and FFmpeg may be quarantined silently. Add only-whispers to exclusions: Settings → Virus & threat protection → Exclusions.
 
 **Permission errors:**
 
-Right-click OpenWhispr → Run as administrator (or set permanently in Properties → Compatibility).
+Right-click only-whispers → Run as administrator (or set permanently in Properties → Compatibility).
 
 **Firewall blocking cloud mode:**
 
-Allow OpenWhispr through Windows Firewall when using cloud transcription providers.
+Allow only-whispers through Windows Firewall when using cloud transcription providers.
 
 **Firewall prompt for sherpa-onnx (local Parakeet transcription):**
 
-Windows may ask whether to allow `sherpa-onnx-ws-win32-x64` on public and private networks the first time local Parakeet transcription starts. The bundled sherpa-onnx server only serves OpenWhispr itself over `127.0.0.1`, but it has no loopback-only bind option, so Windows sees it listening on all interfaces. Either choice is safe — Windows never filters loopback traffic, so transcription works even if you click Cancel. All-users installs register a firewall rule that blocks outside access and suppresses the prompt entirely; per-user installs may still see it once.
+Windows may ask whether to allow `sherpa-onnx-ws-win32-x64` on public and private networks the first time local Parakeet transcription starts. The bundled sherpa-onnx server only serves only-whispers itself over `127.0.0.1`, but it has no loopback-only bind option, so Windows sees it listening on all interfaces. Either choice is safe — Windows never filters loopback traffic, so transcription works even if you click Cancel. All-users installs register a firewall rule that blocks outside access and suppresses the prompt entirely; per-user installs may still see it once.
 
 **Complete reset (after uninstalling):**
 
 ```batch
-rd /s /q "%APPDATA%\OpenWhispr"
-rd /s /q "%LOCALAPPDATA%\OpenWhispr"
+rd /s /q "%APPDATA%\only-whispers"
+rd /s /q "%LOCALAPPDATA%\only-whispers"
 ```
 
 Then reinstall.
 
-**Logs location:** `%APPDATA%\OpenWhispr\logs\`
+**Logs location:** `%APPDATA%\only-whispers\logs\`
 
 ## Enable Debug Mode
 
@@ -242,8 +242,8 @@ For detailed diagnostics, see [DEBUG.md](DEBUG.md).
 
 1. Enable debug mode and reproduce the issue
 2. Collect diagnostic output from commands above
-3. Open an issue at https://github.com/OpenWhispr/openwhispr/issues with:
+3. Open an issue at https://github.com/raythurnvoid/only-whispers/issues with:
    - OS version
-   - OpenWhispr version
+   - only-whispers version
    - Relevant log sections
    - Steps to reproduce

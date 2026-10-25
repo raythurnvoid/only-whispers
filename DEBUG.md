@@ -8,10 +8,10 @@ Enable verbose logging to diagnose issues like "no audio detected" or transcript
 
 ```bash
 # macOS
-/Applications/OpenWhispr.app/Contents/MacOS/OpenWhispr --log-level=debug
+/Applications/only-whispers.app/Contents/MacOS/only-whispers --log-level=debug
 
 # Windows
-OpenWhispr.exe --log-level=debug
+only-whispers.exe --log-level=debug
 ```
 
 ### Option 2: Environment File
@@ -19,20 +19,20 @@ OpenWhispr.exe --log-level=debug
 Add to your `.env` file and restart:
 
 ```
-OPENWHISPR_LOG_LEVEL=debug
+ONLY_WHISPERS_LOG_LEVEL=debug
 ```
 
 **Env file locations:**
 
-- macOS: `~/Library/Application Support/OpenWhispr/.env`
-- Windows: `%APPDATA%\OpenWhispr\.env`
-- Linux: `~/.config/OpenWhispr/.env`
+- macOS: `~/Library/Application Support/only-whispers/.env`
+- Windows: `%APPDATA%\only-whispers\.env`
+- Linux: `~/.config/only-whispers/.env`
 
 ## Log File Locations
 
-- **macOS**: `~/Library/Application Support/OpenWhispr/logs/debug-*.log`
-- **Windows**: `%APPDATA%\OpenWhispr\logs\debug-*.log`
-- **Linux**: `~/.config/OpenWhispr/logs/debug-*.log`
+- **macOS**: `~/Library/Application Support/only-whispers/logs/debug-*.log`
+- **Windows**: `%APPDATA%\only-whispers\logs\debug-*.log`
+- **Linux**: `~/.config/only-whispers/logs/debug-*.log`
 
 ## What Gets Logged
 
@@ -88,4 +88,4 @@ When reporting issues:
 Debug mode is off by default. To ensure it's disabled:
 
 - Remove `--log-level=debug` from command
-- Remove `OPENWHISPR_LOG_LEVEL` from `.env`
+- Remove `ONLY_WHISPERS_LOG_LEVEL` from `.env`
