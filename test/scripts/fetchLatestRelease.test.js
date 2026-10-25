@@ -6,7 +6,7 @@ const { Readable } = require("stream");
 
 const { fetchLatestRelease } = require("../../scripts/lib/download-utils");
 
-const REPO = "OpenWhispr/openwhispr";
+const REPO = "raythurnvoid/only-whispers";
 const FIRST_PAGE = `https://api.github.com/repos/${REPO}/releases?per_page=100`;
 const SECOND_PAGE = `${FIRST_PAGE}&page=2`;
 const LAST_PAGE = `${FIRST_PAGE}&page=3`;
