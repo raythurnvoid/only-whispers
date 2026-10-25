@@ -1256,7 +1256,7 @@
     "logs": "日志"
   },
   "appSetup": {
-    "title": "设置 only-whispers",
+    "title": "设置 Only Whispers",
     "description": "按住快捷键说话,整洁的文字就会出现在任何应用中。添加两项即可开始。",
     "mistralKey": "Mistral API 密钥(语音转文字)",
     "getMistralKey": "在 Mistral admin 获取密钥",

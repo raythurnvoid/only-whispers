@@ -1256,7 +1256,7 @@
     "logs": "ログ"
   },
   "appSetup": {
-    "title": "only-whispers を設定",
+    "title": "Only Whispers を設定",
     "description": "ホットキーを押しながら話すと、どのアプリにも整った文章が入力されます。始めるには 2 つを追加してください。",
     "mistralKey": "Mistral API キー(音声認識)",
     "getMistralKey": "Mistral admin でキーを取得",

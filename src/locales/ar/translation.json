@@ -1391,7 +1391,7 @@
     "logs": "السجلات"
   },
   "appSetup": {
-    "title": "إعداد only-whispers",
+    "title": "إعداد Only Whispers",
     "description": "اضغط مع الاستمرار على مفتاح الاختصار وتحدث، فيظهر نص نظيف في أي تطبيق. أضف شيئين للبدء.",
     "mistralKey": "مفتاح Mistral API (تحويل الكلام إلى نص)",
     "getMistralKey": "احصل على مفتاح من Mistral admin",
