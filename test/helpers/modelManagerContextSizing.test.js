@@ -56,6 +56,14 @@ async function setup(
 ) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), "only-whispers-ctx-sizing-"));
   electronHome = home;
+  // On Windows USERPROFILE wins over the mocked home, so pin the cache root
+  // too, or the fake model lands in the user's real cache.
+  const previousCacheRoot = process.env.ONLY_WHISPERS_CACHE_ROOT;
+  process.env.ONLY_WHISPERS_CACHE_ROOT = path.join(home, ".cache", "only-whispers");
+  t.after(() => {
+    if (previousCacheRoot === undefined) delete process.env.ONLY_WHISPERS_CACHE_ROOT;
+    else process.env.ONLY_WHISPERS_CACHE_ROOT = previousCacheRoot;
+  });
   t.after(() => fs.rm(home, { recursive: true, force: true }));
 
   const calls = { tokenize: 0, props: 0, completions: 0, template: 0 };
