@@ -1,0 +1,8 @@
+// Cloudflare Worker that only serves the static files in this folder.
+// Deploy: vp env exec pnpm dlx wrangler deploy (from this folder).
+{
+  "name": "only-whispers-website",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "." },
+  "routes": [{ "pattern": "only-whispers.bonobo-senate.com", "custom_domain": true }]
+}

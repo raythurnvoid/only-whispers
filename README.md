@@ -88,8 +88,6 @@ Free code signing provided by [SignPath.io](https://about.signpath.io/), certifi
 - Committers and reviewers: [raythurnvoid](https://github.com/raythurnvoid)
 - Approvers: [raythurnvoid](https://github.com/raythurnvoid)
 
-Only files built from this repository are signed. Upstream binaries in the installer, such as llama-server, are shipped as their authors publish them.
-
 ### Privacy
 
 only-whispers sends data to other networked systems only to do what you ask:
