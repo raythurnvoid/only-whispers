@@ -38,7 +38,6 @@ export default function ChatGPTSignIn({
   return (
     <div className="space-y-2">
       <h4 className="font-medium text-foreground">{t("reasoning.chatgpt.title")}</h4>
-      <p className="text-xs text-muted-foreground">{t("reasoning.chatgpt.description")}</p>
       {status.signedIn ? (
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm text-foreground">

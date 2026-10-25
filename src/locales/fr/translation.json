@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "Forfait ChatGPT",
-      "description": "Connectez-vous avec ChatGPT pour faire le nettoyage avec votre forfait ChatGPT au lieu d'une clé API.",
       "signIn": "Se connecter avec ChatGPT",
       "signingIn": "Terminez la connexion dans votre navigateur...",
       "signOut": "Se déconnecter",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "Impossible d'accéder au microphone. Veuillez vérifier les permissions."
     },
-    "helpText": "Sélectionnez un microphone spécifique ou utilisez le réglage par défaut du système.",
     "inputDevice": "Périphérique d'entrée",
     "noBuiltInDetected": "Aucun microphone intégré détecté. Utilisation du réglage par défaut du système.",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "Application",
-      "aiModels": "Modèles IA"
-    },
     "sections": {
       "general": {
-        "description": "Apparence, sons & démarrage",
         "label": "Préférences"
       },
       "hotkeys": {
-        "description": "Raccourci de dictée et activation",
         "label": "Raccourcis"
       },
-      "toneStyle": {
-        "label": "Ton et style",
-        "description": "Comment la correction écrit dans chaque app"
-      },
-      "speechToText": {
-        "description": "Moteurs pour dictée et enregistrement de notes",
-        "label": "Reconnaissance vocale"
-      },
-      "llms": {
-        "description": "Modèles pour chat, nettoyage & résumés",
-        "label": "Modèles de langage"
-      },
       "aiModels": {
-        "label": "Modèles IA",
-        "description": "Clé Mistral et connexion ChatGPT"
+        "label": "Modèles IA"
       }
     },
     "title": "Paramètres"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "Activer la correction de texte",
-      "enableTextCleanupDescription": "L'IA supprime les mots de remplissage, corrige la grammaire et la ponctuation",
+      "enableTextCleanupDescription": "Supprime les mots de remplissage et corrige la grammaire et la ponctuation. Désactivé, le texte brut est collé.",
       "modes": {
         "providers": "Apportez votre propre clé",
         "local": "Local",
@@ -822,19 +801,19 @@
       "description": "Mistral transforme votre voix en texte. Votre forfait ChatGPT nettoie le texte."
     },
     "dictionary": {
+      "title": "Dictionnaire",
       "autoLearnTitle": "Apprentissage automatique à partir des corrections",
-      "autoLearnDescription": "Lorsque vous corrigez une transcription dans l'application cible, le mot corrigé est automatiquement ajouté à votre dictionnaire."
+      "autoLearnDescription": "Quand vous corrigez un mot collé dans l'application, Only Whispers ajoute le mot corrigé à votre dictionnaire."
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "Toujours visible",
         "alwaysVisibleDescription": "Garder l'icône à l'écran même quand vous ne dictez pas",
-        "description": "Contrôlez quand l'icône de dictée est visible à l'écran",
         "title": "Icône flottante"
       },
       "hotkey": {
         "activationMode": "Mode d'activation",
-        "description": "La combinaison de touches qui démarre et arrête la dictée vocale",
+        "description": "Les touches qui démarrent et arrêtent la dictée",
         "resetToDefault": "Réinitialiser à {{hotkey}}",
         "title": "Raccourci de dictée",
         "linuxPttPermissionTitle": "Maintenir pour parler nécessite une configuration",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "Votre utilisateur a besoin d'accéder aux périphériques de saisie clavier.",
         "linuxPttSetupNote": "Après avoir exécuté la commande, déconnectez-vous et reconnectez-vous.",
         "hyprlandConfigWriteWarningTitle": "Les raccourcis Hyprland ne seront pas conservés",
-        "hyprlandConfigWriteWarningDescription": "only-whispers ne peut pas écrire dans {{path}} ; les raccourcis ne survivront donc pas à un rechargement de la configuration Hyprland. Vérifiez que le fichier existe et qu'il est accessible en écriture.",
-        "hyprlandUnbindDescription": "Sous Hyprland, only-whispers réserve le raccourci sélectionné. Tout raccourci Hyprland existant utilisant la même combinaison de touches sera supprimé quand only-whispers enregistrera son raccourci."
+        "hyprlandConfigWriteWarningDescription": "Only Whispers ne peut pas écrire dans {{path}}, donc les raccourcis sont perdus quand Hyprland recharge sa configuration. Vérifiez que le fichier existe et est accessible en écriture.",
+        "hyprlandUnbindDescription": "Sous Hyprland, Only Whispers prend ce raccourci. Tout raccourci Hyprland sur les mêmes touches est supprimé."
       },
       "meetingHotkey": {
         "title": "Raccourci mode réunion"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "Ajouter votre utilisateur au groupe input",
             "step2Title": "Se déconnecter et se reconnecter",
-            "step2Desc": "Les modifications de groupe ne prennent effet qu'après une nouvelle session. Déconnectez-vous de votre bureau, reconnectez-vous et rouvrez only-whispers."
+            "step2Desc": "Les changements de groupe ne s'appliquent qu'après une nouvelle connexion. Déconnectez-vous et reconnectez-vous, puis rouvrez Only Whispers."
           },
           "service": {
             "step1Title": "Créer le répertoire du service",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "Requis pour que le collage automatique fonctionne après la transcription",
+      "accessibilityDescription": "Nécessaire pour coller le texte dans d'autres applications",
       "accessibilityTitle": "Accessibilité",
-      "description": "Testez et gérez les permissions système requises pour le bon fonctionnement d'only-whispers",
-      "microphoneDescription": "Capture votre voix pour la dictée et la transcription",
+      "description": "Only Whispers a besoin de ces autorisations pour fonctionner.",
+      "microphoneDescription": "Enregistre votre voix quand vous dictez",
       "microphoneTitle": "Microphone",
-      "resetAccessibility": {
-        "description": "Cela supprimera only-whispers des permissions d'accessibilité. Vous devrez accorder l'accès à nouveau dans Paramètres système > Confidentialité et sécurité > Accessibilité.",
-        "label": "Réinitialiser les permissions d'accessibilité",
-        "rowDescription": "Corrigez les problèmes après une réinstallation ou une recompilation en supprimant puis en rajoutant only-whispers dans les paramètres système",
-        "title": "Réinitialiser les permissions d'accessibilité"
-      },
       "grantAccess": "Accorder l'accès",
-      "title": "Permissions",
-      "troubleshoot": "Dépanner",
-      "troubleshootingTitle": "Dépannage"
+      "title": "Permissions"
     },
     "speechToText": {
       "title": "Reconnaissance vocale",
