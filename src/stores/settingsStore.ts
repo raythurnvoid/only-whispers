@@ -637,8 +637,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
   useCleanupModel: readBoolean("useCleanupModel", true),
   useDictationAgent: readBoolean("useDictationAgent", true),
-  cleanupModel: readString("cleanupModel", ""),
-  cleanupProvider: readString("cleanupProvider", "openai"),
+  // Hardcoded: users can't pick a cleanup model, so saved values (empty, or a
+  // provider from an older build) are ignored.
+  cleanupModel: "gpt-6-luna",
+  cleanupProvider: "openai",
 
   // Secrets hydrate from main process in initializeSettings, never from localStorage.
   openaiApiKey: "",
@@ -693,11 +695,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   autoPasteEnabled: readBoolean("autoPasteEnabled", true),
   keepTranscriptionInClipboard: readBoolean("keepTranscriptionInClipboard", false),
 
-  cleanupMode: (() => {
-    const v = readString("cleanupMode", "providers");
-    if (v === "providers" || v === "local" || v === "self-hosted" || v === "enterprise") return v;
-    return "providers" as InferenceMode;
-  })(),
+  cleanupMode: "providers" as InferenceMode,
   cleanupRemoteUrl: readString("cleanupRemoteUrl", ""),
 
   setCleanupMode: createStringSetter("cleanupMode") as (mode: InferenceMode) => void,
