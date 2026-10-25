@@ -5,7 +5,7 @@
 <h1 align="center">Only Whispers</h1>
 
 <p align="center">
-  <em>Hold a key, speak, and get clean text in any app.</em><br/>
+  <em>Hold the Key, speak, and get clean text in any app.</em><br/>
   <a href="https://only-whispers.bonobo-senate.com"><strong>Website</strong></a> ·
   <a href="https://github.com/raythurnvoid/only-whispers/releases/latest">Releases</a> ·
   <a href="#privacy">Privacy</a>
@@ -15,7 +15,7 @@
 
 ## How it works
 
-1. Hold the key and speak.
+1. Hold the Key and speak.
 2. Let go.
 3. Clean text appears where your cursor is, in any app.
 
