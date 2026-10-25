@@ -109,9 +109,14 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
         <div className="mx-auto flex max-w-[26rem] flex-col">
           {/* The same logo as the control panel sidebar and the website. */}
           <LaurelLogo />
-          <p className="whitespace-pre-line text-balance text-center text-[15px] italic text-muted-foreground">
-            {t("appSetup.description")}
-          </p>
+          {/* One paragraph per line of the text, with a small gap between them. */}
+          <div className="flex flex-col gap-1.5 text-balance text-center text-[15px] italic text-muted-foreground">
+            {t("appSetup.description")
+              .split("\n")
+              .map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+          </div>
 
           <div className="pz-panel mt-5 divide-y divide-border">
             <label className="block px-4 py-4">
