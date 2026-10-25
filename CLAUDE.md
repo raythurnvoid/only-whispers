@@ -11,13 +11,13 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 - Change the code, commit straight to `main`, and push (`git push origin main`). Never push to `upstream`.
 - No feature branches and no pull requests.
 - No commit message format. Write a short, simple message.
-- Build or release only when the user asks. Build: `pnpm run build:win`.
+- Build or release only when the user asks. Local builds are unsigned: `pnpm run prebuild:win`, `pnpm run build:renderer`, then `pnpm exec electron-builder --win --config electron-builder.unsigned-win.json`. For day-to-day checks run the app in dev mode (`pnpm dev`) instead of building.
 - Release: bump `version` in `package.json`, commit and push, then `vp env exec pnpm run release:win` (`scripts/release-win.js`: makes a draft release, builds and uploads into it, then publishes it; the token comes from `gh auth token`). It publishes a GitHub release on `raythurnvoid/only-whispers` with the installer and `latest.yml`, which installed apps read to auto-update (`src/updater.js`: checks 3 s after launch and every 4 hours, downloads in the background, installs on quit; the control panel shows a toast to restart now). The build is unsigned for now.
 - Use pnpm only (never npm, npx or bun). Run Node tools through Vite Plus: `vp env exec pnpm ...`.
 
 ## Project Overview
 
-only-whispers is an Electron-based desktop dictation application that uses whisper.cpp for speech-to-text transcription. It supports both local (privacy-focused) and cloud (OpenAI API) processing modes.
+only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs on the user's ChatGPT plan ("Sign in with ChatGPT") with Mistral Ministral 8B as the fallback, or on any configured AI provider, including local GGUF models through llama.cpp.
 
 ## Architecture Overview
 
@@ -27,7 +27,8 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
 - **Desktop Framework**: Electron 41 with context isolation
 - **Database**: better-sqlite3 for local transcription history
 - **UI Components**: shadcn/ui with Radix primitives
-- **Speech Processing**: whisper.cpp + NVIDIA Parakeet (via sherpa-onnx) + OpenAI API
+- **Speech Processing**: Mistral Voxtral API
+- **Local AI**: llama.cpp server (`llama-server`) for optional local cleanup models
 - **Audio Processing**: FFmpeg (bundled via ffmpeg-static)
 - **Node.js**: 24 (pinned in `.nvmrc`, run through Vite Plus)
 
@@ -42,10 +43,9 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
    - Main Process: Electron main, IPC handlers, database operations
    - Renderer Process: React app with context isolation
    - Preload Script: Secure bridge between processes
-   - ONNX Utility Process: hosts all `onnxruntime-node` inference (text embeddings, speaker embeddings, fbank). Lazy-spawned on first use via `src/helpers/onnxWorkerClient.js` → `src/workers/onnxWorker.js`. Native crashes (e.g., ORT `bad_alloc`) confine to the worker; main process rejects in-flight requests, waits out a backoff, and respawns the worker on the next request (never eagerly, so a crash can't leave an empty worker running). A request that times out kills the worker so it respawns the same way; the embedding clients reload their sessions on the new worker. Exits once idle with no session loaded (`releaseIfIdle`, called after semantic search releases its model and after `speakerEmbeddings.js` unloads the speaker model 5 minutes after its last extract). Each session's calls are serialized in the worker, so an unload never releases a session mid-inference. Stopped in `will-quit`.
 
 3. **Audio Pipeline**:
-   - MediaRecorder API → Blob → ArrayBuffer → IPC → File → whisper.cpp
+   - MediaRecorder API → Blob → ArrayBuffer → IPC → Mistral speech-to-text → cleanup → paste
    - Automatic cleanup of temporary files after processing
 
 ## File Structure and Responsibilities
@@ -57,13 +57,15 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
 
 ### Native Resources (resources/)
 
-- **windows-key-listener.c**: C source for Windows low-level keyboard hook (Push-to-Talk)
-- **windows-mic-listener.c**: C source for WASAPI mic session monitor (event-driven mic detection)
-- **windows-system-audio-helper.c**: C source for WASAPI process-loopback system audio capture (meeting transcription). Excludes only-whispers's own process tree, so it hears every app on every output device. Requires Windows 10 2004+; falls back to Chromium display-media loopback when unavailable. Mid-session, the helper emits a `capture_silent` warning when its own stream is silent while a render endpoint is metering output, checked every second for the whole session because Windows keeps some apps' streams out of process loopback (Teams call audio, #1265). Main then starts renderer loopback beside the helper, and `meetingSystemAudioHandover.js` gives loopback the system channel only after it hears audio the helper misses, so a false alarm never drops a working capture. Outputs 24 kHz mono s16le PCM on stdout, line-delimited JSON events on stderr (same protocol as linux-system-audio-helper)
-- **macos-mic-listener.swift**: Swift source for the CoreAudio process-object microphone listener (event-driven mic detection); falls back to aggregate device activity and retries PID monitoring from its heartbeat
-- **globe-listener.swift**: Swift source for macOS Globe/Fn key detection
+- **windows-key-listener.c**: Windows low-level keyboard hook (Push-to-Talk)
+- **windows-fast-paste.c**: Windows paste helper; `--detect-only` also reports the target window (used by Tone & Style)
+- **windows-text-monitor.c**: Windows text-field monitor
+- **windows-mic-listener.c**: WASAPI mic session monitor. It is still packaged, but no code uses it on Windows now
+- **linux-key-listener.c**, **linux-fast-paste.c**, **linux-text-monitor.c**: Linux key listener, paste helper and text-field monitor
+- **macos-globe-listener.swift**, **macos-fast-paste.swift**, **macos-text-monitor.swift**, **macos-mic-listener.swift**, **macos-media-remote.swift**: macOS Globe/Fn key listener, paste helper, text monitor, mic listener and media control
 - **macos-window-bounds.swift**: Swift source for the System Settings window reporter used by the onboarding permission guide. Prints the dialog's bounds, whether a sheet or authorization prompt is in front, which app owns the front window (`settings` / `self` / `other`, attributed by process because window owner names are localized) and whether System Settings is running. CoreGraphics window list only, so it needs neither Accessibility nor Screen Recording
-- **bin/**: Directory for compiled native binaries (whisper-cpp, nircmd, key/mic listeners)
+- **mediaremote-adapter/**: vendored macOS media control adapter, used by `mediaPlayer.js`
+- **bin/**: compiled or downloaded native binaries (llama-server, nircmd, key listeners, paste helpers, text monitors)
 
 ### Helper Modules (src/helpers/)
 
@@ -76,7 +78,10 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
   - Linux COSMIC: paste reads the focused app from cosmic-comp's `zcosmic_toplevel_info_v1` (`cosmicToplevel.js`, a minimal Wayland wire client, bound at version 1, which still sends app_id and state), never from xdotool, whose XWayland answer goes stale while a native Wayland window has focus. A known terminal is pasted through wtype (Ctrl+Shift+V; Shift+Insert for Konsole); everything else keeps uinput Shift+Insert, since COSMIC gives no PID to spot Electron apps hosting TUIs. Short terminal names (`st`) match whole words only, or every `com.system76.*` app id would read as a terminal
   - Linux: before any paste or selection-copy chord, `linux-fast-paste --capabilities --await-modifier-release <ms>` waits for physically held modifiers to be released (XKB state on X11, `EVIOCGKEY` on Wayland; `unknown` without `/dev/input` access pastes as before). A chord injected into held keys arrives as a different shortcut, and a virtual device cannot release another device's key (#2113). Still held after 1.5 s → not pasted, `reason: "modifiers-held"`, and the renderer shows the dictation-error pill with the transcript on the clipboard; a selection edit blocked the same way reports `code: "modifiers_held"` and gets the same pill (the assistant caret paste reports the same code, for logs only). `ydotoold`'s virtual keyboard is ignored, since an interrupted chord can leave its modifier down, and an unreadable key state is logged once per session. The wait runs before `pasteLinux` detects the target window, and a selection copy that had to wait looks the target up again, since focus can move while a key is held: a fresh capture then runs the command on its own (`focus_moved`), and a revalidated session declines as `target_changed`. Retry on a modifiers-held pill pastes the kept transcript again rather than recording again (the macOS/Windows push force-stop pill keeps its record-again Retry, since neither platform waits for held keys), ignores clicks while its paste is pending, and never dismisses a newer pill. `useAudioRecording` keeps the pill in processing until the paste attempt settles (the audio manager settles before the paste starts), but never reports that to main, which drops dictation hotkeys while processing; a paste held back after the next dictation started leaves the transcript on the clipboard without a pill. The helper measures its wait on `CLOCK_MONOTONIC`, since the JS watchdog kills it at timeout + 1 s
 - **database.js**: SQLite operations for transcription history
-- **noteUndo.js**: Undo for assistant `update_note` edits. The tool passes `{ undoable, expected, turn }` to `db-update-note`; inside one transaction main refuses the edit if a guarded field changed since the tool read the note, writes it, and journals the previous values in `assistant_note_undo` (one row per note, bound to the account and kept 10 minutes). An `AFTER UPDATE` trigger retires the row when any guarded field changes again (manual save, sync pull, delete, identity or folder change), treating `''` and NULL as equal because a pull stores an empty field as NULL; sync acknowledgements don't retire it. Edits of one note in the same chat turn (`turn` = the assistant message id) share one Undo; `update_note` runs one note's edits in turn, since the AI SDK runs a step's tool calls concurrently. `AssistantNoteUndoListener` (control panel and dictation window) offers each edit once, in the first focused window (`db-claim-note-undo`); typing in the open note retires it (`discardNoteUndo`). The trigger is recreated and a journal of another shape is dropped at launch; if setup fails, edits save without Undo
+- **transcriptionRoute.ts**: Mistral is the only speech-to-text provider. Picks the Voxtral model (default `voxtral-mini-transcribe-3-0`) and holds Mistral's 25 MB upload limit. Shared by dictation, Retry and Upload
+- **mistralRealtimeStreaming.js**: Mistral realtime transcription session; sends the custom dictionary as `context_bias`
+- **chatgptAuth.js**: "Sign in with ChatGPT" (OAuth token sharing). The login is stored encrypted at `userData/secure-keys/CHATGPT_AUTH.enc`
+- **llamaServer.js**, **modelManagerBridge.js**: local GGUF models through llama-server (download, start, context sizing)
 - **debugLogger.js**: Debug logging system with file output
 - **providerHttpErrors.js**: Pure ESM classifier for BYOK provider failures (transcription and AI models), shared by main (require(esm)) and renderer. `providerHttpError({ provider, status, body, headers, model, surface, selfHosted })` builds an Error carrying `code` (`PROVIDER_AUTH_FAILED`, `PROVIDER_QUOTA_EXHAUSTED`, …), `messageKey` (`providerErrors.*`), `messageParams`, `settingsTarget` (`speechToText`/`llms`, fixable errors only) and redacted `technicalDetails`; `asProviderError` classifies AI SDK, timeout and network errors and leaves already-keyed errors alone. Raw provider bodies never reach UI text. Rendered by `src/utils/describeProviderError.ts`
 - **devServerManager.js**: Vite dev server integration
@@ -84,10 +89,10 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
   - The icon follows the control panel: it appears when the panel opens and goes away when the panel closes to the tray, so no other caller (in particular the dictation panel's hide path) can resurrect it
   - Every path that surfaces or hides the control panel reports that state explicitly: openers (tray, app menu, deep links, `activate`, second instance, first show) go through `windowManager.showControlPanel()`, hiding through `hideControlPanelToTray()`
   - `showControlPanel()` reports the Dock before restoring, showing and focusing the window: on an active app `dock.show()` activates the Dock and then re-activates the app, which macOS does not honour, so a window surfaced first is left behind the previously frontmost app
-  - `showControlPanel()` calls `show()` even on an open panel, since on macOS that activates the app and `focus()` does not; openers that send the user to another app (meeting-prompt Join, the meeting hotkey, Upcoming Meetings' Join & transcribe) pass `{ activate: false }`, so an open panel updates behind the meeting instead of covering it. A hidden panel is still shown
+  - `showControlPanel()` calls `show()` even on an open panel, since on macOS that activates the app and `focus()` does not. A hidden panel is still shown
   - `app.dock.show()`/`hide()` run only when the requested state differs from `app.dock.isVisible()`, so reopening an already open panel never triggers that Dock hand-off
   - Never derive that state from the window's `show`/`hide` events: on macOS those are occlusion events, so they also fire when the panel is merely covered by another window, minimized, or on another Space, and the icon flickers as the user switches windows
-  - Decision logic lives in `dockPolicy.js` (pure, unit-tested in `test/helpers/dockPolicy.test.js`)
+  - Decision logic lives in `dockPolicy.js` (pure)
 - **dragManager.js**: Window dragging functionality
 - **environment.js**: Environment variable and OpenAI API management
 - **hotkeyManager.js**: Global hotkey registration and management
@@ -122,91 +127,44 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
   - `getAutoStartState()` returns `{ enabled, requiresApproval }`; `requiresApproval` is macOS-only and means SMAppService registered the item but the user has not allowed it under System Settings → General → Login Items yet
   - `wasLaunchedAtLoginHidden()` decides whether this launch should go straight to the tray
   - `syncAutoStartEntry()` runs from `initializeCoreManagers()` and repairs entries written by older builds
-  - Decision logic lives in `autoStartPolicy.js` (pure, unit-tested in `test/helpers/autoStartPolicy.test.js`)
+  - Decision logic lives in `autoStartPolicy.js` (pure)
 - **autoStartPolicy.js**: Electron-free launch-at-login and relaunch decisions
   - `HIDDEN_LAUNCH_FLAG` (`--hidden`) is how a login launch tells the app to start in the tray. Windows has no native equivalent (`openAsHidden` is macOS-only and a no-op on macOS 13+), so the flag rides on the login item's `args`; Linux puts it on the autostart entry's `Exec`; macOS uses `wasOpenedAtLogin` instead
   - On Windows, read the state from `executableWillLaunchAtLogin`, never from `openAtLogin`: `openAtLogin` only compares the `Run` value against the current executable and args and ignores the `StartupApproved` key that Task Manager and Settings write when a user disables a startup app
   - Reads and writes must pass identical `args`, or `openAtLogin` always reports false
-  - `getRelaunchOptions()` and `getRelaunchWaiter()` shape the `relaunch-app` IPC that follows `cleanup-app` (Reset app data; Delete account with device erase): the relaunch drops `--hidden` and any cold-start deep link, and an AppImage is started again from its on-disk file (`$APPIMAGE`) by a detached waiter, since it runs from a FUSE mount that disappears when the app exits. The handler in `ipcHandlers.js` only quits under `npm run dev` and, on macOS with an update Squirrel already holds, hands the restart to the updater
+  - `getRelaunchOptions()` and `getRelaunchWaiter()` shape the `relaunch-app` IPC that follows `cleanup-app` (Reset app data): the relaunch drops `--hidden` and any cold-start deep link, and an AppImage is started again from its on-disk file (`$APPIMAGE`) by a detached waiter, since it runs from a FUSE mount that disappears when the app exits. The handler in `ipcHandlers.js` only quits under `pnpm dev` and, on macOS with an update Squirrel already holds, hands the restart to the updater
 - **linuxAutostart.js**: Launch-at-login on Linux via an XDG autostart entry
   - `app.setLoginItemSettings()` is a no-op on Linux, so the entry is written directly to `$XDG_CONFIG_HOME/autostart/only-whispers.desktop`, matching the executable name electron-builder packages under
   - `Exec` resolves from `$APPIMAGE` first: `process.execPath` is the ephemeral AppImage FUSE mount
   - `isAutostartEnabled()` honors `X-GNOME-Autostart-enabled=false` and `Hidden=true`, which GNOME Tweaks and KDE's autostart editor write in place instead of deleting the file
   - `Exec` carries `--hidden` (see `autoStartPolicy.js`), and `syncAutostartEntry()` compares against the full value including that flag — comparing against the bare path would make every launch look stale
   - `syncAutostartEntry()` runs from `autoStart.syncAutoStartEntry()` in `initializeCoreManagers()` and re-points a stale `Exec` after the executable moves (renamed or auto-updated AppImage); it never re-enables an entry the user disabled, and no-ops in development
-  - Unit-tested in `test/helpers/linuxAutostart.test.js`
 - **ipcHandlers.js**: Centralized IPC handler registration
 - **windowsKeyManager.js**: Windows Push-to-Talk support with native key listener
   - Spawns native `windows-key-listener.exe` binary for low-level keyboard hooks
   - Supports compound hotkeys (e.g., `Ctrl+Shift+F11`, `CommandOrControl+Space`)
   - Emits `key-down` and `key-up` events for push-to-talk functionality
   - Graceful fallback if binary unavailable
-- **meetingDetectionEngine.js**: Orchestrates meeting detection from all sources
-  - Gates notifications during recording (tap-to-talk and push-to-talk)
-  - Post-recording cooldown (2.5s) before showing queued notifications
-  - Priority-based coalescing (process > audio) — one notification, not three
-  - Both detectors start off and only run once the renderer has synced its saved notification preferences (`sync-notification-preferences`); they stop when meeting prompts are disabled and restart when re-enabled. The derivation lives in `meetingDetectionPreferencePolicy.js` (pure, unit-tested in `test/helpers/meetingDetectionPreferencePolicy.test.js`); `ipcHandlers.js` is a thin adapter over it
-- **meetingProcessDetector.js**: Detects running meeting apps
-  - macOS: Event-driven via `systemPreferences.subscribeWorkspaceNotification` (zero CPU)
-  - Windows/Linux: Shared `processListCache` polling (30s interval)
-  - Scans are start-generation guarded: a process-list read that completes after `stop()` or a newer `start()` is discarded, since the detector is now stopped and started at runtime (notification toggles, auto-end sessions)
-- **audioActivityDetector.js**: Detects microphone usage for unscheduled meetings
-  - macOS: Event-driven via `macos-mic-listener` binary (CoreAudio process objects; aggregate device activity prompts only while a known meeting app is running)
-  - Windows: Event-driven via `windows-mic-listener.exe` (WASAPI sessions, self-PID exclusion)
-  - Linux: Event-driven via `pactl subscribe` (PulseAudio source-output events)
-  - Windows/Linux: Graceful fallback to polling if the native approach fails; macOS has no safe polling signal and respawns the listener with backoff instead
-- **processListCache.js**: Shared singleton process list cache (5s TTL, `ps-list` npm)
-- **meetingEchoLeakDetector.js**: Audio-layer echo analysis for meeting recordings — correlates each mic chunk against the recent system-audio tap (lag search 0–500 ms in 5 ms steps) and classifies it `clean_local` / `suspected_render_bleed` / `double_talk`; drives chunk muting and per-segment suppression flags. PCM-driven tests in `test/helpers/meetingEchoLeakDetector.test.js`
-- **meetingMicGate.js**: Pure RMS/peak chunk stats + the meeting mic gate verdict (`send` / `zero` for streaming, `send` / `skip` for local) with the exported silence and bleed thresholds; `ipcHandlers.js` (`dispatchMeetingAudioBuffer`, `transcribeLocalMeetingChunk`) only applies the verdict. Unit-tested in `test/helpers/meetingMicGate.test.js`
-- **meetingMicHoldback.js**: Pure holdback/retract policy for risky mic finals — pending-final partition, retract window, risky-profile classifier, text-layer duplicate check, racing-retract candidate selection, pending-overlap partition. `ipcHandlers.js` keeps thin adapters over its closure state (`meetingDiarizationSegments`, `meetingPendingMicFinals`, `hasNearbyTranscriptMatch`). Unit-tested in `test/helpers/meetingMicHoldback.test.js`
-- **googleCalendarManager.js**: Google Calendar sync (REST, OAuth via `googleCalendarOAuth.js`)
-  - 10s socket timeout on API requests
-  - Incremental sync via `syncToken`; full re-sync on 410 prunes stale events (note-linked rows retained)
-  - Sync tokens pin the `timeMin`/`timeMax` window of the full sync that created them (incremental syncs never roll it forward), so tokens are discarded after 1 day to keep the 33-day lookahead covering the availability tool's 31-day horizon
-- **microsoftCalendarManager.js**: Microsoft Calendar sync via Graph API (OAuth via `microsoftCalendarOAuth.js`)
-  - `calendarView/delta` incremental sync over a 38-day window; delta token discarded after 7 days (Graph delta links never roll their window forward)
-  - Delta can return recurring-series occurrences as bare stubs (no subject/attendees/meeting link); they're backfilled from their series master, one `GET /me/calendars/{calendarId}/events/{id}` per series (calendar-scoped: `/me/events/{id}` 404s for shared calendars). A failed backfill shortens the delta token TTL to 10 min so an early full sync retries instead of leaving untitled blocks
-  - Full re-sync (410 or expired token) prunes stale events like Google
-- **appleCalendarManager.js**: Apple Calendar (EventKit) via the `macos-calendar-listener` Swift helper — macOS only, snapshot-push over stdout, no tokens ("connected" = `apple_calendars` has rows). The helper takes `--lookback-seconds` (an old binary ignores it and keeps a ~2-hour lookback; rebuild with `npm run compile:calendar-listener`)
-- **calendarCacheWindow.js**: `CALENDAR_LOOKBACK_DAYS` (3) — every provider keeps this much past history (Google `timeMin`, Microsoft `startDateTime`, the Apple helper flag) so notes can link recent meetings offline. Widening it needs a `user_version` token reset in `database.js` (v5 did it for 3 days)
-- **calendarReminderScheduler.js**: Provider-agnostic meeting reminder scheduling over the shared `calendar_events` table (provider-scoped reset keys, so one provider's disconnect doesn't re-fire another's reminders)
-- **calendarSyncInterval.js**: Shared interval runner for the REST providers — exponential backoff (2min → 4min → 8min → cap 30min on consecutive failures, reset on success) and 30s focus-sync throttle
-- **oauthLoopbackFlow.js**: Shared PKCE auth-code flow over an ephemeral 127.0.0.1 server, used by both calendar OAuth helpers
-- Events from all providers land in the shared `calendar_events` table with a `provider` column; queries suppress the Apple copy of a meeting when a REST row occupies the same time slot + title (Calendar.app mirrors the same accounts); all-day rows pair by local start and end days + title, since REST stores plain dates and the Apple helper local instants
-- The note header's date/attendees dropdown (`NoteParticipants.tsx` + `NoteEventPicker.tsx`) links a note to a stored event (`getLinkableCalendarEvents`, local only): linking merges the event's guests into `participants` in the same write, leaving out rooms and declined guests and leaving attendees already on the note as they are, and tags the ones it adds `addedByEvent: <event id>` (meeting detection tags the attendees it copies onto new notes the same way, via `eventAttendees.js`); the user's own `self` row (every calendar sync stores `self` as the user, Google's shared calendars included) is kept whatever they answered and never tagged, since they recorded the note whichever event it links. Removing or switching the event drops exactly the tagged ones, and speaker counts skip `resource` attendees; Join only opens the link; `web_link` (Google `htmlLink`, Outlook `webLink`, none for Apple) backs "Open in calendar". An unlink is stored as `calendar_event_id = ""`, never NULL (`updateNote` converts an explicit NULL on a linked note), because the cloud and `upsertNoteFromCloud` COALESCE a NULL as "unchanged"
 - **menuManager.js**: Application menu management
 - **toneAppCategories.js**: Tone & Style's app classifier (pure, `test/helpers/toneAppCategories.test.js`): an app identity, window title and page host map to `personal`, `work`, `email` or `other` (see Tone & Style)
 - **tray.js**: System tray icon and menu
-- **whisper.js**: Local whisper.cpp integration and model management
-- **parakeet.js**: NVIDIA Parakeet model management via sherpa-onnx
-- **parakeetServer.js**: sherpa-onnx CLI wrapper for transcription
-- **qdrantManager.js**: Qdrant vector DB sidecar process lifecycle (spawn, health check, shutdown)
-- **semanticSearchLifecycle.js**: Single owner of the semantic search resources — starts Qdrant and the embedding model on demand, drains the SQLite change journal, and releases both after 5 minutes idle
-- **localEmbeddings.js**: Local text embedding via ONNX Runtime + all-MiniLM-L6-v2 (384-dim vectors)
-- **vectorIndex.js**: Qdrant collection management — upsert, delete, search
 - **windowConfig.js**: Centralized window configuration
 - **plasmaWorkAreas.js**: Per-monitor work areas on KDE Plasma. On X11 and XWayland, Chromium clips only the primary display with the single root `_NET_WORKAREA`, which KWin builds from every monitor's panels at once (#1110). This asks plasmashell over D-Bus (`evaluateScript`) for each screen's always-visible panels and rebuilds each display's `workArea` for the dictation pill, its companion windows and dragging. On X11, Qt reports a screen's origin in device pixels and only its size scaled, so those origins are divided by the display scale before matching. It refreshes on display events and each time a dictation shows the pill, retrying after 1, 5 and 15 s when plasmashell isn't ready; a display event starts those retries over. An auto-placed pill re-anchors when the result changes; a dragged one stays put. With a single display, or outside Linux + KDE, Chromium's work area is used as is
 - **windowManager.js**: Window creation and lifecycle management
-- **cliBridge.js**: Loopback HTTP server on ports 8200–8219, bearer-token auth (token at `~/.only-whispers/cli-bridge.json`), 127.0.0.1-only. Used by the unified CLI to talk to a running desktop app. `POST /v1/transcribe` takes a file **path** (never audio) and runs the user's downloaded local model through `IPCHandlers.transcribeLocalFile`, approving the path with `approveAudioPath` first; `GET /v1/transcribe/models` lists local models with download state and the app's default (`localTranscriptionModels.js`, read from the `.env` pre-warm values).
 - **connectors/emailCompose.js**: Builds Gmail, Outlook and mailto compose links (shared ESM, used by the email draft target)
-- **postMigrationDetector.js**: Detects users returning from the pre-Gizmo bundle ID via a `.bundle-migrated` sentinel in userData; consumed by `ipcHandlers.js` to drive the `PostMigrationOnboarding` modal
-- **permissionGuideManager.js**: macOS onboarding permission overlay — a frameless always-on-top window anchored to the bottom of the System Settings window (placement in `permissionGuidePlacement.js`, pure), polled one read at a time via `settingsWindowState.js` (exec of `macos-window-bounds`). Steps aside for authorization prompts, other apps and a dialog on another Space; closes when the dialog closes; never subscribes to the control panel's `hide` (occlusion fires it), so `hideControlPanelToTray()` closes it explicitly. Renderer side: `permissionGuideController.ts` (pure state machine, unit-tested) + `usePermissionGuide.ts`
-- **templatePrompts.js**: Pure compiler from a note template or action to the system prompt the model receives (see Note Templates and Actions). Shared by `actionProcessingStore.ts`, the note chat, and the live canary's note probe
+- **permissionGuideManager.js**: macOS onboarding permission overlay — a frameless always-on-top window anchored to the bottom of the System Settings window (placement in `permissionGuidePlacement.js`, pure), polled one read at a time via `settingsWindowState.js` (exec of `macos-window-bounds`). Steps aside for authorization prompts, other apps and a dialog on another Space; closes when the dialog closes; never subscribes to the control panel's `hide` (occlusion fires it), so `hideControlPanelToTray()` closes it explicitly
 
 ### React Components (src/components/)
 
-- **App.jsx**: Main dictation interface with recording states
-- **ControlPanel.tsx**: Settings, history, model management UI
-- **OnboardingFlow.tsx**: First-time setup wizard over a versioned, route-based step machine (`src/components/onboarding/flow.ts`; session persisted in `onboardingSessionV2`). Routes vary by auth path (account vs guest), policy (agent allowed), and setup mode (cloud / BYOK / local / enterprise); step components live in `src/components/onboarding/`
-- **PostMigrationOnboarding.tsx**: One-time modal for users returning from the pre-Gizmo bundle ID; reuses `PermissionsSection` to walk through re-granting Microphone, Accessibility, and System Audio. Triggered by `postMigrationDetector.js` (see Helper Modules)
-- **SettingsPage.tsx**: Comprehensive settings interface
-- **WhisperModelPicker.tsx**: Model selection and download UI
-- **ConnectorsSection.tsx**: Integrations → Connectors: the "Draft emails in" picker (Automatic shows what it resolved to; Send from chat (Gmail) says to connect Gmail until it can send, and the card's description follows where drafts actually go), a paid-plan upsell, "turned off by your organization" for a resolved org block and "not available right now" while the policy is loading, failed or requires a newer app
+- **App.jsx**: Dictation pill window with recording states
+- **ControlPanel.tsx**: Main window: Home (history with Retry and Upload), Dictionary, Logs and Settings
+- **AppSetup.tsx**: First-run setup: the Mistral API key and ChatGPT sign-in
+- **SettingsPage.tsx**: Settings interface
+- **HistoryView.tsx**, **DictionaryView.tsx**, **SnippetsView.tsx**, **LogsView.tsx**: Control panel views
+- **LocalModelPicker.tsx**: Local model download and selection
+- **ChatGPTSignIn.tsx**: ChatGPT sign-in button and state
+- **dictation/**: The pill (`VoicePill.tsx`), the assistant panel and the live transcript panel
 - **ui/**: Reusable UI components (buttons, cards, inputs, etc.)
-- **ui/RichTextEditor.tsx**: Tiptap note editor. Note bodies (`content`, `enhanced_content`) are stored as Markdown via tiptap-markdown (`html: false`). NoteBottomBar publishes its height in `--bottom-overlay-height`; the editor reads it for its bottom scroll margin and threshold, its bottom padding and the line menu's flip padding, so the caret and the menu stay clear of the bar
-  - `RichTextEditorExtensions.ts` holds the extension list (`RichTextEditor` adds the mention extension in front of it); order matters: at equal priority, later extensions' keymaps and clipboard props run first
-  - `RichTextEditorTable.ts` keeps every table to what a GFM pipe table can store: header first row, one single-line paragraph per cell, no merged cells, no alignment or column widths. Pasted cells are flattened while parsing, a normalizer fixes what commands and pastes leave behind, and the table serializer escapes `|` in cells. Tests: `test/components/richTextEditor.test.js` (happy-dom)
-  - Floating menus: `RichTextEditorFormatMenu.tsx` shows one formatting toolbar (marks, text style, lists, quote, insert table) above selected text (Tiptap `BubbleMenu`) and below the caret on an empty top-level line, flipping above when there's no room (`FloatingMenu`); `RichTextEditorTableMenu.tsx` is the table's `⋯` menu. They share `RichTextEditorMenus.ts`: a menu hides when focus leaves it, so dropdowns portal into the menu element itself, never into the editor's scroller (EditorContent moves the scroller's children when a note closes); `useHideOnFocusLeave` hides a menu when focus leaves from inside it or after a click on it, which Tiptap misses. The menus detach their element without unmounting it, so buttons use a native `title` rather than `<Tooltip>`, and a dropdown inside a menu is controlled and closed from the menu's `onHide` — otherwise it stays open over a scroll-locked page when the menu hides. Keep menu props stable, or each render dispatches an `updateOptions` transaction. The line menu is placed again in the frame after a transaction that scrolled the caret into view, since ProseMirror scrolls after the menu measured
 
 ### React Hooks (src/hooks/)
 
@@ -225,93 +183,30 @@ only-whispers is an Electron-based desktop dictation application that uses whisp
   - `openSoundInputSettings()`: Opens OS sound input device settings
   - `openAccessibilitySettings()`: Opens OS accessibility settings (macOS only)
 - **useSettings.ts**: Application settings management
-- **useWhisper.ts**: Whisper binary availability check
 
 ### Services
 
 - **ReasoningService.ts**: AI processing for agent-addressed commands
   - Detects when user addresses their named agent and removes the agent name from final output
   - Provider implementations live in a registry at `src/services/ai/inferenceProviders/index.ts` covering 9 providers (`anthropic`, `corti`, `enterprise`, `gemini`, `groq`, `lan`, `local`, `openai`, `tinfoil`), each implementing the `InferenceProvider` interface from `types.ts`
-  - Per-scope LLM config: 4 scopes (`dictationCleanup`, `dictationAgent`, `noteFormatting`, `chatIntelligence`) defined in `src/config/inferenceScopes.ts`
+  - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `noteFormatting`, `chatIntelligence`)
   - `selectResolvedLLMConfig(state, scope)` in `settingsStore.ts` resolves provider/model per scope with fallback chains
+- **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). Any failure falls back to Mistral `ministral-8b-latest`, so dictation never stops
 
-### whisper.cpp Integration
+### Speech-to-Text (Mistral)
 
-- **whisper.js**: Native binary wrapper for local transcription
-  - Bundled binaries in `resources/bin/whisper-cpp-{platform}-{arch}`
-  - Falls back to system installation (`brew install whisper-cpp`)
-  - GGML model downloads from HuggingFace
-  - Models stored in `~/.cache/only-whispers/whisper-models/`
-
-### NVIDIA Parakeet Integration (via sherpa-onnx)
-
-- **parakeet.js**: Model management for NVIDIA Parakeet ASR models
-  - Uses sherpa-onnx runtime for cross-platform ONNX inference
-  - Bundled binaries in `resources/bin/sherpa-onnx-{platform}-{arch}`
-  - Windows: the bundled ONNX Runtime ships as `ow-onnxrt.dll`, not `onnxruntime.dll`. `scripts/download-sherpa-onnx.js` renames it and rewrites the import tables of every sherpa image (`scripts/lib/pe-imports.js`) because Windows 11 ships an older `onnxruntime.dll` in System32 and some loader configurations resolve the bare name to that copy (#2054). `afterPack.js` fails the Windows build if `onnxruntime.dll` is present or `ow-onnxrt.dll` is missing
-  - Uses the upstream `-no-tts` archives and bundles only the three executables plus ONNX Runtime. The TTS builds statically link espeak-ng (GPL-3.0) into `sherpa-onnx-c-api`, and nothing in the app loads the sherpa C/C++ API libraries, so they are not shipped
-  - INT8 quantized models for efficient CPU inference
-  - Models stored in `~/.cache/only-whispers/parakeet-models/`
-  - Server pre-warming on startup when `LOCAL_TRANSCRIPTION_PROVIDER=nvidia` is set
-  - Provider preference persisted to `.env` via `saveAllKeysToEnvFile()` on server start/stop
-
-- **Available Models**:
-  - `parakeet-tdt-0.6b-v3`: Multilingual (25 languages), ~680MB
-  - `parakeet-unified-en-0.6b`: English-only, ~631MB, state-of-the-art EN accuracy (5.91% avg WER on Open ASR Leaderboard)
-  - `nemotron-speech-streaming-en-0.6b`: English-only, ~632MB, cache-aware streaming FastConformer (`"runtime": "online"` in the registry)
-  - `nemotron-3.5-asr-streaming-0.6b`: Multilingual (15 transcription-ready languages, auto detection), ~650MB, cache-aware streaming FastConformer (`"runtime": "online"`)
-  - `cohere-transcribe-03-2026`: Multilingual (14 languages, NO auto detection — one language per server start), ~1.7GB download / ~2.7GB on disk, Conformer encoder-decoder (`"modelType": "cohere-transcribe"`), most accurate local model (5.42% avg WER). Exposed as the `"cohere"` local provider in settings/UI but served by the same ParakeetManager/sherpa-onnx offline WS server; the dictation language is part of the server identity, so changing it restarts the server. Segments long audio at 30s (model max ~35s)
-
-- **Runtimes**: Models are `offline` (default) or `online` per their registry `runtime` field. Offline models use the bundled `sherpa-onnx-ws-{platform}-{arch}` (offline websocket server); online models use `sherpa-onnx-online-ws-{platform}-{arch}` (online websocket server). Both are downloaded by `scripts/download-sherpa-onnx.js`. Partial/final JSON results are merged by `parakeetWsResult.js`.
-
-- **Streaming Commit (online models)**: For online-runtime models, dictation streams worklet PCM to a persistent websocket stream during capture (regardless of the preview toggle) and commits the flushed text at stop as the final transcript — no second decode of the recording. The stop flush is truncation-aware (`finish()` extends its deadline while results keep arriving and flags `truncated`); anything but a clean flush falls back to the record-then-transcribe path (`transcribe-local-parakeet`), which for online models decodes the whole recording over a single stream (no 15s segmentation; segments only bound memory for very long files).
-
-- **Live Transcription Preview**: When the preview toggle is on and an online-runtime model is selected, the preview shares the streaming-commit websocket: partial results update the preview window live (replacing text via `showTranscriptionPreview`). Offline models keep the 1.5s buffered-chunk path (appending via `appendTranscriptionPreview`). If the stream can't start or dies mid-dictation, the preview falls back to the chunked path and the final transcript falls back to the full decode. Tests: `test/helpers/parakeetOnlineStream.test.js` (mock websocket server).
-
-- **Download URLs**: Models from sherpa-onnx ASR models release on GitHub
-
-### Local Semantic Search (Qdrant + MiniLM)
-
-Offline semantic search that finds notes by meaning, not just keywords. Used by the AI agent's `search_notes` tool. Its resources are lazy (#2143): Qdrant and the embedding model start on the first semantic search (or the first vector write while the index is active), the embedding model downloads on that first activation if missing, and everything is released after 5 minutes idle. While asleep, keyword FTS5 serves searches and note changes are journaled in SQLite.
-
-**Architecture**:
-
-- **Qdrant sidecar**: Rust binary spawned as child process (`qdrantManager.js`), port 6333–6350
-- **Embedding model**: `all-MiniLM-L6-v2` via ONNX Runtime (`localEmbeddings.js`), 384-dim vectors
-- **Vector index**: Qdrant collection management (`vectorIndex.js`), cosine distance
-- **Lifecycle owner**: `semanticSearchLifecycle.js` — the only caller that starts or stops Qdrant, the embedding model and the collection
-- **Hybrid search**: FTS5 + Qdrant in parallel → Reciprocal Rank Fusion (K=60) with 0.3 cosine score threshold
-
-**Pipeline**:
-
-1. App launches → nothing starts. The first `db-semantic-search-notes` call activates the lifecycle: embedding model downloaded if missing (~22MB) → Qdrant binary starts → collection ensured → the journal is drained. A cold search does not wait: it answers with FTS5 results while activation runs in the background. An existing collection serves searches while the journal drains; a newly created one waits until that activation's drain finishes. A journal row whose upsert keeps failing is parked after three failed attempts, so one bad note never blocks the rest of the index
-2. Note create/update/delete → SQLite write → triggers journal the note id in `pending_vector_changes` → `IPCHandlers.notifyVectorChanges()` wakes an already-active index to drain the journal; an idle index drains it on its next activation
-3. Agent searches → `db-semantic-search-notes` IPC → parallel FTS5 + vector search → RRF merge → ranked results
-4. 5 minutes without a search or write → Qdrant is stopped and the embedding session released; FTS5 keeps serving
-
-**Search fallback chain** (in `searchNotesTool.ts`): cloud search → local semantic → FTS5 keyword
-
-**Storage**:
-
-- Qdrant data: `~/.cache/only-whispers/qdrant-data/` (`qdrant-data-dev/` in development)
-- Qdrant binary: `resources/bin/qdrant-{platform}-{arch}` (bundled — downloaded during `prebuild` / `predev:main`)
-- Embedding model: `~/.cache/only-whispers/embedding-models/all-MiniLM-L6-v2/` (downloaded on the first semantic search)
-- Change journal: `pending_vector_changes` table in the notes SQLite database, maintained by triggers
-
-**Dependencies**: `@qdrant/js-client-rest`, `onnxruntime-node`
-
-**Dev setup**: The Qdrant binary downloads automatically via `predev`/`prestart`. The embedding model downloads on the first semantic search. To manually download: `npm run download:qdrant` and `npm run download:embedding-model`.
+- Mistral Voxtral is the only speech-to-text provider (`transcriptionRoute.ts`). Any `voxtral-*` model can be set; the default is `voxtral-mini-transcribe-3-0`
+- The key is `MISTRAL_API_KEY`, entered on the setup screen or in Settings, and stored encrypted like the other secrets
+- Upload refuses files over 25 MB (Mistral's limit)
 
 ### Build Scripts (scripts/)
 
-- **download-whisper-cpp.js**: Downloads whisper.cpp binaries from GitHub releases
 - **download-llama-server.js**: Downloads llama.cpp server for local LLM inference
 - **download-nircmd.js**: Downloads nircmd.exe for Windows clipboard operations
 - **download-windows-key-listener.js**: Downloads prebuilt Windows key listener binary
 - **download-windows-mic-listener.js**: Downloads prebuilt Windows mic listener binary
-- **download-sherpa-onnx.js**: Downloads sherpa-onnx binaries for Parakeet support
-- **download-qdrant.js**: Downloads Qdrant vector DB binary for local semantic search
-- **download-minilm.js**: Downloads all-MiniLM-L6-v2 ONNX model + tokenizer for local embeddings
+- **download-windows-fast-paste.js**, **download-text-monitor.js**: Download the prebuilt Windows paste helper and the text monitors. All prebuilt helpers come from the `raythurnvoid/only-whispers` GitHub releases
+- **release-win.js**: Builds the Windows installer and publishes the GitHub release
 - **sync-nucleo-icons.js**: Regenerates `src/components/icons/` from `nucleo-map.json` using the local Nucleo install (`~/.nucleo/skills`); only the icons the app uses are vendored
 - **build-globe-listener.js**: Compiles macOS Globe key listener from Swift source
 - **build-macos-mic-listener.js**: Compiles macOS mic listener from Swift source
@@ -341,25 +236,10 @@ FFmpeg is bundled with the app and doesn't require system installation:
 2. Audio chunks collected in array
 3. User presses hotkey again → Recording stops
 4. Blob created from chunks → Converted to ArrayBuffer
-5. Sent via IPC
-6. Main process writes to temporary file
-7. whisper.cpp processes file → Result sent back
-8. Temporary file deleted
+5. The audio goes to Mistral for speech-to-text
+6. The text is cleaned up by the cleanup model (see Services), then pasted into the focused app
 
-For offline local engines (whisper.cpp, Parakeet/Orukeet, Cohere) the renderer also keeps a 16 kHz mono PCM copy of the same stream from the moment the mic opens (`pcmTap.js`, pre-roll included, capped at 4 minutes) and sends that WAV instead of the WebM, so no FFmpeg decode runs after stop; the WebM still goes to history and remains the fallback for cloud providers and long recordings.
-
-### 3. Local Whisper Models (GGML format)
-
-Models stored in `~/.cache/only-whispers/whisper-models/`:
-
-- tiny: ~75MB (fastest, lowest quality)
-- base: ~142MB (recommended balance)
-- small: ~466MB (better quality)
-- medium: ~1.5GB (high quality)
-- large: ~3GB (best quality)
-- turbo: ~1.6GB (fast with good quality)
-
-### 4. Database Schema
+### 3. Database Schema
 
 ```sql
 CREATE TABLE transcriptions (
@@ -374,12 +254,10 @@ CREATE TABLE transcriptions (
 );
 ```
 
-### 5. Settings Storage
+### 4. Settings Storage
 
 Settings stored in localStorage with these keys:
 
-- `whisperModel`: Selected Whisper model
-- `useLocalWhisper`: Boolean for local vs cloud
 - `language`: Selected language code
 - `agentName`: User's custom agent name
 - `reasoningModel`: Selected AI model for processing
@@ -389,70 +267,31 @@ Settings stored in localStorage with these keys:
 - `customDictionary`: JSON array of words/phrases for improved transcription accuracy
 - `keepLocalModelLoaded`: Keeps the shared llama-server loaded instead of unloading it after 5 idle minutes (#1207; default off). Synced to main with `sync-startup-preferences`, outside its policy gate; `LlamaServerManager.setKeepResident` acts only on a change, since every window resyncs on load
 - `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on (the setup dialog's Finish, or Settings' Tones & voices switch) and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`)
-- `emailDraftTarget`: Where email drafts open (`auto`, `gmail`, `gmailSend`, `outlookWork`, `outlookPersonal`, `mailto`); `gmailSend` sends through the Gmail connector's approval card ("Send from chat (Gmail)"); an unknown value reads as `auto`
+- `emailDraftTarget`: Where email drafts open (`auto`, `gmail`, `gmailSend`, `outlookWork`, `outlookPersonal`, `mailto`); an unknown value reads as `auto`
 
-Secret env vars (12 total: 7 BYOK API keys + 5 enterprise cloud creds — see `SECRET_KEYS` in `environment.js`) are encrypted at rest via Electron `safeStorage` and stored as per-key files under `userData/secure-keys/`. They are loaded into `process.env` at startup by `EnvironmentManager.init()`. Renderer reads them via IPC (`get-*-key`) and writes via debounced IPC (`save-*-key`). On Linux without a keyring, secrets fall back to plaintext.
+Secret keys (the BYOK API keys in `src/config/secretKeys.js` plus the enterprise cloud creds, see `SECRET_KEYS` in `environment.js`) are encrypted at rest via Electron `safeStorage` (`secretCrypto.js`) and stored as per-key files under `userData/secure-keys/`. They are loaded into `process.env` at startup by `EnvironmentManager.init()`. Renderer reads them via IPC (`get-*-key`) and writes via debounced IPC (`save-*-key`). On Linux without a keyring, secrets fall back to plaintext.
 
-Non-secret env vars persisted to `.env` (via `saveAllKeysToEnvFile()`):
-
-- `LOCAL_TRANSCRIPTION_PROVIDER`: Transcription engine (`nvidia` for Parakeet)
-- `PARAKEET_MODEL`: Selected Parakeet model name (e.g., `parakeet-tdt-0.6b-v3`)
-
-### 6. Language Support
+### 5. Language Support
 
 60 languages supported, defined in `src/config/languageRegistry.json` and read through
 `src/utils/languageSupport.ts`:
 
-- Each entry has a two-letter code, label, flag, and per-engine support flags
-  (`whisper`, `parakeet`, `assemblyai`) — 59 Whisper, 26 Parakeet, 7 AssemblyAI
+- Each entry has a two-letter code, label and flag
 - "auto" is a 61st entry for automatic detection
-- Passed to whisper.cpp via -l parameter
 
-### 7. Agent Naming System
+### 6. Agent Naming System
 
-- User names their agent during onboarding (step 6/8)
+- User names their agent in Settings (`DictationAgentSettings.tsx`)
 - Name stored in localStorage and database
 - ReasoningService detects "Hey [AgentName]" patterns
 - Standalone wake-word commands stream into the assistant panel (the address is stripped first, `stripAgentAddress`); a highlighted selection is edited in place by the dictation agent
-- Supports multiple AI providers (all models defined in `src/models/modelRegistryData.json`):
-  - **OpenAI** (Responses API):
-    - GPT-6 Astra (`gpt-6-astra`) - Most capable OpenAI model for coding, computer use, and research, 1M context
-    - GPT-5.6 Series (`gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) - Flagship, balanced, and fastest tiers
-    - GPT-5.5 (`gpt-5.5`) - Frontier model for complex reasoning, 1M context
-    - GPT-5.2 (`gpt-5.2`) - Strong reasoning model
-    - GPT-5 Mini (`gpt-5-mini`) - Fast and cost-efficient
-    - GPT-5 Nano (`gpt-5-nano`) - Ultra-fast, low latency
-    - GPT-4.1 Series (`gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`) - Strong baseline with 1M context
-    - GPT-5 and newer reject `temperature`, so their registry entries carry `supportsTemperature: false`
-  - **Anthropic** (Via IPC bridge to avoid CORS):
-    - Claude Fable 5.1 (`claude-fable-5-1`) - Most capable Claude model, Mythos-class, 1M context
-    - Claude Fable 5 (`claude-fable-5`) - Previous Mythos-class flagship, 1M context
-    - Claude Opus 5.5 (`claude-opus-5-5`) - Latest Opus model for complex reasoning, 1M context
-    - Claude Sonnet 5.5 (`claude-sonnet-5-5`) - Latest Sonnet: fast and capable for everyday work, 1M context
-    - Claude Haiku 5.5 (`claude-haiku-5-5`) - Fastest, lowest-cost Claude model, 1M context
-    - Claude Sonnet 5 (`claude-sonnet-5`) - Fast, capable agentic model at lower cost
-    - Claude Sonnet 4.6 (`claude-sonnet-4-6`) - Balanced performance
-    - Claude Haiku 4.5 (`claude-haiku-4-5`) - Fast with near-frontier intelligence
-    - Claude Opus 5 (`claude-opus-5`) - Previous Opus flagship, 1M context
-    - Claude Opus 4.8 (`claude-opus-4-8`) - Powerful Opus model tuned for honesty and reliability, 1M context
-    - Claude Opus 4.7 (`claude-opus-4-7`) - Powerful Opus model, 1M context
-    - Claude Opus 4.6 (`claude-opus-4-6`) - Previous Opus generation, 1M context
-    - Claude Sonnet 4.5 (`claude-sonnet-4-5`) - Previous Sonnet generation
-    - Claude Opus 4.5 (`claude-opus-4-5`) - Earlier Opus model
-    - Models from Opus 4.7 onward (including the 5.5 generation) reject `temperature` (`supportsTemperature: false`); the Anthropic IPC bridge sends no thinking parameters, so no Anthropic entry carries `supportsThinking`
-  - **Google Gemini** (Direct API integration):
-    - Gemini 3.5 Flash (`gemini-3.5-flash`) - Latest fast, high-capability Gemini model
-    - Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) - Fastest, most cost-effective 3.5 model
-    - Gemini 3.1 Pro (`gemini-3.1-pro-preview`) - Most capable Gemini model
-    - Gemini 3.1 Flash Lite (`gemini-3.1-flash-lite`) - Frontier-class performance at low cost. It thinks, and requests that aren't streamed pin it to `minimal` unless a reasoning effort is picked; it has no `supportsThinking` flag, so Settings shows the effort picker rather than the thinking toggle
-    - Gemini 3 Flash (`gemini-3-flash-preview`) - Ultra-fast, high-capability next-gen model
-    - Gemini 2.5 Flash Lite (`gemini-2.5-flash-lite`) - Lowest latency and cost (retired for new API keys; kept for existing ones)
-    - Gemma 4 (`gemma-4-31b-it`, `gemma-4-26b-a4b-it`) - Google's open Gemma 4 models served through the Gemini API
-  - **Local**: GGUF models via llama.cpp (Qwen, Llama, Mistral, GPT-OSS)
+- Supports many AI providers. Every model is listed in `src/models/modelRegistryData.json` (OpenAI, Anthropic, Gemini, Groq, Mistral, local GGUF models via llama.cpp, and more):
+  - GPT-5 and newer reject `temperature`, so their registry entries carry `supportsTemperature: false`
+  - Anthropic models from Opus 4.7 onward reject `temperature` too; the Anthropic IPC bridge sends no thinking parameters, so no Anthropic entry carries `supportsThinking`
 
-### 8. Model Registry Architecture
+### 7. Model Registry Architecture
 
-All desktop AI model definitions are centralized in `src/models/modelRegistryData.json` as the single source of truth. The mobile app keeps its own hand-updated copies (see below):
+All desktop AI model definitions are centralized in `src/models/modelRegistryData.json` as the single source of truth:
 
 ```json
 {
@@ -477,7 +316,7 @@ All desktop AI model definitions are centralized in `src/models/modelRegistryDat
 - Chat formatting comes from the GGUF's embedded template (llama-server runs with `--jinja`); the registry carries no prompt templates
 - Download URLs constructed as: `{baseUrl}/{hfRepo}/resolve/main/{fileName}`
 
-### 9. API Integrations and Updates
+### 8. API Integrations and Updates
 
 **OpenAI Responses API (September 2025)**:
 
@@ -501,13 +340,7 @@ All desktop AI model definitions are centralized in `src/models/modelRegistryDat
 - Proper handling of thinking process in responses
 - Error handling for MAX_TOKENS finish reason
 
-**API Key Persistence**:
-
-- All API keys now properly persist to `.env` file
-- Keys stored in environment variables and reloaded on app start
-- Centralized `saveAllKeysToEnvFile()` method ensures consistency
-
-### 10. System Settings Integration
+### 9. System Settings Integration
 
 The app can open OS-level settings for microphone permissions, sound input selection, and accessibility:
 
@@ -532,7 +365,7 @@ The app can open OS-level settings for microphone permissions, sound input selec
 - Linux only shows "Open Sound Settings" (no separate privacy settings)
 - macOS/Windows show both sound and privacy buttons
 
-### 11. Debug Mode
+### 10. Debug Mode
 
 Enable with `--log-level=debug` or `ONLY_WHISPERS_LOG_LEVEL=debug` (can be set in `.env`):
 
@@ -547,7 +380,7 @@ Packaged Windows builds keep logger output off stdout/stderr by default. Launch 
 Default INFO entries are not persisted in this mode; enabling debug logging retains them
 in the existing log file without enabling terminal output.
 
-### 12. Windows Push-to-Talk
+### 11. Windows Push-to-Talk
 
 Native Windows support for true push-to-talk functionality using low-level keyboard hooks:
 
@@ -581,31 +414,13 @@ Native Windows support for true push-to-talk functionality using low-level keybo
 - A locked recording the pill already stopped is dropped on the next press, which then starts a new push. A locked stop never reports `dictation-force-stopped`, since no keys are held
 - Main sends `dictation-push-locked` (true at the lock, false when it ends), and the pill draws a thin ring while a recording runs hands-free (locked, or Tap mode); a held recording keeps the plain pill (`handsFree` on `VoicePill`, styles in `dictation-panel.css`)
 
-### 13. Custom Dictionary
+### 12. Custom Dictionary
 
-Improve transcription accuracy for specific words, names, or technical terms:
+- User adds words in the Dictionary view; they are stored as a JSON array in localStorage (`customDictionary`)
+- Sent to Mistral as `context_bias` (`mistralRealtimeStreaming.js`) and added to the cleanup prompt (the dictionary suffix)
+- The voice assistant can change it with the `update_dictionary` tool
 
-**How it works**:
-
-- User adds words/phrases through Settings → Custom Dictionary
-- Words stored as JSON array in localStorage (`customDictionary` key)
-- On transcription, words are joined and passed as `prompt` parameter to Whisper
-- Works with both local whisper.cpp and cloud OpenAI Whisper API
-
-**Implementation**:
-
-- `src/hooks/useSettings.ts`: Manages `customDictionary` state
-- `src/components/SettingsPage.tsx`: UI for adding/removing dictionary words
-- `src/helpers/audioManager.js`: Reads dictionary and adds to transcription options
-- `src/helpers/whisperServer.js`: Includes dictionary as `prompt` in API request
-
-**Whisper Prompt Parameter**:
-
-- Whisper uses the prompt as context/hints for transcription
-- Words in the prompt are more likely to be recognized correctly
-- Useful for: uncommon names, technical jargon, brand names, domain-specific terms
-
-### 14. GNOME Wayland Global Hotkeys
+### 13. GNOME Wayland Global Hotkeys
 
 On GNOME Wayland, Electron's `globalShortcut` API doesn't work due to Wayland's security model. only-whispers uses native GNOME shortcuts:
 
@@ -636,7 +451,7 @@ On GNOME Wayland, Electron's `globalShortcut` API doesn't work due to Wayland's 
 - Backtick (`) → `grave` in GNOME keysym format
 - F13-F24 bind the keysym the active keymap gives that key (`xkbcomp -xkb $DISPLAY -`, xkb keys `<FK13>`-`<FK24>`), for gsettings and the Hold portal alike: stock xkeyboard-config sends `XF86Launch7` for F16 and has no `F16` keysym, so GNOME can't grab `F16` (#1716). A key with no keysym (`keysym_missing`, e.g. stock F19/F24) or one gsd-media-keys already binds (`keysym_reserved`, e.g. F13 → `XF86Tools` opens Settings) is refused with a message. An unreadable keymap keeps the F-key name
 
-### 15. Hyprland Wayland Global Hotkeys
+### 14. Hyprland Wayland Global Hotkeys
 
 On Hyprland (wlroots Wayland compositor), Electron's `globalShortcut` API and the `GlobalShortcutsPortal` feature don't work reliably. only-whispers uses native Hyprland keybindings:
 
@@ -670,58 +485,7 @@ On Hyprland (wlroots Wayland compositor), Electron's `globalShortcut` API and th
 - Push-to-talk not supported (Hyprland `bind` fires a single exec, not key-down/key-up)
 - Requires `hyprctl` on PATH (ships with Hyprland)
 
-### 16. Meeting Detection (Event-Driven)
-
-Detects meetings via three independent sources, orchestrated by `MeetingDetectionEngine`:
-
-**Architecture**:
-
-- `MeetingDetectionEngine` listens to events from `MeetingProcessDetector` and `AudioActivityDetector`
-- `CalendarReminderScheduler` provides calendar context (imminent events, active meetings) from the shared `calendar_events` table, fed by the Google/Microsoft/Apple calendar managers
-- All three sources feed into a unified notification pipeline
-
-**Process Detection** (known meeting apps — Zoom, Teams, Webex, FaceTime):
-
-- macOS: `systemPreferences.subscribeWorkspaceNotification` — zero CPU, instant detection
-- Windows/Linux: `processListCache` shared polling (30s interval, `ps-list` npm)
-- Context-only: a running meeting app never prompts by itself (FaceTime idles in the background). It corroborates unattributed macOS device activity (below) and drives the auto-end process-exit fast path
-
-**Microphone Detection** (unscheduled/browser meetings like Google Meet):
-
-- macOS: `macos-mic-listener` binary — CoreAudio process-object input monitoring, excluding the background `com.apple.CoreSpeech` service (it runs input during ordinary playback). `CAPABILITY PID` transitions prompt on their own. `CAPABILITY AGGREGATE` device activity (no process objects — roughly macOS < 14.2 — or a transient snapshot failure) includes playback on combined input/output devices, so it prompts only while a known meeting app is running; the helper retries PID monitoring every 30s from its heartbeat and the detector accepts the later `CAPABILITY PID`. Capability is logged at info level; `sustained-audio-detected` carries `attributed`
-- Windows: `windows-mic-listener.exe` — WASAPI `IAudioSessionManager2` session monitoring; self-mic exclusion happens in JavaScript using current only-whispers and capture-helper PIDs
-- Linux: `pactl subscribe` — PulseAudio source-output events. Production captures (`media.role=production`, e.g. OBS) and sink-monitor captures (`stream.capture.sink=true`) still hold the mic for auto-end but don't prompt; the unfiltered fallbacks (a failed or JSON-less `pactl` listing, a failed excluded-pid lookup while polling, `pw-cli`) can't tell them apart
-- Windows/Linux: Fall back to polling if the native binary/command is unavailable. macOS has no safe polling signal: a missing binary pauses audio prompts, a crashed listener is respawned with exponential backoff (5s → 60s), and meanwhile only calendar reminders prompt while auto-end uses its existing silence fallback
-
-**Calendar Reminders** (scheduled meetings):
-
-- `CalendarReminderScheduler` fires `meetingDetectionEngine.handleCalendarReminder(event)` 1 minute before the scheduled start (`MEETING_REMINDER_LEAD_MS`) — no native OS notifications; all meeting prompts use the in-app overlay so they survive Focus/DND and screen-share notification muting
-- Calendar-sourced prompts show a Join primary action when the event has a meeting link (`getMeetingJoinUrl` in `src/helpers/meetingJoinUrl.js`, shared with the renderer's Upcoming Meetings join button) — Join opens the link and starts the note
-
-**UX Rules**:
-
-- All prompts render in one always-on-top overlay window (`MeetingNotificationCard`), content-protected so it never appears in screen shares
-- Prompt copy is derived in the renderer from `{ variant, event, joinUrl }` (`meetingNotification.*` i18n keys); variants: `detected` (mic evidence), `starting` (calendar event not yet started), `underway` (event in progress)
-- Per-source notification prefs: `notifyCalendarReminders` gates calendar prompts, `notifyMeetingDetection` gates mic/process prompts and, with `notificationsEnabled`, whether the mic and process detectors run at all (`meetingProcessDetection` additionally gates the process detector); nothing runs until the renderer has synced the saved snapshot
-- During recording (tap-to-talk or push-to-talk): ALL notifications suppressed
-- After recording: 2.5s cooldown before showing queued notifications
-- Multiple signals coalesced: one overlay at a time; a newer prompt replaces the current one
-- Calendar-aware: if an ongoing or imminent calendar event exists, the prompt shows the event name and links the note to the event
-- Active meeting recording (meeting mode): all detections suppressed
-
-**Binary Distribution**:
-
-- macOS: Compiled from Swift source via `scripts/build-macos-mic-listener.js` during `compile:native`
-- Windows: Prebuilt binary downloaded via `scripts/download-windows-mic-listener.js` during `prebuild:win`
-- CI workflow: `.github/workflows/build-windows-mic-listener.yml` auto-builds on push to main
-
-**Calendar Sync Resilience**:
-
-- 10s socket timeout on all Google Calendar API requests
-- Exponential backoff on consecutive failures: 2min → 4min → 8min → cap 30min
-- Reset to normal 2min interval on any successful sync
-
-### 17. Voice Assistant Hotkey
+### 15. Voice Assistant Hotkey
 
 A dedicated global hotkey that starts a dictation whose transcript is sent straight to the voice assistant as a command — no wake word ("Hey [AgentName]") needed — and that always bypasses the cleanup model. With auto-paste enabled, a caret verified as writable at capture time (an opaque `caret` session in `selectionManager.js`, revalidated before pasting) receives the completed answer and the pill returns to idle. A dormant macOS accessibility tree reports "unknown": synthetic copy can still recover selected text, but cannot establish a safe caret destination. Unknown targets therefore stay on the panel route, since they can also be integrated terminals, pages without inputs, or fields with selections hidden by clipboard capture. A verified caret whose accessibility becomes unknown before delivery falls back the same way. Terminal and secure-field checks still apply to verified targets. On Linux the caret is verified by `linux-text-monitor --probe-editable <pid>`, which answers only for the focused field in that process's active window; the pid comes from the target (its AT-SPI pid, `xdotool`/`kdotool getwindowpid`, or `hyprctl activewindow`), and a target whose pid can't be read stays on the panel route. Otherwise the answer streams into a floating assistant panel attached to the dictation pill (there is no separate assistant window) and, with auto-paste enabled, is also copied to the clipboard for manual paste (the Copy button confirms for six seconds). The pill window is content-protected while the panel is open (the panel never appears in screen shares).
 
@@ -730,10 +494,9 @@ A dedicated global hotkey that starts a dictation whose transcript is sent strai
 1. Hotkey pressed → `voiceAgent` slot callback in `main.js` → `windowManager.sendToggleVoiceAgent()` → `toggle-voice-agent` IPC to the main window → recording capsule appears
 2. `useAudioRecording.js` starts a recording with `audioManager.setVoiceAgentRequested(true)` (any other start resets it to `false`)
 3. On transcription, `resolveReasoningRoute` consults `resolveDictationRouteKind()` (`src/helpers/dictationRouting.js`): a voice assistant recording always takes the agent route and never falls back to cleanup. The dictation agent's reachability only gates selection edits — a selection with the dictation agent unconfigured routes to the panel with the selected text quoted instead of editing in place
-4. Standalone commands (no text selected) run through the chat pipeline (`src/components/dictation/AssistantPanel.tsx`): chat tools (notes search/create/update, calendar, web search, clipboard, `get_snippet` — triggers listed in the tool description, body fetched on demand — and `update_dictionary` / `update_snippets`, which write through the settings store so the change syncs like a UI edit), RAG memory, and the custom dictionary plus snippet triggers injected into the system prompt. Conversations persist in the `agent_conversations` table and are browsable from the ControlPanel chat. The system prompt (`getAgentSystemPrompt`, appended after the user-editable base prompt, so it reaches custom prompts too) lists the offered tools grouped by capability, forbids claiming an ability a listed tool covers (web search is for public information the context doesn't already answer, never people the user knows), and names what is unavailable and how to enable it — for an unavailable connector the model still writes the email or message in its reply and ends with one line on how to have it sent (`resolveUnavailableCapabilities` in `src/config/agentCapabilities.ts`: signed out, org policy, paid plan, a Slack/Linear/GitHub connector not connected or needing a reconnect, no calendar, or a local model too small for tools; connectors are named only on surfaces that offer them, and the onboarding demo names nothing, `nameUnavailableCapabilities: false`). History (`toHistoryMessages` in `src/components/chat/historyMessages.ts`) prefixes earlier assistant turns with `[Tools used: …]`, showing only allowlisted search queries, contact names and note titles — never drafted content or results. A connector action adds its outcome from the saved result (`sent`, `draft opened`, `may have been sent`, `cancelled by the user`, `not sent`, `failed`, `unavailable`, `needed details`), and a sent one its reference and an `https` link (`github_create_issue (sent: o/r#12 https://…)`), so a follow-up turn ("it's #engineering", "retry") never redoes what already went out; destinations, card edits and error text stay out. A call cut off before its result reads "(outcome not recorded)", since a send can still commit after Esc. A reply that opens with such a note itself is shown, saved and delivered without it (`withoutEchoedToolTrace`)
+4. Standalone commands (no text selected) run through the chat pipeline (`src/components/dictation/AssistantPanel.tsx`) with the tools in `src/services/tools/`: `copy_to_clipboard`, `get_snippet` (triggers listed in the tool description, body fetched on demand), `update_dictionary` and `update_snippets` (these write through the settings store, like a UI edit). The custom dictionary and snippet triggers are added to the system prompt. Conversations persist in the `agent_conversations` table
 5. Response delivery: a capture with `status: "editable"` (a focused writable non-terminal field with no selection) plus auto-paste banks a `deliverySessionId`; the completed answer is pasted via `paste-at-captured-target`, which revalidates the target and fails closed to the panel + clipboard on any change (`assistantResponseDelivery.ts`, `pasteAtCapturedTarget` in `selectionManager.js`). A follow-up spoken while the panel is already open stays panel-first. Cancelled or empty responses never paste and never touch the clipboard
 6. Selection edits: highlighted text goes through the `dictationAgent` scope and is safely replaced in place. When the editor judges the command a question about the selection ("explain this") rather than a change, it answers `SELECTION_QUESTION_MARKER` (`selectionEditing.js`, both the cloud and local prompts) and the command goes to the panel with the selection quoted, leaving the selection untouched
-7. Connector tools (`email_draft`, `find_contact`, `slack_send_message`, the Linear tools, the GitHub tools; paid, policy-gated) run through `src/helpers/connectors`. Typed chat (`ChatView`), this panel and every note's chat (`useEmbeddedChat`) opt in (`allowConnectors`); container chat and the onboarding demo don't get them. Note chat also gets a "Meeting attendees" block: the note chat sends its meeting as one request (`NoteAttendeesRequest`: note id, parsed participants, calendar event id, the user's only-whispers address), and main adds the speakers identified in the note (speaker profiles with an address) and the linked calendar event's organizer (Outlook and Apple leave them out of the attendees), keeps only valid addresses, strips control and invisible format characters, angle brackets and their look-alikes, and address-like words from names, and filters with `find_contact`'s exclusions plus the user's only-whispers address and the Gmail login's address (`connector-note-attendees`, `createNoteAttendeesLookup`), organizer included. The block is fenced in `<meeting_attendees>` tags and marked as data, and is added only when connector tools are registered; the note's title and text and the `search_notes` and `get_note` results lose the tag name (`withoutAttendeesFence`), so an invite's title can't fake a second list. A participant flagged `self` also excludes that address when it comes back as an identified speaker or the organizer. A participant's `self` flag marks whoever recorded the meeting, so the renderer honours it only on the user's own note (`ownsNote`, `attendeesForUser`; unknown ownership counts as someone else's). The note chat passes its note as `openNote`, which `getAgentSystemPrompt` puts under its own rule: for questions about what was said, decided or written, answer from this note, and when it doesn't cover the question, say so and offer to search the user's other notes; `search_notes` runs only when the user asks to look beyond the note, and the answer names the note used. Unlike the other chats it runs no up-front library search (RAG): other notes reach it only through `search_notes` and `get_note`, so a model too small for tools answers from the open note alone. The open note carries its transcript whole, as `Speaker: text` lines labelled exactly as `get_note` labels them (`noteChatTranscript`: saved speaker names, `Note taker` for whoever recorded it, numbered in-person speakers; after a line saying whether the note taker is the user, named on their own note), unless the model has `get_note` and the transcript is longer than it takes (`FULL_TRANSCRIPT_MAX_TOKENS` in `transcriptEvidence.ts`, counted with `estimateNoteTokens` since CJK text is about a token per character: 64,000 hosted, 4,000 on a local or LAN model); then it carries the first 500 characters (`transcript_preview`) and a rule to read further with `get_note` before saying the note doesn't cover something. Whole-note actions (`requestText`) always get the whole transcript. `get_note` returns the start of the transcript beside the editable fields; `transcript_query` (literal and case-insensitive, speaker names included; the person taking the notes is `Note taker`) or a `transcript_offset` past 0 returns one 500-character passage with the times it spans, paging metadata (offset 0 is an ordinary read, since models fill in defaults) and a revision naming the text read so far, so a recording that keeps appending can still be paged. Both tool loops keep the two newest passages, and every passage of the latest step even when it read more in parallel (`compactTranscriptHistory`); a query that matched nothing is never compacted. Like `ChatView`, New chat and switching conversations cancel the running turn, so a pending card can't hold the send lock or save into another conversation. An approval card, any `email_draft` (its compose window takes focus), any `find_contact` (a lookup is almost always followed by a question for the user), and any `slack_send_message`, `linear_search_issues`, `linear_create_issue`, `linear_comment` or GitHub tool (holds on every outcome — a card, a question back, results or a receipt) hold the turn in the panel (`onHoldDelivery`) instead of pasting at the caret. A held answer is still auto-copied, except after an `email_draft` that reserved the clipboard for overflow text (`onHoldDelivery({ preserveClipboard: true })`, sticky for the turn) and on a caret turn whose delivery restores the clipboard (Keep Transcription in Clipboard off)
 
 **Storage & IPC**:
 
@@ -749,8 +512,7 @@ A dedicated global hotkey that starts a dictation whose transcript is sent strai
 **UI**:
 
 - Settings → Hotkeys → "Voice Assistant Hotkey" (with cross-slot conflict validation)
-- Onboarding: optional pair of steps (hotkey, then demo) after the Notes step, so the demo can suggest meeting times from a calendar connected there. The demo card is a mail thread; the reply is answered headlessly in the dictation window by `useOnboardingAssistantDemo` (the panel's streaming pipeline, tools and screenshot included) and streamed back over `onboarding-demo-event` as `processing` (transcript) → `replying` (partial reply, `tool` while one runs) → `success`
-- Panel conversations and in-place selection edits both run on the Voice Assistant scope (Settings → AI Models → Voice Assistant; `dictationAgent`/`dictationAgentVision`), resolved by `resolveChatStreamingInference`; the panel falls back to the `chatIntelligence` scope while the Voice Assistant scope is unreachable. Typed chat (Control Panel, note and container chat) stays on `chatIntelligence`
+- Panel conversations and in-place selection edits both run on the Voice Assistant scope (Settings → AI Models → Voice Assistant; `dictationAgent`/`dictationAgentVision`), resolved by `resolveChatStreamingInference`; the panel falls back to the `chatIntelligence` scope while the Voice Assistant scope is unreachable
 
 **Screen Context (opt-in)**:
 
@@ -765,36 +527,14 @@ When "Share screen context" is enabled (Settings → AI Models → Voice Assista
 
 **Tests**: `test/helpers/dictationRouting.test.js`, `test/helpers/screenContextCapture.test.js` (run with `node --test`)
 
-### 18. Meeting Transcription: Echo, Duplicate, and Segment Pipeline
+### 16. Tone & Style
 
-Live meeting transcription runs two streams (mic + system-audio tap) and must keep the remote party's voice, as heard through the local speakers, out of the mic transcript. The policy lives in pure, unit-tested seams so it can be tuned without touching the IPC plumbing:
-
-- **Audio layer**: `meetingEchoLeakDetector.js` correlates mic chunks against recent system audio; `meetingMicGate.js` turns chunk RMS/peak (+ a "system speaking" lookback) into a `send` / `zero` / `skip` verdict that `ipcHandlers.js` applies in `dispatchMeetingAudioBuffer` (streaming) and `transcribeLocalMeetingChunk` (local)
-- **Echo cancellation**: the WebRTC AEC3 helper (`meetingAecManager.js`, `native/meeting-aec-helper/`) replaces the mic channel only when Settings → Speech-to-Text → Note Recording → Echo cancellation for meetings is on (`meetingAecEnabled`, default off, sent as the `aecEnabled` start option). With headphones there is no echo, and AEC3 still cuts the user's own speech, worst in the first seconds (#1025)
-- **Text layer**: `meetingMicHoldback.js` decides whether a mic final is risky (held back), a duplicate of recent system text (dropped), or racing an arriving system final (retracted); the `ipcHandlers.js` adapters (`shouldSkipDuplicateMicSegment`, `hasRiskyMicDuplicateProfile`, `removeRacingMicEntriesFor`, `removePendingMicFinalsFor`) apply the results to closure state and emit `meeting-transcription-segment` events (`partial` / `final` / `retract`)
-- **Renderer**: `src/stores/meetingSegmentReducer.ts` is the pure `(state, event, deps) → reduction` transition for those events (timestamp-sorted insert, retract by exact match, per-source partial slots); `meetingRecordingStore.ts` supplies `mintSegmentId` / `decorateFinal` (speaker identifications, provisional speaker, locks — must not write to the store) and applies the reduction. Tests: `test/stores/meetingSegmentReducer.test.js`, `test/stores/meetingRecordingStoreImports.test.js`
-- **Regression pins**: BYOK `session.update` payload and the disconnect-commit callback (`test/helpers/openaiRealtimeStreaming.test.js`, `tinfoilRealtimeStreaming.test.js`), token-endpoint wire bodies (`test/helpers/realtimeTokenProviders.test.js`). Tests named `characterization: …` pin known oddities on purpose — flip them deliberately when changing policy
-- **Fixtures**: `test/helpers/harness/pcmFixtures.js` — deterministic 24 kHz PCM generators (`makeSine`, `makeSeededNoise`, `mix`, `delayBy`, `toInt16Buffer`, `chunkBuffer`, …) used by the gate and echo-detector tests
-
-### 19. Note Templates and Actions
-
-Rows in the `actions` table (built-ins seeded from `src/helpers/builtinActions.js`) are one of two kinds:
-
-- **Templates** (`kind: 'template'`) write a note's AI summary (`enhanced_content`) from its notes, meeting context, and transcript, never from the summary they replace. A template is a context (`prompt`) plus ordered `sections` (`{heading, instruction}`); `compileTemplatePrompt` wraps sections in the shared notes rules. A template without sections keeps the request it always had after the `SOURCE_FIDELITY_RULE` prefix (the generic system prompt, or the material preamble for a standalone key). The note records the template in `enhancement_template_id` (its `client_id`), which syncs with the note, and `enhancement_prompt` the compiled system prompt
-- **Actions** (`kind: 'action'`) work from the AI summary when the note has one, and from its notes and transcript otherwise (`buildNoteRunInput`). Only the built-in Make notes shorter (`shorten`) and Make notes longer (`lengthen`) actions edit that summary, selected by fixed built-in identity (`toActionItem`), never an editable name or stored `output`. A summary edit requires complete output, never splits into parts, and writes only `enhanced_content`; with no summary yet it writes one from the transcript and applies the action to it, run like a template (split into parts on a local model, the material hash recorded); every other built-in and custom action, including Write TL;DR (`addTldr`), runs in the note chat via `SendToAIOptions.requestText` (the chat shows a built-in's call to action where it has one, otherwise the action's name, and the preamble points the model at the summary or the transcript and has it answer in the chat as text in the note's language, using a tool to draft, send or post only when the action's instructions explicitly ask to send, post or file something, and leaving the note unchanged, with an asked-for edit written in the chat instead; its turn is never offered `update_note` (`keepNotesUnchanged`), so it can't change a note whatever the model decides; the note chat's other tools and attendee block otherwise apply as usual, and its transcript context names speakers only on notes known to be the user's own (`ownsNote`), never listing the unfiltered invitees)
-- **The material picks the wrapper** (`runNoteAction`): speaker segments make a meeting (`isMeetingNote`: `MEETING_SYSTEM_PROMPT` or `MEETING_INPUT_PREAMBLE`, the `## Meeting Context` block and `Speaker: text` lines); a transcript in plain text (a recording that captured no segments, one made before 1.6.6, or an upload's text when its provider returned no segments, which is saved as the note's content) is its own case (`hasPlainTranscript`: `PLAIN_TRANSCRIPT_SYSTEM_PROMPT` or `PLAIN_TRANSCRIPT_INPUT_PREAMBLE`, #2666), with no Meeting Context since nothing shows who is speaking, a part prompt without speaker labels when a local model splits it, and action items as `- [ ] Action — Owner` lines with an owner or deadline only when the transcript or the user's notes state it, never a placeholder, and never a table unless the instructions ask for one; no transcript is a personal note (`BASE_SYSTEM_PROMPT` or `NOTE_INPUT_PREAMBLE`). Both transcript cases get the custom dictionary, and their known people (the user, the invitees, and a meeting's named speakers) turn matching owners into mentions (`tagActionItemOwners`)
-- The default template is the built-in AI Summary (the Detailed Notes sections, stored under the old Generate Notes key `generateNotes`), listed first (launch re-applies the built-in order). Launch retires a stock Detailed Notes row (`LEGACY_DETAILED_NOTES`) unless AI Summary was customized; an edited one is kept and listed second, and saved template ids are never rewritten. Invariant: AI Summary, compiled from its sections, equals the flat 1.10.2 Detailed Notes prompt it replaced after the `SOURCE_FIDELITY_RULE` prefix used by templates and summary actions (`sourceFidelity.js`), but for the closing rule on material with nothing to summarize (`test/helpers/templatePrompts.test.js`); a built-in's `previousPrompts` only upgrades rows that are still flat. Chat actions get the rule once, from the chat system prompt (`getAgentSystemPrompt`), and the Cloud request leaves out the leading system message that repeats `systemPrompt`, which the API prepends itself
-- For material with nothing substantive (only greetings, filler or recording checks), sectioned templates, AI Summary and a summary action writing a first summary ask the model to answer `NOTHING_TO_SUMMARIZE`; custom context-only templates and flat built-ins edited before this rule keep their own rules. A reply that is the marker (bare, fenced, emphasised or after a short sentence) outside a thinking block writes nothing; a summary that merely contains it is saved, and the runner shows `notes.actions.errors.nothingToSummarize` as a neutral notice (`notice` on the error event) instead of saving a placeholder summary
-- UI: `TemplatePicker` opens from the chevron in the AI Summary tab, which names the note's template; the "Generate AI Summary" callout (runs the note's template, else the default), `ActionPicker` in the collapsed ask bar (runs the last action picked from it, in place of the send button), `ActionChips` once the in-view chat opens and in the docked chat (the first five actions in docked chat; the centered row omits Make notes longer without backfilling another chip; each has its action's icon, and All actions keeps every action; hovering a chip shows its icon, title and description without a destination badge; the in-view chat pins All actions at the end, and the docked chat shows them as filled pills in one tray with its composer: All actions, then the actions, scrolling together), a `/` menu in the note composers (`slashCommands` on `ChatInput`, each row with its action's icon, or a "/" for an icon this build doesn't know; it fills the chat above the composer until a command runs, the "/" is deleted, nothing matches or the composer loses focus), and `ActionManagerDialog` (Templates | Actions). The notes list and the docked chat widen or narrow from their edge facing the note (`useResizableWidth`, `PanelResizeHandle`), and keep their width across launches (localStorage `notesSidebarWidth`, `noteChatWidth`). Anything the ask bar sends (a message, or a chat action from the picker, a chip or the `/` menu) starts a new conversation in the docked chat, which holds the conversation and its history; the in-view chat is only the chips and the composer. Destinations are fixed and described in the editor; saving never asks a model to choose one. Legacy custom summary destinations read as chat (`toActionItem`), keeping the existing IPC fields, IDs and prompts. Summary generation stays in the AI Summary tab and callout. A run that writes the summary is undoable for 6 s instead of asking first: the runner queues the fields it overwrote (`appliedEvents`) and `BackgroundActionToastListener` shows the Undo toast
-
-### 20. Tone & Style
-
-Dictation cleanup writes in the tone the user picked for the kind of app they are dictating into: personal messages (formal, casual, very casual), work messages, email and everything else (formal, casual, excited). Off by default (cleanup keeps the speaker's own tone, the standard tone); turned on by finishing the setup dialog or the Tones & voices switch in Settings > Tone & Style. The assistant and chats also write drafts (messages, emails, replies, posts) in the tone of the kind of text the request is for. Translation keeps its source's tone.
+Dictation cleanup writes in the tone the user picked for the kind of app they are dictating into: personal messages (formal, casual, very casual), work messages, email and everything else (formal, casual, excited). Off by default (cleanup keeps the speaker's own tone); turned on by the Tones & voices switch in Settings > Tone & Style. The assistant also writes drafts in the tone of the kind of text the request is for. Translation keeps its source's tone.
 
 - **Detection** (main, at dictation start): `capture-dictation-app-category` reads the captured target through `selectionManager.getTargetAppContext()` and classifies it with `toneAppCategories.js`. macOS: `macos-text-monitor --app-context <pid>` prints the app name, bundle id, focused window title (accessibility, no Screen Recording needed) and, for a browser page, the URL host. Windows: `windows-fast-paste --detect-only` also prints `WINDOW_TITLE` (an older helper without it classifies by exe only). Linux: the window title is read on demand (`xdotool`/`kdotool getwindowname`) or taken from Hyprland's active window; an AT-SPI target's comes from `linux-fast-paste --atspi-target` (`WINDOW_TITLE_B64`, the active window's accessible name; an older helper prints none). Titles are kept beside the captured target (`_targetTitles`), never on it, since capture results reach the renderer. A browser (and a Windows UWP frame) is judged by its page or app title (its host, else the site name the title ends with; on a host not listed, only a site name the host carries, so a Notion page titled "Hey" stays `other`); native apps by whole-token app identity. Titles and hosts never leave the main process or reach the logs; only the category does
-- **Cleanup**: `useAudioRecording` starts `audioManager.beginToneStyleCapture()` for every non-translation recording while Tone & Style is on; the cleanup route's `consumeToneStyle()` (1.5 s guard, unknown app reads as `other`) puts `toneStyle` on the reasoning config. Cloud cleanup sends `tone` + `appCategory` on `/api/reason`, and in the combined Orukeet cleanup's `pipelineOptions`: its prompt is fixed when the session is minted, so `startStreamingRecording` waits for the classification until 250 ms after the capture began (overlapping the mic opening, so the start cue isn't held back after it) before minting, returns without minting if the start was cancelled meanwhile, and holds the audio captured meanwhile until the session has started. An app still unknown then (a Wayland AT-SPI target takes about a second) gets no combined cleanup, and `/api/reason` cleans up in its tone at stop. Warmup mints for the app the last start learned in time (`lastToneAppCategory`), and without combined cleanup while none is known; BYOK and local append `appendToneStyleSuffix` (`src/config/prompts/toneStyle.ts`) after the dictionary suffix. Its sentences are verbatim copies of the original server's `lib/prompts.ts` (English in every locale, as on the server); the mobile app's `composerPrompt.ts` copies the tone and priority sentences too, so change all three together
+- **Cleanup**: `useAudioRecording` starts `audioManager.beginToneStyleCapture()` for every non-translation recording while Tone & Style is on; the cleanup route's `consumeToneStyle()` (1.5 s guard, unknown app reads as `other`) puts `toneStyle` on the reasoning config, and the cleanup prompt gets `appendToneStyleSuffix` (`src/config/prompts/toneStyle.ts`) after the dictionary suffix (English in every locale)
 - **Assistant and chat**: `getAgentSystemPrompt`'s `writingStyle` option adds a WRITING STYLE block (`buildWritingStyleBlock`) to every chat surface's prompt while Tone & Style is on: the model works out from the request, the recipient and the tool (an `email_draft` body is an email) which kind of text it writes, and uses the user's tone for it; its own answers keep its voice, a tone the user asks for wins, and code is never restyled. A voice-assistant answer pasted at a verified caret writes its reply for that app (text written through a tool, such as an `email_draft` body, still takes its own kind's style): `processAgentCommand` consumes the capture and banks `deliveryAppCategory`, which reaches the send as `destinationAppCategory` through the paste delivery. Before pasting, `deliverAssistantResponse` replaces the answer's em dashes, except in ranges (which take an en dash), code, links and non-Latin scripts. Selection edits get one sentence (`selectionEditToneSentence`) that applies the selection's app style only to a prose rewrite asked for without a tone. The desktop builds every agent prompt itself, so the API needs nothing here
-- **UI**: Home banner (`ToneStyleBanner`, cleanup-off copy turns cleanup on) and the setup dialog (`ToneStyleSetupDialog`: intro plus one step per category), offered once the user has dictated `TONE_STYLE_PROMPT_MIN_WORDS` (70, `src/config/toneStyle.ts`) words of local history; the dialog opens by itself once, the banner stays until set up or "Not now" (`useToneStylePrompt`). Settings > Tone & Style (`settings/ToneStyleSection.tsx`) has a Tones & voices switch (`toneStyleEnabled`); while it's off, the picks and Save Changes are grayed out. App badges live in `src/assets/icons/apps/`
+- **UI**: Settings > Tone & Style (`settings/ToneStyleSection.tsx`) has a Tones & voices switch (`toneStyleEnabled`); while it's off, the picks and Save Changes are grayed out. App badges live in `src/assets/icons/apps/`
 
 ## Development Guidelines
 
@@ -804,7 +544,7 @@ All user-facing strings **must** use the i18n system. Never hardcode UI text in 
 
 **Setup**: react-i18next (v15) with i18next (v25). Translation files in `src/locales/{lang}/translation.json`.
 
-**Supported languages**: en, es, fr, de, pt, it, ru, zh-CN, zh-TW
+**Supported languages**: en, es, fr, de, pt, it, ru, ja, ar, zh-CN, zh-TW
 
 **How to use**:
 
@@ -812,8 +552,8 @@ All user-facing strings **must** use the i18n system. Never hardcode UI text in 
 import { useTranslation } from "react-i18next";
 
 const { t } = useTranslation();
-// Simple: t("notes.list.title")
-// With interpolation: t("notes.upload.using", { model: "Whisper" })
+// Simple: t("sidebar.home")
+// With interpolation: t("some.key", { model: "Voxtral" })
 ```
 
 **Rules**:
@@ -822,13 +562,13 @@ const { t } = useTranslation();
 2. Use `useTranslation()` hook in components and hooks
 3. Keep `{{variable}}` interpolation syntax for dynamic values
 4. Do NOT translate: brand names (only-whispers), technical terms (Markdown, Signal ID), format names (MP3, WAV), or the shared assistant `fullPrompt` in `prompts.json`. The other prompt keys (`cleanupPrompt`, `translatePrompt`, `dictionarySuffix`, `screenContextSuffix`) are translated per locale, and any change to a default prompt must update `CURRENT_DEFAULT_PROMPT_HASHES` in `src/config/retiredPrompts.js`
-5. Group keys by feature area (e.g., `notes.editor.*`, `referral.toasts.*`)
+5. Group keys by feature area (e.g., `settingsPage.*`, `sidebar.*`)
 
 ### Image and Icon Assets — REQUIRED
 
 Raster UI assets live in `src/assets/` (onboarding ones are named `onboarding-*`). Vector provider/brand marks live in `src/assets/icons/`.
 
-UI icons come from `src/components/icons/` (vendored Nucleo core outline components behind lucide-style names, e.g. `import { Check, Loader2 } from "../icons"`). To add one, map a name to a Nucleo label in `src/components/icons/nucleo-map.json` and run `node scripts/sync-nucleo-icons.js`; never import from `lucide-react` or a machine-local Nucleo path. Icons outside that set — the status marks, the note toolbar's formatting glyphs, the note chat's rounded copy and "/" glyphs, and the design's action icons (`ListEnd`, `FolderRounded`) — are drawn by hand in `src/components/icons/primitives.tsx`, which the generated `index.ts` re-exports.
+UI icons come from `src/components/icons/` (vendored Nucleo core outline components behind lucide-style names, e.g. `import { Check, Loader2 } from "../icons"`). To add one, map a name to a Nucleo label in `src/components/icons/nucleo-map.json` and run `node scripts/sync-nucleo-icons.js`; never import from `lucide-react` or a machine-local Nucleo path. Icons outside that set are drawn by hand in `src/components/icons/primitives.tsx`, which the generated `index.ts` re-exports.
 
 **Typography**: `--font-family-sans` is the bundled Noto Sans; `--font-family-display` uses the same stack.
 
@@ -854,29 +594,20 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 2. **New Setting**: Update useSettings.ts and SettingsPage.tsx
 3. **New UI Component**: Follow shadcn/ui patterns in src/components/ui
 4. **New Manager**: Create in src/helpers/, initialize in main.js
-5. **New UI Strings**: Add translation keys to all 10 language files (see i18n section above)
+5. **New UI Strings**: Add translation keys to all 11 language files (see i18n section above)
 6. **New Sidecar Binary**: Add download script in `scripts/`, add to `prebuild*` scripts in package.json, add manager in `src/helpers/`, initialize in `main.js`. Spawn the child with `detached: process.platform !== "win32"` so it has its own process group on Unix. Right after spawn call `sidecarPidFile.write(name, child.pid)` and on `close` call `sidecarPidFile.clear(name)`. Add the binary fragment to `EXPECTED_BINARY_FRAGMENTS` in `sidecarReaper.js`. Register a stop function via `sidecarRegistry.register(name, () => manager.stop())` in `registerSidecars()` — that single registration replaces the old `will-quit` line.
 
 ### Testing Checklist
 
-- [ ] Test both local and cloud processing modes
-- [ ] Verify hotkey works globally
-- [ ] Check clipboard pasting on all platforms
-- [ ] Test with different audio input devices
-- [ ] Verify whisper.cpp binary detection
-- [ ] Test all Whisper models
-- [ ] Check agent naming functionality
-- [ ] Test custom dictionary with uncommon words
-- [ ] Verify Windows Push-to-Talk with compound hotkeys
-- [ ] Test GNOME Wayland hotkeys (if on GNOME + Wayland)
-- [ ] Test Hyprland Wayland hotkeys (if on Hyprland + Wayland)
-- [ ] Verify activation mode selector is hidden on GNOME Wayland and Hyprland Wayland
-- [ ] Verify meeting detection works with event-driven mode (check debug logs for "event-driven")
-- [ ] Test meeting notification suppression during recording
-- [ ] Test post-recording cooldown (notifications shouldn't flash immediately)
-- [ ] Create a note about "quarterly revenue projections", search via agent for "financial forecast" — should match semantically
-- [ ] Verify Qdrant stays down at launch and starts on the first agent search (check debug logs for "qdrant started successfully"), then stops after 5 idle minutes
-- [ ] Kill Qdrant process manually — verify FTS5 keyword search still works as fallback
+- [ ] Ctrl+Win dictation pastes into the focused app (hold, and the double-tap lock)
+- [ ] The pill shows the right states, and its cancel X works
+- [ ] Retry and Upload work from Home
+- [ ] Custom dictionary words are recognized
+- [ ] Cleanup runs on the ChatGPT plan, and falls back to Mistral when signed out
+- [ ] Tone & Style picks the tone for the app
+- [ ] The voice assistant hotkey answers in the panel
+- [ ] Test GNOME / Hyprland / KDE Wayland hotkeys (Linux)
+- [ ] No errors in the Logs view
 
 ### Common Issues and Solutions
 
@@ -886,10 +617,9 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
    - Check audio levels in debug logs
 
 2. **Transcription Fails**:
-   - Ensure whisper.cpp binary is available
-   - Check model is downloaded
-   - Check temporary file creation
-   - Verify FFmpeg is executable
+   - Check the Mistral API key (setup screen or Settings)
+   - Check the network, and the Logs view for the provider error
+   - Upload refuses files over 25 MB
 
 3. **Clipboard Not Working**:
    - macOS: Check accessibility permissions (required for AppleScript paste)
@@ -903,33 +633,14 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
    - Windows: PowerShell SendKeys (built-in) or nircmd.exe (bundled)
 
 4. **Build Issues**:
-   - Use `npm run pack` for unsigned builds (CSC_IDENTITY_AUTO_DISCOVERY=false)
-   - Signing requires Apple Developer account
+   - Local Windows builds must use `electron-builder.unsigned-win.json` (see Development process)
    - ASAR unpacking needed for FFmpeg
-   - Run `npm run download:whisper-cpp` before packaging (current platform)
-   - Use `npm run download:whisper-cpp:all` for multi-platform packaging
-   - afterSign.js automatically skips signing when CSC_IDENTITY_AUTO_DISCOVERY=false
 
 5. **Windows Push-to-Talk Binary**:
    - Compiled from `resources/windows-key-listener.c` whenever `compile:native` runs on a Windows host (`prebuild:win`, `predev:main`, …); the prebuilt binary download from GitHub releases is the fallback
    - If neither compiling nor the download produces it, `afterPack.js` fails the Windows build; an unpackaged dev run starts without it, with Hold and modifier-only hotkeys unavailable and `F8` as the default hotkey
    - To compile locally: install Visual Studio Build Tools or MinGW-w64
    - CI workflow (`.github/workflows/build-windows-key-listener.yml`) rebuilds the prebuilt binary when `resources/windows-key-listener.c` changes on main
-
-6. **Meeting Detection Not Working**:
-   - Check debug logs for "event-driven" vs "polling" mode; macOS also logs `macOS microphone detection capability` as `PID` or `AGGREGATE`
-   - macOS: Verify `macos-mic-listener` binary exists in `resources/bin/` (compiled during `npm run compile:native`)
-   - Windows: Verify `windows-mic-listener.exe` exists in `resources/bin/` (downloaded during `prebuild:win`)
-   - Linux: Verify `pactl` is installed (`pulseaudio-utils` or `pipewire-pulse` package)
-   - If the event-driven binary is missing, Windows/Linux fall back to polling; macOS pauses audio prompts (and respawns a crashed listener with backoff)
-
-7. **Local Semantic Search Not Working**:
-   - Qdrant binary should be in `resources/bin/qdrant-{platform}-{arch}` (auto-downloaded during `predev`/`prebuild`)
-   - Embedding model should be in `~/.cache/only-whispers/embedding-models/all-MiniLM-L6-v2/model.onnx` (downloaded on the first semantic search)
-   - Run `npm run download:qdrant` and `npm run download:embedding-model` manually if missing
-   - Check debug logs for "qdrant" entries (port, health check, errors)
-   - If Qdrant fails to start, search still works via FTS5 keyword fallback
-   - Semantic search is only available through the AI agent's `search_notes` tool, not the manual search UI
 
 ### Platform-Specific Notes
 
@@ -940,7 +651,6 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - Uses AppleScript for reliable pasting
 - Notarization needed for distribution
 - Shows in dock with indicator dot when running (LSUIElement: false)
-- whisper.cpp bundled for both arm64 and x64
 - System settings accessible via `x-apple.systempreferences:` URL scheme
 - **Launch at login**: `setLoginItemSettings()`, which routes through `SMAppService` on macOS 13+. `openAsHidden` is deprecated and does nothing, so `wasOpenedAtLogin` is what sends a login launch to the tray. An item can register and still report `status: "requires-approval"` until the user allows it under System Settings → General → Login Items
 
@@ -950,7 +660,6 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - Microphone privacy settings at `ms-settings:privacy-microphone`
 - Sound settings at `ms-settings:sound`
 - NSIS installer for distribution
-- whisper.cpp bundled for x64
 - **Launch at login**: `HKCU\...\Run` entry written by Electron, named after the AppUserModelId, carrying `--hidden` so a login launch goes to the tray
   - Read the state from `executableWillLaunchAtLogin`; `openAtLogin` misses a startup app disabled from Task Manager or Settings
   - `resources/nsis/installer.nsh` removes the `Run` and `StartupApproved\Run` values on uninstall (but not on update), which Electron itself never cleans up
@@ -968,14 +677,12 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - Multiple package manager support
 - Standard XDG directories
 - AppImage for distribution
-- whisper.cpp bundled for x64
 - No standardized URL scheme for system settings (user must open manually)
 - Privacy settings button hidden in UI (not applicable on Linux)
 - Recommend `pavucontrol` for audio device management
 - **GPU compositing**: on, as on Windows, except whenever an NVIDIA kernel module (proprietary or open, any version) is loaded (`linuxGpuCompositing.js`, `/proc/driver/nvidia/version`): it flickered transparent windows in #203, Chromium's blocklist doesn't catch it, and explicit sync (driver 555+, Xwayland 24.1+, compositor support) can't be checked before app ready. Anyone else can turn it off with `--disable-gpu-compositing` in `only-whispers-flags.conf`, read by the packaged launcher (`scripts/lib/linux-launcher.js`). The mode is logged at startup, which only reaches the log file at `--log-level=debug`
 - **Backdrop blurs**: Linux can still composite on the CPU, where a large blur is redrawn on every repaint above it (#2298):
-  - On Linux (`ui/overlayBlur.ts`), the full-window dialog overlays (shared `Dialog`, Settings, Ctrl+K, referral) skip their default backdrop blur; a blur passed through `overlayClassName` still applies
-  - On Linux, the note action overlay (`ActionProcessingOverlay`), whose scanner animation never stops, uses a denser scrim and an opaque card, so the scanner line passes behind the label
+  - On Linux (`ui/overlayBlur.ts`), the full-window dialog overlays (shared `Dialog`, Settings) skip their default backdrop blur; a blur passed through `overlayClassName` still applies
   - Settings cards (`SettingsPanel`), the Settings selects and the `LanguageSelector` trigger sit on an opaque pane, so they carry no blur on any platform
 - **Launch at login**: XDG autostart entry at `~/.config/autostart/only-whispers.desktop` (see `linuxAutostart.js`), since Electron's `setLoginItemSettings()` does nothing on Linux
   - Disabling it from GNOME Tweaks or KDE's autostart editor is reflected in the Settings toggle
@@ -1008,28 +715,16 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 
 ## Performance Considerations
 
-- Whisper model size vs speed tradeoff
+- Local model size vs speed tradeoff
 - Audio blob size limits for IPC (10MB)
 - Temporary file cleanup
 - Memory usage with large models
 - Process timeout protection (5 minutes)
-- Meeting detection uses event-driven OS APIs (near-zero CPU) with polling fallback on Windows/Linux
-- Process list cache shared between detectors to avoid duplicate `tasklist`/`pgrep` calls
-- Calendar sync (Google/Microsoft) uses exponential backoff to avoid hammering APIs on network failures
 
 ## Security Considerations
 
-- API keys and enterprise cloud creds (12 secrets total) encrypted at rest via Electron `safeStorage` → OS keychain (Keychain / DPAPI / libsecret), stored as per-key files in `userData/secure-keys/`. Linux without a keyring falls back to plaintext (Electron default). Closed in #629.
+- API keys, enterprise cloud creds and the ChatGPT login are encrypted at rest via Electron `safeStorage` → OS keychain (Keychain / DPAPI / libsecret), stored as per-key files in `userData/secure-keys/`. Linux without a keyring falls back to plaintext (Electron default).
 - Context isolation enabled
 - No remote code execution
 - Sanitized file paths
 - Limited IPC surface area
-
-## Future Enhancements to Consider
-
-- Streaming transcription support
-- Custom wake word detection
-- ~~Multi-language UI~~ (implemented — 9 languages via react-i18next)
-- Cloud model selection
-- Batch transcription
-- Export formats beyond clipboard
