@@ -67,8 +67,6 @@
   "keywords": [
     "dictation",
     "speech-to-text",
-    "whisper",
-    "whisper.cpp",
     "electron",
     "desktop-app"
   ],

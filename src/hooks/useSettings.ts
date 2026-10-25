@@ -7,38 +7,18 @@ import {
 } from "../stores/settingsStore";
 import logger from "../utils/logger";
 import { useLocalStorage } from "./useLocalStorage";
-import type {
-  ChineseScriptPreference,
-  LocalTranscriptionProvider,
-  InferenceMode,
-  SelfHostedType,
-} from "../types/electron";
+import type { ChineseScriptPreference, InferenceMode } from "../types/electron";
 import type { Snippet } from "../utils/snippets";
 
 export interface TranscriptionSettings {
   uiLanguage: string;
-  useLocalWhisper: boolean;
-  whisperModel: string;
-  localTranscriptionProvider: LocalTranscriptionProvider;
-  parakeetModel: string;
-  cohereModel: string;
-  allowOpenAIFallback: boolean;
-  allowLocalFallback: boolean;
-  fallbackWhisperModel: string;
   preferredLanguage: string;
   /** When transcription language is Auto, force Chinese output script. See #975. */
   chineseScriptPreference: ChineseScriptPreference;
-  cloudTranscriptionProvider: string;
+  /** Mistral Voxtral model; anything else reads as the default. */
   cloudTranscriptionModel: string;
-  cloudTranscriptionBaseUrl?: string;
-  cloudTranscriptionMode: string;
-  transcriptionMode: InferenceMode;
-  remoteTranscriptionType: SelfHostedType;
-  remoteTranscriptionUrl: string;
-  remoteTranscriptionModel: string;
   customDictionary: string[];
   snippets: Snippet[];
-  assemblyAiStreaming: boolean;
   showTranscriptionPreview: boolean;
 }
 
@@ -84,13 +64,8 @@ export interface ApiKeySettings {
   xaiApiKey: string;
   mistralApiKey: string;
   openrouterApiKey: string;
-  cortiClientId: string;
-  cortiClientSecret: string;
   cortiApiKey: string;
   tinfoilApiKey: string;
-  deepgramApiKey: string;
-  assemblyaiApiKey: string;
-  customTranscriptionApiKey: string;
   cleanupCustomApiKey: string;
 }
 
@@ -195,15 +170,7 @@ function useSettingsInternal() {
   }, [audioRetentionDays, transcriptRetentionDays, dataRetentionEnabled]);
 
   // Sync startup pre-warming preferences to main process
-  const {
-    useLocalWhisper,
-    localTranscriptionProvider,
-    whisperModel,
-    parakeetModel,
-    cohereModel,
-    preferredLanguage,
-    keepLocalModelLoaded,
-  } = store;
+  const { keepLocalModelLoaded } = store;
   // Every window runs this sync, and the main process stops the shared
   // llama-server from it, so it must see every scope's resolved local model.
   const localServerPrefs = useSettingsStore(useShallow(selectLocalServerPrefs));
@@ -211,18 +178,8 @@ function useSettingsInternal() {
   useEffect(() => {
     if (typeof window === "undefined" || !window.electronAPI?.syncStartupPreferences) return;
 
-    const model =
-      localTranscriptionProvider === "nvidia"
-        ? parakeetModel
-        : localTranscriptionProvider === "cohere"
-          ? cohereModel
-          : whisperModel;
     window.electronAPI
       .syncStartupPreferences({
-        useLocalWhisper,
-        localTranscriptionProvider,
-        model: model || undefined,
-        language: preferredLanguage || undefined,
         ...localServerPrefs,
         keepLocalModelLoaded,
       })
@@ -233,46 +190,20 @@ function useSettingsInternal() {
           "settings"
         )
       );
-  }, [
-    useLocalWhisper,
-    localTranscriptionProvider,
-    whisperModel,
-    parakeetModel,
-    cohereModel,
-    preferredLanguage,
-    localServerPrefs,
-    keepLocalModelLoaded,
-  ]);
+  }, [localServerPrefs, keepLocalModelLoaded]);
 
   return {
-    useLocalWhisper: store.useLocalWhisper,
-    whisperModel: store.whisperModel,
     uiLanguage: store.uiLanguage,
-    localTranscriptionProvider: store.localTranscriptionProvider,
-    parakeetModel: store.parakeetModel,
-    cohereModel: store.cohereModel,
-    allowOpenAIFallback: store.allowOpenAIFallback,
-    allowLocalFallback: store.allowLocalFallback,
-    fallbackWhisperModel: store.fallbackWhisperModel,
     preferredLanguage: store.preferredLanguage,
     chineseScriptPreference: store.chineseScriptPreference,
-    cloudTranscriptionProvider: store.cloudTranscriptionProvider,
     cloudTranscriptionModel: store.cloudTranscriptionModel,
-    cloudTranscriptionBaseUrl: store.cloudTranscriptionBaseUrl,
     cleanupCloudBaseUrl: store.cleanupCloudBaseUrl,
-    cloudTranscriptionMode: store.cloudTranscriptionMode,
     cleanupCloudMode: store.cleanupCloudMode,
-    transcriptionMode: store.transcriptionMode,
-    remoteTranscriptionType: store.remoteTranscriptionType,
-    remoteTranscriptionUrl: store.remoteTranscriptionUrl,
-    remoteTranscriptionModel: store.remoteTranscriptionModel,
     cleanupMode: store.cleanupMode,
     cleanupRemoteUrl: store.cleanupRemoteUrl,
     customDictionary: store.customDictionary,
     snippets: store.snippets,
     setSnippets: store.setSnippets,
-    assemblyAiStreaming: store.assemblyAiStreaming,
-    setAssemblyAiStreaming: store.setAssemblyAiStreaming,
     useCleanupModel: store.useCleanupModel,
     useDictationAgent: store.useDictationAgent,
     cleanupModel: store.cleanupModel,
@@ -285,29 +216,15 @@ function useSettingsInternal() {
     mistralApiKey: store.mistralApiKey,
     openrouterApiKey: store.openrouterApiKey,
     tinfoilApiKey: store.tinfoilApiKey,
-    deepgramApiKey: store.deepgramApiKey,
-    assemblyaiApiKey: store.assemblyaiApiKey,
     dictationKey: store.dictationKey,
     voiceAgentKey: store.voiceAgentKey,
     theme: store.theme,
-    setUseLocalWhisper: store.setUseLocalWhisper,
-    setWhisperModel: store.setWhisperModel,
     setUiLanguage: store.setUiLanguage,
-    setLocalTranscriptionProvider: store.setLocalTranscriptionProvider,
-    setParakeetModel: store.setParakeetModel,
-    setCohereModel: store.setCohereModel,
-    setAllowOpenAIFallback: store.setAllowOpenAIFallback,
-    setAllowLocalFallback: store.setAllowLocalFallback,
-    setFallbackWhisperModel: store.setFallbackWhisperModel,
     setPreferredLanguage: store.setPreferredLanguage,
     setChineseScriptPreference: store.setChineseScriptPreference,
-    setCloudTranscriptionProvider: store.setCloudTranscriptionProvider,
     setCloudTranscriptionModel: store.setCloudTranscriptionModel,
-    setCloudTranscriptionBaseUrl: store.setCloudTranscriptionBaseUrl,
-    setCloudTranscriptionMode: store.setCloudTranscriptionMode,
     setCleanupCloudBaseUrl: store.setCleanupCloudBaseUrl,
     setCleanupCloudMode: store.setCleanupCloudMode,
-    setTranscriptionMode: store.setTranscriptionMode,
     setCleanupMode: store.setCleanupMode,
     setCleanupRemoteUrl: store.setCleanupRemoteUrl,
     setCustomDictionary: store.setCustomDictionary,
@@ -321,8 +238,6 @@ function useSettingsInternal() {
     setGeminiApiKey: store.setGeminiApiKey,
     setGroqApiKey: store.setGroqApiKey,
     setMistralApiKey: store.setMistralApiKey,
-    customTranscriptionApiKey: store.customTranscriptionApiKey,
-    setCustomTranscriptionApiKey: store.setCustomTranscriptionApiKey,
     cleanupCustomApiKey: store.cleanupCustomApiKey,
     setCleanupCustomApiKey: store.setCleanupCustomApiKey,
     setDictationKey: store.setDictationKey,
@@ -363,7 +278,6 @@ function useSettingsInternal() {
     transcriptRetentionDays: store.transcriptRetentionDays,
     dataRetentionEnabled: store.dataRetentionEnabled,
     saveDiscardedTranscriptions: store.saveDiscardedTranscriptions,
-    updateTranscriptionSettings: store.updateTranscriptionSettings,
     updateCleanupSettings: store.updateCleanupSettings,
   };
 }

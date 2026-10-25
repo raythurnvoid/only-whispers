@@ -875,44 +875,6 @@
     "learnMore": "了解更多",
     "noneAvailable": "没有可用的模型",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "最准确的本地语音识别(平均 WER 5.42%,支持 14 种语言)。不支持自动语言检测"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "快速多语言语音识别，自动语言检测（25 种语言）",
-        "parakeet_unified_en_0_6b": "仅英语 ASR，最先进的准确度（平均 WER 5.91%）",
-        "nemotron_speech_streaming_en_0_6b": "NVIDIA Nemotron 英语流式语音识别",
-        "nemotron_3_5_asr_streaming_0_6b": "NVIDIA Nemotron 多语言流式语音识别，自动语言检测（15 种语言）",
-        "orukeet": "针对多语言语音识别微调的 Parakeet"
-      },
-      "whisper": {
-        "tiny": "最快速度，较低质量",
-        "base": "平衡之选",
-        "small": "更好质量，较慢速度",
-        "medium": "高质量",
-        "large": "最佳质量，最慢速度",
-        "turbo": "快速且质量良好"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "最新、最准确的转录",
-        "openai_gpt_4o_mini_transcribe": "快速且准确的转录",
-        "openai_gpt_4o_transcribe": "最准确的转录",
-        "openai_whisper_1": "原始 Whisper 模型",
-        "groq_whisper_large_v3_turbo": "216 倍实时速度",
-        "groq_whisper_large_v3": "Large v3 模型，快速且精准",
-        "mistral_voxtral_mini_latest": "快速多语言转录",
-        "gemini_3_5_transcribe": "Google Gemini 语音转文字",
-        "gemini_3_5_transcribe_live": "实时流式语音转文字",
-        "corti_transcribe": "临床级医疗转录",
-        "xai_grok_stt": "xAI 高精度语音识别",
-        "tinfoil_voxtral": "可验证的私密转录",
-        "deepgram_nova_3": "Deepgram 最精准的实时模型",
-        "assemblyai_universal_streaming_english": "不会变动的实时转录（英语）",
-        "assemblyai_universal_streaming_multilingual": "不会变动的实时转录（多语言）",
-        "assemblyai_universal_3_5_pro": "最高精度实时转录，支持 18 种语言",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3:快速、准确,支持 50 多种语言,$0.0035/分钟",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3:最准确,支持 50 多种语言,$0.004/分钟"
-      },
       "cloud": {
         "openai_gpt_5_2": "强大的推理模型",
         "openai_gpt_5_mini": "快速且经济",
@@ -1006,10 +968,6 @@
         "liquidai_lfm2_2_6b_q4_k_m": "更高质量清理的均衡 LFM2 模型",
         "liquidai_lfm2_5_350m_q8_0": "超轻量模型，快速清理听写文本",
         "liquidai_lfm2_5_230m_q8_0": "微型模型，低配硬件也能即时清理"
-      },
-      "diarization": {
-        "segmentation": "用于说话人分离的语音边界检测",
-        "embedding_en": "用于说话人识别的声纹提取"
       }
     },
     "errors": {

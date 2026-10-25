@@ -11,7 +11,7 @@ import { isAccessibilitySkipped } from "../utils/permissions";
 import { getOnboardingDemoKind } from "../utils/onboardingDemo";
 import {
   buildLiveTranscriptionPreview,
-  shouldShowByokStreamingPreview,
+  shouldDisplayDictationPreview,
 } from "../utils/transcriptionPreview";
 import { canStartDictation } from "../utils/dictationReadiness";
 import { waitForVisualFrames } from "../utils/visualFrame";
@@ -589,10 +589,8 @@ export const useAudioRecording = (toast, options = {}) => {
         setPartialTranscript(text);
         const settings = getSettings();
         if (
-          audioManagerRef.current?.getStreamingProviderName?.() !== "tinfoil-realtime" &&
-          shouldShowByokStreamingPreview(
+          shouldDisplayDictationPreview(
             settings.showTranscriptionPreview,
-            settings.cloudTranscriptionMode,
             !!audioManagerRef.current?.voiceAgentRequested
           )
         ) {

@@ -67,11 +67,6 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
       if (localStorage.getItem("activationMode") === null) store.setActivationMode("push");
 
       store.setMistralApiKey(mistralKey.trim());
-      store.setCloudTranscriptionForAllScopes({
-        useLocalWhisper: false,
-        cloudTranscriptionMode: "byok",
-      });
-      store.switchCloudTranscriptionProvider("dictation", "mistral");
       store.setCloudTranscriptionModel(TRANSCRIPTION_MODEL);
       store.setCloudReasoningForAllScopes({
         cleanupCloudMode: "byok",

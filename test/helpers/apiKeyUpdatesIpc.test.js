@@ -6,9 +6,6 @@ const { BYOK_API_KEYS } = require("../../src/config/secretKeys");
 const bindings = [
   ...BYOK_API_KEYS.map((key) => ({ ...key, channel: `save-${key.base}-key` })),
   ...[
-    ["corti-client-id", "cortiClientId", "saveCortiClientId"],
-    ["corti-client-secret", "cortiClientSecret", "saveCortiClientSecret"],
-    ["custom-transcription-key", "customTranscriptionApiKey", "saveCustomTranscriptionKey"],
     ["cleanup-custom-key", "cleanupCustomApiKey", "saveCleanupCustomKey"],
     ["bedrock-access-key-id", "bedrockAccessKeyId", "saveBedrockAccessKeyId"],
     ["bedrock-secret-access-key", "bedrockSecretAccessKey", "saveBedrockSecretAccessKey"],
@@ -132,10 +129,7 @@ test("every secret saver notifies peers by name only, including removal", () => 
       assert.deepEqual(notifications, [], `${storeKey} re-saved unchanged`);
     }
   }
-  assert.throws(
-    () => invoke("save-custom-transcription-key", { key: "secret-sentinel" }),
-    TypeError
-  );
+  assert.throws(() => invoke("save-cleanup-custom-key", { key: "secret-sentinel" }), TypeError);
 });
 
 const options = { language: "de", keyterms: [] };

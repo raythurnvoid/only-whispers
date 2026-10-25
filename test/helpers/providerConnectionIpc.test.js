@@ -10,9 +10,7 @@ const handlersModulePath = require.resolve("../../src/helpers/ipcHandlers");
 const originalLoad = Module._load;
 const handlers = new Map();
 const probes = [];
-const tokens = [];
 let probeAnswer = async () => ({ success: true });
-let tokenAnswer = async () => "token";
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), "provider-connection-ipc-"));
 
 const electronStub = {
@@ -69,20 +67,10 @@ Module._load = function loadWithMocks(request, parent, isMain) {
       return originalLoad.call(this, request, parent, isMain);
     }
     if (request === "./providerConnectionTest") {
-      const { describeCortiTokenFailure } = originalLoad.call(this, request, parent, isMain);
       return {
-        describeCortiTokenFailure,
         testProviderConnection: (config, _fetch, runPaidCheck) => {
           probes.push(config);
           return probeAnswer(config, runPaidCheck);
-        },
-      };
-    }
-    if (request === "./cortiAuth") {
-      return {
-        getCortiToken: async (target) => {
-          tokens.push(target);
-          return tokenAnswer(target);
         },
       };
     }
@@ -129,29 +117,6 @@ test("a failure from the handler is never remembered", async () => {
   assert.equal(probes.length - before, 2);
 });
 
-test("Corti's token request is shared and remembered the same way", async () => {
-  const config = {
-    scope: "transcription",
-    provider: "corti",
-    clientId: "corti-id",
-    clientSecret: "corti-secret",
-    environment: "eu",
-    tenant: "",
-  };
-  assert.deepEqual(await Promise.all([check(config), check(config)]), [
-    { success: true },
-    { success: true },
-  ]);
-  assert.deepEqual(await check(config), { success: true });
-  assert.deepEqual(tokens, [
-    { environment: "eu", tenant: "base", clientId: "corti-id", clientSecret: "corti-secret" },
-  ]);
-  assert.equal(
-    probes.some((probe) => probe.provider === "corti"),
-    false
-  );
-});
-
 test("Tinfoil's paid key check runs once per key, across checks the cache keeps apart", async () => {
   let paid = 0;
   probeAnswer = (_config, runPaidCheck) =>
@@ -159,44 +124,11 @@ test("Tinfoil's paid key check runs once per key, across checks the cache keeps 
       paid += 1;
       return { success: true };
     });
-  for (const model of ["voxtral-small-24b", "gpt-oss-120b"]) {
-    const config = { scope: "transcription", provider: "tinfoil", apiKey: "tf-key", model };
+  for (const model of ["llama3-3-70b", "gpt-oss-120b"]) {
+    const config = { scope: "reasoning", provider: "tinfoil", apiKey: "tf-key", model };
     assert.deepEqual(await check(config), { success: true });
   }
   assert.equal(paid, 1);
   const stored = fs.readFileSync(path.join(userData, "paid-key-checks.json"), "utf8");
   assert.doesNotMatch(stored, /tf-key/);
-});
-
-test("Corti's own refusal and its no-verdict failures reach the panel, never remembered", async () => {
-  const corti = {
-    scope: "transcription",
-    provider: "corti",
-    clientId: "corti-id-3",
-    clientSecret: "corti-secret-3",
-    environment: "eu",
-    tenant: "",
-  };
-  const busy = Object.assign(new Error("Corti authentication failed: 503"), { status: 503 });
-  tokenAnswer = async () => {
-    throw busy;
-  };
-  try {
-    const before = tokens.length;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const result = await check(corti);
-      assert.equal(result.errorCode, "providerStatus");
-      assert.equal(result.unverified, true);
-    }
-    assert.equal(tokens.length - before, 2, "no verdict is asked again");
-    tokenAnswer = async () => {
-      throw Object.assign(new Error("Corti authentication failed: 401"), { status: 401 });
-    };
-    const refusedFrom = tokens.length;
-    assert.equal((await check(corti)).errorCode, "credentialsRejected");
-    assert.equal((await check(corti)).errorCode, "credentialsRejected");
-    assert.equal(tokens.length - refusedFrom, 2, "a refusal is asked again too");
-  } finally {
-    tokenAnswer = async () => "token";
-  }
 });

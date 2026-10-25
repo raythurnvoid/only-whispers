@@ -9,9 +9,6 @@ const { BYOK_API_KEYS } = require("../config/secretKeys");
 
 const SECRET_KEYS = [
   ...BYOK_API_KEYS.map((k) => k.env),
-  "CORTI_CLIENT_ID",
-  "CORTI_CLIENT_SECRET",
-  "CUSTOM_TRANSCRIPTION_API_KEY",
   "CUSTOM_CLEANUP_API_KEY",
   "BEDROCK_ACCESS_KEY_ID",
   "BEDROCK_SECRET_ACCESS_KEY",
@@ -28,10 +25,6 @@ const SYSTEM_ENV = { ...process.env };
 
 const PERSISTED_KEYS = [
   ...SECRET_KEYS,
-  "LOCAL_TRANSCRIPTION_PROVIDER",
-  "PARAKEET_MODEL",
-  "DICTATION_LANGUAGE",
-  "LOCAL_WHISPER_MODEL",
   "CLEANUP_PROVIDER",
   "LOCAL_CLEANUP_MODEL",
   "DICTATION_AGENT_PROVIDER",
@@ -45,14 +38,6 @@ const PERSISTED_KEYS = [
   "PANEL_START_POSITION",
   "START_MINIMIZED",
   "UI_LANGUAGE",
-  "WHISPER_CUDA_ENABLED",
-  "WHISPER_VULKAN_ENABLED",
-  "WHISPER_VULKAN_DEVICE",
-  "WHISPER_GPU_FAILED",
-  "WHISPER_GPU_FAILED_REASON_CUDA",
-  "WHISPER_GPU_FAILED_REASON_VULKAN",
-  "WHISPER_THREADS",
-  "TRANSCRIPTION_GPU_UUID",
   "INTELLIGENCE_GPU_UUID",
   "BEDROCK_REGION",
   "BEDROCK_PROFILE",
@@ -265,30 +250,6 @@ class EnvironmentManager {
       delete process.env[envVarName];
     }
     return { success: true };
-  }
-
-  getCortiClientId() {
-    return this._getKey("CORTI_CLIENT_ID");
-  }
-
-  saveCortiClientId(key) {
-    return this._saveKey("CORTI_CLIENT_ID", key);
-  }
-
-  getCortiClientSecret() {
-    return this._getKey("CORTI_CLIENT_SECRET");
-  }
-
-  saveCortiClientSecret(key) {
-    return this._saveKey("CORTI_CLIENT_SECRET", key);
-  }
-
-  getCustomTranscriptionKey() {
-    return this._getKey("CUSTOM_TRANSCRIPTION_API_KEY");
-  }
-
-  saveCustomTranscriptionKey(key) {
-    return this._saveKey("CUSTOM_TRANSCRIPTION_API_KEY", key);
   }
 
   getCleanupCustomKey() {

@@ -14,8 +14,6 @@ const BYOK_KEY_BRIDGES = [
   { base: "openrouter", get: "getOpenrouterKey", save: "saveOpenrouterKey" },
   { base: "tinfoil", get: "getTinfoilKey", save: "saveTinfoilKey" },
   { base: "corti", get: "getCortiKey", save: "saveCortiKey" },
-  { base: "deepgram", get: "getDeepgramKey", save: "saveDeepgramKey" },
-  { base: "assemblyai", get: "getAssemblyAIKey", save: "saveAssemblyAIKey" },
   {
     base: "dictation-agent-custom",
     get: "getDictationAgentCustomKey",
@@ -294,16 +292,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   proxyMistralTranscription: (data) => ipcRenderer.invoke("proxy-mistral-transcription", data),
 
-  // Corti API
-  getCortiClientId: () => ipcRenderer.invoke("get-corti-client-id"),
-  saveCortiClientId: (key) => ipcRenderer.invoke("save-corti-client-id", key),
-  getCortiClientSecret: () => ipcRenderer.invoke("get-corti-client-secret"),
-  saveCortiClientSecret: (key) => ipcRenderer.invoke("save-corti-client-secret", key),
   getTinfoilChatModels: () => ipcRenderer.invoke("get-tinfoil-chat-models"),
 
   // Custom endpoint API keys
-  getCustomTranscriptionKey: () => ipcRenderer.invoke("get-custom-transcription-key"),
-  saveCustomTranscriptionKey: (key) => ipcRenderer.invoke("save-custom-transcription-key", key),
   getCleanupCustomKey: () => ipcRenderer.invoke("get-cleanup-custom-key"),
   saveCleanupCustomKey: (key) => ipcRenderer.invoke("save-cleanup-custom-key", key),
 

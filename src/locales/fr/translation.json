@@ -875,48 +875,6 @@
     "learnMore": "En savoir plus",
     "noneAvailable": "Aucun modèle disponible",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "ASR local le plus précis (5,42 % WER moyen, 14 langues). Pas de détection automatique de la langue"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "ASR multilingue rapide avec détection automatique de langue (25 langues)",
-        "parakeet_unified_en_0_6b": "ASR anglais uniquement avec précision de pointe (5,91 % WER moyen)",
-        "nemotron_speech_streaming_en_0_6b": "ASR anglais en streaming de NVIDIA Nemotron",
-        "nemotron_3_5_asr_streaming_0_6b": "ASR multilingue en streaming de NVIDIA Nemotron avec détection automatique de langue (15 langues)",
-        "orukeet": "Parakeet affiné pour la reconnaissance vocale multilingue"
-      },
-      "diarization": {
-        "segmentation": "Détection des limites de parole pour l'identification des intervenants",
-        "embedding_en": "Empreinte vocale pour l'identification des intervenants"
-      },
-      "whisper": {
-        "tiny": "Le plus rapide, qualité plus faible",
-        "base": "Bon équilibre",
-        "small": "Meilleure qualité, plus lent",
-        "medium": "Haute qualité",
-        "large": "Qualité maximale, le plus lent",
-        "turbo": "Rapide avec une bonne qualité"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "Transcription la plus récente et précise",
-        "openai_gpt_4o_mini_transcribe": "Transcription rapide et précise",
-        "openai_gpt_4o_transcribe": "Transcription la plus précise",
-        "openai_whisper_1": "Modèle Whisper original",
-        "groq_whisper_large_v3": "Reconnaissance vocale haute précision",
-        "groq_whisper_large_v3_turbo": "Vitesse 216x en temps réel",
-        "mistral_voxtral_mini_latest": "Transcription multilingue rapide",
-        "gemini_3_5_transcribe": "Reconnaissance vocale Gemini de Google",
-        "gemini_3_5_transcribe_live": "Reconnaissance vocale en streaming temps réel",
-        "corti_transcribe": "Transcription médicale de qualité clinique",
-        "xai_grok_stt": "Reconnaissance vocale haute précision par xAI",
-        "tinfoil_voxtral": "Transcription vérifiablement privée",
-        "deepgram_nova_3": "Le modèle temps réel le plus précis de Deepgram",
-        "assemblyai_universal_streaming_english": "Transcriptions temps réel immuables, anglais",
-        "assemblyai_universal_streaming_multilingual": "Transcriptions temps réel immuables, multilingues",
-        "assemblyai_universal_3_5_pro": "Précision maximale en temps réel, 18 langues",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3 : rapide, précis, plus de 50 langues, 0,0035 $/min",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3 : le plus précis, plus de 50 langues, 0,004 $/min"
-      },
       "cloud": {
         "openai_gpt_5_2": "Modèle de raisonnement performant",
         "openai_gpt_5_mini": "Rapide et économique",

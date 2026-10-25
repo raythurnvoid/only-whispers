@@ -37,7 +37,6 @@ const serializeIpcError =
 
 const { resolveLocalServerNeeds, shouldStopLocalServer } = require("./localServerPolicy");
 const { i18nMain, changeLanguage } = require("./i18nMain");
-const { getCortiToken } = require("./cortiAuth");
 const { ONBOARDING_DEMO_STATUSES } = require("./onboardingInputPolicy");
 const { focusWindowsHotkeyCaptureWindow } = require("./hotkeyCaptureFocus");
 const { MistralRealtimeStreaming, MISTRAL_REALTIME_MODEL } = require("./mistralRealtimeStreaming");
@@ -68,7 +67,7 @@ const byokSizeCapError = (sizeCapBytes) =>
 // Azure Responses API rejects max_output_tokens below 16.
 const CONNECTION_TEST_MAX_OUTPUT_TOKENS = 16;
 
-const { describeCortiTokenFailure, testProviderConnection } = require("./providerConnectionTest");
+const { testProviderConnection } = require("./providerConnectionTest");
 const { createConnectionCheckCache } = require("./connectionCheckCache");
 const { PAID_KEY_CHECKS_FILE, createPaidKeyCheck } = require("./paidKeyCheck");
 // Canonicalize allowed dirs so realpath'd inputs match on macOS (/var -> /private/var).
@@ -397,22 +396,6 @@ class IPCHandlers {
     }
   }
 
-  // Mints a Corti access token from stored BYOK credentials for the dictation
-  // streaming handlers.
-  async _mintStoredCortiToken(options = {}) {
-    const clientId = this.environmentManager.getCortiClientId();
-    const clientSecret = this.environmentManager.getCortiClientSecret();
-    if (!clientId || !clientSecret) {
-      const err = new Error("No Corti credentials configured. Add them in Settings.");
-      err.code = "NO_API";
-      throw err;
-    }
-    const environment = options.environment || "us";
-    const tenant = (options.tenant || "").trim() || "base";
-    const token = await getCortiToken({ environment, tenant, clientId, clientSecret });
-    return { token, environment, tenant };
-  }
-
   setupHandlers() {
     ipcMain.handle("onboarding-set-window-mode", (_event, mode) =>
       this.windowManager.setOnboardingWindowMode(mode)
@@ -475,33 +458,8 @@ class IPCHandlers {
     const runPaidKeyCheck = createPaidKeyCheck(() =>
       path.join(app.getPath("userData"), PAID_KEY_CHECKS_FILE)
     );
-    const checkProviderConnection = async (config) => {
-      if (config?.provider === "corti" && config?.scope === "transcription") {
-        try {
-          const clientId = String(config.clientId || "").trim();
-          const clientSecret = String(config.clientSecret || "").trim();
-          if (clientId && clientSecret) {
-            await getCortiToken({
-              environment: config.environment || "us",
-              tenant: String(config.tenant || "").trim() || "base",
-              clientId,
-              clientSecret,
-            });
-          } else {
-            await this._mintStoredCortiToken({
-              environment: config.environment,
-              tenant: config.tenant,
-            });
-          }
-          return { success: true };
-        } catch (error) {
-          return describeCortiTokenFailure(error);
-        }
-      }
-      return testProviderConnection(config, fetch, runPaidKeyCheck);
-    };
     ipcMain.handle("test-provider-connection", (_event, config) =>
-      cachedConnectionCheck(config, () => checkProviderConnection(config))
+      cachedConnectionCheck(config, () => testProviderConnection(config, fetch, runPaidKeyCheck))
     );
 
     ipcMain.handle("window-minimize", () => {
@@ -1558,40 +1516,9 @@ class IPCHandlers {
       })
     );
 
-    ipcMain.handle("get-corti-client-id", async () => {
-      return this.environmentManager.getCortiClientId();
-    });
-
-    ipcMain.handle(
-      "save-corti-client-id",
-      saveSecretKey("getCortiClientId", "saveCortiClientId", "cortiClientId")
-    );
-
-    ipcMain.handle("get-corti-client-secret", async () => {
-      return this.environmentManager.getCortiClientSecret();
-    });
-
-    ipcMain.handle(
-      "save-corti-client-secret",
-      saveSecretKey("getCortiClientSecret", "saveCortiClientSecret", "cortiClientSecret")
-    );
-
     ipcMain.handle("get-tinfoil-chat-models", async () => {
       return getTinfoilChatModels();
     });
-
-    ipcMain.handle("get-custom-transcription-key", async () => {
-      return this.environmentManager.getCustomTranscriptionKey();
-    });
-
-    ipcMain.handle(
-      "save-custom-transcription-key",
-      saveSecretKey(
-        "getCustomTranscriptionKey",
-        "saveCustomTranscriptionKey",
-        "customTranscriptionApiKey"
-      )
-    );
 
     ipcMain.handle("get-cleanup-custom-key", async () => {
       return this.environmentManager.getCleanupCustomKey();
@@ -2052,9 +1979,6 @@ class IPCHandlers {
     ipcMain.handle("sync-startup-preferences", async (event, prefs) => {
       const setVars = {};
       const clearVars = [];
-
-      // Local transcription models are gone; clear what older builds saved.
-      clearVars.push("LOCAL_TRANSCRIPTION_PROVIDER", "PARAKEET_MODEL", "LOCAL_WHISPER_MODEL");
 
       // TODO: drop legacy REASONING_PROVIDER / LOCAL_REASONING_MODEL clears once
       // the read fallback is removed (~2 releases after this lands).

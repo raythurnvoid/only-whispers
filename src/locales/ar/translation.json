@@ -188,48 +188,6 @@
     "learnMore": "اعرف المزيد",
     "noneAvailable": "لا توجد نماذج متاحة",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "أدق نموذج محلي للتعرف على الكلام (متوسط معدل خطأ الكلمة 5.42%، 14 لغة). بدون اكتشاف تلقائي للغة"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "تعرف سريع على الكلام متعدد اللغات مع اكتشاف تلقائي للغة (25 لغة)",
-        "parakeet_unified_en_0_6b": "تعرف على الكلام باللغة الإنجليزية فقط بدقة رائدة (5.91% متوسط معدل خطأ الكلمة)",
-        "nemotron_speech_streaming_en_0_6b": "تعرف على الكلام المتدفق باللغة الإنجليزية من NVIDIA Nemotron",
-        "nemotron_3_5_asr_streaming_0_6b": "تعرف على الكلام المتدفق متعدد اللغات من NVIDIA Nemotron مع اكتشاف تلقائي للغة (15 لغة)",
-        "orukeet": "نسخة مضبوطة من Parakeet للتعرف على الكلام متعدد اللغات"
-      },
-      "diarization": {
-        "segmentation": "اكتشاف حدود الكلام للتعرف على المتحدثين",
-        "embedding_en": "بصمة صوت المتحدث للتعرف على الهوية"
-      },
-      "whisper": {
-        "tiny": "الأسرع، جودة أقل",
-        "base": "توازن جيد",
-        "small": "جودة أفضل، أبطأ",
-        "medium": "جودة عالية",
-        "large": "أفضل جودة، الأبطأ",
-        "turbo": "سريع بجودة جيدة"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "الأحدث والأكثر دقة في التفريغ",
-        "openai_gpt_4o_mini_transcribe": "تفريغ سريع ودقيق",
-        "openai_gpt_4o_transcribe": "التفريغ الأكثر دقة",
-        "openai_whisper_1": "نموذج Whisper الأصلي",
-        "groq_whisper_large_v3": "تعرف على الكلام بدقة عالية",
-        "groq_whisper_large_v3_turbo": "أسرع من الوقت الفعلي بـ216 ضعفًا",
-        "mistral_voxtral_mini_latest": "تفريغ سريع متعدد اللغات",
-        "gemini_3_5_transcribe": "تحويل الكلام إلى نص من Google Gemini",
-        "gemini_3_5_transcribe_live": "تحويل الكلام إلى نص بالبث في الوقت الفعلي",
-        "corti_transcribe": "تفريغ طبي بدرجة سريرية",
-        "xai_grok_stt": "تعرف على الكلام بدقة عالية من xAI",
-        "tinfoil_voxtral": "تفريغ خاص يمكن التحقق منه",
-        "deepgram_nova_3": "نموذج Deepgram الأكثر دقة في الوقت الفعلي",
-        "assemblyai_universal_streaming_english": "نصوص مفرَّغة ثابتة في الوقت الفعلي، الإنجليزية",
-        "assemblyai_universal_streaming_multilingual": "نصوص مفرَّغة ثابتة في الوقت الفعلي، متعددة اللغات",
-        "assemblyai_universal_3_5_pro": "أعلى دقة في الوقت الفعلي، 18 لغة",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: سريع ودقيق، أكثر من 50 لغة، 0.0035$/دقيقة",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: الأكثر دقة، أكثر من 50 لغة، 0.004$/دقيقة"
-      },
       "cloud": {
         "openai_gpt_5_2": "نموذج استنتاج قوي",
         "openai_gpt_5_mini": "سريع وفعال من حيث التكلفة",

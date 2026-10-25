@@ -446,24 +446,4 @@ function testTinfoilKey(request, apiKey, fetchImpl, runPaidCheck) {
   });
 }
 
-// Corti's speech credentials are exchanged for a token (cortiAuth.js). Only an answer from
-// Corti can refuse them, and getCortiToken prefixes those errors and attaches the status. A
-// token request that never reached Corti, or found it busy or down, gives no verdict, and
-// reporting it as "credentials rejected" sends the user to re-type a key that was never the
-// issue.
-function describeCortiTokenFailure(error) {
-  if (error?.name === "AbortError") return { success: false, ...TIMEOUT_FAILURE };
-  if (!/^(Corti authentication failed|Invalid Corti)/.test(error?.message || "")) {
-    return { success: false, ...NETWORK_FAILURE };
-  }
-  if (isUnverifiedStatus(error.status)) {
-    return { success: false, ...describeStatusFailure(error.status, "corti") };
-  }
-  return {
-    success: false,
-    errorCode: "credentialsRejected",
-    error: "Corti rejected these credentials.",
-  };
-}
-
-module.exports = { describeCortiTokenFailure, resolveProviderRequest, testProviderConnection };
+module.exports = { resolveProviderRequest, testProviderConnection };

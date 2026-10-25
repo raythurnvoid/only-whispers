@@ -875,48 +875,6 @@
     "learnMore": "Learn more",
     "noneAvailable": "No models available",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "Most accurate local ASR (5.42% avg WER, 14 languages). No auto language detection"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "Fast multilingual ASR with auto language detection (25 languages)",
-        "parakeet_unified_en_0_6b": "English-only ASR with state-of-the-art accuracy (5.91% avg WER)",
-        "nemotron_speech_streaming_en_0_6b": "English streaming ASR from NVIDIA Nemotron",
-        "nemotron_3_5_asr_streaming_0_6b": "Multilingual streaming ASR from NVIDIA Nemotron with auto language detection (15 languages)",
-        "orukeet": "Parakeet fine-tune for multilingual speech recognition"
-      },
-      "diarization": {
-        "segmentation": "Speech boundary detection for speaker diarization",
-        "embedding_en": "Speaker voice fingerprinting for identification"
-      },
-      "whisper": {
-        "tiny": "Fastest, lower quality",
-        "base": "Good balance",
-        "small": "Better quality, slower",
-        "medium": "High quality",
-        "large": "Best quality, slowest",
-        "turbo": "Fast with good quality"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "Newest, most accurate transcription",
-        "openai_gpt_4o_mini_transcribe": "Fast and accurate transcription",
-        "openai_gpt_4o_transcribe": "Most accurate transcription",
-        "openai_whisper_1": "Original Whisper model",
-        "groq_whisper_large_v3": "High accuracy speech recognition",
-        "groq_whisper_large_v3_turbo": "216x real-time speed",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: fast, accurate, 50+ languages, $0.0035/min",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: most accurate, 50+ languages, $0.004/min",
-        "mistral_voxtral_mini_latest": "Fast multilingual transcription",
-        "gemini_3_5_transcribe": "Google's Gemini speech-to-text",
-        "gemini_3_5_transcribe_live": "Realtime streaming speech-to-text",
-        "corti_transcribe": "Clinical-grade medical transcription",
-        "xai_grok_stt": "High-accuracy speech recognition by xAI",
-        "tinfoil_voxtral": "Verifiably private transcription",
-        "deepgram_nova_3": "Deepgram's most accurate realtime model",
-        "assemblyai_universal_streaming_english": "Immutable realtime transcripts, English",
-        "assemblyai_universal_streaming_multilingual": "Immutable realtime transcripts, multilingual",
-        "assemblyai_universal_3_5_pro": "Highest accuracy realtime, 18 languages"
-      },
       "cloud": {
         "openai_gpt_5_2": "Strong reasoning model",
         "openai_gpt_5_mini": "Fast and cost-efficient",
