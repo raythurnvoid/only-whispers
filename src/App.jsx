@@ -16,6 +16,7 @@ import { useListeningEntrancePhase } from "./hooks/useListeningEntrancePhase";
 import { useWindowResizeCompensation } from "./hooks/useWindowResizeCompensation";
 import { useSettingsStore } from "./stores/settingsStore";
 import { useTrayQuickActions } from "./hooks/useTrayQuickActions";
+import { usePalazzoTheme } from "./hooks/usePalazzoTheme";
 import { VoicePill } from "./components/dictation/VoicePill";
 import { AssistantPanel } from "./components/dictation/AssistantPanel";
 import { LiveTranscriptPanel } from "./components/dictation/LiveTranscriptPanel";
@@ -90,6 +91,8 @@ export default function App() {
     () => dismissByPresentation("dictation-error"),
     [dismissByPresentation]
   );
+
+  usePalazzoTheme();
 
   useEffect(() => {
     setWindowInteractivity(false);

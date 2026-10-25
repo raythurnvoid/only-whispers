@@ -9,6 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useListeningEntrancePhase } from "../../hooks/useListeningEntrancePhase";
 import { useLiveTranscriptPanel } from "../../hooks/useLiveTranscriptPanel";
+import { usePalazzoTheme } from "../../hooks/usePalazzoTheme";
 import {
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
   resolveCompanionPillInteractive,
@@ -45,6 +46,7 @@ export default function AgentDictationPillOverlay() {
   const [hovered, setHovered] = useState(false);
   const audioLevelRef = useRef<number | null>(null);
   const assistantOpenRef = useRef(false);
+  usePalazzoTheme();
 
   useEffect(() => {
     let disposed = false;

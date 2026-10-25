@@ -3,7 +3,7 @@ import { ChevronUp, X } from "../icons";
 import { cn } from "../lib/utils";
 import { MistralIcon, OpenAIIcon } from "./ModelIcons";
 import { PillWaveform } from "./PillWaveform";
-import { VoiceIdentityIcon } from "./VoiceIdentityIcon";
+import { BrandMarkIcon } from "./BrandMarkIcon";
 import { RESTING_WAVE_SILHOUETTE, WAVEFORM_BAR_COUNT } from "./waveformMath";
 import {
   VOICE_PILL_CANCEL,
@@ -141,10 +141,11 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
     <div
       ref={ref}
       className={cn(
-        "voice-pill-control relative flex items-center overflow-hidden rounded-full border",
+        "voice-pill-control pz-marble relative flex items-center overflow-hidden rounded-full border",
         dictationStatus ? "gap-1.5 pl-2 pr-2.5" : "justify-center",
         !dictationStatus && showCompactPill && "pr-1.5",
-        "shadow-[var(--shadow-card)]",
+        // Palazzo floats it on one soft shadow; elsewhere it keeps the card shadow.
+        "shadow-[var(--shadow-float,var(--shadow-card))]",
         STATE_APPEARANCE[state],
         className
       )}
@@ -185,8 +186,12 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
               dictationStatus.phase === "processing" && "inline-response-shimmer"
             )}
           >
-            <span className="font-semibold">{dictationStatus.model}</span>{" "}
-            <span className="text-muted-foreground">{dictationStatus.activity}</span>
+            <span className="pz-display text-[10px] font-semibold tracking-[0.1em] uppercase">
+              {dictationStatus.model}
+            </span>{" "}
+            <span className="text-[12.5px] text-muted-foreground italic">
+              {dictationStatus.activity}
+            </span>
           </span>
           {dictationStatus.phase === "listening" ? (
             <PillWaveform
@@ -194,14 +199,14 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
               active={isRecording}
               barCount={DICTATION_LISTENING_BAR_COUNT}
               maxBarPx={DICTATION_WAVE_MAX_PX}
-              className="relative h-4 min-w-0 flex-1 gap-0.5"
+              className="relative h-4 min-w-0 flex-1 gap-0.5 text-primary"
             />
           ) : (
             // A soft ripple says the model is working. It takes the waveform's
             // stretchy, centered spot, so the label can change (Voxtral, then
             // Luna) without leaving a gap.
             <span
-              className="relative flex h-4 min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden"
+              className="relative flex h-4 min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden text-muted-foreground"
               aria-hidden="true"
             >
               {Array.from({ length: DICTATION_RIPPLE_BAR_COUNT }, (_, index) => (
@@ -227,9 +232,8 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
                 showExpandChevron ? "translate-y-1 scale-75 opacity-0" : "scale-100 opacity-100"
               )}
             >
-              <VoiceIdentityIcon
+              <BrandMarkIcon
                 size={identitySize}
-                agentMode={agentMode}
                 className={cn(
                   "transition-[width,height] duration-200",
                   state === "idle" && "text-foreground",
@@ -259,7 +263,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
           />
 
           <div
-            className="voice-pill-waveform relative shrink-0 overflow-hidden text-foreground"
+            className="voice-pill-waveform relative shrink-0 overflow-hidden text-primary"
             style={{
               width: showCompactPill ? 52 : 0,
               height: showCompactPill ? 24 : 32,

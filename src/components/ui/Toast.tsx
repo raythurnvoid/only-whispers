@@ -1,5 +1,5 @@
 import * as React from "react";
-import { X, Copy, Check } from "../icons";
+import { X, Copy, Check, AlertCircle } from "../icons";
 import { useTranslation } from "react-i18next";
 import { cn } from "../lib/utils";
 import {
@@ -19,6 +19,7 @@ import { useCopyFeedback } from "../../hooks/useCopyFeedback";
 import { DictationErrorCard } from "../dictation/DictationErrorCard";
 import { TOAST_ACTION_ICONS } from "./toastActionIcons";
 import { TechnicalErrorDetails } from "./TechnicalErrorDetails";
+import { LaurelSprig } from "../laurel";
 
 /** The inline action beside a toast's text; dismissing is left to the caller. */
 export function ToastActionButton({
@@ -32,7 +33,7 @@ export function ToastActionButton({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-sm border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-medium whitespace-nowrap text-white/90 transition-colors hover:border-white/35 hover:bg-white/20 hover:text-white"
+      className="pz-display rounded-sm border border-border bg-surface-1 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] whitespace-nowrap text-foreground uppercase transition-colors hover:bg-surface-3"
     >
       {children}
     </button>
@@ -79,7 +80,7 @@ function StandardToastAction({
       type="button"
       onClick={() => void handleClick()}
       title={label}
-      className="rounded-sm border border-white/20 bg-white/10 p-1 text-white/70 transition-colors hover:border-white/35 hover:bg-white/20 hover:text-white"
+      className="rounded-sm border border-border bg-surface-1 p-1 text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
     >
       <Icon className="size-3" aria-hidden="true" />
       <span className="sr-only" aria-live={action.feedback ? "polite" : undefined}>
@@ -308,18 +309,19 @@ const ToastViewport: React.FC<{
   );
 };
 
+// An icon says the kind (none for default); the hairline at the bottom counts down.
 const variantConfig = {
   default: {
-    accentClass: "bg-white/20",
-    progressClass: "bg-white/15",
+    icon: null,
+    progressClass: "bg-muted-foreground/45",
   },
   destructive: {
-    accentClass: "bg-red-400",
-    progressClass: "bg-red-400/30",
+    icon: <AlertCircle className="mt-px size-4 shrink-0 text-destructive" aria-hidden="true" />,
+    progressClass: "bg-destructive/55",
   },
   success: {
-    accentClass: "bg-emerald-400",
-    progressClass: "bg-emerald-400/30",
+    icon: <LaurelSprig className="size-4.5 shrink-0 text-success" />,
+    progressClass: "bg-success/70",
   },
 };
 
@@ -447,8 +449,8 @@ const Toast: React.FC<
   return (
     <div
       className={cn(
-        "group toast-surface pointer-events-auto relative flex w-75",
-        "rounded-[5px]",
+        "group toast-surface pz-panel pointer-events-auto relative flex w-75",
+        "rounded-sm",
         "transition-[opacity,transform] duration-200 ease-out",
         isExiting
           ? "opacity-0 translate-x-2 rtl:-translate-x-2 scale-[0.98]"
@@ -457,23 +459,22 @@ const Toast: React.FC<
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={cn("w-0.5 shrink-0", config.accentClass)} />
-
-      <div className="flex items-start gap-2 flex-1 min-w-0 px-2.5 py-2">
+      <div className="flex flex-1 min-w-0 items-start gap-2.5 py-2.5 ps-3 pe-2">
+        {config.icon}
         <div className="flex-1 min-w-0">
-          {message && (
-            <div className="text-xs font-medium leading-tight text-white/90">{message}</div>
-          )}
+          {message && <div className="text-[13.5px] leading-snug text-foreground">{message}</div>}
           {secondaryDescription && (
-            <div className="mt-1 text-xs leading-snug text-white/45">{secondaryDescription}</div>
+            <div className="mt-1 text-xs leading-snug text-muted-foreground">
+              {secondaryDescription}
+            </div>
           )}
           {detail &&
             (isDestructive && !rowActions ? (
               <div
                 className={cn(
                   "text-xs leading-snug mt-1 px-1.5 py-1 rounded-[3px] font-mono",
-                  "bg-white/4 border border-white/6",
-                  "text-red-300/80"
+                  "bg-surface-1/60 border border-border",
+                  "text-destructive"
                 )}
               >
                 <div className="flex items-start justify-between gap-1.5">
@@ -482,8 +483,8 @@ const Toast: React.FC<
                     onClick={() => void copy()}
                     className={cn(
                       "shrink-0 p-0.5 rounded-xs mt-px",
-                      "text-white/30 hover:text-white/70",
-                      "hover:bg-white/6",
+                      "text-muted-foreground hover:text-foreground",
+                      "hover:bg-surface-3",
                       "transition-colors duration-150"
                     )}
                     aria-label="Copy error"
@@ -493,27 +494,27 @@ const Toast: React.FC<
                 </div>
               </div>
             ) : (
-              <div className="text-xs leading-snug mt-0.5 text-white/45">{detail}</div>
+              <div className="text-xs leading-snug mt-0.5 text-muted-foreground">{detail}</div>
             ))}
           {copyCommand && (
-            <div className="mt-1.5 flex items-center gap-1.5 rounded-[3px] border border-white/6 bg-white/4 px-1.5 py-1">
+            <div className="mt-1.5 flex items-center gap-1.5 rounded-[3px] border border-border bg-surface-1/60 px-1.5 py-1">
               <code
                 dir="ltr"
-                className="min-w-0 flex-1 wrap-break-word font-mono text-[11px] text-white/60 select-all"
+                className="min-w-0 flex-1 wrap-break-word font-mono text-[11px] text-muted-foreground select-all"
               >
                 {copyCommand}
               </code>
               <button
                 type="button"
                 onClick={() => void copyRecoveryCommand()}
-                className="shrink-0 rounded-xs p-1 text-white/30 transition-colors hover:bg-white/6 hover:text-white/70"
+                className="shrink-0 rounded-xs p-1 text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
                 aria-label={t("reasoning.enterprise.technicalDetails.copyCommand")}
               >
                 {commandCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
               </button>
             </div>
           )}
-          <TechnicalErrorDetails details={technicalDetails} onDark />
+          <TechnicalErrorDetails details={technicalDetails} />
           {rowActions && (
             <div
               className={cn(
@@ -541,11 +542,11 @@ const Toast: React.FC<
           className={cn(
             "absolute -start-2 -top-2 size-6 rounded-full",
             "flex items-center justify-center",
-            "bg-white/10 backdrop-blur-sm border border-white/10",
-            "text-white/70 hover:text-white hover:bg-white/20",
+            "bg-surface-2 border border-border shadow-[var(--shadow-float,none)]",
+            "text-muted-foreground hover:text-foreground hover:bg-surface-3",
             "opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100",
             "transition-all duration-150",
-            "focus:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
+            "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/40"
           )}
         >
           <X className="size-3" />
@@ -554,7 +555,7 @@ const Toast: React.FC<
       )}
 
       {duration > 0 && !isExiting && (
-        <div className="absolute bottom-0 start-0.5 end-0 h-px overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden">
           <div
             className={cn("h-full", config.progressClass)}
             style={{

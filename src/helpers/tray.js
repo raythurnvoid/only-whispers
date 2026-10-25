@@ -1,4 +1,4 @@
-const { Tray, Menu, nativeImage, app, systemPreferences } = require("electron");
+const { Tray, Menu, nativeImage, nativeTheme, app, systemPreferences } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const debugLogger = require("./debugLogger");
@@ -157,6 +157,14 @@ class TrayManager {
         this.tray = new Tray(trayIcon);
       }
 
+      // The Windows icon follows the taskbar: Night marble on a dark one.
+      if (process.platform === "win32") {
+        nativeTheme.on("updated", async () => {
+          const icon = await this.loadTrayIcon();
+          if (this.tray && !this.tray.isDestroyed() && !icon.isEmpty()) this.tray.setImage(icon);
+        });
+      }
+
       this.updateTrayMenu();
       this.setupTrayEventHandlers();
     } catch (error) {
@@ -189,7 +197,13 @@ class TrayManager {
         );
       }
     } else {
-      const fileName = platform === "win32" ? "icon.ico" : "icon.png";
+      // The taskbar's theme, which can differ from the app's.
+      const fileName =
+        platform !== "win32"
+          ? "icon.png"
+          : nativeTheme.shouldUseDarkColorsForSystemIntegratedUI
+            ? "icon-night.ico"
+            : "icon.ico";
       if (isDevelopment) {
         candidatePaths.push(
           path.join(__dirname, "..", "assets", fileName),

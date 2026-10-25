@@ -47,7 +47,7 @@ export function useMainProcessNotifications({
           variant: "success",
           duration: 6000,
           action: (
-            <button
+            <ToastActionButton
               onClick={async () => {
                 try {
                   const result = await window.electronAPI?.undoLearnedCorrections?.(words);
@@ -58,14 +58,9 @@ export function useMainProcessNotifications({
                   // silently fail — word stays in dictionary
                 }
               }}
-              className="text-[10px] font-medium px-2.5 py-1 rounded-sm whitespace-nowrap
-                text-emerald-100/90 hover:text-white
-                bg-emerald-500/15 hover:bg-emerald-500/25
-                border border-emerald-400/20 hover:border-emerald-400/35
-                transition-all duration-150"
             >
               {t("app.toasts.undo")}
-            </button>
+            </ToastActionButton>
           ),
         });
       }

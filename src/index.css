@@ -1095,14 +1095,16 @@ a:hover {
   filter: invert(1);
 }
 
-/* Toast — opaque dark HUD surface, same in light & dark mode */
+/* Toast: an opaque card in the window's theme. Under Palazzo, pz-panel adds
+   the marble (only background-color is set here, so its image stays). */
 .toast-surface {
-  background: oklch(0.15 0.006 260);
-  border: 1px solid oklch(0.25 0.006 260);
-  box-shadow:
-    inset 0 1px 0 oklch(1 0 0 / 0.04),
-    0 8px 24px -4px oklch(0 0 0 / 0.5),
-    0 2px 8px -2px oklch(0 0 0 / 0.3);
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  box-shadow: var(
+    --shadow-float,
+    0 8px 24px -4px oklch(0 0 0 / 0.3),
+    0 2px 8px -2px oklch(0 0 0 / 0.2)
+  );
 }
 
 /* Enter from the physical outer edge of the direction-aware toast stack. */
@@ -1139,15 +1141,6 @@ a:hover {
   }
   to {
     width: 0%;
-  }
-}
-
-@keyframes toast-border-progress {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: 1;
   }
 }
 

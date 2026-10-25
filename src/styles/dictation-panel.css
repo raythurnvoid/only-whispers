@@ -159,20 +159,6 @@
   box-shadow: none;
 }
 
-/* The SVG geometry itself moves between identities: the listening ring opens
-   into the leaf contour, while its bars bend into the leaf spine and spark. */
-.voice-identity-svg {
-  color: inherit;
-}
-
-.voice-identity-icon[data-agent-mode="true"] .voice-identity-svg {
-  color: var(--color-agent-brand);
-}
-
-.voice-identity-final-agent {
-  color: var(--color-agent-brand);
-}
-
 /* Agent response controls and the persistent pill share the footer anchor.
    Right-origin sessions retreat right and grow leftward; left-origin sessions
    mirror the same choreography without swapping DOM order mid-transition. */

@@ -78,13 +78,14 @@ function ErrorAction({
       disabled={pending}
       title={action.iconOnly ? label : undefined}
       className={cn(
-        "inline-flex h-8 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-full",
+        "inline-flex h-8 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm",
         action.iconOnly ? "w-8" : "px-4",
-        "text-sm font-medium transition-[background-color,color,transform] duration-150",
+        "pz-display text-[10.5px] font-semibold tracking-[0.1em] uppercase",
+        "transition-[background-color,color,transform] duration-150",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.98] disabled:cursor-wait",
         primary
-          ? "bg-foreground text-background hover:bg-foreground/90"
-          : "bg-foreground/15 text-foreground hover:bg-foreground/20"
+          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+          : "border border-border bg-card text-foreground hover:bg-surface-3"
       )}
     >
       {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
@@ -117,7 +118,8 @@ function ErrorDescription({ text, hotkey }: { text: string; hotkey?: string }) {
             className="inline-flex items-center gap-1"
           >
             {index > 0 && <span className="text-xs">+</span>}
-            <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-surface-raised px-1 font-sans text-[11px] font-medium text-foreground shadow-sm">
+            {/* A stone keycap: the thicker bottom edge gives it depth. */}
+            <kbd className="pz-display inline-flex h-5 min-w-5 items-center justify-center rounded-sm border border-b-2 border-border bg-surface-2 px-1.5 text-[9.5px] font-semibold tracking-[0.08em] text-foreground">
               {key === "Cmd" ? "⌘" : key}
             </kbd>
           </span>
@@ -232,33 +234,25 @@ export function DictationErrorCard({
       aria-live="assertive"
       data-action-count={actions.length}
       className={cn(
-        "relative max-h-[calc(100vh-1.5rem)] w-full overflow-y-auto rounded-2xl border border-border/50 bg-surface-0",
-        "shadow-[var(--shadow-modal)] transition-[opacity,transform] duration-200 ease-out",
+        "pz-panel relative max-h-[calc(100vh-1.5rem)] w-full overflow-y-auto rounded-sm border border-border bg-surface-0",
+        "shadow-[var(--shadow-float,var(--shadow-modal))] transition-[opacity,transform] duration-200 ease-out",
         ready ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0"
       )}
     >
       {progressDuration > 0 && (
-        <svg
-          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-4 w-full overflow-visible text-foreground"
-          viewBox="0 0 442 17"
-          preserveAspectRatio="none"
+        // The same countdown hairline as the toasts.
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-0.5 overflow-hidden"
           aria-hidden="true"
         >
-          <path
-            d="M 1 16 A 15 15 0 0 1 16 1 H 426 A 15 15 0 0 1 441 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            vectorEffect="non-scaling-stroke"
-            strokeLinecap="butt"
-            pathLength="1"
-            strokeDasharray="1"
+          <div
+            className="h-full bg-destructive/55"
             style={{
-              animation: `toast-border-progress ${progressDuration}ms linear forwards`,
+              animation: `toast-progress ${progressDuration}ms linear forwards`,
               animationPlayState: progressPaused ? "paused" : "running",
             }}
           />
-        </svg>
+        </div>
       )}
       {onDismiss && (
         <button

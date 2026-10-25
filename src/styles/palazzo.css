@@ -1,7 +1,7 @@
-/* Palazzo: the control panel's look (cut stone, cloudy marble, Roman capitals).
-   Only the control panel sets html.palazzo (ControlPanel.tsx), so the dictation
-   pill and onboarding keep their own look. Tokens are set on body too, because
-   useTheme puts .dark on body as well, and body's own values would win. */
+/* Palazzo: the app's look (cut stone, cloudy marble, Roman capitals).
+   The control panel and the dictation windows set html.palazzo (usePalazzoTheme),
+   so onboarding keeps its own look. Tokens are set on body too, because useTheme
+   puts .dark on body as well, and body's own values would win. */
 
 html.palazzo,
 html.palazzo body {
@@ -21,7 +21,11 @@ html.palazzo body {
   /* Ornament masks are painted in this color. */
   --ornament: #c4aa80;
   --laurel: #5e7a36;
+  /* The microphone in the app mark (BrandMarkIcon). */
+  --mark-mic: #7a4f27;
   --marble: url("../assets/palazzo/marble-light.webp");
+  /* Floating widgets (pill, toasts) sit over other apps, so they get one soft shadow. */
+  --shadow-float: 0 4px 12px -4px rgb(30 20 10 / 0.35), 0 1px 2px rgb(30 20 10 / 0.18);
 
   /* The app's tokens, mapped onto stone. */
   --color-primary: var(--accent);
@@ -46,6 +50,7 @@ html.palazzo body {
   --color-link: var(--accent-ink);
   --color-info: var(--accent-ink);
   --color-warning: var(--accent-ink);
+  --color-success: var(--laurel);
   --color-surface-0: var(--stone-2);
   --color-surface-1: var(--stone-1);
   --color-surface-2: var(--stone-2);
@@ -93,7 +98,18 @@ html.palazzo.dark body {
   --on-accent: #1c150f;
   --ornament: #6e573f;
   --laurel: #8fae5c;
+  --mark-mic: #f1e6d3;
   --marble: url("../assets/palazzo/marble-dark.webp");
+  --shadow-float: 0 4px 14px -4px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+/* The pill's "working" glow (dictation-panel.css) burns orange, not blue. The
+   assistant keeps its purple, so the two modes still read apart. */
+html.palazzo .processing-signal-glow:not([data-agent]) {
+  --signal-bright: #f6a55a;
+  --signal-core: #e07a1c;
+  --signal-deep: #b5590c;
+  --signal-head: #fff3e3;
 }
 
 /* Garamond has a small x-height, so its letters are scaled up to read like the
@@ -147,6 +163,12 @@ html.palazzo [data-slot="button"]:not([data-variant="link"]) {
     background-size: 640px 640px;
     background-position: -310px -140px;
     background-attachment: fixed;
+  }
+
+  /* Marble on a surface that sets its own background color (pill, toasts). */
+  .pz-marble {
+    background-image: var(--marble);
+    background-size: 640px 640px;
   }
 
   /* Where text sits, a 55% stone wash keeps the marble calm. */

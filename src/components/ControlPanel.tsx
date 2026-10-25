@@ -6,6 +6,7 @@ import { useHotkey } from "../hooks/useHotkey";
 import { useToast } from "./ui/useToast";
 import { useSettings } from "../hooks/useSettings";
 import { useCollapsibleSidebar } from "../hooks/useCollapsibleSidebar";
+import { usePalazzoTheme } from "../hooks/usePalazzoTheme";
 import {
   useTranscriptions,
   useShowDiscarded,
@@ -100,12 +101,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     loadTranscriptions();
   }, [loadTranscriptions]);
 
-  // The Palazzo look (styles/palazzo.css) is the control panel only. It sits on
-  // <html> so dialogs and menus portalled into body get it too.
-  useEffect(() => {
-    document.documentElement.classList.add("palazzo");
-    return () => document.documentElement.classList.remove("palazzo");
-  }, []);
+  usePalazzoTheme();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
