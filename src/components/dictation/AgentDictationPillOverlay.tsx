@@ -11,7 +11,6 @@ import { useListeningEntrancePhase } from "../../hooks/useListeningEntrancePhase
 import { useLiveTranscriptPanel } from "../../hooks/useLiveTranscriptPanel";
 import {
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
-  VOICE_PILL_FOOTPRINT,
   resolveCompanionPillInteractive,
   resolveListeningEntrancePresentation,
   resolveLiveTranscriptEntrancePresentation,
@@ -20,7 +19,7 @@ import {
   resolveVoicePillInteraction,
   shouldOfferLiveTranscriptReopen,
 } from "../../helpers/voicePillPresentation";
-import { LiquidCancelButton } from "./LiquidCancelButton";
+import { PillCancelButton } from "./PillCancelButton";
 import { LiveTranscriptPanel, type LiveTranscriptPhase } from "./LiveTranscriptPanel";
 import { VoiceModePanelCore, type VoiceModePanelStage } from "./VoiceModePanelCore";
 import { VoicePill, type VoicePillState } from "./VoicePill";
@@ -171,11 +170,6 @@ export default function AgentDictationPillOverlay() {
         ? "hover"
         : "idle")) as VoicePillState;
   const expanded = isRecording ? listeningEntrance.compactPill : voiceActivity.compactPill;
-  // Same liquid cancel as the main pill (App.jsx): footprint targets for the
-  // skin's geometry tween, and the pill goes headless while the skin owns the
-  // fused surface.
-  const [cancelSkinActive, setCancelSkinActive] = useState(false);
-  const cancelPillFootprint = expanded ? VOICE_PILL_FOOTPRINT.recording : VOICE_PILL_FOOTPRINT.idle;
   // The shared rule (a mounted transcript locks the pill except while
   // recording) comes from the tested helper; the companion additionally
   // requires main-process consent and no transcript still processing.
@@ -184,7 +178,6 @@ export default function AgentDictationPillOverlay() {
     liveTranscriptMounted: liveTranscript.mounted,
     isRecording,
     isProcessing,
-    isHovered: hovered,
   });
   const pillInteractive = resolveCompanionPillInteractive({
     mainProcessInteractive: companionState.interactive,
@@ -233,7 +226,6 @@ export default function AgentDictationPillOverlay() {
             waveformVisible={listeningEntrance.waveformVisible}
             waveformOnlyWhileRecording={liveTranscript.mounted}
             integratedWithPanel={liveTranscript.open}
-            liquidFused={cancelSkinActive}
             showExpandChevron={canReopenLiveTranscript && hovered}
             getAudioLevel={getAudioLevel}
             horizontalDirection={horizontalDirection}
@@ -242,19 +234,14 @@ export default function AgentDictationPillOverlay() {
             aria-disabled={!pillInteractive}
             onClick={activatePill}
           />
-          <LiquidCancelButton
+          <PillCancelButton
             visible={cancelVisible}
-            fused={!liveTranscript.open}
-            pillWidth={cancelPillFootprint.width}
-            pillHeight={cancelPillFootprint.height}
-            pillState={state}
             ariaLabel={
               isRecording ? t("app.buttons.cancelRecording") : t("app.buttons.cancelProcessing")
             }
             onCancel={() => {
               void window.electronAPI.cancelAgentPanelDictation?.();
             }}
-            onFusedSkinChange={setCancelSkinActive}
           />
         </div>
       </div>

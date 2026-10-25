@@ -333,7 +333,6 @@ export function resolveVoicePillInteraction({
   liveTranscriptMounted,
   isRecording,
   isProcessing,
-  isHovered = false,
 }) {
   if (assistantMounted) {
     return { pillInteractive: false, cancelVisible: false };
@@ -342,9 +341,8 @@ export function resolveVoicePillInteraction({
   const active = Boolean(isRecording) || Boolean(isProcessing);
   return {
     pillInteractive: !liveTranscriptMounted || Boolean(isRecording),
-    // Live Transcript always shows its discard control; the bare pill shows
-    // it on hover so a stalled processing step can still be cancelled.
-    cancelVisible: active && (Boolean(liveTranscriptMounted) || Boolean(isHovered)),
+    // The cancel X stays visible for the whole recording and processing.
+    cancelVisible: active,
   };
 }
 

@@ -241,15 +241,6 @@
     0 0 10px color-mix(in oklch, var(--color-agent-brand) 18%, transparent);
 }
 
-/* While the cancel button's liquid skin owns the fused surface, the pill goes
-   headless like inside the Live Transcript panel. Placed after the agent-beam
-   rule so a fused pill never keeps the brand glow ring on its own box. */
-.voice-pill-control[data-liquid-fused="true"] {
-  border-color: transparent;
-  background-color: transparent;
-  box-shadow: none;
-}
-
 /* Hands-free ring: a firmer inner edge while a recording runs without a held
    key. Drawn on ::after because hover sets an inline box-shadow on the pill.
    Brightness, not hue, so it reads for color-blind users too. */
@@ -264,10 +255,8 @@
   transition: opacity 160ms ease-out;
 }
 
-/* A headless pill (fused cancel skin, Live Transcript panel) has no edge to firm up. */
-.voice-pill-control[data-hands-free]:not([data-liquid-fused]):not(
-    [data-integrated-with-panel]
-  )::after {
+/* A headless pill (inside the Live Transcript panel) has no edge to firm up. */
+.voice-pill-control[data-hands-free]:not([data-integrated-with-panel])::after {
   opacity: 1;
 }
 
@@ -301,44 +290,6 @@
   to {
     box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-foreground) 40%, transparent);
   }
-}
-
-.liquid-cancel-skin {
-  pointer-events: none;
-}
-
-/* The skin's chrome mirrors VoicePill's STATE_APPEARANCE border/background
-   classes for every state it can replace — change together. Hover matters: a
-   de-fusing skin lingers over a hovered pill for its 280ms collapse, and
-   hover is the one state on surface-3. Fill and stroke transition at the
-   pill's own 220ms so a state flip under the skin (recording → thinking)
-   shades over instead of popping. */
-.liquid-cancel-skin path {
-  fill: var(--color-surface-1);
-  stroke: var(--color-border-hover);
-  transition:
-    fill 220ms ease-out,
-    stroke 220ms ease-out;
-}
-
-.liquid-cancel-skin[data-pill-state="hover"] path {
-  fill: var(--color-surface-3);
-}
-
-.liquid-cancel-skin[data-pill-state="processing"] path,
-.liquid-cancel-skin[data-pill-state="thinking"] path,
-.liquid-cancel-skin[data-pill-state="unavailable"] path {
-  stroke: color-mix(in oklab, var(--color-border) 60%, transparent);
-}
-
-/* The idle pill's dark-theme border is softer (dark:border-border/50). */
-.dark .liquid-cancel-skin[data-pill-state="idle"] path {
-  stroke: color-mix(in oklab, var(--color-border) 50%, transparent);
-}
-
-/* Match the pill's shadow-card, which only exists in dark theme. */
-.dark .liquid-cancel-skin {
-  filter: drop-shadow(0 1px 3px oklch(0 0 0 / 0.2));
 }
 
 /* The Signal glow: a comet orbiting a breathing ambient halo around the

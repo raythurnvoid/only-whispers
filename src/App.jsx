@@ -22,7 +22,7 @@ import { LiveTranscriptPanel } from "./components/dictation/LiveTranscriptPanel"
 import { VoiceModePanelCore } from "./components/dictation/VoiceModePanelCore";
 import { PillTooltip } from "./components/dictation/PillTooltip";
 import { PillCommandMenu } from "./components/dictation/PillCommandMenu";
-import { LiquidCancelButton } from "./components/dictation/LiquidCancelButton";
+import { PillCancelButton } from "./components/dictation/PillCancelButton";
 import { createMainWindowResizeCoordinator } from "./utils/mainWindowResizeCoordinator";
 import {
   ASSISTANT_FOOTER_TRANSITION_TIMING,
@@ -37,7 +37,6 @@ import {
   resolveVoicePanelCorePresentation,
   resolveVoicePillDock,
   resolveVoicePillInteraction,
-  VOICE_PILL_FOOTPRINT,
   isVoicePillActivationKey,
   shouldActivateVoicePill,
   shouldOfferLiveTranscriptReopen,
@@ -561,24 +560,8 @@ export default function App() {
     liveTranscriptMounted: liveTranscript.mounted,
     isRecording,
     isProcessing,
-    isHovered,
   });
   const pillIsInteractive = voicePillInteraction.pillInteractive;
-  // The cancel button pours out of the pill as a fused liquid skin — except
-  // inside the Live Transcript panel, where the pill is already headless and
-  // the classic bordered circle stays (with the same emergence motion).
-  const [cancelSkinActive, setCancelSkinActive] = useState(false);
-  const cancelFused = !liveTranscript.open;
-  // isCompactPill tracks the pill's footprint through the entrance phases
-  // (logo-collapsed thinking renders 40×40 even while recording). These are
-  // targets, not rendered sizes: the pill transitions between footprints over
-  // GROW_TRANSITION, and the skin tweens its geometry to match
-  // (usePillFootprintTween in LiquidCancelButton).
-  const cancelPillFootprint = dictationStatus
-    ? VOICE_PILL_FOOTPRINT.dictation
-    : isCompactPill
-      ? VOICE_PILL_FOOTPRINT.recording
-      : VOICE_PILL_FOOTPRINT.idle;
   const activateVoicePill = () => {
     if (!pillIsInteractive) return;
     if (canReopenLiveTranscript) {
@@ -721,7 +704,6 @@ export default function App() {
               waveformVisible={listeningEntrance.waveformVisible}
               waveformOnlyWhileRecording={anyPanelMounted}
               integratedWithPanel={liveTranscript.open}
-              liquidFused={cancelSkinActive}
               agentMode={agentModeActive}
               showExpandChevron={canReopenLiveTranscript && isHovered}
               getAudioLevel={getAudioLevel}
@@ -787,12 +769,8 @@ export default function App() {
               }}
             />
           </PillTooltip>
-          <LiquidCancelButton
+          <PillCancelButton
             visible={voicePillInteraction.cancelVisible}
-            fused={cancelFused}
-            pillWidth={cancelPillFootprint.width}
-            pillHeight={cancelPillFootprint.height}
-            pillState={commonPillState}
             ariaLabel={
               isRecording ? t("app.buttons.cancelRecording") : t("app.buttons.cancelProcessing")
             }
@@ -800,7 +778,6 @@ export default function App() {
               if (isRecording) cancelRecording();
               else cancelProcessing();
             }}
-            onFusedSkinChange={setCancelSkinActive}
           />
           {!anyPanelMounted && isCommandMenuOpen && (
             <PillCommandMenu

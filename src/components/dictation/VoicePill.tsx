@@ -30,8 +30,6 @@ interface VoicePillProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"
   waveformVisible?: boolean;
   waveformOnlyWhileRecording?: boolean;
   integratedWithPanel?: boolean;
-  /** The cancel button's liquid skin owns the fused surface; go headless. */
-  liquidFused?: boolean;
   agentMode?: boolean;
   showExpandChevron?: boolean;
   isDragging?: boolean;
@@ -63,9 +61,6 @@ const RESTING_WAVE_HEIGHTS = Array.from(
 // insets (VOICE_PILL_FOOTPRINT in voicePillPresentation.js).
 const COMPACT_CONTENT_GAP_PX = 6;
 
-// Mirrored by .liquid-cancel-skin[data-pill-state] in dictation-panel.css,
-// which redraws this chrome while the cancel skin owns the fused surface —
-// change together.
 const STATE_APPEARANCE: Record<VoicePillState, string> = {
   idle: "border-border-hover bg-surface-1 text-muted-foreground dark:border-border/50",
   hover: "border-border-hover bg-surface-3 text-foreground",
@@ -86,7 +81,6 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
     waveformVisible = true,
     waveformOnlyWhileRecording = false,
     integratedWithPanel = false,
-    liquidFused = false,
     agentMode = false,
     showExpandChevron = false,
     isDragging = false,
@@ -147,16 +141,12 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
         width: footprint.width,
         height: footprint.height,
         cursor: isProcessing || isThinking ? "not-allowed" : isDragging ? "grabbing" : "pointer",
-        // Yields to the fused rule's `box-shadow: none` while the liquid skin
-        // owns the chrome — an inline shadow would outrank it and paint a
-        // phantom capsule when a de-fusing skin lingers over a hovered pill.
-        boxShadow: floatingHover && !liquidFused ? "var(--shadow-card-hover-subtle)" : undefined,
+        boxShadow: floatingHover ? "var(--shadow-card-hover-subtle)" : undefined,
         transition: `${sizeTransition}background-color 220ms ease-out, border-color 220ms ease-out, box-shadow 220ms ease-out`,
         ...style,
       }}
       data-horizontal-direction={horizontalDirection}
       data-integrated-with-panel={integratedWithPanel || undefined}
-      data-liquid-fused={liquidFused || undefined}
       data-agent-mode={agentMode || undefined}
       data-agent-beam-active={(agentMode && isThinking) || undefined}
       data-expand-chevron={showExpandChevron || undefined}
