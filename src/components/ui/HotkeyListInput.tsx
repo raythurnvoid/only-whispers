@@ -151,5 +151,3 @@ export function HotkeyListInput({
     </div>
   );
 }
-
-export default HotkeyListInput;

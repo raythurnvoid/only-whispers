@@ -1,4 +1,4 @@
-export const MODIFIER_ONLY_HOLD_THRESHOLD_MS = 200;
+const MODIFIER_ONLY_HOLD_THRESHOLD_MS = 200;
 
 export function hasMetModifierOnlyHoldThreshold(holdDurationMs: number): boolean {
   return holdDurationMs >= MODIFIER_ONLY_HOLD_THRESHOLD_MS;

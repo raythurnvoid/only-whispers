@@ -127,8 +127,6 @@
       "provider": {
         "apiKey": "API Key",
         "apiKeyPlaceholder": "Paste your API key",
-        "testing": "Testing…",
-        "connected": "Connected",
         "connectionFailed": "The connection could not be verified.",
         "unverified": "Couldn't verify: {{reason}}",
         "errors": {
@@ -690,65 +688,6 @@
     "xwaylandAppsOnly": "automatic pasting works for XWayland apps only",
     "wlClipboardTitle": "Install wl-clipboard to paste into Wayland apps",
     "wlClipboardDescription": "On this desktop, Wayland apps can only read text that only-whispers copies through wl-copy. To paste dictation into them, install wl-clipboard:"
-  },
-  "promptStudio": {
-    "common": {
-      "copied": "Copied",
-      "copy": "Copy",
-      "reset": "Reset",
-      "save": "Save"
-    },
-    "defaultTestInput": "Hey Whispr, what's the weather like today?",
-    "dialogs": {
-      "reset": {
-        "description": "Prompt has been reset to the default value.",
-        "title": "Reset Complete"
-      },
-      "saved": {
-        "description": "Your custom prompt will be used for all future AI processing.",
-        "title": "Prompt Saved"
-      }
-    },
-    "edit": {
-      "agentNameLabel": "Assistant name:",
-      "cautionLabel": "Caution",
-      "cautionTextPrefix": "Modifying this prompt may affect transcription quality.",
-      "cautionTextSuffix": "Keep the {{agentName}} placeholder to preserve assistant detection.",
-      "placeholder": "Enter your custom system prompt..."
-    },
-    "tabs": {
-      "customize": "Customize",
-      "test": "Test",
-      "view": "View"
-    },
-    "test": {
-      "addressHint": "Try addressing \"{{agentName}}\" to test instruction mode",
-      "aiModels": "AI Models",
-      "baseUrlMissing": "{{provider}} base URL missing. Add it in AI Models settings.",
-      "cleanup": "Cleanup",
-      "disabledInSettingsPrefix": "AI text enhancement is disabled.",
-      "disabledInSettingsSuffix": "Enable it in AI Models to test prompts.",
-      "disabledReasoning": "AI text enhancement is disabled. Enable it in AI Models to test prompts.",
-      "failed": "Test failed: {{error}}",
-      "inputLabel": "Input",
-      "inputPlaceholder": "Enter text to test...",
-      "instruction": "Instruction",
-      "modelLabel": "Model",
-      "noModelSelected": "No model selected",
-      "none": "None",
-      "outputLabel": "Output",
-      "processing": "Processing...",
-      "providerLabel": "Provider",
-      "run": "Run Test",
-      "customEndpoint": "Custom endpoint",
-      "apiKeyMissing": "{{provider}} API key not configured. Add it in AI Models settings.",
-      "agentDisabled": "Enable the voice assistant to test this prompt"
-    },
-    "view": {
-      "customPrompt": "Custom prompt",
-      "defaultPrompt": "Default prompt",
-      "modified": "Modified"
-    }
   },
   "settingsModal": {
     "groups": {

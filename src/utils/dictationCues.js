@@ -28,7 +28,7 @@ const getAudioContext = () => {
   return audioContext;
 };
 
-export const resumeContextIfNeeded = async () => {
+const resumeContextIfNeeded = async () => {
   try {
     const context = getAudioContext();
     if (!context) {

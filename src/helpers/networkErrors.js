@@ -1,5 +1,3 @@
-const debugLogger = require("./debugLogger");
-
 const CODE_TO_KEY = {
   ENOTFOUND: "streaming.errors.cloudUnreachable.dnsBlocked",
   EAI_AGAIN: "streaming.errors.cloudUnreachable.dnsBlocked",
@@ -31,23 +29,6 @@ function classifyNetworkError(err) {
   return { isNetworkError: false };
 }
 
-function classifyAndLog(err, url) {
-  const classified = classifyNetworkError(err);
-  if (!classified.isNetworkError) return classified;
-  let host;
-  let urlPath;
-  try {
-    const parsed = new URL(url);
-    host = parsed.host;
-    urlPath = parsed.pathname;
-  } catch {
-    // url may be missing/invalid — log without host metadata
-  }
-  debugLogger.warn("Network error", { code: classified.code, host, urlPath }, "network");
-  return classified;
-}
-
 module.exports = {
   classifyNetworkError,
-  classifyAndLog,
 };

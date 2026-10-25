@@ -26,7 +26,7 @@ interface MicrophoneSettingsProps {
   onMicWarmHoldSecondsChange: (seconds: number) => void;
 }
 
-export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
+const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
   microphoneSelectionMode,
   selectedMicDeviceId,
   selectedMicDeviceLabel,
