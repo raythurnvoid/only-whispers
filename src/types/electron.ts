@@ -722,7 +722,14 @@ declare global {
 
       // System settings helpers
       requestMicrophoneAccess?: () => Promise<{ granted: boolean }>;
-      checkMicrophoneAccess?: () => Promise<{ granted: boolean; status: string }>;
+      checkMicrophoneAccess?: () => Promise<{
+        granted: boolean;
+        status: string;
+        /** macOS only: granted in System Settings since launch, so the app must restart. */
+        needsRelaunch: boolean;
+      }>;
+      showMicrophoneRequired?: () => Promise<void>;
+      relaunchApp?: () => Promise<void>;
       getSystemDefaultMicrophone?: (options?: { refresh?: boolean }) => Promise<{
         name: string;
         nativeId?: string;

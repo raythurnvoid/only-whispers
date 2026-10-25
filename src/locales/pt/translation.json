@@ -360,22 +360,6 @@
       }
     },
     "permissions": {
-      "paths": {
-        "windowsMicrophone": "Configurações -> Privacidade -> Microfone",
-        "linuxSound": "as configurações de som do sistema",
-        "defaultSound": "Configurações do sistema -> Som -> Entrada",
-        "linuxPrivacy": "as configurações de privacidade do sistema",
-        "defaultPrivacy": "Configurações do sistema -> Privacidade e Segurança -> Microfone"
-      },
-      "micErrors": {
-        "accessFailed": "Falha no acesso ao microfone. Tente novamente.",
-        "noMicrophones": "Nenhum microfone detectado. Conecte ou selecione um microfone em {{settingsPath}}.",
-        "permissionDenied": "Permissão negada. Abra {{privacyPath}} e permita o only-whispers.",
-        "couldNotStart": "Não foi possível iniciar o microfone selecionado. Escolha um dispositivo em {{settingsPath}} e teste novamente.",
-        "noActiveInput": "Nenhuma entrada de áudio ativa encontrada. Escolha um microfone em {{settingsPath}}.",
-        "unknown": "Falha no acesso ao microfone: {{error}}. Selecione outro dispositivo e tente novamente.",
-        "unknownFallback": "Erro desconhecido"
-      },
       "settingsTitles": {
         "microphone": "Configurações de microfone",
         "sound": "Configurações de som",
@@ -385,20 +369,6 @@
         "unableToOpenMicrophone": "Não foi possível abrir configurações de microfone. Abra as configurações do sistema manualmente.",
         "unableToOpenSound": "Não foi possível abrir configurações de som. Abra as configurações do sistema manualmente.",
         "unableToOpenAccessibility": "Não foi possível abrir configurações de acessibilidade. Abra as configurações do sistema manualmente."
-      },
-      "micUnavailable": "As APIs de microfone não estão disponíveis neste ambiente. Reinicie o app.",
-      "titles": {
-        "microphoneUnavailable": "Microfone indisponível",
-        "microphonePermissionRequired": "Permissão de microfone obrigatória"
-      },
-      "warning": {
-        "messages": {
-          "macos": "Verifique as configurações de Som para selecionar o dispositivo de entrada",
-          "windows": "Verifique as configurações do Windows para selecionar o dispositivo de entrada",
-          "linux": "Verifique as configurações de som do sistema para selecionar o dispositivo de entrada"
-        },
-        "soundLabel": "Som",
-        "privacyLabel": "Privacidade"
       }
     }
   },
@@ -649,8 +619,6 @@
       "accessibilityDescription": "Necessário para colar o texto em outros apps",
       "accessibilityTitle": "Acessibilidade",
       "description": "O Only Whispers precisa destas permissões para funcionar.",
-      "microphoneDescription": "Grava sua voz quando você dita",
-      "microphoneTitle": "Microfone",
       "grantAccess": "Conceder acesso",
       "title": "Permissões"
     },
@@ -816,6 +784,19 @@
     "mistralKey": "Chave de API da Mistral (voz para texto)",
     "getMistralKey": "Obtenha uma chave no Mistral admin",
     "start": "Começar a ditar"
+  },
+  "microphoneCheck": {
+    "description": "O Only Whispers precisa de um microfone para ouvir você.",
+    "title": "Microfone",
+    "states": {
+      "ask": "Permita que o Only Whispers use seu microfone.",
+      "denied": "O acesso ao microfone está desativado. Ative-o para o Only Whispers nas configurações do sistema.",
+      "restart": "O acesso ao microfone está ativado. Reinicie o Only Whispers para usá-lo.",
+      "missing": "Nenhum microfone encontrado. Conecte um e esta tela se fechará sozinha."
+    },
+    "allow": "Permitir microfone",
+    "openSettings": "Abrir configurações",
+    "restart": "Reiniciar o Only Whispers"
   },
   "app": {
     "toasts": {

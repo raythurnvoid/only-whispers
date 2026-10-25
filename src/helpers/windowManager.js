@@ -1756,6 +1756,15 @@ class WindowManager {
     win.focus();
   }
 
+  // The control panel shows the microphone screen while the mic can't be used.
+  // A new panel shows itself once its renderer picks that screen and its size,
+  // so only a panel that was shown before and hidden to the tray is shown here.
+  showMicrophoneRequired() {
+    const win = this.controlPanelWindow;
+    if (!win || win.isDestroyed()) return this.createControlPanelWindow();
+    if (this._controlPanelVisibilityTimer === null) this.showControlPanel();
+  }
+
   // Compact onboarding starts at smaller bounds, but both modes expose the
   // complete window-control contract so a frameless window never traps the
   // user in setup.

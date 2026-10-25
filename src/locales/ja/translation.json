@@ -366,22 +366,6 @@
       }
     },
     "permissions": {
-      "paths": {
-        "windowsMicrophone": "設定 -> プライバシー -> マイク",
-        "linuxSound": "システムのサウンド設定",
-        "defaultSound": "システム設定 -> サウンド -> 入力",
-        "linuxPrivacy": "システムのプライバシー設定",
-        "defaultPrivacy": "システム設定 -> プライバシーとセキュリティ -> マイク"
-      },
-      "micErrors": {
-        "accessFailed": "マイクへのアクセスに失敗しました。もう一度お試しください。",
-        "noMicrophones": "マイクが検出されませんでした。{{settingsPath}} でマイクを接続または選択してください。",
-        "permissionDenied": "権限が拒否されました。{{privacyPath}} を開いて only-whispers を許可してください。",
-        "couldNotStart": "選択したマイクを開始できませんでした。{{settingsPath}} で入力デバイスを選択してから、テストを再実行してください。",
-        "noActiveInput": "アクティブな音声入力が見つかりませんでした。{{settingsPath}} でマイクを選択してください。",
-        "unknown": "マイクへのアクセスに失敗しました: {{error}}。別の入力デバイスを選択してもう一度お試しください。",
-        "unknownFallback": "不明なエラー"
-      },
       "settingsTitles": {
         "microphone": "マイク設定",
         "sound": "サウンド設定",
@@ -391,20 +375,6 @@
         "unableToOpenMicrophone": "マイク設定を開けませんでした。システム設定を手動で開いてください。",
         "unableToOpenSound": "サウンド設定を開けませんでした。システム設定を手動で開いてください。",
         "unableToOpenAccessibility": "アクセシビリティ設定を開けませんでした。システム設定を手動で開いてください。"
-      },
-      "micUnavailable": "この環境ではマイク API が利用できません。アプリを再起動してください。",
-      "titles": {
-        "microphoneUnavailable": "マイクが利用できません",
-        "microphonePermissionRequired": "マイクの権限が必要です"
-      },
-      "warning": {
-        "messages": {
-          "macos": "サウンド設定で入力デバイスを確認してください",
-          "windows": "Windows の設定で入力デバイスを確認してください",
-          "linux": "システムのサウンド設定で入力デバイスを確認してください"
-        },
-        "soundLabel": "サウンド",
-        "privacyLabel": "プライバシー"
       }
     }
   },
@@ -655,8 +625,6 @@
       "accessibilityDescription": "他のアプリにテキストを貼り付けるために必要",
       "accessibilityTitle": "アクセシビリティ",
       "description": "Only Whispers が動作するにはこれらの権限が必要です。",
-      "microphoneDescription": "ディクテーション中にあなたの声を録音します",
-      "microphoneTitle": "マイク",
       "grantAccess": "アクセスを許可",
       "title": "権限"
     },
@@ -816,6 +784,19 @@
     "mistralKey": "Mistral API キー(音声認識)",
     "getMistralKey": "Mistral admin でキーを取得",
     "start": "音声入力を開始"
+  },
+  "microphoneCheck": {
+    "description": "Only Whispers があなたの声を聞くにはマイクが必要です。",
+    "title": "マイク",
+    "states": {
+      "ask": "Only Whispers にマイクの使用を許可してください。",
+      "denied": "マイクへのアクセスがオフになっています。システム設定で Only Whispers のアクセスをオンにしてください。",
+      "restart": "マイクへのアクセスはオンです。使うには Only Whispers を再起動してください。",
+      "missing": "マイクが見つかりません。マイクを接続すると、この画面は自動で閉じます。"
+    },
+    "allow": "マイクを許可",
+    "openSettings": "設定を開く",
+    "restart": "Only Whispers を再起動"
   },
   "app": {
     "toasts": {

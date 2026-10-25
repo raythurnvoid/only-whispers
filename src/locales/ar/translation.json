@@ -105,22 +105,6 @@
       }
     },
     "permissions": {
-      "paths": {
-        "windowsMicrophone": "الإعدادات ← الخصوصية ← الميكروفون",
-        "linuxSound": "إعدادات صوت النظام الخاص بك",
-        "defaultSound": "إعدادات النظام ← الصوت ← الإدخال",
-        "linuxPrivacy": "إعدادات خصوصية النظام الخاص بك",
-        "defaultPrivacy": "إعدادات النظام ← الخصوصية والأمان ← الميكروفون"
-      },
-      "micErrors": {
-        "accessFailed": "فشل الوصول إلى الميكروفون. يرجى المحاولة مرة أخرى.",
-        "noMicrophones": "لم يتم اكتشاف أي ميكروفونات. قم بتوصيل أو تحديد ميكروفون في {{settingsPath}}.",
-        "permissionDenied": "تم رفض الإذن. افتح {{privacyPath}} واسمح لـ only-whispers.",
-        "couldNotStart": "تعذر بدء تشغيل الميكروفون المحدد. اختر جهاز إدخال في {{settingsPath}}، ثم أعد تشغيل الاختبار.",
-        "noActiveInput": "لم يتم العثور على إدخال صوتي نشط. اختر ميكروفونًا في {{settingsPath}}.",
-        "unknown": "فشل الوصول إلى الميكروفون: {{error}}. حدد جهاز إدخال مختلفًا وحاول مرة أخرى.",
-        "unknownFallback": "خطأ غير معروف"
-      },
       "settingsTitles": {
         "microphone": "إعدادات الميكروفون",
         "sound": "إعدادات الصوت",
@@ -130,20 +114,6 @@
         "unableToOpenMicrophone": "تعذر فتح إعدادات الميكروفون. يرجى فتح إعدادات النظام يدويًا.",
         "unableToOpenSound": "تعذر فتح إعدادات الصوت. يرجى فتح إعدادات النظام يدويًا.",
         "unableToOpenAccessibility": "تعذر فتح إعدادات تسهيلات الاستخدام. يرجى فتح إعدادات النظام يدويًا."
-      },
-      "micUnavailable": "واجهات برمجة تطبيقات الميكروفون (APIs) غير متوفرة في هذه البيئة. يرجى إعادة تشغيل التطبيق.",
-      "titles": {
-        "microphoneUnavailable": "الميكروفون غير متوفر",
-        "microphonePermissionRequired": "إذن الميكروفون مطلوب"
-      },
-      "warning": {
-        "messages": {
-          "macos": "تحقق من إعدادات الصوت (Sound) لتحديد جهاز الإدخال الخاص بك",
-          "windows": "تحقق من إعدادات Windows لتحديد جهاز الإدخال الخاص بك",
-          "linux": "تحقق من إعدادات صوت النظام لتحديد جهاز الإدخال الخاص بك"
-        },
-        "soundLabel": "الصوت",
-        "privacyLabel": "الخصوصية"
       }
     }
   },
@@ -700,8 +670,6 @@
       "accessibilityDescription": "مطلوب للصق النص في التطبيقات الأخرى",
       "accessibilityTitle": "تسهيلات الاستخدام",
       "description": "يحتاج Only Whispers إلى هذه الأذونات ليعمل.",
-      "microphoneDescription": "يسجل صوتك عندما تُملي",
-      "microphoneTitle": "الميكروفون",
       "grantAccess": "منح الوصول",
       "title": "الأذونات"
     },
@@ -947,6 +915,19 @@
     "mistralKey": "مفتاح Mistral API (تحويل الكلام إلى نص)",
     "getMistralKey": "احصل على مفتاح من Mistral admin",
     "start": "ابدأ الإملاء"
+  },
+  "microphoneCheck": {
+    "description": "يحتاج Only Whispers إلى ميكروفون ليسمعك.",
+    "title": "الميكروفون",
+    "states": {
+      "ask": "اسمح لـ Only Whispers باستخدام الميكروفون.",
+      "denied": "الوصول إلى الميكروفون متوقف. فعّله لـ Only Whispers من إعدادات النظام.",
+      "restart": "الوصول إلى الميكروفون مفعّل. أعد تشغيل Only Whispers لاستخدامه.",
+      "missing": "لم يتم العثور على ميكروفون. وصّل ميكروفونًا وستُغلق هذه الشاشة تلقائيًا."
+    },
+    "allow": "السماح بالميكروفون",
+    "openSettings": "فتح الإعدادات",
+    "restart": "إعادة تشغيل Only Whispers"
   },
   "assistant": {
     "panel": {

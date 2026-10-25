@@ -366,22 +366,6 @@
       }
     },
     "permissions": {
-      "paths": {
-        "windowsMicrophone": "設定 -> 隱私權 -> 麥克風",
-        "linuxSound": "你的系統音效設定",
-        "defaultSound": "系統設定 -> 聲音 -> 輸入",
-        "linuxPrivacy": "你的系統隱私權設定",
-        "defaultPrivacy": "系統設定 -> 隱私權與安全性 -> 麥克風"
-      },
-      "micErrors": {
-        "accessFailed": "麥克風存取失敗。請再試一次。",
-        "noMicrophones": "未偵測到麥克風。請在 {{settingsPath}} 中連接或選擇麥克風。",
-        "permissionDenied": "權限被拒絕。請開啟 {{privacyPath}} 並允許 only-whispers。",
-        "couldNotStart": "無法啟動所選的麥克風。請在 {{settingsPath}} 中選擇輸入裝置後重新測試。",
-        "noActiveInput": "找不到有效的音訊輸入。請在 {{settingsPath}} 中選擇麥克風。",
-        "unknown": "麥克風存取失敗：{{error}}。請選擇其他輸入裝置後再試。",
-        "unknownFallback": "未知錯誤"
-      },
       "settingsTitles": {
         "microphone": "麥克風設定",
         "sound": "音效設定",
@@ -391,20 +375,6 @@
         "unableToOpenMicrophone": "無法開啟麥克風設定。請手動開啟系統設定。",
         "unableToOpenSound": "無法開啟音效設定。請手動開啟系統設定。",
         "unableToOpenAccessibility": "無法開啟輔助使用設定。請手動開啟系統設定。"
-      },
-      "micUnavailable": "此環境中無法使用麥克風 API。請重新啟動應用程式。",
-      "titles": {
-        "microphoneUnavailable": "麥克風無法使用",
-        "microphonePermissionRequired": "需要麥克風權限"
-      },
-      "warning": {
-        "messages": {
-          "macos": "請檢查聲音設定以選擇輸入裝置",
-          "windows": "請檢查 Windows 設定以選擇輸入裝置",
-          "linux": "請檢查系統音效設定以選擇輸入裝置"
-        },
-        "soundLabel": "聲音",
-        "privacyLabel": "隱私權"
       }
     }
   },
@@ -655,8 +625,6 @@
       "accessibilityDescription": "將文字貼到其他應用程式時需要",
       "accessibilityTitle": "輔助使用",
       "description": "Only Whispers 需要這些權限才能運作。",
-      "microphoneDescription": "在你聽寫時錄下你的聲音",
-      "microphoneTitle": "麥克風",
       "grantAccess": "授予存取權限",
       "title": "權限"
     },
@@ -816,6 +784,19 @@
     "mistralKey": "Mistral API 金鑰(語音轉文字)",
     "getMistralKey": "在 Mistral admin 取得金鑰",
     "start": "開始聽寫"
+  },
+  "microphoneCheck": {
+    "description": "Only Whispers 需要麥克風才能聽到你說話。",
+    "title": "麥克風",
+    "states": {
+      "ask": "請允許 Only Whispers 使用你的麥克風。",
+      "denied": "麥克風權限已關閉。請在系統設定中為 Only Whispers 開啟。",
+      "restart": "麥克風權限已開啟。請重新啟動 Only Whispers 以使用它。",
+      "missing": "找不到麥克風。接上麥克風後，此畫面會自動關閉。"
+    },
+    "allow": "允許使用麥克風",
+    "openSettings": "開啟設定",
+    "restart": "重新啟動 Only Whispers"
   },
   "app": {
     "toasts": {

@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { FieldLabel, ProviderCheckField } from "./ui/ProviderCheckField";
 import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
+import type { MicrophoneCheck } from "../hooks/useMicrophoneCheck";
 import { usePalazzoTheme } from "../hooks/usePalazzoTheme";
 import { useSettingsStore } from "../stores/settingsStore";
 import { getDefaultHotkey } from "../utils/hotkeys";
@@ -22,7 +23,13 @@ const CLEANUP_MODEL = "gpt-6-luna";
  * speech-to-text and Sign in with ChatGPT for cleanup. Everything else keeps
  * its default and can be changed later in Settings.
  */
-export default function AppSetup({ onComplete }: { onComplete: () => void }) {
+export default function AppSetup({
+  microphone,
+  onComplete,
+}: {
+  microphone: MicrophoneCheck;
+  onComplete: () => void;
+}) {
   const { t } = useTranslation();
   usePalazzoTheme();
   const store = useSettingsStore();
@@ -77,6 +84,10 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
       });
 
       await window.electronAPI?.saveAllKeysToEnv?.();
+      // macOS asks for the mic only once, so ask on this click. A mic that still
+      // can't be used then gets the microphone screen (AppRouter).
+      if (microphone.state === "ask") await window.electronAPI?.requestMicrophoneAccess?.();
+      await microphone.recheck();
       await window.electronAPI?.setOnboardingWindowMode?.("restore");
       // No upstream account: without these flags the app asks to sign in to one.
       localStorage.setItem("authenticationSkipped", "true");

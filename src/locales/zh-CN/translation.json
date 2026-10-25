@@ -366,22 +366,6 @@
       }
     },
     "permissions": {
-      "paths": {
-        "windowsMicrophone": "设置 -> 隐私 -> 麦克风",
-        "linuxSound": "系统声音设置",
-        "defaultSound": "系统设置 -> 声音 -> 输入",
-        "linuxPrivacy": "系统隐私设置",
-        "defaultPrivacy": "系统设置 -> 隐私与安全 -> 麦克风"
-      },
-      "micErrors": {
-        "accessFailed": "麦克风访问失败，请重试。",
-        "noMicrophones": "未检测到麦克风。请在 {{settingsPath}} 中连接或选择麦克风。",
-        "permissionDenied": "权限被拒绝。请打开 {{privacyPath}} 并允许 only-whispers。",
-        "couldNotStart": "无法启动所选麦克风。请在 {{settingsPath}} 中选择输入设备，然后重新测试。",
-        "noActiveInput": "未找到活跃的音频输入。请在 {{settingsPath}} 中选择麦克风。",
-        "unknown": "麦克风访问失败：{{error}}。请选择其他输入设备后重试。",
-        "unknownFallback": "未知错误"
-      },
       "settingsTitles": {
         "microphone": "麦克风设置",
         "sound": "声音设置",
@@ -391,20 +375,6 @@
         "unableToOpenMicrophone": "无法打开麦克风设置，请手动打开系统设置。",
         "unableToOpenSound": "无法打开声音设置，请手动打开系统设置。",
         "unableToOpenAccessibility": "无法打开辅助功能设置，请手动打开系统设置。"
-      },
-      "micUnavailable": "此环境中麦克风 API 不可用，请重启应用。",
-      "titles": {
-        "microphoneUnavailable": "麦克风不可用",
-        "microphonePermissionRequired": "需要麦克风权限"
-      },
-      "warning": {
-        "messages": {
-          "macos": "请检查声音设置以选择输入设备",
-          "windows": "请检查 Windows 设置以选择输入设备",
-          "linux": "请检查系统声音设置以选择输入设备"
-        },
-        "soundLabel": "声音",
-        "privacyLabel": "隐私"
       }
     }
   },
@@ -655,8 +625,6 @@
       "accessibilityDescription": "将文本粘贴到其他应用时需要",
       "accessibilityTitle": "辅助功能",
       "description": "Only Whispers 需要这些权限才能工作。",
-      "microphoneDescription": "在你听写时录制你的声音",
-      "microphoneTitle": "麦克风",
       "grantAccess": "授予访问权限",
       "title": "权限"
     },
@@ -816,6 +784,19 @@
     "mistralKey": "Mistral API 密钥(语音转文字)",
     "getMistralKey": "在 Mistral admin 获取密钥",
     "start": "开始听写"
+  },
+  "microphoneCheck": {
+    "description": "Only Whispers 需要麦克风才能听到你说话。",
+    "title": "麦克风",
+    "states": {
+      "ask": "请允许 Only Whispers 使用你的麦克风。",
+      "denied": "麦克风权限已关闭。请在系统设置中为 Only Whispers 打开。",
+      "restart": "麦克风权限已打开。请重启 Only Whispers 以使用它。",
+      "missing": "未找到麦克风。接上麦克风后，此页面会自动关闭。"
+    },
+    "allow": "允许使用麦克风",
+    "openSettings": "打开设置",
+    "restart": "重启 Only Whispers"
   },
   "app": {
     "toasts": {

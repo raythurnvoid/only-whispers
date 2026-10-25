@@ -5,6 +5,7 @@ import AgentDictationPillOverlay from "./components/dictation/AgentDictationPill
 import { BrandMarkIcon } from "./components/dictation/BrandMarkIcon.tsx";
 import { PermissionGuideOverlay } from "./components/onboarding/PermissionGuideOverlay";
 import { useControlPanelWindowDrag } from "./hooks/useControlPanelWindowDrag";
+import { checkMicrophone, useMicrophoneCheck } from "./hooks/useMicrophoneCheck";
 import { useTheme } from "./hooks/useTheme";
 import { resolveSettledControlPanelWindowMode } from "./utils/controlPanelWindowMode.ts";
 import { isControlPanelWindow } from "./utils/windowContext.ts";
@@ -20,6 +21,7 @@ const isOnboardingInProgress = () =>
 const ControlPanel = React.lazy(() => import("./components/ControlPanel.tsx"));
 // Replaces upstream onboarding: only a Mistral key and Sign in with ChatGPT.
 const AppSetup = React.lazy(() => import("./components/AppSetup.tsx"));
+const MicrophoneRequired = React.lazy(() => import("./components/MicrophoneRequired.tsx"));
 
 export default function AppRouter() {
   useTheme();
@@ -42,6 +44,19 @@ function MainApp() {
   const isDictationPanel = !isControlPanel;
   // Covers every surface this window hosts: onboarding, reauth, the panel.
   useControlPanelWindowDrag(isControlPanel);
+  // The app can't work without a microphone, so the control panel shows the
+  // microphone screen in place of everything else until one can be used.
+  const microphone = useMicrophoneCheck(isControlPanel);
+  const microphoneReady = microphone.state === "ready";
+
+  // A start in the tray creates no control panel, so the always-open dictation
+  // window checks the mic at launch and opens the panel when it can't be used.
+  useEffect(() => {
+    if (!isDictationPanel || localStorage.getItem("onboardingCompleted") !== "true") return;
+    checkMicrophone().then((state) => {
+      if (state !== "ready") window.electronAPI?.showMicrophoneRequired?.();
+    });
+  }, [isDictationPanel]);
 
   useEffect(() => {
     if (isControlPanel) {
@@ -82,6 +97,7 @@ function MainApp() {
     isControlPanel,
     isLoading,
     showOnboarding,
+    microphoneReady,
   });
 
   useEffect(() => {
@@ -96,13 +112,15 @@ function MainApp() {
     if (isLoading) return;
 
     const onboardingCompleted = localStorage.getItem("onboardingCompleted") === "true";
-    const normalAppVisible = onboardingCompleted && (!isControlPanel || !showOnboarding);
+    const normalAppVisible =
+      onboardingCompleted && (!isControlPanel || (!showOnboarding && microphoneReady));
     // Main starts fail-closed. Only a renderer that has resolved the route and
     // actually committed the normal app may release global hotkeys and popup
-    // surfaces; fresh installs and onboarding reloads keep them suppressed.
+    // surfaces; fresh installs, onboarding reloads and the microphone screen
+    // keep them suppressed.
     void window.electronAPI?.setOnboardingActive?.(!normalAppVisible);
     if (normalAppVisible) window.electronAPI?.markMacAccessibilityFeaturesReady?.();
-  }, [isControlPanel, isLoading, showOnboarding]);
+  }, [isControlPanel, isLoading, showOnboarding, microphoneReady]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
@@ -117,7 +135,19 @@ function MainApp() {
   if (isControlPanel && showOnboarding) {
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <AppSetup onComplete={handleOnboardingComplete} />
+        <AppSetup microphone={microphone} onComplete={handleOnboardingComplete} />
+      </Suspense>
+    );
+  }
+
+  if (isControlPanel && microphone.state === "checking") {
+    return <LoadingFallback />;
+  }
+
+  if (isControlPanel && !microphoneReady) {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <MicrophoneRequired microphone={microphone} />
       </Suspense>
     );
   }

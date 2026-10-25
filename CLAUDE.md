@@ -183,10 +183,8 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **useDialogs.ts**: Electron dialog integration
 - **useHotkey.js**: Hotkey state management
 - **useLocalStorage.ts**: Type-safe localStorage wrapper
-- **usePermissions.ts**: System permission checks and settings access
-  - `openMicPrivacySettings()`: Opens OS microphone privacy settings
-  - `openSoundInputSettings()`: Opens OS sound input device settings
-  - `openAccessibilitySettings()`: Opens OS accessibility settings (macOS only)
+- **usePermissions.ts**: Accessibility permission (macOS) and Linux paste tools. The microphone is not here (see the microphone screen in section 9)
+- **useMicrophoneCheck.ts**: Whether the app can use a mic, for the microphone screen (section 9)
 - **useSettings.ts**: Application settings management
 
 ### Services
@@ -324,11 +322,14 @@ The app can open OS-level settings for microphone permissions, sound input selec
 | Windows  | `ms-settings:privacy-microphone`                                             | `ms-settings:sound`                                          | N/A                                                                             | `ms-settings:startupapps`                                           |
 | Linux    | Manual (no URL scheme)                                                       | Manual (e.g., pavucontrol)                                   | N/A                                                                             | N/A (XDG autostart entry, see `linuxAutostart.js`)                  |
 
-**UI Component** (`MicPermissionWarning.tsx`):
+**Microphone screen** (`MicrophoneRequired.tsx`, `useMicrophoneCheck.ts`):
 
-- Shows platform-appropriate buttons and messages
-- Linux only shows "Open Sound Settings" (no separate privacy settings)
-- macOS/Windows show both sound and privacy buttons
+- The app can't work without a mic, so there is no mic card in Settings. After setup, AppRouter shows this screen in place of the control panel while the mic can't be used, and keeps global hotkeys and the pill off (`setOnboardingActive(true)`)
+- `checkMicrophone()` reads `check-microphone-access` (macOS and Windows `getMediaAccessStatus`; on Windows that is "Let desktop apps access your microphone"; Linux has no OS permission) and the device list. It never opens the mic. States: `ask` (macOS, not asked yet), `denied`, `restart`, `missing` (no input device)
+- `restart` is macOS only: a mic denied at launch and allowed later in System Settings works only after a relaunch (`relaunch-app`)
+- The screen checks again on window focus, on `devicechange` and every 2 s while shown, and goes away on its own
+- Setup's "Start dictating" asks for the mic on macOS (the system prompt shows only once)
+- A start in the tray creates no control panel, so the dictation window checks the mic at launch and calls `show-microphone-required`. A recording that fails with `NotAllowedError` or `NotFoundError` (`audioManager.js`) calls it too
 
 ### 10. Debug Mode
 
@@ -570,6 +571,7 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 
 - [ ] Ctrl+Win dictation pastes into the focused app (hold, and the double-tap lock)
 - [ ] The pill shows the right states, and its cancel X works
+- [ ] With mic access off or no mic, the microphone screen shows and dictation stays off
 - [ ] Retry and Upload work from Home
 - [ ] Custom dictionary words are recognized
 - [ ] Cleanup runs on the ChatGPT plan, and the raw transcript is pasted when it fails or you are signed out

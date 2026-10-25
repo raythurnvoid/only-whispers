@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { BIDI_VALUE_TOKEN, BidiInterpolatedText } from "./ui/BidiInterpolatedText";
-import { Mic, Shield, Info, CircleCheck, CircleX, RotateCw, BookOpen, Copy } from "./icons";
-import MicPermissionWarning from "./ui/MicPermissionWarning";
+import { Shield, Info, CircleCheck, CircleX, RotateCw, BookOpen, Copy } from "./icons";
 import MicrophoneSettings from "./ui/MicrophoneSettings";
 import PermissionCard from "./ui/PermissionCard";
 import PasteToolsInfo from "./ui/PasteToolsInfo";
@@ -335,53 +334,34 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
               </SettingsPanel>
             </div>
 
-            {/* Permissions */}
-            <div>
-              <SectionHeader
-                title={t("settingsPage.permissions.title")}
-                description={t("settingsPage.permissions.description")}
-              />
-
-              <div className="space-y-3">
+            {/* Permissions. The microphone is not here: the app can't run without
+                one, so the microphone screen asks for it before anything else. */}
+            {platform === "darwin" && (
+              <div>
+                <SectionHeader
+                  title={t("settingsPage.permissions.title")}
+                  description={t("settingsPage.permissions.description")}
+                />
                 <PermissionCard
-                  icon={Mic}
-                  title={t("settingsPage.permissions.microphoneTitle")}
-                  description={t("settingsPage.permissions.microphoneDescription")}
-                  granted={permissionsHook.micPermissionGranted}
-                  onRequest={permissionsHook.requestMicPermission}
+                  icon={Shield}
+                  title={t("settingsPage.permissions.accessibilityTitle")}
+                  description={t("settingsPage.permissions.accessibilityDescription")}
+                  granted={permissionsHook.accessibilityPermissionGranted}
+                  onRequest={permissionsHook.requestAccessibilityPermission}
                   buttonText={t("settingsPage.permissions.grantAccess")}
                 />
-
-                {platform === "darwin" && (
-                  <PermissionCard
-                    icon={Shield}
-                    title={t("settingsPage.permissions.accessibilityTitle")}
-                    description={t("settingsPage.permissions.accessibilityDescription")}
-                    granted={permissionsHook.accessibilityPermissionGranted}
-                    onRequest={permissionsHook.requestAccessibilityPermission}
-                    buttonText={t("settingsPage.permissions.grantAccess")}
-                  />
-                )}
               </div>
+            )}
 
-              {!permissionsHook.micPermissionGranted && permissionsHook.micPermissionError && (
-                <MicPermissionWarning
-                  error={permissionsHook.micPermissionError}
-                  onOpenSoundSettings={permissionsHook.openSoundInputSettings}
-                  onOpenPrivacySettings={permissionsHook.openMicPrivacySettings}
+            {platform === "linux" &&
+              permissionsHook.pasteToolsInfo &&
+              needsLinuxPasteToolGuidance(permissionsHook.pasteToolsInfo) && (
+                <PasteToolsInfo
+                  pasteToolsInfo={permissionsHook.pasteToolsInfo}
+                  isChecking={permissionsHook.isCheckingPasteTools}
+                  onCheck={permissionsHook.checkPasteToolsAvailability}
                 />
               )}
-
-              {platform === "linux" &&
-                permissionsHook.pasteToolsInfo &&
-                needsLinuxPasteToolGuidance(permissionsHook.pasteToolsInfo) && (
-                  <PasteToolsInfo
-                    pasteToolsInfo={permissionsHook.pasteToolsInfo}
-                    isChecking={permissionsHook.isCheckingPasteTools}
-                    onCheck={permissionsHook.checkPasteToolsAvailability}
-                  />
-                )}
-            </div>
 
             {/* Wayland Paste Diagnostics — only on Linux + Wayland */}
             {ydotoolStatus?.isLinux && ydotoolStatus?.isWayland && (

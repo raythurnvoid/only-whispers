@@ -1577,12 +1577,30 @@ class IPCHandlers {
       return { granted };
     });
 
+    // macOS applies a microphone grant made in System Settings only after a
+    // relaunch, so the status at launch tells a grant made since then apart.
+    const micLaunchStatus =
+      process.platform === "darwin" ? systemPreferences.getMediaAccessStatus("microphone") : null;
+
     ipcMain.handle("check-microphone-access", () => {
-      if (process.platform !== "darwin") {
-        return { granted: true, status: "granted" };
+      if (process.platform === "linux") {
+        return { granted: true, status: "granted", needsRelaunch: false };
       }
+      // On Windows this is the "Let desktop apps access your microphone" setting.
       const status = systemPreferences.getMediaAccessStatus("microphone");
-      return { granted: status === "granted", status };
+      const granted =
+        process.platform === "darwin"
+          ? status === "granted"
+          : status !== "denied" && status !== "restricted";
+      return { granted, status, needsRelaunch: granted && micLaunchStatus === "denied" };
+    });
+
+    // The microphone screen lives in the control panel.
+    ipcMain.handle("show-microphone-required", () => this.windowManager.showMicrophoneRequired());
+
+    ipcMain.handle("relaunch-app", () => {
+      app.relaunch();
+      app.quit();
     });
 
     // Honors system proxy via Electron's net stack. useSessionCookies:false so

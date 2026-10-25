@@ -80,6 +80,13 @@ const REASONING_CACHE_TTL = 30000; // 30 seconds
 const RECORDING_TIMESLICE_MS = 250; // flush chunks periodically so short recordings still carry audio frames. See #871.
 // Failure detector only: fires when the worklet or audio graph is dead and never flushes.
 const PREVIEW_FLUSH_WATCHDOG_MS = 1000;
+// A recording that fails with one of these opens the microphone screen.
+const MIC_UNAVAILABLE_ERRORS = new Set([
+  "NotAllowedError",
+  "PermissionDeniedError",
+  "NotFoundError",
+  "DevicesNotFoundError",
+]);
 const neverCancelled = () => false;
 
 // A selection edit that fails leaves its transcript behind; it rides out on the
@@ -1159,6 +1166,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
       let errorTitle = "Recording Error";
       let errorDescription = `Failed to access microphone: ${error.message}`;
+
+      if (MIC_UNAVAILABLE_ERRORS.has(error.name)) window.electronAPI?.showMicrophoneRequired?.();
 
       if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
         errorTitle = "Microphone Access Denied";
@@ -3083,6 +3092,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
       let errorTitle = "Streaming Error";
       let errorDescription = `Failed to start streaming: ${error.message}`;
+
+      if (MIC_UNAVAILABLE_ERRORS.has(error.name)) window.electronAPI?.showMicrophoneRequired?.();
 
       if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
         errorTitle = "Microphone Access Denied";

@@ -287,6 +287,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // System settings helpers for microphone/audio permissions
   requestMicrophoneAccess: () => ipcRenderer.invoke("request-microphone-access"),
   checkMicrophoneAccess: () => ipcRenderer.invoke("check-microphone-access"),
+  showMicrophoneRequired: () => ipcRenderer.invoke("show-microphone-required"),
+  relaunchApp: () => ipcRenderer.invoke("relaunch-app"),
   getSystemDefaultMicrophone: (options) =>
     ipcRenderer.invoke("get-system-default-microphone", options),
   openMicrophoneSettings: () => ipcRenderer.invoke("open-microphone-settings"),

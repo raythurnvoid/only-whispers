@@ -7,6 +7,7 @@ const settledState = {
   isControlPanel: true,
   isLoading: false,
   showOnboarding: false,
+  microphoneReady: true,
 };
 
 test("normal control-panel content restores the saved window", async () => {
@@ -25,6 +26,10 @@ test("unsettled and onboarding routes leave window sizing to their owners", asyn
   assert.equal(resolveSettledControlPanelWindowMode({ ...settledState, isLoading: true }), null);
   assert.equal(
     resolveSettledControlPanelWindowMode({ ...settledState, showOnboarding: true }),
+    null
+  );
+  assert.equal(
+    resolveSettledControlPanelWindowMode({ ...settledState, microphoneReady: false }),
     null
   );
 });
