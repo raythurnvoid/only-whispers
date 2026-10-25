@@ -60,7 +60,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **windows-key-listener.c**: Windows low-level keyboard hook (Push-to-Talk)
 - **windows-fast-paste.c**: Windows paste helper; `--detect-only` also reports the target window (used by Tone & Style)
 - **windows-text-monitor.c**: Windows text-field monitor
-- **windows-mic-listener.c**: WASAPI mic session monitor. It is still packaged, but no code uses it on Windows now
 - **linux-key-listener.c**, **linux-fast-paste.c**, **linux-text-monitor.c**: Linux key listener, paste helper and text-field monitor
 - **macos-globe-listener.swift**, **macos-fast-paste.swift**, **macos-text-monitor.swift**, **macos-mic-listener.swift**, **macos-media-remote.swift**: macOS Globe/Fn key listener, paste helper, text monitor, mic listener and media control
 - **macos-window-bounds.swift**: Swift source for the System Settings window reporter used by the onboarding permission guide. Prints the dialog's bounds, whether a sheet or authorization prompt is in front, which app owns the front window (`settings` / `self` / `other`, attributed by process because window owner names are localized) and whether System Settings is running. CoreGraphics window list only, so it needs neither Accessibility nor Screen Recording
@@ -204,7 +203,6 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **download-llama-server.js**: Downloads llama.cpp server for local LLM inference
 - **download-nircmd.js**: Downloads nircmd.exe for Windows clipboard operations
 - **download-windows-key-listener.js**: Downloads prebuilt Windows key listener binary
-- **download-windows-mic-listener.js**: Downloads prebuilt Windows mic listener binary
 - **download-windows-fast-paste.js**, **download-text-monitor.js**: Download the prebuilt Windows paste helper and the text monitors. All prebuilt helpers come from the `raythurnvoid/only-whispers` GitHub releases
 - **release-win.js**: Builds the Windows installer and publishes the GitHub release
 - **sync-nucleo-icons.js**: Regenerates `src/components/icons/` from `nucleo-map.json` using the local Nucleo install (`~/.nucleo/skills`); only the icons the app uses are vendored
