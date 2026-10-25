@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "./ui/button";
 import { BIDI_VALUE_TOKEN, BidiInterpolatedText } from "./ui/BidiInterpolatedText";
 import { Mic, Shield, Info, CircleCheck, CircleX, RotateCw, BookOpen, Copy } from "./icons";
 import MicPermissionWarning from "./ui/MicPermissionWarning";
@@ -10,7 +9,6 @@ import PasteToolsInfo from "./ui/PasteToolsInfo";
 import NixOsPasteInfo from "./ui/NixOsPasteInfo";
 import ChatGPTSignIn from "./ChatGPTSignIn";
 import {
-  ConfirmDialog,
   AlertDialog,
   Dialog,
   DialogContent,
@@ -22,7 +20,6 @@ import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { useSettings } from "../hooks/useSettings";
 import { useDialogs } from "../hooks/useDialogs";
 import { usePermissions } from "../hooks/usePermissions";
-import { useClipboard } from "../hooks/useClipboard";
 import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
 import { HotkeyListInput } from "./ui/HotkeyListInput";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
@@ -47,9 +44,6 @@ export type SettingsSectionType = "general" | "hotkeys" | "llms";
 
 interface SettingsPageProps {
   activeSection?: SettingsSectionType;
-  // Unused while the AI models section has no sub-tabs (the assistant is hidden).
-  onNavigateToSection?: (section: SettingsSectionType, subTab?: string) => void;
-  initialSubTab?: string;
 }
 
 function SectionHeader({
@@ -158,14 +152,7 @@ function LlmsSection() {
 }
 
 export default function SettingsPage({ activeSection = "general" }: SettingsPageProps) {
-  const {
-    confirmDialog,
-    alertDialog,
-    showConfirmDialog,
-    showAlertDialog,
-    hideConfirmDialog,
-    hideAlertDialog,
-  } = useDialogs();
+  const { alertDialog, showAlertDialog, hideAlertDialog } = useDialogs();
 
   const {
     dictationKey,
@@ -191,7 +178,6 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
   const { toast } = useToast();
 
   const permissionsHook = usePermissions(showAlertDialog);
-  useClipboard(showAlertDialog);
 
   // Wayland paste tool status for diagnostics.
   const [ydotoolStatus, setYdotoolStatus] = useState<{
@@ -279,18 +265,6 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     return () => cleanup?.();
   }, [toast, t, setActivationMode]);
 
-  const resetAccessibilityPermissions = () => {
-    const message = t("settingsPage.permissions.resetAccessibility.description");
-
-    showConfirmDialog({
-      title: t("settingsPage.permissions.resetAccessibility.title"),
-      description: message,
-      onConfirm: () => {
-        permissionsHook.requestAccessibilityPermission();
-      },
-    });
-  };
-
   const renderSectionContent = () => {
     switch (activeSection) {
       case "general":
@@ -330,10 +304,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
 
             {/* Floating Icon */}
             <div>
-              <SectionHeader
-                title={t("settingsPage.general.floatingIcon.title")}
-                description={t("settingsPage.general.floatingIcon.description")}
-              />
+              <SectionHeader title={t("settingsPage.general.floatingIcon.title")} />
               <SettingsPanel>
                 <SettingsPanelRow>
                   <SettingsRow
@@ -351,21 +322,12 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
 
             {/* Dictionary */}
             <div>
-              <SectionHeader
-                title={t("settingsPage.dictionary.autoLearnTitle", {
-                  defaultValue: "Auto-learn from corrections",
-                })}
-              />
+              <SectionHeader title={t("settingsPage.dictionary.title")} />
               <SettingsPanel>
                 <SettingsPanelRow>
                   <SettingsRow
-                    label={t("settingsPage.dictionary.autoLearnTitle", {
-                      defaultValue: "Auto-learn from corrections",
-                    })}
-                    description={t("settingsPage.dictionary.autoLearnDescription", {
-                      defaultValue:
-                        "When you correct a transcription in the target app, the corrected word is automatically added to your dictionary.",
-                    })}
+                    label={t("settingsPage.dictionary.autoLearnTitle")}
+                    description={t("settingsPage.dictionary.autoLearnDescription")}
                   >
                     <Toggle checked={autoLearnCorrections} onChange={setAutoLearnCorrections} />
                   </SettingsRow>
@@ -419,33 +381,6 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                     onCheck={permissionsHook.checkPasteToolsAvailability}
                   />
                 )}
-
-              {platform === "darwin" && (
-                <div className="mt-5">
-                  <p className="text-xs font-medium text-foreground mb-3">
-                    {t("settingsPage.permissions.troubleshootingTitle")}
-                  </p>
-                  <SettingsPanel>
-                    <SettingsPanelRow>
-                      <SettingsRow
-                        label={t("settingsPage.permissions.resetAccessibility.label")}
-                        description={t(
-                          "settingsPage.permissions.resetAccessibility.rowDescription"
-                        )}
-                      >
-                        <Button
-                          onClick={resetAccessibilityPermissions}
-                          variant="ghost"
-                          size="sm"
-                          className="text-foreground/70 hover:text-foreground"
-                        >
-                          {t("settingsPage.permissions.troubleshoot")}
-                        </Button>
-                      </SettingsRow>
-                    </SettingsPanelRow>
-                  </SettingsPanel>
-                </div>
-              )}
             </div>
 
             {/* Wayland Paste Diagnostics — only on Linux + Wayland */}
@@ -662,10 +597,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                           title: t("settingsPage.general.waylandPaste.guide.group.step2Title", {
                             defaultValue: "Log out and back in",
                           }),
-                          desc: t("settingsPage.general.waylandPaste.guide.group.step2Desc", {
-                            defaultValue:
-                              "Group changes only take effect after a new login session. Log out of your desktop and log back in, then reopen only-whispers.",
-                          }),
+                          desc: t("settingsPage.general.waylandPaste.guide.group.step2Desc"),
                         },
                       ],
                     },
@@ -1042,17 +974,6 @@ EOF`,
 
   return (
     <>
-      <ConfirmDialog
-        open={confirmDialog.open}
-        onOpenChange={(open) => !open && hideConfirmDialog()}
-        title={confirmDialog.title}
-        description={confirmDialog.description}
-        onConfirm={confirmDialog.onConfirm}
-        variant={confirmDialog.variant}
-        confirmText={confirmDialog.confirmText}
-        cancelText={confirmDialog.cancelText}
-      />
-
       <AlertDialog
         open={alertDialog.open}
         onOpenChange={(open) => !open && hideAlertDialog()}

@@ -19,15 +19,6 @@ const SECTION_ALIASES: Record<string, SettingsSectionType> = {
   transcription: "llms",
 };
 
-const LEGACY_SUB_TAB: Record<string, string> = {
-  dictationAgent: "dictationAgent",
-  intelligence: "dictationCleanup",
-  agentMode: "chatIntelligence",
-  agentConfig: "chatIntelligence",
-  aiModels: "dictationCleanup",
-  prompts: "dictationCleanup",
-};
-
 const SECTION_IDS: SettingsSectionType[] = ["general", "hotkeys", "llms"];
 
 interface SettingsModalProps {
@@ -40,27 +31,9 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
   const { t } = useTranslation();
   const sidebarItems: SidebarItem<SettingsSectionType>[] = useMemo(
     () => [
-      {
-        id: "general",
-        label: t("settingsModal.sections.general.label"),
-        icon: Sliders,
-        description: t("settingsModal.sections.general.description"),
-        group: t("settingsModal.groups.app"),
-      },
-      {
-        id: "hotkeys",
-        label: t("settingsModal.sections.hotkeys.label"),
-        icon: Keyboard,
-        description: t("settingsModal.sections.hotkeys.description"),
-        group: t("settingsModal.groups.app"),
-      },
-      {
-        id: "llms",
-        label: t("settingsModal.sections.aiModels.label"),
-        icon: Brain,
-        description: t("settingsModal.sections.aiModels.description"),
-        group: t("settingsModal.groups.app"),
-      },
+      { id: "general", label: t("settingsModal.sections.general.label"), icon: Sliders },
+      { id: "hotkeys", label: t("settingsModal.sections.hotkeys.label"), icon: Keyboard },
+      { id: "llms", label: t("settingsModal.sections.aiModels.label"), icon: Brain },
     ],
     [t]
   );
@@ -76,24 +49,14 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
   const [activeSection, setActiveSection] = React.useState<SettingsSectionType>(() =>
     resolveSection(initialSection)
   );
-  const [initialSubTab, setInitialSubTab] = useState<string | undefined>(() =>
-    initialSection ? LEGACY_SUB_TAB[initialSection] : undefined
-  );
   const [prevOpen, setPrevOpen] = useState(open);
 
   if (open && !prevOpen && initialSection) {
     setPrevOpen(open);
     setActiveSection(resolveSection(initialSection));
-    setInitialSubTab(LEGACY_SUB_TAB[initialSection]);
   } else if (open !== prevOpen) {
     setPrevOpen(open);
-    if (!open) setInitialSubTab(undefined);
   }
-
-  const handleSectionChange = (section: SettingsSectionType, subTab?: string) => {
-    setActiveSection(section);
-    setInitialSubTab(subTab);
-  };
 
   return (
     <SidebarModal<SettingsSectionType>
@@ -102,13 +65,9 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
       title={t("settingsModal.title")}
       sidebarItems={sidebarItems}
       activeSection={activeSection}
-      onSectionChange={handleSectionChange}
+      onSectionChange={setActiveSection}
     >
-      <SettingsPage
-        activeSection={activeSection}
-        onNavigateToSection={handleSectionChange}
-        initialSubTab={initialSubTab}
-      />
+      <SettingsPage activeSection={activeSection} />
     </SidebarModal>
   );
 }

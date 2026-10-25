@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "ChatGPT-Abo",
-      "description": "Melde dich mit ChatGPT an, damit die Bereinigung über dein ChatGPT-Abo statt über einen API-Schlüssel läuft.",
       "signIn": "Mit ChatGPT anmelden",
       "signingIn": "Schließe die Anmeldung im Browser ab...",
       "signOut": "Abmelden",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "Zugriff auf das Mikrofon nicht möglich. Bitte prüfen Sie die Berechtigungen."
     },
-    "helpText": "Wählen Sie ein bestimmtes Mikrofon oder verwenden Sie die Systemstandardeinstellung.",
     "inputDevice": "Eingabegerät",
     "noBuiltInDetected": "Kein integriertes Mikrofon erkannt. Systemstandard wird verwendet.",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "App",
-      "aiModels": "KI-Modelle"
-    },
     "sections": {
       "general": {
-        "description": "Darstellung, Töne & Start",
         "label": "Einstellungen"
       },
       "hotkeys": {
-        "description": "Diktat-Hotkey & Aktivierung",
         "label": "Hotkeys"
       },
-      "toneStyle": {
-        "label": "Ton & Stil",
-        "description": "Wie die Bereinigung in jeder App schreibt"
-      },
-      "speechToText": {
-        "description": "Engines für Diktat & Notizaufnahme",
-        "label": "Spracherkennung"
-      },
-      "llms": {
-        "description": "Modelle für Chat, Bereinigung & Zusammenfassungen",
-        "label": "Sprachmodelle"
-      },
       "aiModels": {
-        "label": "KI-Modelle",
-        "description": "Mistral-Schlüssel und ChatGPT-Anmeldung"
+        "label": "KI-Modelle"
       }
     },
     "title": "Einstellungen"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "Textbereinigung aktivieren",
-      "enableTextCleanupDescription": "KI entfernt Füllwörter, korrigiert Grammatik und Zeichensetzung",
+      "enableTextCleanupDescription": "Entfernt Füllwörter und korrigiert Grammatik und Zeichensetzung. Wenn aus, wird der Rohtext eingefügt.",
       "modes": {
         "providers": "Eigenen Schlüssel nutzen",
         "local": "Lokal",
@@ -822,19 +801,19 @@
       "description": "Mistral wandelt deine Sprache in Text um. Dein ChatGPT-Abo bereinigt den Text."
     },
     "dictionary": {
+      "title": "Wörterbuch",
       "autoLearnTitle": "Automatisch aus Korrekturen lernen",
-      "autoLearnDescription": "Wenn Sie eine Transkription in der Ziel-App korrigieren, wird das korrigierte Wort automatisch Ihrem Wörterbuch hinzugefügt."
+      "autoLearnDescription": "Wenn Sie ein eingefügtes Wort in der App korrigieren, fügt Only Whispers das korrigierte Wort Ihrem Wörterbuch hinzu."
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "Immer sichtbar",
         "alwaysVisibleDescription": "Symbol auch anzeigen, wenn Sie nicht diktieren",
-        "description": "Steuern Sie, wann das Diktat-Symbol auf Ihrem Bildschirm sichtbar ist",
         "title": "Schwebendes Symbol"
       },
       "hotkey": {
         "activationMode": "Aktivierungsmodus",
-        "description": "Die Tastenkombination, die das Sprachdiktat startet und stoppt",
+        "description": "Die Tasten, die das Diktat starten und stoppen",
         "resetToDefault": "Auf {{hotkey}} zurücksetzen",
         "title": "Diktat-Hotkey",
         "linuxPttPermissionTitle": "Gedrückt halten zum Sprechen erfordert zusätzliche Einrichtung",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "Ihr Benutzer benötigt Zugriff auf die Tastatureingabegeräte.",
         "linuxPttSetupNote": "Melden Sie sich nach dem Ausführen des Befehls ab und wieder an.",
         "hyprlandConfigWriteWarningTitle": "Hyprland-Tastenkombinationen werden nicht dauerhaft gespeichert",
-        "hyprlandConfigWriteWarningDescription": "only-whispers kann nicht in {{path}} schreiben. Deshalb bleiben Tastenkombinationen nach einem Neuladen der Hyprland-Konfiguration nicht erhalten. Stellen Sie sicher, dass die Datei existiert und beschreibbar ist.",
-        "hyprlandUnbindDescription": "Unter Hyprland beansprucht only-whispers die ausgewählte Tastenkombination. Jede vorhandene Hyprland-Belegung mit derselben Tastenkombination wird aufgehoben, wenn only-whispers seine Tastenkombination registriert."
+        "hyprlandConfigWriteWarningDescription": "Only Whispers kann nicht in {{path}} schreiben, daher gehen die Tastenbelegungen verloren, wenn Hyprland seine Konfiguration neu lädt. Stellen Sie sicher, dass die Datei existiert und beschreibbar ist.",
+        "hyprlandUnbindDescription": "Unter Hyprland übernimmt Only Whispers diese Tastenkombination. Jede Hyprland-Belegung mit denselben Tasten wird entfernt."
       },
       "meetingHotkey": {
         "title": "Meeting-Modus-Hotkey"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "Ihren Benutzer zur Gruppe input hinzufügen",
             "step2Title": "Abmelden und wieder anmelden",
-            "step2Desc": "Gruppenänderungen werden erst nach einer neuen Sitzung wirksam. Melden Sie sich ab, wieder an und öffnen Sie only-whispers erneut."
+            "step2Desc": "Gruppenänderungen gelten erst nach einer neuen Anmeldung. Melden Sie sich ab und wieder an und öffnen Sie dann Only Whispers erneut."
           },
           "service": {
             "step1Title": "Dienstverzeichnis erstellen",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "Erforderlich, damit automatisches Einfügen nach der Transkription funktioniert",
+      "accessibilityDescription": "Nötig, um den Text in andere Apps einzufügen",
       "accessibilityTitle": "Bedienungshilfen",
-      "description": "Systemberechtigungen testen und verwalten, die only-whispers für den ordnungsgemäßen Betrieb benötigt",
-      "microphoneDescription": "Nimmt Ihre Stimme für Diktat und Transkription auf",
+      "description": "Only Whispers braucht diese Berechtigungen, um zu funktionieren.",
+      "microphoneDescription": "Nimmt Ihre Stimme beim Diktieren auf",
       "microphoneTitle": "Mikrofon",
-      "resetAccessibility": {
-        "description": "Dadurch wird only-whispers aus den Bedienungshilfen-Berechtigungen entfernt. Sie müssen den Zugriff unter Systemeinstellungen > Datenschutz & Sicherheit > Bedienungshilfen erneut gewähren.",
-        "label": "Bedienungshilfen-Berechtigungen zurücksetzen",
-        "rowDescription": "Probleme nach Neuinstallation oder Neuerstellung der App beheben, indem only-whispers in den Systemeinstellungen entfernt und erneut hinzugefügt wird",
-        "title": "Bedienungshilfen-Berechtigungen zurücksetzen"
-      },
       "grantAccess": "Zugriff gewähren",
-      "title": "Berechtigungen",
-      "troubleshoot": "Fehlerbehebung",
-      "troubleshootingTitle": "Fehlerbehebung"
+      "title": "Berechtigungen"
     },
     "speechToText": {
       "title": "Spracherkennung",

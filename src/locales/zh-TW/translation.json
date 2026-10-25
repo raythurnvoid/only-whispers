@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "ChatGPT 方案",
-      "description": "使用 ChatGPT 登入後,整理會使用你的 ChatGPT 方案,而不是 API 金鑰。",
       "signIn": "使用 ChatGPT 登入",
       "signingIn": "請在瀏覽器中完成登入...",
       "signOut": "登出",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "無法存取麥克風。請檢查權限設定。"
     },
-    "helpText": "選擇特定的麥克風，或使用系統預設裝置。",
     "inputDevice": "輸入裝置",
     "noBuiltInDetected": "未偵測到內建麥克風。使用系統預設裝置。",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "應用程式",
-      "aiModels": "AI 模型"
-    },
     "sections": {
       "general": {
-        "description": "外觀、音效與啟動",
         "label": "偏好設定"
       },
       "hotkeys": {
-        "description": "聽寫快捷鍵與啟用模式",
         "label": "快捷鍵"
       },
-      "toneStyle": {
-        "label": "語氣與風格",
-        "description": "整理在各個應用程式中的寫法"
-      },
-      "speechToText": {
-        "description": "聽寫與筆記錄音引擎",
-        "label": "語音轉文字"
-      },
-      "llms": {
-        "description": "用於清理、筆記格式化和聊天的模型",
-        "label": "語言模型"
-      },
       "aiModels": {
-        "label": "AI 模型",
-        "description": "Mistral 金鑰與 ChatGPT 登入"
+        "label": "AI 模型"
       }
     },
     "title": "設定"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "啟用文字整理",
-      "enableTextCleanupDescription": "AI 移除語助詞，修正文法和標點",
+      "enableTextCleanupDescription": "移除語助詞，修正文法和標點。關閉後，會貼上原始文字。",
       "modes": {
         "providers": "自備金鑰",
         "local": "本機",
@@ -822,19 +801,19 @@
       "description": "Mistral 將你的語音轉為文字,你的 ChatGPT 方案負責整理文字。"
     },
     "dictionary": {
+      "title": "字典",
       "autoLearnTitle": "從校正中自動學習",
-      "autoLearnDescription": "當你在目標應用程式中校正轉錄時，校正後的字詞會自動新增到你的詞典中。"
+      "autoLearnDescription": "當你在應用程式中修改貼上的字詞時，Only Whispers 會把修改後的字詞新增到你的字典。"
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "始終顯示",
         "alwaysVisibleDescription": "未進行語音輸入時也在螢幕上顯示圖示",
-        "description": "控制語音輸入圖示在畫面上的顯示時機",
         "title": "浮動圖示"
       },
       "hotkey": {
         "activationMode": "啟用模式",
-        "description": "用來開始和停止語音輸入的組合鍵",
+        "description": "開始和停止聽寫的按鍵",
         "resetToDefault": "重置為 {{hotkey}}",
         "title": "語音輸入快捷鍵",
         "linuxPttPermissionTitle": "按住說話需要額外設定",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "您的使用者需要存取鍵盤輸入裝置的權限。",
         "linuxPttSetupNote": "執行指令後，請登出並重新登入。",
         "hyprlandConfigWriteWarningTitle": "Hyprland 按鍵綁定不會保留",
-        "hyprlandConfigWriteWarningDescription": "only-whispers 無法寫入 {{path}}，因此重新載入 Hyprland 設定後按鍵綁定不會保留。請確認該檔案存在且可寫入。",
-        "hyprlandUnbindDescription": "在 Hyprland 上，only-whispers 會佔用所選快捷鍵。當 only-whispers 註冊該快捷鍵時，任何使用相同按鍵組合的既有 Hyprland 綁定都會被解除。"
+        "hyprlandConfigWriteWarningDescription": "Only Whispers 無法寫入 {{path}}，因此 Hyprland 重新載入設定後快捷鍵會遺失。請確認該檔案存在且可寫入。",
+        "hyprlandUnbindDescription": "在 Hyprland 上，Only Whispers 會使用此快捷鍵。使用相同按鍵的 Hyprland 綁定會被移除。"
       },
       "meetingHotkey": {
         "title": "會議模式快捷鍵"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "將你的使用者新增至 input 群組",
             "step2Title": "登出並重新登入",
-            "step2Desc": "群組變更僅在新工作階段後生效。從桌面登出，重新登入，然後重新開啟 only-whispers。"
+            "step2Desc": "群組變更只在重新登入後生效。請登出並重新登入，然後再次開啟 Only Whispers。"
           },
           "service": {
             "step1Title": "建立服務目錄",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "轉錄後自動貼上文字所需的權限",
+      "accessibilityDescription": "將文字貼到其他應用程式時需要",
       "accessibilityTitle": "輔助使用",
-      "description": "測試和管理 only-whispers 正常運作所需的系統權限",
-      "microphoneDescription": "錄製您的聲音用於聽寫和轉錄",
+      "description": "Only Whispers 需要這些權限才能運作。",
+      "microphoneDescription": "在你聽寫時錄下你的聲音",
       "microphoneTitle": "麥克風",
-      "resetAccessibility": {
-        "description": "這將從輔助使用權限中移除 only-whispers。你需要在「系統設定 > 隱私權與安全性 > 輔助使用」中重新授權。",
-        "label": "重設輔助使用權限",
-        "rowDescription": "重新安裝或重新建置應用程式後，透過在系統設定中移除並重新加入 only-whispers 來修復問題",
-        "title": "重設輔助使用權限"
-      },
       "grantAccess": "授予存取權限",
-      "title": "權限",
-      "troubleshoot": "疑難排解",
-      "troubleshootingTitle": "疑難排解"
+      "title": "權限"
     },
     "speechToText": {
       "title": "語音轉文字",

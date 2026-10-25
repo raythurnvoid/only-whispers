@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "Plan de ChatGPT",
-      "description": "Inicia sesión con ChatGPT para hacer la limpieza con tu plan de ChatGPT en lugar de una clave de API.",
       "signIn": "Iniciar sesión con ChatGPT",
       "signingIn": "Termina de iniciar sesión en el navegador...",
       "signOut": "Cerrar sesión",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "No se pudo acceder al micrófono. Revisa los permisos."
     },
-    "helpText": "Selecciona un micrófono específico o usa la configuración predeterminada del sistema.",
     "inputDevice": "Dispositivo de entrada",
     "noBuiltInDetected": "No se detectó micrófono integrado. Usando el predeterminado del sistema.",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "Aplicación",
-      "aiModels": "Modelos de IA"
-    },
     "sections": {
       "general": {
-        "description": "Apariencia, sonidos e inicio",
         "label": "Preferencias"
       },
       "hotkeys": {
-        "description": "Atajo de dictado y activación",
         "label": "Atajos"
       },
-      "toneStyle": {
-        "label": "Tono y estilo",
-        "description": "Cómo escribe la corrección en cada app"
-      },
-      "speechToText": {
-        "description": "Motores para dictado y grabación de notas",
-        "label": "Conversión de voz a texto"
-      },
-      "llms": {
-        "description": "Modelos para chat, limpieza y resúmenes",
-        "label": "Modelos de lenguaje"
-      },
       "aiModels": {
-        "label": "Modelos de IA",
-        "description": "Clave de Mistral e inicio de sesión en ChatGPT"
+        "label": "Modelos de IA"
       }
     },
     "title": "Ajustes"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "Activar corrección de texto",
-      "enableTextCleanupDescription": "La IA elimina muletillas, corrige gramática y puntuación",
+      "enableTextCleanupDescription": "Quita muletillas y corrige la gramática y la puntuación. Si está desactivado, se pega el texto sin procesar.",
       "modes": {
         "providers": "Trae tu propia clave",
         "local": "Local",
@@ -822,19 +801,19 @@
       "description": "Mistral convierte tu voz en texto. Tu plan de ChatGPT limpia el texto."
     },
     "dictionary": {
+      "title": "Diccionario",
       "autoLearnTitle": "Aprender automáticamente de las correcciones",
-      "autoLearnDescription": "Cuando corriges una transcripción en la aplicación de destino, la palabra corregida se añade automáticamente a tu diccionario."
+      "autoLearnDescription": "Cuando corriges una palabra pegada en la app, Only Whispers añade la palabra corregida a tu diccionario."
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "Siempre visible",
         "alwaysVisibleDescription": "Mantén el ícono en pantalla aunque no estés dictando",
-        "description": "Controla cuándo es visible el ícono de dictado en tu pantalla",
         "title": "Ícono flotante"
       },
       "hotkey": {
         "activationMode": "Modo de activación",
-        "description": "La combinación de teclas que inicia y detiene el dictado por voz",
+        "description": "Las teclas que inician y detienen el dictado",
         "resetToDefault": "Restablecer a {{hotkey}}",
         "title": "Atajo de dictado",
         "linuxPttPermissionTitle": "Mantener para hablar requiere configuración adicional",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "Tu usuario necesita acceso a los dispositivos de entrada del teclado.",
         "linuxPttSetupNote": "Después de ejecutar el comando, cierra sesión y vuelve a iniciarla.",
         "hyprlandConfigWriteWarningTitle": "Los atajos de Hyprland no se conservarán",
-        "hyprlandConfigWriteWarningDescription": "only-whispers no puede escribir en {{path}}, así que los atajos no sobrevivirán a una recarga de la configuración de Hyprland. Asegúrate de que el archivo exista y se pueda escribir.",
-        "hyprlandUnbindDescription": "En Hyprland, only-whispers reserva el atajo seleccionado. Cualquier atajo existente de Hyprland que use la misma combinación de teclas se desvinculará cuando only-whispers registre su atajo."
+        "hyprlandConfigWriteWarningDescription": "Only Whispers no puede escribir en {{path}}, así que los atajos se pierden cuando Hyprland recarga su configuración. Asegúrate de que el archivo existe y se puede escribir.",
+        "hyprlandUnbindDescription": "En Hyprland, Only Whispers usa este atajo. Se quita cualquier atajo de Hyprland con las mismas teclas."
       },
       "meetingHotkey": {
         "title": "Atajo modo reunión"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "Añade tu usuario al grupo input",
             "step2Title": "Cierra sesión y vuelve a entrar",
-            "step2Desc": "Los cambios de grupo solo surten efecto tras una nueva sesión. Cierra sesión en tu escritorio, vuelve a entrar y reabre only-whispers."
+            "step2Desc": "Los cambios de grupo solo se aplican tras un nuevo inicio de sesión. Cierra sesión y vuelve a entrar, luego abre Only Whispers de nuevo."
           },
           "service": {
             "step1Title": "Crear el directorio del servicio",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "Necesario para que el pegado automático funcione tras la transcripción",
+      "accessibilityDescription": "Necesario para pegar el texto en otras apps",
       "accessibilityTitle": "Accesibilidad",
-      "description": "Prueba y administra los permisos del sistema necesarios para que only-whispers funcione correctamente",
-      "microphoneDescription": "Captura tu voz para dictado y transcripción",
+      "description": "Only Whispers necesita estos permisos para funcionar.",
+      "microphoneDescription": "Graba tu voz cuando dictas",
       "microphoneTitle": "Micrófono",
-      "resetAccessibility": {
-        "description": "Esto eliminará a only-whispers de los permisos de accesibilidad. Tendrás que volver a conceder acceso en Configuración del sistema > Privacidad y seguridad > Accesibilidad.",
-        "label": "Restablecer permisos de accesibilidad",
-        "rowDescription": "Soluciona problemas tras reinstalar o recompilar la app eliminando y volviendo a agregar only-whispers en Configuración del sistema",
-        "title": "Restablecer permisos de accesibilidad"
-      },
       "grantAccess": "Conceder acceso",
-      "title": "Permisos",
-      "troubleshoot": "Solucionar problemas",
-      "troubleshootingTitle": "Solución de problemas"
+      "title": "Permisos"
     },
     "speechToText": {
       "title": "Conversión de voz a texto",

@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "ChatGPT プラン",
-      "description": "ChatGPT でサインインすると、API キーの代わりに ChatGPT プランで整形を実行します。",
       "signIn": "ChatGPT でサインイン",
       "signingIn": "ブラウザでサインインを完了してください...",
       "signOut": "サインアウト",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "マイクにアクセスできません。権限を確認してください。"
     },
-    "helpText": "特定のマイクを選択するか、システムのデフォルト設定を使用してください。",
     "inputDevice": "入力デバイス",
     "noBuiltInDetected": "内蔵マイクが検出されません。システムのデフォルトを使用しています。",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "アプリ",
-      "aiModels": "AIモデル"
-    },
     "sections": {
       "general": {
-        "description": "外観、サウンド、起動設定",
         "label": "環境設定"
       },
       "hotkeys": {
-        "description": "ディクテーションホットキーと起動モード",
         "label": "ホットキー"
       },
-      "toneStyle": {
-        "label": "トーンとスタイル",
-        "description": "アプリごとの補正の書き方"
-      },
-      "speechToText": {
-        "description": "ディクテーションとノート録音用エンジン",
-        "label": "音声認識"
-      },
-      "llms": {
-        "description": "クリーンアップ、ノートのフォーマット、チャット用のモデル",
-        "label": "言語モデル"
-      },
       "aiModels": {
-        "label": "AIモデル",
-        "description": "Mistral キーと ChatGPT へのサインイン"
+        "label": "AIモデル"
       }
     },
     "title": "設定"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "テキスト補正を有効にする",
-      "enableTextCleanupDescription": "AI がフィラーワードを除去し、文法と句読点を整える",
+      "enableTextCleanupDescription": "フィラーワードを除き、文法と句読点を直します。オフにすると、元のテキストが貼り付けられます。",
       "modes": {
         "providers": "自前のキー",
         "local": "ローカル",
@@ -822,19 +801,19 @@
       "description": "Mistral が音声をテキストに変換し、ChatGPT プランがテキストを整えます。"
     },
     "dictionary": {
+      "title": "辞書",
       "autoLearnTitle": "修正から自動学習",
-      "autoLearnDescription": "対象アプリで文字起こしを修正すると、修正された単語が自動的に辞書に追加されます。"
+      "autoLearnDescription": "貼り付けた単語をアプリで直すと、Only Whispers が直した単語を辞書に追加します。"
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "常に表示",
         "alwaysVisibleDescription": "ディクテーションしていないときもアイコンを画面に表示する",
-        "description": "画面上のディクテーションアイコンの表示を制御",
         "title": "フローティングアイコン"
       },
       "hotkey": {
         "activationMode": "起動モード",
-        "description": "音声ディクテーションの開始/停止に使用するキーの組み合わせ",
+        "description": "ディクテーションを開始・停止するキー",
         "resetToDefault": "{{hotkey}}にリセット",
         "title": "ディクテーションホットキー",
         "linuxPttPermissionTitle": "長押しして話すには追加の設定が必要です",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "キーボード入力デバイスへのアクセス権が必要です。",
         "linuxPttSetupNote": "コマンド実行後、ログアウトして再度ログインしてください。",
         "hyprlandConfigWriteWarningTitle": "Hyprland のキーバインドは永続化されません",
-        "hyprlandConfigWriteWarningDescription": "only-whispers は {{path}} に書き込めないため、Hyprland の設定を再読み込みするとキーバインドは維持されません。ファイルが存在し、書き込み可能であることを確認してください。",
-        "hyprlandUnbindDescription": "Hyprland では、only-whispers が選択したショートカットを使用します。同じキーの組み合わせを使う既存の Hyprland バインドは、only-whispers がショートカットを登録すると解除されます。"
+        "hyprlandConfigWriteWarningDescription": "Only Whispers は {{path}} に書き込めないため、Hyprland が設定を再読み込みするとキーバインドが失われます。ファイルが存在し、書き込み可能であることを確認してください。",
+        "hyprlandUnbindDescription": "Hyprland では、Only Whispers がこのショートカットを使います。同じキーの Hyprland バインドは解除されます。"
       },
       "meetingHotkey": {
         "title": "ミーティングモードホットキー"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "ユーザーを input グループに追加",
             "step2Title": "ログアウトして再ログイン",
-            "step2Desc": "グループの変更は新しいセッションでのみ有効になります。デスクトップからログアウトし、再ログインしてから only-whispers を開き直してください。"
+            "step2Desc": "グループの変更は新しくログインした後に反映されます。ログアウトして再度ログインし、Only Whispers を開き直してください。"
           },
           "service": {
             "step1Title": "サービスディレクトリを作成",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "文字起こし後の自動貼り付けに必要",
+      "accessibilityDescription": "他のアプリにテキストを貼り付けるために必要",
       "accessibilityTitle": "アクセシビリティ",
-      "description": "only-whispers の正常動作に必要なシステム権限をテスト・管理",
-      "microphoneDescription": "ディクテーションと文字起こしのためにあなたの声を録音します",
+      "description": "Only Whispers が動作するにはこれらの権限が必要です。",
+      "microphoneDescription": "ディクテーション中にあなたの声を録音します",
       "microphoneTitle": "マイク",
-      "resetAccessibility": {
-        "description": "only-whispers をアクセシビリティの権限から削除します。システム設定 > プライバシーとセキュリティ > アクセシビリティ で再度許可する必要があります。",
-        "label": "アクセシビリティの権限をリセット",
-        "rowDescription": "アプリの再インストールや再ビルド後の問題を修正するために、システム設定で only-whispers を削除してから再追加",
-        "title": "アクセシビリティの権限をリセット"
-      },
       "grantAccess": "アクセスを許可",
-      "title": "権限",
-      "troubleshoot": "トラブルシュート",
-      "troubleshootingTitle": "トラブルシューティング"
+      "title": "権限"
     },
     "speechToText": {
       "title": "音声認識",

@@ -408,7 +408,6 @@
     },
     "chatgpt": {
       "title": "ChatGPT 套餐",
-      "description": "使用 ChatGPT 登录后,整理会使用你的 ChatGPT 套餐,而不是 API 密钥。",
       "signIn": "使用 ChatGPT 登录",
       "signingIn": "请在浏览器中完成登录...",
       "signOut": "退出登录",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "无法访问麦克风，请检查权限设置。"
     },
-    "helpText": "选择特定的麦克风或使用系统默认设置。",
     "inputDevice": "输入设备",
     "noBuiltInDetected": "未检测到内置麦克风，正在使用系统默认设备。",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "应用",
-      "aiModels": "AI 模型"
-    },
     "sections": {
       "general": {
-        "description": "外观、声音与启动",
         "label": "偏好设置"
       },
       "hotkeys": {
-        "description": "听写快捷键与激活模式",
         "label": "快捷键"
       },
-      "toneStyle": {
-        "label": "语气与风格",
-        "description": "整理在各个应用里的写法"
-      },
-      "speechToText": {
-        "description": "听写与笔记录音引擎",
-        "label": "语音转文字"
-      },
-      "llms": {
-        "description": "用于清理、笔记格式化和聊天的模型",
-        "label": "语言模型"
-      },
       "aiModels": {
-        "label": "AI 模型",
-        "description": "Mistral 密钥和 ChatGPT 登录"
+        "label": "AI 模型"
       }
     },
     "title": "设置"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "启用文本整理",
-      "enableTextCleanupDescription": "AI 去除语气词，修正语法和标点",
+      "enableTextCleanupDescription": "去除语气词，修正语法和标点。关闭后，将粘贴原始文本。",
       "modes": {
         "providers": "自带密钥",
         "local": "本地",
@@ -822,19 +801,19 @@
       "description": "Mistral 将你的语音转为文字,你的 ChatGPT 套餐负责整理文字。"
     },
     "dictionary": {
+      "title": "词典",
       "autoLearnTitle": "从纠正中自动学习",
-      "autoLearnDescription": "当你在目标应用中纠正转录时，纠正后的词语会自动添加到你的词典中。"
+      "autoLearnDescription": "当你在应用中修改粘贴的词语时，Only Whispers 会把修改后的词语添加到你的词典。"
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "始终显示",
         "alwaysVisibleDescription": "未在听写时也在屏幕上显示图标",
-        "description": "控制听写图标在屏幕上的显示",
         "title": "悬浮图标"
       },
       "hotkey": {
         "activationMode": "激活模式",
-        "description": "用于开始和停止语音听写的组合键",
+        "description": "开始和停止听写的按键",
         "resetToDefault": "重置为 {{hotkey}}",
         "title": "听写快捷键",
         "linuxPttPermissionTitle": "按住说话需要额外设置",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "您的用户需要访问键盘输入设备的权限。",
         "linuxPttSetupNote": "运行命令后，请注销并重新登录。",
         "hyprlandConfigWriteWarningTitle": "Hyprland 键绑定不会持久保存",
-        "hyprlandConfigWriteWarningDescription": "only-whispers 无法写入 {{path}}，因此键绑定不会在 Hyprland 配置重新加载后保留。请确保该文件存在且可写。",
-        "hyprlandUnbindDescription": "在 Hyprland 上，only-whispers 会占用所选快捷键。only-whispers 注册快捷键时，任何使用相同组合键的现有 Hyprland 绑定都会被解除。"
+        "hyprlandConfigWriteWarningDescription": "Only Whispers 无法写入 {{path}}，因此 Hyprland 重新加载配置后快捷键会丢失。请确保该文件存在且可写。",
+        "hyprlandUnbindDescription": "在 Hyprland 上，Only Whispers 会使用此快捷键。使用相同按键的 Hyprland 绑定会被移除。"
       },
       "meetingHotkey": {
         "title": "会议模式快捷键"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "将你的用户添加到 input 组",
             "step2Title": "注销并重新登录",
-            "step2Desc": "组更改仅在新会话后生效。从桌面注销，重新登录，然后重新打开 only-whispers。"
+            "step2Desc": "群组更改只在重新登录后生效。请注销并重新登录，然后再次打开 Only Whispers。"
           },
           "service": {
             "step1Title": "创建服务目录",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "转录后自动粘贴需要此权限",
+      "accessibilityDescription": "将文本粘贴到其他应用时需要",
       "accessibilityTitle": "辅助功能",
-      "description": "测试和管理 only-whispers 正常运行所需的系统权限",
-      "microphoneDescription": "录制您的声音用于听写和转录",
+      "description": "Only Whispers 需要这些权限才能工作。",
+      "microphoneDescription": "在你听写时录制你的声音",
       "microphoneTitle": "麦克风",
-      "resetAccessibility": {
-        "description": "这将从辅助功能权限中移除 only-whispers。你需要在系统设置 > 隐私与安全 > 辅助功能中重新授权。",
-        "label": "重置辅助功能权限",
-        "rowDescription": "重新安装或重新构建应用后，通过在系统设置中移除并重新添加 only-whispers 来解决问题",
-        "title": "重置辅助功能权限"
-      },
       "grantAccess": "授予访问权限",
-      "title": "权限",
-      "troubleshoot": "排查问题",
-      "troubleshootingTitle": "问题排查"
+      "title": "权限"
     },
     "speechToText": {
       "title": "语音转文字",

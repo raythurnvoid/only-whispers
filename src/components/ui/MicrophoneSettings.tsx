@@ -174,8 +174,6 @@ export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
             </SelectContent>
           </Select>
         )}
-
-        <p className="text-xs text-muted-foreground">{t("microphoneSettings.helpText")}</p>
       </div>
 
       {microphoneSelectionMode === "built-in" && builtInDevice && (

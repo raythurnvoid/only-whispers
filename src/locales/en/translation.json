@@ -318,7 +318,6 @@
     "getApiKey": "Get your API key ->",
     "chatgpt": {
       "title": "ChatGPT plan",
-      "description": "Sign in with ChatGPT to run cleanup on your ChatGPT plan instead of an API key.",
       "signIn": "Sign in with ChatGPT",
       "signingIn": "Finish signing in in your browser...",
       "signOut": "Sign out",
@@ -639,7 +638,6 @@
     "errors": {
       "unableToAccess": "Unable to access microphone. Please check permissions."
     },
-    "helpText": "Select a specific microphone or use the system default setting.",
     "inputDevice": "Input Device",
     "noBuiltInDetected": "No built-in microphone detected. Using system default.",
     "preferBuiltIn": {
@@ -751,34 +749,15 @@
     }
   },
   "settingsModal": {
-    "groups": {
-      "app": "App",
-      "aiModels": "AI Models"
-    },
     "sections": {
       "general": {
-        "description": "Appearance, sounds & startup",
         "label": "Preferences"
       },
       "hotkeys": {
-        "description": "Dictation hotkey & activation",
         "label": "Hotkeys"
       },
-      "toneStyle": {
-        "label": "Tone & Style",
-        "description": "How cleanup writes in each app"
-      },
-      "speechToText": {
-        "description": "Engines for dictation & note recording",
-        "label": "Speech-to-Text"
-      },
-      "llms": {
-        "description": "Models for chat, cleanup & summaries",
-        "label": "Language Models"
-      },
       "aiModels": {
-        "label": "AI Models",
-        "description": "Mistral key and ChatGPT sign-in"
+        "label": "AI Models"
       }
     },
     "title": "Settings"
@@ -807,7 +786,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "Enable text cleanup",
-      "enableTextCleanupDescription": "Use AI to remove filler words, fix grammar, and polish punctuation",
+      "enableTextCleanupDescription": "Remove filler words and fix grammar and punctuation. When off, the raw text is pasted.",
       "modes": {
         "providers": "Bring your own key",
         "local": "Local",
@@ -822,19 +801,19 @@
       "description": "Mistral turns your speech into text. Your ChatGPT plan cleans up the text."
     },
     "dictionary": {
+      "title": "Dictionary",
       "autoLearnTitle": "Auto-learn from corrections",
-      "autoLearnDescription": "When you correct a transcription in the target app, the corrected word is automatically added to your dictionary."
+      "autoLearnDescription": "When you fix a pasted word in the app, Only Whispers adds the fixed word to your dictionary."
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "Always visible",
         "alwaysVisibleDescription": "Keep the icon on screen when you are not dictating",
-        "description": "Control when the dictation icon is visible on your screen",
         "title": "Floating Icon"
       },
       "hotkey": {
         "activationMode": "Activation Mode",
-        "description": "The key combination that starts and stops voice dictation",
+        "description": "The keys that start and stop dictation",
         "resetToDefault": "Reset to {{hotkey}}",
         "title": "Dictation Hotkey",
         "linuxPttPermissionTitle": "Hold to Speak needs extra setup",
@@ -843,8 +822,8 @@
         "linuxPttSetupDescription": "Your user needs access to keyboard input devices.",
         "linuxPttSetupNote": "After running the command, log out and log back in.",
         "hyprlandConfigWriteWarningTitle": "Hyprland keybinds will not persist",
-        "hyprlandConfigWriteWarningDescription": "only-whispers cannot write to {{path}}, so keybinds will not survive a Hyprland config reload. Make sure the file exists and is writable.",
-        "hyprlandUnbindDescription": "On Hyprland, only-whispers claims the selected shortcut. Any existing Hyprland bind that uses the same key combination will be unbound when only-whispers registers its shortcut."
+        "hyprlandConfigWriteWarningDescription": "Only Whispers cannot write to {{path}}, so the keybinds are lost when Hyprland reloads its config. Make sure the file exists and can be written.",
+        "hyprlandUnbindDescription": "On Hyprland, Only Whispers takes this shortcut. Any Hyprland bind on the same keys is removed."
       },
       "meetingHotkey": {
         "title": "Meeting Mode Hotkey"
@@ -907,7 +886,7 @@
           "group": {
             "step1Title": "Add your user to the input group",
             "step2Title": "Log out and back in",
-            "step2Desc": "Group changes only take effect after a new login session. Log out of your desktop and log back in, then reopen only-whispers."
+            "step2Desc": "Group changes apply only after a new login. Log out and back in, then open Only Whispers again."
           },
           "service": {
             "step1Title": "Create the service directory",
@@ -936,21 +915,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "Required for auto-paste to work after transcription",
+      "accessibilityDescription": "Needed to paste the text into other apps",
       "accessibilityTitle": "Accessibility",
-      "description": "Test and manage system permissions required for only-whispers to function correctly",
-      "microphoneDescription": "Captures your voice for dictation and transcription",
+      "description": "Only Whispers needs these to work.",
+      "microphoneDescription": "Records your voice when you dictate",
       "microphoneTitle": "Microphone",
-      "resetAccessibility": {
-        "description": "This will remove only-whispers from accessibility permissions. You'll need to re-grant access in System Settings > Privacy & Security > Accessibility.",
-        "label": "Reset accessibility permissions",
-        "rowDescription": "Fix issues after reinstalling or rebuilding the app by removing and re-adding only-whispers in System Settings",
-        "title": "Reset Accessibility Permissions"
-      },
       "grantAccess": "Grant Access",
-      "title": "Permissions",
-      "troubleshoot": "Troubleshoot",
-      "troubleshootingTitle": "Troubleshooting"
+      "title": "Permissions"
     },
     "speechToText": {
       "title": "Speech-to-Text",

@@ -473,7 +473,6 @@
     },
     "chatgpt": {
       "title": "خطة ChatGPT",
-      "description": "سجّل الدخول باستخدام ChatGPT لتشغيل التنظيف على خطة ChatGPT بدلاً من مفتاح API.",
       "signIn": "تسجيل الدخول باستخدام ChatGPT",
       "signingIn": "أكمل تسجيل الدخول في المتصفح...",
       "signOut": "تسجيل الخروج",
@@ -971,7 +970,7 @@
     },
     "aiModels": {
       "enableTextCleanup": "تمكين تنظيف النص",
-      "enableTextCleanupDescription": "استخدم الذكاء الاصطناعي لإزالة كلمات الحشو، وإصلاح القواعد، وتنسيق علامات الترقيم",
+      "enableTextCleanupDescription": "يزيل كلمات الحشو ويصلح القواعد وعلامات الترقيم. عند إيقافه، يُلصق النص الخام.",
       "modes": {
         "providers": "إحضار مفتاحك الخاص",
         "local": "محلي",
@@ -986,19 +985,19 @@
       "description": "يحوّل Mistral كلامك إلى نص، وتنظّف خطة ChatGPT النص."
     },
     "dictionary": {
+      "title": "القاموس",
       "autoLearnTitle": "التعلم التلقائي من التصحيحات",
-      "autoLearnDescription": "عند تصحيح نص مفرَّغ في التطبيق المستهدف، تتم إضافة الكلمة المصححة تلقائيًا إلى قاموسك المخصص."
+      "autoLearnDescription": "عندما تصحح كلمة ملصقة في التطبيق، يضيف Only Whispers الكلمة المصححة إلى قاموسك."
     },
     "general": {
       "floatingIcon": {
         "alwaysVisible": "مرئي دائمًا",
         "alwaysVisibleDescription": "إبقاء الرمز على الشاشة حتى عندما لا تملي",
-        "description": "التحكم في وقت ظهور رمز الإملاء على شاشتك",
         "title": "الرمز العائم"
       },
       "hotkey": {
         "activationMode": "وضع التنشيط",
-        "description": "مجموعة المفاتيح التي تبدأ وتوقف الإملاء الصوتي",
+        "description": "المفاتيح التي تبدأ الإملاء وتوقفه",
         "resetToDefault": "إعادة التعيين إلى {{hotkey}}",
         "title": "مفتاح اختصار الإملاء",
         "linuxPttPermissionTitle": "يتطلب وضع «اضغط مع الاستمرار للتحدث» إعدادًا إضافيًا",
@@ -1007,8 +1006,8 @@
         "linuxPttSetupDescription": "يحتاج المستخدم الخاص بك إلى الوصول إلى أجهزة إدخال لوحة المفاتيح.",
         "linuxPttSetupNote": "بعد تشغيل الأمر، قم بتسجيل الخروج وتسجيل الدخول مرة أخرى.",
         "hyprlandConfigWriteWarningTitle": "لن يتم حفظ اختصارات Hyprland بشكل دائم",
-        "hyprlandConfigWriteWarningDescription": "لا يمكن لـ only-whispers الكتابة إلى {{path}}، لذلك لن تبقى الاختصارات بعد إعادة تحميل تكوين Hyprland. تأكد من وجود الملف وقابليته للكتابة.",
-        "hyprlandUnbindDescription": "في Hyprland، يستحوذ only-whispers على الاختصار المحدد. سيتم فك أي ارتباط Hyprland موجود يستخدم مجموعة المفاتيح نفسها عندما يسجل only-whispers اختصاره."
+        "hyprlandConfigWriteWarningDescription": "لا يستطيع Only Whispers الكتابة إلى {{path}}، لذا تضيع الاختصارات عندما يعيد Hyprland تحميل إعداداته. تأكد من أن الملف موجود وقابل للكتابة.",
+        "hyprlandUnbindDescription": "في Hyprland، يستخدم Only Whispers هذا الاختصار. يُزال أي ارتباط في Hyprland على المفاتيح نفسها."
       },
       "meetingHotkey": {
         "title": "مفتاح اختصار وضع الاجتماع"
@@ -1071,7 +1070,7 @@
           "group": {
             "step1Title": "أضف مستخدمك إلى مجموعة input",
             "step2Title": "تسجيل الخروج وتسجيل الدخول مرة أخرى",
-            "step2Desc": "تغييرات المجموعة لا تدخل حيز التنفيذ إلا بعد جلسة تسجيل دخول جديدة. سجّل الخروج من سطح المكتب وسجل الدخول مرة أخرى، ثم أعد فتح only-whispers."
+            "step2Desc": "لا تسري تغييرات المجموعة إلا بعد تسجيل دخول جديد. سجّل الخروج ثم الدخول، ثم افتح Only Whispers مرة أخرى."
           },
           "service": {
             "step1Title": "إنشاء دليل الخدمة",
@@ -1100,21 +1099,13 @@
       }
     },
     "permissions": {
-      "accessibilityDescription": "مطلوب لعمل اللصق التلقائي بعد التفريغ",
+      "accessibilityDescription": "مطلوب للصق النص في التطبيقات الأخرى",
       "accessibilityTitle": "تسهيلات الاستخدام",
-      "description": "اختبار وإدارة أذونات النظام المطلوبة لعمل only-whispers بشكل صحيح",
-      "microphoneDescription": "يلتقط صوتك للإملاء والتفريغ",
+      "description": "يحتاج Only Whispers إلى هذه الأذونات ليعمل.",
+      "microphoneDescription": "يسجل صوتك عندما تُملي",
       "microphoneTitle": "الميكروفون",
-      "resetAccessibility": {
-        "description": "سيؤدي هذا إلى إزالة only-whispers من أذونات تسهيلات الاستخدام. ستحتاج إلى إعادة منح الوصول من قسم تسهيلات الاستخدام ضمن الخصوصية والأمان في إعدادات النظام.",
-        "label": "إعادة تعيين أذونات تسهيلات الاستخدام",
-        "rowDescription": "إصلاح المشكلات بعد إعادة تثبيت التطبيق أو إعادة بنائه عن طريق إزالة وإضافة only-whispers في إعدادات النظام",
-        "title": "إعادة تعيين أذونات تسهيلات الاستخدام"
-      },
       "grantAccess": "منح الوصول",
-      "title": "الأذونات",
-      "troubleshoot": "استكشاف الأخطاء وإصلاحها",
-      "troubleshootingTitle": "استكشاف الأخطاء وإصلاحها"
+      "title": "الأذونات"
     },
     "speechToText": {
       "title": "تحويل الكلام إلى نص",
@@ -1297,7 +1288,6 @@
     "errors": {
       "unableToAccess": "تعذر الوصول إلى الميكروفون. يرجى التحقق من الأذونات."
     },
-    "helpText": "حدد ميكروفونًا معينًا أو استخدم الإعداد الافتراضي للنظام.",
     "inputDevice": "جهاز الإدخال",
     "noBuiltInDetected": "لم يتم اكتشاف ميكروفون مدمج. سيتم استخدام الإعداد الافتراضي للنظام.",
     "preferBuiltIn": {
@@ -1350,34 +1340,15 @@
     "wlClipboardDescription": "على سطح المكتب هذا، لا تستطيع تطبيقات Wayland قراءة النص الذي ينسخه only-whispers إلا عبر wl-copy. للصق الإملاء فيها، ثبّت wl-clipboard:"
   },
   "settingsModal": {
-    "groups": {
-      "app": "التطبيق",
-      "aiModels": "نماذج الذكاء الاصطناعي"
-    },
     "sections": {
       "general": {
-        "description": "المظهر والأصوات وبدء التشغيل",
         "label": "التفضيلات"
       },
       "hotkeys": {
-        "description": "اختصارات الإملاء والتفعيل",
         "label": "اختصارات لوحة المفاتيح"
       },
-      "toneStyle": {
-        "label": "النبرة والأسلوب",
-        "description": "كيف يكتب التنظيف في كل تطبيق"
-      },
-      "speechToText": {
-        "description": "محركات الإملاء وتسجيل الملاحظات",
-        "label": "تحويل الكلام إلى نص"
-      },
-      "llms": {
-        "description": "نماذج الدردشة والتنظيف والملخصات",
-        "label": "النماذج اللغوية"
-      },
       "aiModels": {
-        "label": "نماذج الذكاء الاصطناعي",
-        "description": "مفتاح Mistral وتسجيل الدخول إلى ChatGPT"
+        "label": "نماذج الذكاء الاصطناعي"
       }
     },
     "title": "الإعدادات"
