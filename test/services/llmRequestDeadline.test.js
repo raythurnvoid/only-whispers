@@ -2,18 +2,6 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { createRendererServer, installBrowserGlobals } = require("../lib/rendererTestHarness");
 
-// Generate AI Summary sends a whole transcript to a model that may reason for a
-// minute or more before writing. Under the 30-second dictation deadline every
-// such request was aborted and, counted as a network fault, retried three more
-// times: four billed requests and no note (1.10.1).
-
-const NOTE_CONFIG = {
-  systemPrompt: "Summarize the meeting.",
-  inferenceScope: "noteFormatting",
-  maxTokens: 4096,
-  temperature: 0.3,
-};
-
 const CTX = {
   getApiKey: async () => "test-key",
   getSystemPrompt: () => "Clean the transcript",
@@ -57,68 +45,6 @@ function installHangingFetch(t) {
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
-async function runDeadlineScenario(t, startRequest) {
-  t.mock.timers.enable({ apis: ["setTimeout"] });
-  const posts = installHangingFetch(t);
-
-  let outcome = null;
-  const request = startRequest().then(
-    (value) => {
-      outcome = { value };
-    },
-    (error) => {
-      outcome = { error };
-    }
-  );
-  await settle();
-  assert.equal(posts.length, 1, "the request should be in flight");
-
-  // The dictation deadline must not fire on a note.
-  t.mock.timers.tick(30_000);
-  await settle();
-  assert.equal(outcome, null, "a note request must survive the 30-second dictation deadline");
-
-  t.mock.timers.tick(600_000);
-  await settle();
-  // A retry would be waiting on its backoff timer here; drain it so the second
-  // POST shows up in `posts` instead of leaving `request` pending.
-  t.mock.timers.tick(10_000);
-  await settle();
-
-  assert.equal(posts.length, 1, "a timed-out request must not be retried");
-  assert.ok(outcome?.error, "the request should end in an error once the long deadline expires");
-  // BYOK deadlines surface classified; the raw deadline rides along as the cause.
-  assert.equal(outcome.error.code, "PROVIDER_TIMEOUT");
-  assert.match(outcome.error.cause?.message ?? "", /Request timed out after 600s/);
-  await request;
-}
-
-test("OpenAI note formatting waits ten minutes and does not retry a timed-out request", async (t) => {
-  const { openaiProvider } = await import("../../src/services/ai/inferenceProviders/openai.ts");
-  await runDeadlineScenario(t, () =>
-    openaiProvider.call({
-      text: "Alice: we agreed to ship on Friday.\n".repeat(200),
-      model: "gpt-5.6-terra",
-      agentName: null,
-      config: { provider: "openai", ...NOTE_CONFIG },
-      ctx: CTX,
-    })
-  );
-});
-
-test("Gemini note formatting waits ten minutes and does not retry a timed-out request", async (t) => {
-  const { geminiProvider } = await import("../../src/services/ai/inferenceProviders/gemini.ts");
-  await runDeadlineScenario(t, () =>
-    geminiProvider.call({
-      text: "Alice: we agreed to ship on Friday.\n".repeat(200),
-      model: "gemini-3.5-flash",
-      agentName: null,
-      config: NOTE_CONFIG,
-      ctx: CTX,
-    })
-  );
-});
-
 test("dictation cleanup keeps its 30-second deadline", async (t) => {
   const { openaiProvider } = await import("../../src/services/ai/inferenceProviders/openai.ts");
   t.mock.timers.enable({ apis: ["setTimeout"] });
@@ -154,7 +80,7 @@ test("dictation cleanup keeps its 30-second deadline", async (t) => {
 
 // Enterprise requests run in the main process, whose handler applies its own
 // 60-second default unless the renderer sends the deadline along.
-test("enterprise note formatting sends the long deadline to the main process", async (t) => {
+test("enterprise requests send their deadline to the main process", async (t) => {
   const ipcConfigs = [];
   installBrowserGlobals(t, {
     window: {
@@ -190,16 +116,14 @@ test("enterprise note formatting sends the long deadline to the main process", a
       ctx: CTX,
     });
 
-  await call(NOTE_CONFIG);
   await call({});
 
-  assert.equal(ipcConfigs[0].timeoutMs, 600_000);
-  assert.equal(ipcConfigs[1].timeoutMs, 30_000, "dictation cleanup keeps the short deadline");
+  assert.equal(ipcConfigs[0].timeoutMs, 30_000);
 });
 
 // Tinfoil goes through the OpenAI SDK, which reports an expired deadline as a
 // connection error; without the mapping, withRetry would re-send it.
-test("Tinfoil note formatting passes the long deadline to the SDK and does not retry its timeout", async (t) => {
+test("Tinfoil passes its deadline to the SDK and does not retry its timeout", async (t) => {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
     cachePrefix: "only-whispers-tinfoil-deadline-test-",
@@ -233,10 +157,10 @@ test("Tinfoil note formatting passes the long deadline to the SDK and does not r
       text: "Alice: we agreed to ship on Friday.",
       model: "glm-5-3",
       agentName: null,
-      config: NOTE_CONFIG,
+      config: {},
       ctx: CTX,
     }),
-    /Request timed out after 600s/
+    /Request timed out after 30s/
   );
 
   assert.equal(
@@ -244,6 +168,6 @@ test("Tinfoil note formatting passes the long deadline to the SDK and does not r
     1,
     "an expired deadline must not be re-sent"
   );
-  assert.equal(globalThis.__tinfoilCreateCalls[0].timeout, 600_000);
+  assert.equal(globalThis.__tinfoilCreateCalls[0].timeout, 30_000);
   assert.equal(globalThis.__tinfoilCreateCalls[0].maxRetries, 0);
 });

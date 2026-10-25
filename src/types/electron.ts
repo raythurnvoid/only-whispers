@@ -29,8 +29,6 @@ export interface LocalServerPrefs {
   useDictationAgent: boolean;
   dictationAgentMode: InferenceMode;
   dictationAgentModel: string;
-  noteFormattingMode: InferenceMode;
-  noteFormattingModel: string;
   chatAgentMode: InferenceMode;
   chatAgentModel: string;
 }
@@ -979,8 +977,6 @@ declare global {
       saveCustomTranscriptionKey?: (key: string) => Promise<void>;
       getCleanupCustomKey?: () => Promise<string | null>;
       saveCleanupCustomKey?: (key: string) => Promise<void>;
-      getNoteFormattingCustomKey?: () => Promise<string | null>;
-      saveNoteFormattingCustomKey?: (key: string) => Promise<void>;
       getDictationAgentCustomKey?: () => Promise<string | null>;
       saveDictationAgentCustomKey?: (key: string) => Promise<void>;
       getDictationAgentVisionCustomKey?: () => Promise<string | null>;

@@ -7,10 +7,10 @@
  * biases the Whisper prompt; auto never does, because the bias would skew the
  * language detection it depends on.
  *
- * Scope: dictation (audioManager) and history retry (ControlPanel). Meeting
- * transcription and uploaded audio strip zh-CN / zh-TW to "zh" and store the
- * response unconverted; the setting's copy is worded to match. Widening it means
- * converting at those sinks too, before the transcript is persisted.
+ * Scope: dictation (audioManager) and history retry (ControlPanel). Uploaded
+ * audio strips zh-CN / zh-TW to "zh" and stores the response unconverted; the
+ * setting's copy is worded to match. Widening it means converting at that sink
+ * too, before the transcript is persisted.
  *
  * See #975.
  */

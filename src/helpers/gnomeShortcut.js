@@ -12,10 +12,6 @@ const SLOT_CONFIG = {
     path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers/",
     name: "only-whispers Toggle",
   },
-  meeting: {
-    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-meeting/",
-    name: "only-whispers Meeting",
-  },
   voiceAgent: {
     path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-voice-agent/",
     name: "only-whispers Voice Assistant",
@@ -173,7 +169,6 @@ class GnomeShortcutManager {
   constructor() {
     this.bus = null;
     this.dictationCallback = null;
-    this.meetingCallback = null;
     this.voiceAgentCallback = null;
     this.globalShortcutsPortal = new GnomeGlobalShortcutsPortal();
     // Track which slots have been registered in gsettings
@@ -191,11 +186,6 @@ class GnomeShortcutManager {
 
   static isWayland() {
     return process.env.XDG_SESSION_TYPE === "wayland";
-  }
-
-  setMeetingCallback(callback) {
-    this.meetingCallback = callback;
-    debugLogger.log("[GnomeShortcut] Meeting callback registered");
   }
 
   setVoiceAgentCallback(callback) {
@@ -255,11 +245,6 @@ class GnomeShortcutManager {
               this.dictationCallback();
             }
           },
-          ToggleMeeting: () => {
-            if (this.meetingCallback) {
-              this.meetingCallback();
-            }
-          },
           ToggleVoiceAgent: () => {
             if (this.voiceAgentCallback) {
               this.voiceAgentCallback();
@@ -271,7 +256,6 @@ class GnomeShortcutManager {
           name: DBUS_INTERFACE,
           methods: {
             Toggle: ["", ""],
-            ToggleMeeting: ["", ""],
             ToggleVoiceAgent: ["", ""],
           },
         }
@@ -360,7 +344,6 @@ class GnomeShortcutManager {
 
     const SLOT_DBUS_METHOD = {
       dictation: "Toggle",
-      meeting: "ToggleMeeting",
       voiceAgent: "ToggleVoiceAgent",
     };
     const dbusMethod = SLOT_DBUS_METHOD[slotName] || "Toggle";

@@ -31,7 +31,6 @@ function gnomeManager(reason) {
     registerPushToTalk: async () => reason,
     unregisterKeybinding: async () => true,
     unregisterPushToTalk: async () => {},
-    setMeetingCallback() {},
     setVoiceAgentCallback() {},
     setTranslationCallback() {},
   };
@@ -63,13 +62,13 @@ test("another slot's hotkey GNOME already uses is refused as reserved and keeps 
     unregistered.push(slot);
     return true;
   };
-  await mgr.registerSlot("meeting", "F9", noop);
+  await mgr.registerSlot("voiceAgent", "F9", noop);
 
-  const result = await mgr.registerSlot("meeting", "F13", noop, { atomic: true });
+  const result = await mgr.registerSlot("voiceAgent", "F13", noop, { atomic: true });
 
   assert.equal(result.success, false);
   assert.match(result.error, /GNOME already uses/);
-  assert.deepEqual(mgr.getSlotHotkeys("meeting"), ["F9"]);
+  assert.deepEqual(mgr.getSlotHotkeys("voiceAgent"), ["F9"]);
   assert.deepEqual(unregistered, []);
 });
 

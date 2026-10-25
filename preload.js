@@ -17,11 +17,6 @@ const BYOK_KEY_BRIDGES = [
   { base: "deepgram", get: "getDeepgramKey", save: "saveDeepgramKey" },
   { base: "assemblyai", get: "getAssemblyAIKey", save: "saveAssemblyAIKey" },
   {
-    base: "note-formatting-custom",
-    get: "getNoteFormattingCustomKey",
-    save: "saveNoteFormattingCustomKey",
-  },
-  {
     base: "dictation-agent-custom",
     get: "getDictationAgentCustomKey",
     save: "saveDictationAgentCustomKey",

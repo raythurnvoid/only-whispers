@@ -1780,8 +1780,8 @@ class WindowManager {
   // before it is left behind the previously frontmost app. show() runs even
   // for a visible window, since on macOS it activates the app while another
   // app is active and focus() does not. `activate: false` skips that for an
-  // open panel, for openers that send the user to another app (joining a
-  // meeting, the meeting hotkey mid-call): the panel updates behind it.
+  // open panel, for openers that send the user to another app: the panel
+  // updates behind it.
   showControlPanel({ activate = true } = {}) {
     const win = this.controlPanelWindow;
     if (!win || win.isDestroyed()) return;
@@ -2081,7 +2081,7 @@ class WindowManager {
     this._applyAgentDictationPillClickThrough(pillWindow, !interactive);
   }
 
-  // Like the dictation pill and meeting notification, the companion is
+  // Like the dictation pill, the companion is
   // click-through on macOS so its transparent bounds never swallow clicks
   // meant for the app beneath; hovering re-captures via IPC. Windows
   // forwarding is unreliable for floating panels and Linux ignores `forward`

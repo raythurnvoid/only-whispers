@@ -19,11 +19,7 @@ import {
   sweepRetiredCloudModelSelections,
   type RetiredModelProvider,
 } from "../config/retiredCloudModels";
-import {
-  deriveReasoningMode,
-  buildReasoningScopePatches,
-  inheritsFallbackEndpoint,
-} from "../helpers/reasoningRouting";
+import { deriveReasoningMode, buildReasoningScopePatches } from "../helpers/reasoningRouting";
 import { findStaleLocalModelKeys } from "../helpers/localModelSelections";
 import {
   INFERENCE_SCOPES,
@@ -63,33 +59,26 @@ const isBrowser = typeof window !== "undefined" && typeof localStorage !== "unde
 const DEFAULT_CLOUD_TRANSCRIPTION_PROVIDER = "openai";
 
 /** Where a transcription runs from; each has its own provider and model settings. */
-export type TranscriptionContext = "dictation" | "meeting" | "upload";
+export type TranscriptionContext = "dictation" | "upload";
 
 const localLlmProviderIds = new Set(
   modelRegistryData.localProviders.map((provider) => provider.id)
 );
 
-function transcriptionProviderModels(
-  providerId: string,
-  context: TranscriptionContext
-): Array<{ id: string; streaming?: boolean }> {
-  const models =
+function transcriptionProviderModels(providerId: string): Array<{ id: string }> {
+  return (
     modelRegistryData.transcriptionProviders.find((provider) => provider.id === providerId)
-      ?.models ?? [];
-  return context === "meeting" ? models.filter((model) => model.streaming) : models;
+      ?.models ?? []
+  );
 }
 
-function defaultTranscriptionModel(providerId: string, context: TranscriptionContext): string {
-  return transcriptionProviderModels(providerId, context)[0]?.id ?? "whisper-1";
+function defaultTranscriptionModel(providerId: string): string {
+  return transcriptionProviderModels(providerId)[0]?.id ?? "whisper-1";
 }
 
-function transcriptionModelBelongsToProvider(
-  providerId: string,
-  modelId: string,
-  context: TranscriptionContext
-): boolean {
+function transcriptionModelBelongsToProvider(providerId: string, modelId: string): boolean {
   if (providerId === "custom") return Boolean(modelId);
-  return transcriptionProviderModels(providerId, context).some((model) => model.id === modelId);
+  return transcriptionProviderModels(providerId).some((model) => model.id === modelId);
 }
 
 export function reasoningModelBelongsToProvider(providerId: string, modelId: string): boolean {
@@ -118,7 +107,7 @@ function readLocalProvider(key: string): LocalTranscriptionProvider {
   return stored === "nvidia" || stored === "cohere" ? stored : "whisper";
 }
 
-// Meeting/upload keys defaulted to "whisper" even when never stored, so a
+// Upload keys defaulted to "whisper" even when never stored, so a
 // fresh Parakeet/Cohere install resolved uploads against Whisper `base`.
 function readScopedLocalProvider(scopeKey: string): LocalTranscriptionProvider {
   if (isBrowser && localStorage.getItem(scopeKey) === null) {
@@ -186,7 +175,6 @@ migrateMicrophoneSelectionMode();
 
 const BOOLEAN_SETTINGS = new Set([
   "useLocalWhisper",
-  "meetingUseLocalWhisper",
   "uploadUseLocalWhisper",
   "allowOpenAIFallback",
   "allowLocalFallback",
@@ -214,7 +202,6 @@ const BOOLEAN_SETTINGS = new Set([
   "cleanupDisableThinking",
   "dictationAgentDisableThinking",
   "dictationAgentVisionDisableThinking",
-  "noteFormattingDisableThinking",
   "chatAgentDisableThinking",
 ]);
 
@@ -262,7 +249,7 @@ function deriveTranscriptionMode(
 
 // Map the legacy `cloudReasoningMode` + provider pair to the InferenceMode the
 // Settings tabs select on. Shared by the provider-settings and agent-mode
-// migrations and by healSkippedMeetingFollowModes(). Distinct from the imported
+// migrations. Distinct from the imported
 // deriveReasoningMode(), which collapses local and enterprise into "providers"
 // on purpose for the cloud-only "use everywhere" action.
 function deriveLegacyReasoningMode(
@@ -313,58 +300,6 @@ function migrateProviderSettings() {
 }
 
 migrateProviderSettings();
-
-// One-time migration for legacy `meetingFollows{Transcription,Reasoning}` flags.
-// When the flag was true (the default), meeting/note recordings inherited the
-// main dictation/intelligence settings. We've removed the toggle; copy the
-// effective values into the dedicated meeting fields so post-migration reads
-// (which always go through meeting fields) preserve every existing user's
-// behavior. After migration the flag stays at "false" as a marker so this
-// never runs again. Safe to delete after a few releases.
-const MEETING_TRANSCRIPTION_PAIRS: ReadonlyArray<[string, string]> = [
-  ["useLocalWhisper", "meetingUseLocalWhisper"],
-  ["whisperModel", "meetingWhisperModel"],
-  ["localTranscriptionProvider", "meetingLocalTranscriptionProvider"],
-  ["parakeetModel", "meetingParakeetModel"],
-  ["cohereModel", "meetingCohereModel"],
-  ["cloudTranscriptionProvider", "meetingCloudTranscriptionProvider"],
-  ["cloudTranscriptionModel", "meetingCloudTranscriptionModel"],
-  ["cloudTranscriptionBaseUrl", "meetingCloudTranscriptionBaseUrl"],
-  ["cloudTranscriptionMode", "meetingCloudTranscriptionMode"],
-  ["transcriptionMode", "meetingTranscriptionMode"],
-  ["remoteTranscriptionType", "meetingRemoteTranscriptionType"],
-  ["remoteTranscriptionUrl", "meetingRemoteTranscriptionUrl"],
-];
-const MEETING_REASONING_PAIRS: ReadonlyArray<[string, string]> = [
-  ["reasoningProvider", "meetingReasoningProvider"],
-  ["reasoningModel", "meetingReasoningModel"],
-  ["reasoningMode", "meetingReasoningMode"],
-  ["cloudReasoningMode", "meetingCloudReasoningMode"],
-  ["cloudReasoningBaseUrl", "meetingCloudReasoningBaseUrl"],
-  ["remoteReasoningType", "meetingRemoteReasoningType"],
-  ["remoteReasoningUrl", "meetingRemoteReasoningUrl"],
-];
-
-function migrateMeetingFollowFlags() {
-  if (!isBrowser) return;
-  for (const [flag, pairs] of [
-    ["meetingFollowsTranscription", MEETING_TRANSCRIPTION_PAIRS],
-    ["meetingFollowsReasoning", MEETING_REASONING_PAIRS],
-  ] as const) {
-    if (localStorage.getItem(flag) === "false") continue;
-    for (const [src, dst] of pairs) {
-      const v = localStorage.getItem(src);
-      if (v !== null) localStorage.setItem(dst, v);
-    }
-    localStorage.setItem(flag, "false");
-  }
-}
-
-// Runs after migrateProviderSettings() so the mode keys it derives and persists
-// (`transcriptionMode`, `reasoningMode`, the `remote*` keys) exist to be copied.
-// Before 1.10.0 it ran first, skipped those pairs, and latched — see
-// healSkippedMeetingFollowModes() for the profiles that already did.
-migrateMeetingFollowFlags();
 
 // One-time seed of the dedicated audio-upload transcription settings. Runs
 // after migrateProviderSettings() so the `transcriptionMode` it derives and
@@ -425,10 +360,6 @@ migrateUploadSelfHosted();
 // so routing can disagree with what the user sees
 // (#2086). Must run after the upload one-shot copy, which mirrors the dictation
 // keys desync-and-all and then latches.
-//
-// Note Recording is excluded: it routes on
-// `meetingTranscriptionMode`, the key MeetingSettings renders, so it cannot
-// disagree, and no router reads `meetingUseLocalWhisper`.
 //
 // Never complete either rule symmetrically — it would start uploading audio from
 // profiles that exist: the mode-less Settings toggle wrote the local flag alone
@@ -562,12 +493,6 @@ const LLM_SCOPE_KEY_PAIRS: ReadonlyArray<[string, string]> = [
   ["cloudReasoningBaseUrl", "cleanupCloudBaseUrl"],
   ["customReasoningApiKey", "cleanupCustomApiKey"],
   ["remoteReasoningUrl", "cleanupRemoteUrl"],
-  ["meetingReasoningMode", "noteFormattingMode"],
-  ["meetingReasoningProvider", "noteFormattingProvider"],
-  ["meetingReasoningModel", "noteFormattingModel"],
-  ["meetingCloudReasoningMode", "noteFormattingCloudMode"],
-  ["meetingCloudReasoningBaseUrl", "noteFormattingCloudBaseUrl"],
-  ["meetingRemoteReasoningUrl", "noteFormattingRemoteUrl"],
   ["agentInferenceMode", "chatAgentMode"],
   ["agentProvider", "chatAgentProvider"],
   ["agentModel", "chatAgentModel"],
@@ -631,84 +556,6 @@ function seedDictationAgentScopeFromChat() {
 }
 
 seedDictationAgentScopeFromChat();
-
-// Builds before 1.10.0 ran migrateMeetingFollowFlags() before
-// migrateProviderSettings() had created `transcriptionMode` / `reasoningMode`,
-// so a profile upgrading straight from ≤1.6.7 copied every Note Recording key
-// except the two modes and then latched the follow flags.
-//
-// The two modes fail differently when absent, so they are healed differently.
-// `meetingTranscriptionMode` has no fallback: selectResolvedMeetingTranscription
-// passes it straight through, so every mode is reconstructed from the snapshot
-// the copy did write — with the same functions migrateProviderSettings() uses, not from
-// today's dictation keys, which the user may have changed since.
-// `noteFormattingMode` does have one: an absent mode follows dictation cleanup,
-// so note formatting does not leak, and the only cohort at risk is
-// one whose reasoning snapshot was local and whose cleanup has since moved
-// cloud-ward. So that mode is healed local-ward only: pinning a cloud snapshot
-// would override a since-local cleanup and send note text to a third party.
-//
-// Runs after migrateLLMScopeKeys() so a pre-1.7.0 profile's reasoning snapshot
-// is under its final `noteFormatting*` names. `noteFormattingCloudMode` is the
-// reasoning-side signal: the scope editor can write the provider alone but only
-// ever writes cloudMode together with mode. Idempotent — writing a mode retires
-// its own guard — and it never touches `meetingUseLocalWhisper`, which no router
-// reads but which rule two below depends on.
-function healSkippedMeetingFollowModes(): Record<string, InferenceMode> {
-  if (!isBrowser) return {};
-  const healed: Record<string, InferenceMode> = {};
-
-  const meetingUseLocal = localStorage.getItem("meetingUseLocalWhisper");
-  const meetingCloudMode = localStorage.getItem("meetingCloudTranscriptionMode");
-  if (
-    localStorage.getItem("meetingTranscriptionMode") === null &&
-    (meetingUseLocal !== null || meetingCloudMode !== null)
-  ) {
-    const mode = deriveTranscriptionMode(
-      meetingUseLocal === "true",
-      meetingCloudMode,
-      localStorage.getItem("meetingCloudTranscriptionProvider")
-    );
-    localStorage.setItem("meetingTranscriptionMode", mode);
-    healed.meetingTranscriptionMode = mode;
-  }
-
-  // v1.6.8–v1.6.9's since-removed mode-less toggle wrote `useLocalWhisper` alone,
-  // so a deliberate Local choice could sit under a stale cloud mode; v1.6.10's
-  // wholesale copy carried both into Note Recording, where the mode is what
-  // routes. The UI writes the flag as `mode === "local"`, so this pair can only
-  // be that copy. Follow the flag — local-ward only.
-  const meetingMode = localStorage.getItem("meetingTranscriptionMode");
-  if (meetingUseLocal === "true" && meetingMode !== null && meetingMode !== "local") {
-    localStorage.setItem("meetingTranscriptionMode", "local");
-    healed.meetingTranscriptionMode = "local";
-  }
-
-  const noteFormattingCloudMode = localStorage.getItem("noteFormattingCloudMode");
-  if (localStorage.getItem("noteFormattingMode") === null && noteFormattingCloudMode !== null) {
-    const mode = deriveLegacyReasoningMode(
-      noteFormattingCloudMode,
-      localStorage.getItem("noteFormattingProvider")
-    );
-    // Local-ward only — see the header. Any other snapshot is left absent so
-    // note formatting keeps following dictation cleanup, as it does today.
-    if (mode === "local") {
-      localStorage.setItem("noteFormattingMode", mode);
-      healed.noteFormattingMode = mode;
-    }
-  }
-
-  return healed;
-}
-
-const healedMeetingFollowModes = healSkippedMeetingFollowModes();
-if (Object.keys(healedMeetingFollowModes).length > 0) {
-  logger.info(
-    "Re-derived Note Recording modes the follow-flag migration had skipped",
-    healedMeetingFollowModes,
-    "settings"
-  );
-}
 
 // Resolved offline, so a retired model's name survives only in Tinfoil's
 // catalog cache, and a replacement's only if the registry lists it. The raw-id
@@ -794,19 +641,6 @@ export interface SettingsState
   cleanupRemoteUrl: string;
   keepLocalModelLoaded: boolean;
 
-  meetingTranscriptionMode: InferenceMode;
-  meetingUseLocalWhisper: boolean;
-  meetingWhisperModel: string;
-  meetingLocalTranscriptionProvider: LocalTranscriptionProvider;
-  meetingParakeetModel: string;
-  meetingCohereModel: string;
-  meetingCloudTranscriptionProvider: string;
-  meetingCloudTranscriptionModel: string;
-  meetingCloudTranscriptionBaseUrl: string;
-  meetingCloudTranscriptionMode: string;
-  meetingRemoteTranscriptionType: SelfHostedType;
-  meetingRemoteTranscriptionUrl: string;
-
   uploadTranscriptionMode: InferenceMode;
   uploadUseLocalWhisper: boolean;
   uploadWhisperModel: string;
@@ -822,14 +656,6 @@ export interface SettingsState
 
   /** Last model used per scope+provider (`"<context>:<providerId>"`), so switching providers restores it. */
   transcriptionModelByProvider: Record<string, string>;
-
-  noteFormattingMode: InferenceMode;
-  noteFormattingProvider: string;
-  noteFormattingModel: string;
-  noteFormattingCloudMode: string;
-  noteFormattingCloudBaseUrl: string;
-  noteFormattingRemoteUrl: string;
-  noteFormattingCustomApiKey: string;
 
   dictationAgentMode: InferenceMode;
   dictationAgentProvider: string;
@@ -856,12 +682,10 @@ export interface SettingsState
   cleanupDisableThinking: boolean;
   dictationAgentDisableThinking: boolean;
   dictationAgentVisionDisableThinking: boolean;
-  noteFormattingDisableThinking: boolean;
   chatAgentDisableThinking: boolean;
   cleanupReasoningEffort: string;
   dictationAgentReasoningEffort: string;
   dictationAgentVisionReasoningEffort: string;
-  noteFormattingReasoningEffort: string;
   chatAgentReasoningEffort: string;
 
   customPrompts: Record<PromptKind, string>;
@@ -879,20 +703,12 @@ export interface SettingsState
   setCleanupRemoteUrl: (url: string) => void;
   setKeepLocalModelLoaded: (value: boolean) => void;
 
-  setMeetingTranscriptionMode: (mode: InferenceMode) => void;
-  setMeetingUseLocalWhisper: (value: boolean) => void;
-  setMeetingLocalTranscriptionProvider: (value: LocalTranscriptionProvider) => void;
-  setMeetingCloudTranscriptionProvider: (value: string) => void;
-  setMeetingCloudTranscriptionModel: (value: string) => void;
-  setMeetingCloudTranscriptionMode: (value: string) => void;
-
   setUploadTranscriptionMode: (mode: InferenceMode) => void;
   setUploadUseLocalWhisper: (value: boolean) => void;
   setUploadLocalTranscriptionProvider: (value: LocalTranscriptionProvider) => void;
   setUploadCloudTranscriptionProvider: (value: string) => void;
   setUploadCloudTranscriptionModel: (value: string) => void;
   setUploadCloudTranscriptionMode: (value: string) => void;
-  setNoteFormattingCustomApiKey: (key: string) => void;
 
   setUseLocalWhisper: (value: boolean) => void;
   setWhisperModel: (value: string) => void;
@@ -1113,7 +929,6 @@ const SECRET_IPC_SAVERS = {
   assemblyai: "saveAssemblyAIKey",
   customTranscription: "saveCustomTranscriptionKey",
   cleanupCustom: "saveCleanupCustomKey",
-  noteFormattingCustom: "saveNoteFormattingCustomKey",
   dictationAgentCustom: "saveDictationAgentCustomKey",
   dictationAgentVisionCustom: "saveDictationAgentVisionCustomKey",
   chatAgentCustom: "saveChatAgentCustomKey",
@@ -1295,14 +1110,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
   dictationKey: readString("dictationKey", ""),
   activeDictationKey: null,
-  meetingKey: readString("meetingKey", ""),
   voiceAgentKey: readString("voiceAgentKey", ""),
   onboardingUseCases: readStringArray("onboardingUseCases", []),
   onboardingUseCaseNote: readString("onboardingUseCaseNote", ""),
   spokenLanguages: readStringArray("spokenLanguages", []),
-  meetingHotkeyLayoutMode: (readString("meetingHotkeyLayoutMode", "full-width") === "side-panel"
-    ? "side-panel"
-    : "full-width") as "side-panel" | "full-width",
   activationMode: (readString("activationMode", "tap") === "push" ? "push" : "tap") as
     "tap" | "push",
 
@@ -1363,26 +1174,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   cleanupRemoteUrl: readString("cleanupRemoteUrl", ""),
   keepLocalModelLoaded: readBoolean("keepLocalModelLoaded", false),
 
-  meetingTranscriptionMode: (() => {
-    const v = readString("meetingTranscriptionMode", "providers");
-    if (v === "providers" || v === "local" || v === "self-hosted") return v;
-    return "providers" as InferenceMode;
-  })(),
-  meetingUseLocalWhisper: readBoolean("meetingUseLocalWhisper", false),
-  meetingWhisperModel: readString("meetingWhisperModel", ""),
-  meetingLocalTranscriptionProvider: readScopedLocalProvider("meetingLocalTranscriptionProvider"),
-  meetingParakeetModel: readString("meetingParakeetModel", ""),
-  meetingCohereModel: readString("meetingCohereModel", ""),
-  meetingCloudTranscriptionProvider: readString("meetingCloudTranscriptionProvider", ""),
-  meetingCloudTranscriptionModel: readString("meetingCloudTranscriptionModel", ""),
-  meetingCloudTranscriptionBaseUrl: readString("meetingCloudTranscriptionBaseUrl", ""),
-  meetingCloudTranscriptionMode: readString("meetingCloudTranscriptionMode", ""),
-  meetingRemoteTranscriptionType: (() => {
-    const v = readString("meetingRemoteTranscriptionType", "lan");
-    return v === "openai-compatible" ? "openai-compatible" : ("lan" as SelfHostedType);
-  })(),
-  meetingRemoteTranscriptionUrl: readString("meetingRemoteTranscriptionUrl", ""),
-
   uploadTranscriptionMode: (() => {
     const v = readString("uploadTranscriptionMode", "providers");
     if (v === "providers" || v === "local" || v === "self-hosted") return v;
@@ -1400,34 +1191,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   uploadRemoteTranscriptionUrl: readString("uploadRemoteTranscriptionUrl", ""),
   uploadRemoteTranscriptionModel: readString("uploadRemoteTranscriptionModel", ""),
 
-  noteFormattingMode: (() => {
-    const v = readString("noteFormattingMode", "providers");
-    if (v === "providers" || v === "local" || v === "self-hosted" || v === "enterprise") return v;
-    return "providers" as InferenceMode;
-  })(),
-  noteFormattingProvider: readString("noteFormattingProvider", ""),
-  noteFormattingModel: readString("noteFormattingModel", ""),
-  noteFormattingCloudMode: readString("noteFormattingCloudMode", ""),
-  noteFormattingCloudBaseUrl: readString("noteFormattingCloudBaseUrl", ""),
-  noteFormattingRemoteUrl: readString("noteFormattingRemoteUrl", ""),
-  noteFormattingCustomApiKey: readString("noteFormattingCustomApiKey", ""),
-
   setTranscriptionMode: createStringSetter("transcriptionMode") as (mode: InferenceMode) => void,
   setCleanupMode: createStringSetter("cleanupMode") as (mode: InferenceMode) => void,
   setCleanupRemoteUrl: createStringSetter("cleanupRemoteUrl"),
   setKeepLocalModelLoaded: createBooleanSetter("keepLocalModelLoaded"),
-
-  setMeetingTranscriptionMode: createStringSetter("meetingTranscriptionMode") as (
-    mode: InferenceMode
-  ) => void,
-  setMeetingUseLocalWhisper: createBooleanSetter("meetingUseLocalWhisper"),
-  setMeetingLocalTranscriptionProvider: (value: LocalTranscriptionProvider) => {
-    if (isBrowser) localStorage.setItem("meetingLocalTranscriptionProvider", value);
-    useSettingsStore.setState({ meetingLocalTranscriptionProvider: value });
-  },
-  setMeetingCloudTranscriptionProvider: createStringSetter("meetingCloudTranscriptionProvider"),
-  setMeetingCloudTranscriptionModel: createStringSetter("meetingCloudTranscriptionModel"),
-  setMeetingCloudTranscriptionMode: createStringSetter("meetingCloudTranscriptionMode"),
 
   setUploadTranscriptionMode: createStringSetter("uploadTranscriptionMode") as (
     mode: InferenceMode
@@ -1440,11 +1207,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   setUploadCloudTranscriptionProvider: createStringSetter("uploadCloudTranscriptionProvider"),
   setUploadCloudTranscriptionModel: createStringSetter("uploadCloudTranscriptionModel"),
   setUploadCloudTranscriptionMode: createStringSetter("uploadCloudTranscriptionMode"),
-  setNoteFormattingCustomApiKey: createSecretSetter(
-    "noteFormattingCustomApiKey",
-    "noteFormattingCustom",
-    "custom"
-  ),
 
   chatAgentModel: readString("chatAgentModel", "openai/gpt-oss-120b"),
   chatAgentProvider: readString("chatAgentProvider", "groq"),
@@ -1486,12 +1248,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   cleanupDisableThinking: readBoolean("cleanupDisableThinking", true),
   dictationAgentDisableThinking: readBoolean("dictationAgentDisableThinking", true),
   dictationAgentVisionDisableThinking: readBoolean("dictationAgentVisionDisableThinking", true),
-  noteFormattingDisableThinking: readBoolean("noteFormattingDisableThinking", true),
   chatAgentDisableThinking: readBoolean("chatAgentDisableThinking", true),
   cleanupReasoningEffort: readString("cleanupReasoningEffort", ""),
   dictationAgentReasoningEffort: readString("dictationAgentReasoningEffort", ""),
   dictationAgentVisionReasoningEffort: readString("dictationAgentVisionReasoningEffort", ""),
-  noteFormattingReasoningEffort: readString("noteFormattingReasoningEffort", ""),
   chatAgentReasoningEffort: readString("chatAgentReasoningEffort", ""),
 
   customPrompts: PROMPT_KIND_LIST.reduce(
@@ -1548,7 +1308,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     const s = useSettingsStore.getState();
     const keys = TRANSCRIPTION_CONTEXT_KEYS.find((entry) => entry.context === context);
     if (!keys) return;
-    // Meeting/upload raw keys default to "" (inherit from dictation), so work
+    // Upload raw keys default to "" (inherit from dictation), so work
     // against resolved values. Restoring writes a concrete model — the scope
     // stops inheriting the dictation model from that point on.
     const outgoingProvider = (s[keys.provider] as string) || s.cloudTranscriptionProvider;
@@ -1566,9 +1326,9 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     setStringSetting(keys.provider, providerId);
     setStringSetting(
       keys.model,
-      remembered && transcriptionModelBelongsToProvider(providerId, remembered, context)
+      remembered && transcriptionModelBelongsToProvider(providerId, remembered)
         ? remembered
-        : defaultTranscriptionModel(providerId, context)
+        : defaultTranscriptionModel(providerId)
     );
   },
   setCloudTranscriptionMode: createStringSetter("cloudTranscriptionMode"),
@@ -1892,7 +1652,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   },
 
   // Apply a transcription config to dictation, then mirror its cloud routing to
-  // note recording and audio upload — used when onboarding picks one provider
+  // audio upload — used when onboarding picks one provider
   // for everything (e.g. Corti for medical providers).
   setCloudTranscriptionForAllScopes: (settings: Partial<TranscriptionSettings>) => {
     const s = useSettingsStore.getState();
@@ -1913,13 +1673,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       cloudTranscriptionProvider
     );
     s.setTranscriptionMode(mode);
-    s.setMeetingTranscriptionMode(mode);
     s.setUploadTranscriptionMode(mode);
-    s.setMeetingUseLocalWhisper(useLocalWhisper);
-    s.setMeetingLocalTranscriptionProvider(localTranscriptionProvider);
-    s.setMeetingCloudTranscriptionMode(cloudTranscriptionMode);
-    s.setMeetingCloudTranscriptionProvider(cloudTranscriptionProvider);
-    s.setMeetingCloudTranscriptionModel(cloudTranscriptionModel);
     s.setUploadUseLocalWhisper(useLocalWhisper);
     s.setUploadLocalTranscriptionProvider(localTranscriptionProvider);
     s.setUploadCloudTranscriptionMode(cloudTranscriptionMode);
@@ -1987,74 +1741,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
 // --- Selectors (derived state, not stored) ---
 
-export interface ResolvedMeetingTranscription {
-  useLocalWhisper: boolean;
-  whisperModel: string;
-  localTranscriptionProvider: LocalTranscriptionProvider;
-  parakeetModel: string;
-  cohereModel: string;
-  cloudTranscriptionProvider: string;
-  cloudTranscriptionModel: string;
-  cloudTranscriptionBaseUrl: string;
-  cloudTranscriptionMode: string;
-  transcriptionMode: InferenceMode;
-  remoteTranscriptionType: SelfHostedType;
-  remoteTranscriptionUrl: string;
-}
-
-export const selectResolvedMeetingTranscription = (
-  state: SettingsState
-): ResolvedMeetingTranscription => ({
-  useLocalWhisper: state.meetingUseLocalWhisper,
-  whisperModel: state.meetingWhisperModel || state.whisperModel,
-  localTranscriptionProvider: state.meetingLocalTranscriptionProvider,
-  parakeetModel: state.meetingParakeetModel || state.parakeetModel,
-  cohereModel: state.meetingCohereModel || state.cohereModel,
-  cloudTranscriptionProvider:
-    state.meetingCloudTranscriptionProvider || state.cloudTranscriptionProvider,
-  cloudTranscriptionModel: state.meetingCloudTranscriptionModel || state.cloudTranscriptionModel,
-  cloudTranscriptionBaseUrl:
-    state.meetingCloudTranscriptionBaseUrl || state.cloudTranscriptionBaseUrl || "",
-  cloudTranscriptionMode: state.meetingCloudTranscriptionMode || state.cloudTranscriptionMode,
-  transcriptionMode: state.meetingTranscriptionMode,
-  remoteTranscriptionType: state.meetingRemoteTranscriptionType,
-  remoteTranscriptionUrl: state.meetingRemoteTranscriptionUrl || state.remoteTranscriptionUrl,
-});
-
-export interface ResolvedNoteFormatting {
-  provider: string;
-  model: string;
-  mode: InferenceMode;
-  cloudMode: string;
-  cloudBaseUrl: string;
-  remoteUrl: string;
-  customApiKey: string;
-}
-
-export const selectResolvedNoteFormatting = (state: SettingsState): ResolvedNoteFormatting => {
-  const cfg = selectResolvedLLMConfig(state, "noteFormatting");
-  const cleanup = selectResolvedLLMConfig(state, "dictationCleanup");
-  // The endpoint falls back to dictation cleanup, so the key that opens it must too,
-  // or an inherited endpoint gets called with no credential.
-  const borrowsEndpoint = inheritsFallbackEndpoint(
-    {
-      mode: cfg.mode,
-      cloudBaseUrl: state.noteFormattingCloudBaseUrl,
-      remoteUrl: state.noteFormattingRemoteUrl,
-    },
-    cleanup.mode
-  );
-  return {
-    provider: cfg.provider,
-    model: cfg.model,
-    mode: cfg.mode,
-    cloudMode: cfg.cloudMode || "",
-    cloudBaseUrl: cfg.cloudBaseUrl || "",
-    remoteUrl: cfg.remoteUrl || "",
-    customApiKey: cfg.customApiKey || (borrowsEndpoint ? cleanup.customApiKey || "" : ""),
-  };
-};
-
 export interface ResolvedLLMConfig {
   scope: InferenceScope;
   mode: InferenceMode;
@@ -2096,7 +1782,7 @@ export const selectResolvedLLMConfig = (
     remoteUrl: read("remoteUrl") || fallback?.remoteUrl,
     // Not inherited here: the settings editor renders this field, and a borrowed key
     // in it would be committed to this scope's storage by an idle edit. Inheritance
-    // belongs on the request path — see selectResolvedNoteFormatting.
+    // belongs on the request path.
     customApiKey: read("customApiKey"),
     disableThinking,
     reasoningEffort: read("reasoningEffort"),
@@ -2109,7 +1795,6 @@ export const selectResolvedLLMConfig = (
 // setters so the values survive restarts.
 const SECRET_SCOPE_KEY_SETTERS = {
   cleanupCustomApiKey: "setCleanupCustomApiKey",
-  noteFormattingCustomApiKey: "setNoteFormattingCustomApiKey",
   dictationAgentCustomApiKey: "setDictationAgentCustomApiKey",
   dictationAgentVisionCustomApiKey: "setDictationAgentVisionCustomApiKey",
   chatAgentCustomApiKey: "setChatAgentCustomApiKey",
@@ -2148,7 +1833,6 @@ export function setResolvedLLMConfig(
 export function selectLocalServerPrefs(state: SettingsState): LocalServerPrefs {
   const cleanup = selectResolvedLLMConfig(state, "dictationCleanup");
   const dictationAgent = selectResolvedLLMConfig(state, "dictationAgent");
-  const noteFormatting = selectResolvedLLMConfig(state, "noteFormatting");
   const chat = selectResolvedLLMConfig(state, "chatIntelligence");
   return {
     useCleanupModel: state.useCleanupModel,
@@ -2157,8 +1841,6 @@ export function selectLocalServerPrefs(state: SettingsState): LocalServerPrefs {
     useDictationAgent: state.useDictationAgent,
     dictationAgentMode: dictationAgent.mode,
     dictationAgentModel: dictationAgent.model,
-    noteFormattingMode: noteFormatting.mode,
-    noteFormattingModel: noteFormatting.model,
     chatAgentMode: chat.mode,
     chatAgentModel: chat.model,
   };
@@ -2185,15 +1867,6 @@ const TRANSCRIPTION_CONTEXT_KEYS: readonly TranscriptionContextKeys[] = [
     provider: "cloudTranscriptionProvider",
     model: "cloudTranscriptionModel",
     baseUrl: "cloudTranscriptionBaseUrl",
-  },
-  {
-    context: "meeting",
-    mode: "meetingTranscriptionMode",
-    useLocal: "meetingUseLocalWhisper",
-    cloudMode: "meetingCloudTranscriptionMode",
-    provider: "meetingCloudTranscriptionProvider",
-    model: "meetingCloudTranscriptionModel",
-    baseUrl: "meetingCloudTranscriptionBaseUrl",
   },
   {
     context: "upload",
@@ -2348,7 +2021,6 @@ export async function initializeSettings(): Promise<void> {
         tinfoil,
         customTx,
         customRx,
-        noteFormattingCustom,
         dictationAgentCustom,
         dictationAgentVisionCustom,
         chatAgentCustom,
@@ -2373,7 +2045,6 @@ export async function initializeSettings(): Promise<void> {
         window.electronAPI.getTinfoilKey?.(),
         window.electronAPI.getCustomTranscriptionKey?.(),
         window.electronAPI.getCleanupCustomKey?.(),
-        window.electronAPI.getNoteFormattingCustomKey?.(),
         window.electronAPI.getDictationAgentCustomKey?.(),
         window.electronAPI.getDictationAgentVisionCustomKey?.(),
         window.electronAPI.getChatAgentCustomKey?.(),
@@ -2402,7 +2073,6 @@ export async function initializeSettings(): Promise<void> {
         cleanupCustomApiKey: customRx || "",
         bedrockAccessKeyId: bedrockAccessKeyId || "",
         ...(await migrateScopeCustomKeys([
-          ["noteFormattingCustomApiKey", noteFormattingCustom, "saveNoteFormattingCustomKey"],
           ["dictationAgentCustomApiKey", dictationAgentCustom, "saveDictationAgentCustomKey"],
           [
             "dictationAgentVisionCustomApiKey",

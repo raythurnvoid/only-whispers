@@ -397,8 +397,8 @@ class IPCHandlers {
     }
   }
 
-  // Mints a Corti access token from stored BYOK credentials. Shared by the
-  // dictation streaming handlers and the meeting realtime-token resolver.
+  // Mints a Corti access token from stored BYOK credentials for the dictation
+  // streaming handlers.
   async _mintStoredCortiToken(options = {}) {
     const clientId = this.environmentManager.getCortiClientId();
     const clientSecret = this.environmentManager.getCortiClientSecret();
@@ -1161,7 +1161,7 @@ class IPCHandlers {
 
       if (enabled) {
         // Entering capture mode — unregister ALL slots so none intercept keypresses.
-        // Dictation is always active; meeting and agent may or may not be set.
+        // Dictation is always active; the voice assistant may or may not be set.
         const allSlots = hotkeyManager.slots;
         for (const [slot, info] of allSlots) {
           // Native-listener entries (null accelerator) are handled by stopping
@@ -1291,7 +1291,7 @@ class IPCHandlers {
           }
         }
 
-        // Re-register non-dictation slots (meeting, agent) that were unregistered on capture enter
+        // Re-register non-dictation slots (voice assistant) that were unregistered on capture enter
         for (const [slot, info] of hotkeyManager.slots) {
           const hotkeys = info?.hotkeys || [];
           if (slot === "dictation" || slot === "cancel" || hotkeys.length === 0 || !info?.callback)

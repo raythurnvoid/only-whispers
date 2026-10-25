@@ -47,7 +47,6 @@ Module._load = function loadWindowManagerWithStubs(request, parent, isMain) {
         setupAlwaysOnTop: () => undefined,
         clampToWorkArea: (b) => b,
         getMainWindowPosition: () => ({ x: 0, y: 0 }),
-        getNotificationPosition: () => ({ x: 0, y: 0 }),
       },
       fitAssistantWindowToWorkArea: (s) => s,
       fitAssistantContentWindowToWorkArea: (h) => ({ width: 466, height: h }),

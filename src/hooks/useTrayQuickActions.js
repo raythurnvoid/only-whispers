@@ -6,8 +6,8 @@ import { resolveTrayAssistantAction } from "../helpers/trayActionPolicy";
  *
  * The pill's command menu hides the item while a recording is live; the tray
  * always shows it, so this either opens the panel or explains itself through
- * `refuse`. The tray's other two entries need no renderer: listen goes straight
- * to the dictation start, and a meeting starts in the main process.
+ * `refuse`. The tray's listen entry needs no renderer: it goes straight to the
+ * dictation start.
  */
 export function useTrayQuickActions({
   isRecording,

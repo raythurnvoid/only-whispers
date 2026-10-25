@@ -83,13 +83,6 @@ const BYOK_API_KEYS = [
   // Per-scope Custom-endpoint keys. Dictation cleanup's counterpart predates
   // this manifest and keeps its bespoke accessors (CUSTOM_CLEANUP_API_KEY).
   {
-    base: "note-formatting-custom",
-    env: "NOTE_FORMATTING_CUSTOM_API_KEY",
-    get: "getNoteFormattingCustomKey",
-    save: "saveNoteFormattingCustomKey",
-    storeKey: "noteFormattingCustomApiKey",
-  },
-  {
     base: "dictation-agent-custom",
     env: "DICTATION_AGENT_CUSTOM_API_KEY",
     get: "getDictationAgentCustomKey",

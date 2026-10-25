@@ -66,21 +66,7 @@ export const INFERENCE_SCOPES = {
     fallbackScope: "dictationAgent",
     optional: true,
   },
-  noteFormatting: {
-    storeKeys: {
-      mode: "noteFormattingMode",
-      provider: "noteFormattingProvider",
-      model: "noteFormattingModel",
-      cloudMode: "noteFormattingCloudMode",
-      cloudBaseUrl: "noteFormattingCloudBaseUrl",
-      remoteUrl: "noteFormattingRemoteUrl",
-      customApiKey: "noteFormattingCustomApiKey",
-      disableThinking: "noteFormattingDisableThinking",
-      reasoningEffort: "noteFormattingReasoningEffort",
-    },
-    fallbackScope: "dictationCleanup",
-  },
-  // Runs typed chat conversations (Control Panel, note and container chat).
+  // Runs typed chat conversations (Control Panel).
   // The voice assistant panel's spoken commands, like selection edits, run on
   // dictationAgent(Vision) — see resolveChatStreamingInference.
   chatIntelligence: {

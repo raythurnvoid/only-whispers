@@ -337,6 +337,4 @@ test("settings: each scope keeps its own effort", async (t) => {
   assert.equal(localStorage.getItem("cleanupReasoningEffort"), "low");
   assert.equal(s.selectResolvedLLMConfig(state, "dictationCleanup").reasoningEffort, "low");
   assert.equal(s.selectResolvedLLMConfig(state, "chatIntelligence").reasoningEffort, "high");
-  // Note formatting inherits cleanup's model, not its effort.
-  assert.equal(s.selectResolvedLLMConfig(state, "noteFormatting").reasoningEffort, undefined);
 });

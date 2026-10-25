@@ -254,7 +254,7 @@ export const openaiProvider: InferenceProvider = {
 
       for (const { url: endpoint, type } of endpointCandidates) {
         const controller = new AbortController();
-        const timeoutSeconds = getLlmRequestTimeoutSeconds({ scope: config.inferenceScope });
+        const timeoutSeconds = getLlmRequestTimeoutSeconds();
         const timeoutId = setTimeout(() => controller.abort(), timeoutSeconds * 1000);
         const unlinkCancel = abortOnCancel(config.requestId, controller);
         let readingBody = false;

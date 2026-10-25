@@ -17,13 +17,12 @@ const FALLBACK_HOTKEYS = ["F8", "F9", "Control+Shift+Space"];
 const DEFAULT_HOTKEY = "Control+Super";
 
 // Dictation has a dedicated native path because it also supports push-to-talk.
-const LINUX_NATIVE_TAP_SLOTS = new Set(["meeting", "voiceAgent"]);
+const LINUX_NATIVE_TAP_SLOTS = new Set(["voiceAgent"]);
 
 // Settings titles that name each slot in a conflict message, as the renderer does.
 const SLOT_LABEL_KEYS = {
   dictation: "settingsPage.general.hotkey.title",
   voiceAgent: "settingsPage.general.voiceAgentHotkey.title",
-  meeting: "settingsPage.general.meetingHotkey.title",
 };
 
 // KDE registration failure reasons — reuse existing i18n keys
@@ -271,9 +270,7 @@ class HotkeyManager extends EventEmitter {
         };
       }
 
-      if (slotName === "meeting") {
-        this.gnomeManager.setMeetingCallback(callback);
-      } else if (slotName === "voiceAgent") {
+      if (slotName === "voiceAgent") {
         this.gnomeManager.setVoiceAgentCallback(callback);
       }
 

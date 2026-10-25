@@ -39,7 +39,7 @@ export const enterpriseProvider: InferenceProvider = {
         systemPrompt,
         provider: enterpriseId,
         supportsTemperature,
-        timeoutMs: getLlmRequestTimeoutSeconds({ scope: config.inferenceScope }) * 1000,
+        timeoutMs: getLlmRequestTimeoutSeconds() * 1000,
         ...getEnterpriseCallSettings(enterpriseId),
       }
     );

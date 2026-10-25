@@ -89,7 +89,7 @@ async function streamPlanResponse(
     reasoning: { effort },
   };
 
-  const timeoutSeconds = getLlmRequestTimeoutSeconds({ scope: config.inferenceScope });
+  const timeoutSeconds = getLlmRequestTimeoutSeconds();
 
   // The WebSocket was opened while the user spoke, so it skips the connect.
   // HTTP below is the fallback. The socket wait is capped so a hung socket

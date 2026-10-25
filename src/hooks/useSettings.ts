@@ -58,9 +58,7 @@ export interface HotkeySettings {
   /** Hotkeys actually registered by the main process (may be a subset of
    * dictationKey, e.g. primary-only on GNOME/KDE/Hyprland). Display-only. */
   activeDictationKey: string | null;
-  meetingKey: string;
   voiceAgentKey: string;
-  meetingHotkeyLayoutMode: "side-panel" | "full-width";
   activationMode: "tap" | "push";
 }
 
@@ -290,9 +288,7 @@ function useSettingsInternal() {
     deepgramApiKey: store.deepgramApiKey,
     assemblyaiApiKey: store.assemblyaiApiKey,
     dictationKey: store.dictationKey,
-    meetingKey: store.meetingKey,
     voiceAgentKey: store.voiceAgentKey,
-    meetingHotkeyLayoutMode: store.meetingHotkeyLayoutMode,
     theme: store.theme,
     setUseLocalWhisper: store.setUseLocalWhisper,
     setWhisperModel: store.setWhisperModel,

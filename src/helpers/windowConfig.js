@@ -285,19 +285,6 @@ const NOTIFICATION_WINDOW_CONFIG = {
   type: OVERLAY_WINDOW_TYPES.notification,
 };
 
-function fitMeetingNotificationWindow(contentHeight, workArea) {
-  const width = Math.max(1, Math.min(NOTIFICATION_WINDOW_CONFIG.width, workArea.width));
-  const height = Math.max(1, Math.min(Math.ceil(contentHeight), 512, workArea.height));
-  const marginX = Math.min(16, Math.max(0, workArea.width - width));
-  const marginY = Math.min(16, Math.max(0, workArea.height - height));
-  return {
-    x: workArea.x + workArea.width - width - marginX,
-    y: workArea.y + marginY,
-    width,
-    height,
-  };
-}
-
 class WindowPositionUtil {
   static getMainWindowPosition(display, customSize = null, position = "bottom-right") {
     const { width, height } = customSize || WINDOW_SIZES.BASE;
@@ -338,13 +325,6 @@ class WindowPositionUtil {
     };
   }
 
-  static getNotificationPosition(display) {
-    return fitMeetingNotificationWindow(
-      NOTIFICATION_WINDOW_CONFIG.height,
-      display.workArea || display.bounds
-    );
-  }
-
   // `level` only applies on macOS; Windows and Linux already use the strongest
   // level their window managers honor.
   static setupAlwaysOnTop(window, { level = "floating" } = {}) {
@@ -382,7 +362,6 @@ class WindowPositionUtil {
 }
 
 module.exports = {
-  fitMeetingNotificationWindow,
   MAIN_WINDOW_CONFIG,
   CONTROL_PANEL_CONFIG,
   ONBOARDING_WINDOW_SIZES,

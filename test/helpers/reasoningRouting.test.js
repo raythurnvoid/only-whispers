@@ -18,24 +18,23 @@ test("an unset cloud mode maps to the providers mode", async () => {
   assert.equal(deriveReasoningMode(undefined, "corti"), "providers");
 });
 
-test("fan-out routes provider, model and mode to all four scopes", async () => {
+test("fan-out routes provider, model and mode to all three scopes", async () => {
   const { buildReasoningScopePatches } = await load();
-  const { dictationCleanup, noteFormatting, dictationAgent, chatIntelligence } =
-    buildReasoningScopePatches(
-      {
-        useCleanupModel: true,
-        cleanupProvider: "corti",
-        cleanupModel: "corti-s1-instant",
-        cleanupCloudMode: "byok",
-      },
-      "providers"
-    );
+  const { dictationCleanup, dictationAgent, chatIntelligence } = buildReasoningScopePatches(
+    {
+      useCleanupModel: true,
+      cleanupProvider: "corti",
+      cleanupModel: "corti-s1-instant",
+      cleanupCloudMode: "byok",
+    },
+    "providers"
+  );
 
   assert.equal(dictationCleanup.cleanupProvider, "corti");
   assert.equal(dictationCleanup.cleanupModel, "corti-s1-instant");
   assert.equal(dictationCleanup.cleanupMode, "providers");
 
-  for (const scope of [noteFormatting, dictationAgent, chatIntelligence]) {
+  for (const scope of [dictationAgent, chatIntelligence]) {
     assert.equal(scope.provider, "corti");
     assert.equal(scope.model, "corti-s1-instant");
     assert.equal(scope.cloudMode, "byok");
@@ -44,7 +43,7 @@ test("fan-out routes provider, model and mode to all four scopes", async () => {
 });
 
 // A self-hosted endpoint is only reachable from a scope that carries its url
-// and key; mirroring provider/model alone left four scopes pointing at a
+// and key; mirroring provider/model alone left scopes pointing at a
 // "self-hosted" mode with no host behind it.
 test("fan-out mirrors the endpoint url and key alongside the routing", async () => {
   const { buildReasoningScopePatches } = await load();
@@ -74,14 +73,16 @@ test("fan-out mirrors the endpoint url and key alongside the routing", async () 
 
 test("fan-out with partial settings only mirrors the provided routing fields", async () => {
   const { buildReasoningScopePatches } = await load();
-  const { dictationCleanup, noteFormatting, dictationAgent, chatIntelligence } =
-    buildReasoningScopePatches({ useCleanupModel: true }, "providers");
+  const { dictationCleanup, dictationAgent, chatIntelligence } = buildReasoningScopePatches(
+    { useCleanupModel: true },
+    "providers"
+  );
 
   assert.equal(dictationCleanup.useCleanupModel, true);
   assert.equal(dictationCleanup.cleanupMode, "providers");
   assert.equal("cleanupProvider" in dictationCleanup, false);
 
-  for (const scope of [noteFormatting, dictationAgent, chatIntelligence]) {
+  for (const scope of [dictationAgent, chatIntelligence]) {
     assert.deepEqual(scope, { mode: "providers" });
   }
 });

@@ -112,7 +112,7 @@ export const geminiProvider: InferenceProvider = {
       });
 
       const controller = new AbortController();
-      const timeoutSeconds = getLlmRequestTimeoutSeconds({ scope: config.inferenceScope });
+      const timeoutSeconds = getLlmRequestTimeoutSeconds();
       const timeoutId = setTimeout(() => controller.abort(), timeoutSeconds * 1000);
       try {
         const res = await fetch(`${API_ENDPOINTS.GEMINI}/models/${model}:generateContent`, {

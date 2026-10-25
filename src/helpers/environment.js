@@ -40,7 +40,6 @@ const PERSISTED_KEYS = [
   "LLAMA_VULKAN_ENABLED",
   "DICTATION_KEY",
   "VOICE_AGENT_KEY",
-  "MEETING_KEY",
   "ACTIVATION_MODE",
   "FLOATING_ICON_AUTO_HIDE",
   "PANEL_START_POSITION",
@@ -404,16 +403,6 @@ class EnvironmentManager {
 
   saveVoiceAgentKey(key) {
     const result = this._saveKey("VOICE_AGENT_KEY", key);
-    this.saveAllKeysToEnvFile().catch(() => {});
-    return result;
-  }
-
-  getMeetingKey() {
-    return this._getKey("MEETING_KEY");
-  }
-
-  saveMeetingKey(key) {
-    const result = this._saveKey("MEETING_KEY", key);
     this.saveAllKeysToEnvFile().catch(() => {});
     return result;
   }

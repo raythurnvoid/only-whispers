@@ -95,7 +95,7 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **dragManager.js**: Window dragging functionality
 - **environment.js**: Environment variable and OpenAI API management
 - **hotkeyManager.js**: Global hotkey registration and management
-  - Named hotkey slots: `dictation`, `voiceAgent` (voice assistant — dictation routed to the assistant panel), `translation`, `meeting`
+  - Named hotkey slots: `dictation`, `voiceAgent` (voice assistant — dictation routed to the assistant panel), `translation`
   - Handles platform-specific defaults (GLOBE on macOS, Control+Super on Windows/Linux)
   - Auto-fallback to F8/F9 if default hotkey is unavailable
   - Notifies renderer via IPC when hotkey registration fails
@@ -188,7 +188,7 @@ only-whispers is an Electron desktop dictation app for Windows, macOS and Linux.
 - **ReasoningService.ts**: AI processing for agent-addressed commands
   - Detects when user addresses their named agent and removes the agent name from final output
   - Provider implementations live in a registry at `src/services/ai/inferenceProviders/index.ts` covering 9 providers (`anthropic`, `corti`, `enterprise`, `gemini`, `groq`, `lan`, `local`, `openai`, `tinfoil`), each implementing the `InferenceProvider` interface from `types.ts`
-  - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `noteFormatting`, `chatIntelligence`)
+  - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `chatIntelligence`)
   - `selectResolvedLLMConfig(state, scope)` in `settingsStore.ts` resolves provider/model per scope with fallback chains
 - **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). Any failure falls back to Mistral `ministral-8b-latest`, so dictation never stops
 

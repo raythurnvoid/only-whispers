@@ -117,7 +117,6 @@ function sync({ loaded, ...scopes }) {
       cleanupMode: "providers",
       useDictationAgent: true,
       dictationAgentMode: "providers",
-      noteFormattingMode: "providers",
       chatAgentMode: "providers",
       ...scopes,
     }

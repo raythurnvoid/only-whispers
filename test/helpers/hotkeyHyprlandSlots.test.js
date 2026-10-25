@@ -57,10 +57,10 @@ hyprlandTest("Hyprland optional slots do not fall back when registration fails",
       },
     };
 
-    const result = await manager.registerSlot("meeting", "F7", () => {});
+    const result = await manager.registerSlot("voiceAgent", "F7", () => {});
     assert.equal(result.success, false);
     assert.deepEqual(calls, ["F7"]);
-    assert.deepEqual(manager.getSlotHotkeys("meeting"), []);
+    assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), []);
     assert.equal(registered.size, 0);
   });
 });
@@ -84,20 +84,20 @@ hyprlandTest("Hyprland slots reject equivalent modifier aliases and ordering", a
     };
 
     const callback = () => {};
-    const registeredSlot = await manager.registerSlot("meeting", "Ctrl+Shift+F8", callback);
+    const registeredSlot = await manager.registerSlot("voiceAgent", "Ctrl+Shift+F8", callback);
     assert.equal(registeredSlot.success, true);
-    assert.deepEqual(manager.getSlotHotkeys("meeting"), ["Ctrl+Shift+F8"]);
+    assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), ["Ctrl+Shift+F8"]);
 
     const conflict = await manager.registerSlot("translation", "Shift+Control+F8", () => {});
     assert.equal(conflict.success, false);
     assert.equal(conflict.reason, "slot_conflict");
-    assert.deepEqual(calls, [["Ctrl+Shift+F8", "meeting", callback]]);
+    assert.deepEqual(calls, [["Ctrl+Shift+F8", "voiceAgent", callback]]);
 
-    const removal = manager.unregisterSlot("meeting");
-    assert.deepEqual(manager.getSlotHotkeys("meeting"), ["Ctrl+Shift+F8"]);
+    const removal = manager.unregisterSlot("voiceAgent");
+    assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), ["Ctrl+Shift+F8"]);
     releaseRemoval(true);
     assert.equal(await removal, true);
-    assert.deepEqual(manager.getSlotHotkeys("meeting"), []);
+    assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), []);
   });
 });
 
@@ -113,7 +113,7 @@ hyprlandTest("Hyprland slots reject reversed modifier-only chords", async () => 
       },
     };
 
-    assert.equal((await manager.registerSlot("meeting", "Alt+Super", () => {})).success, true);
+    assert.equal((await manager.registerSlot("voiceAgent", "Alt+Super", () => {})).success, true);
     const conflict = await manager.registerSlot("translation", "Super+Alt", () => {});
 
     assert.equal(conflict.success, false);
@@ -127,7 +127,7 @@ hyprlandTest("failed Hyprland initialization does not fall back to globalShortcu
     const manager = new HotkeyManager();
     manager.hyprlandInitializationAttempted = true;
 
-    const result = await manager.registerSlot("meeting", "F7", () => {});
+    const result = await manager.registerSlot("voiceAgent", "F7", () => {});
     assert.equal(result.success, false);
     assert.equal(registered.size, 0);
   });

@@ -67,12 +67,12 @@ test("push mode watches every dictation hotkey, including regular keys", () => {
 test("membership and lookup helpers work across multi-hotkey slots", () => {
   const mgr = makeManager({
     dictation: ["GLOBE", "Control+Shift+R"],
-    meeting: "Control+Alt",
+    translation: "Control+Alt",
   });
   assert.equal(mgr.slotHasHotkey("dictation", "Control+Shift+R"), true);
   assert.equal(mgr.slotHasHotkey("dictation", "F12"), false);
   assert.equal(mgr.findSlotByHotkey("Control+Shift+R"), "dictation");
-  assert.equal(mgr.findSlotByHotkey("Control+Alt"), "meeting");
+  assert.equal(mgr.findSlotByHotkey("Control+Alt"), "translation");
   assert.equal(mgr.findSlotByHotkey("Nope"), null);
   assert.deepEqual(mgr.getSlotHotkeys("dictation"), ["GLOBE", "Control+Shift+R"]);
   assert.equal(mgr.getSlotHotkey("dictation"), "GLOBE");
@@ -113,8 +113,8 @@ test("mouse buttons are collected across slots and de-duplicated", () => {
 });
 
 test("slots outside the requested list are ignored", () => {
-  // meeting is not wired to the macOS native listener.
-  const mgr = makeManager({ dictation: "F8", meeting: "GLOBE" });
+  // cancel is not wired to the macOS native listener.
+  const mgr = makeManager({ dictation: "F8", cancel: "GLOBE" });
   assert.deepEqual(mgr.getMacNativeListenerConfig(MAC_SLOTS), {
     mouseButtons: [],
     suppressGlobeAction: false,
@@ -122,7 +122,7 @@ test("slots outside the requested list are ignored", () => {
 });
 
 test("no native macOS hotkeys means nothing to configure", () => {
-  const mgr = makeManager({ dictation: "F8", meeting: "Control+Shift+A", voiceAgent: "" });
+  const mgr = makeManager({ dictation: "F8", cancel: "Control+Shift+A", voiceAgent: "" });
   assert.deepEqual(mgr.getMacNativeListenerConfig(MAC_SLOTS), {
     mouseButtons: [],
     suppressGlobeAction: false,
@@ -132,7 +132,7 @@ test("no native macOS hotkeys means nothing to configure", () => {
 test("_findSlotConflict detects a hotkey already bound to another slot's list", () => {
   const mgr = makeManager({
     dictation: ["GLOBE", "Control+Shift+R"],
-    meeting: "Control+Alt",
+    translation: "Control+Alt",
   });
   // Re-using a dictation hotkey for the voiceAgent slot should conflict.
   const conflict = mgr._findSlotConflict("voiceAgent", "Control+Shift+R");

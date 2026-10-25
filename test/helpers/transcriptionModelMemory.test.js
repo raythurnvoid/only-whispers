@@ -69,29 +69,11 @@ test("per-provider transcription model memory", async (t) => {
     assert.ok(Object.keys(persisted).some((key) => key.startsWith("dictation:")));
   });
 
-  await t.test("meeting scope restores only streaming-capable models", () => {
-    state().switchCloudTranscriptionProvider("meeting", "openai");
-    // A remembered batch-only model must not survive into the streaming-filtered
-    // meeting scope; the streaming default wins instead.
-    const restored = state().meetingCloudTranscriptionModel;
-    assert.equal(
-      restored,
-      "gpt-4o-mini-transcribe",
-      "the batch-only gpt-transcribe default must not leak into the streaming scope"
-    );
-    state().setMeetingCloudTranscriptionModel("gpt-4o-mini-transcribe");
-    state().switchCloudTranscriptionProvider("meeting", "groq");
-    state().switchCloudTranscriptionProvider("meeting", "openai");
-    assert.notEqual(state().meetingCloudTranscriptionModel, "");
-  });
-
   // The picker no longer writes the provider itself — switchCloudTranscriptionProvider
   // is the single writer for both keys, so it must land the provider on its own.
   await t.test("the switch writes the provider key for every scope", () => {
     state().switchCloudTranscriptionProvider("dictation", "groq");
     assert.equal(state().cloudTranscriptionProvider, "groq");
-    state().switchCloudTranscriptionProvider("meeting", "openai");
-    assert.equal(state().meetingCloudTranscriptionProvider, "openai");
     state().switchCloudTranscriptionProvider("upload", "custom");
     assert.equal(state().uploadCloudTranscriptionProvider, "custom");
   });
@@ -116,7 +98,7 @@ test("per-provider transcription model memory", async (t) => {
       cloudTranscriptionModel: "corti-transcribe",
     });
     const memory = state().transcriptionModelByProvider;
-    for (const context of ["dictation", "meeting", "upload"]) {
+    for (const context of ["dictation", "upload"]) {
       assert.equal(memory[`${context}:corti`], "corti-transcribe");
     }
   });

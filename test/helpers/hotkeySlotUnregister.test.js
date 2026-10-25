@@ -43,34 +43,36 @@ test("unregisterSlot releases every accelerator the slot registered", async () =
 
   // Only Windows diverts modifier-only combos to the native listener, so
   // everywhere else globalShortcut owns "Control+Alt" and must release it.
-  await manager.registerSlot("meeting", "F7,Control+Alt", noop, { atomic: true });
+  await manager.registerSlot("voiceAgent", "F7,Control+Alt", noop, { atomic: true });
 
-  manager.unregisterSlot("meeting");
+  manager.unregisterSlot("voiceAgent");
 
   assert.deepEqual([...registered.keys()], []);
-  assert.deepEqual(manager.getSlotHotkeys("meeting"), []);
+  assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), []);
 });
 
 test("a combo freed by unregisterSlot can be registered again", async () => {
   const manager = new HotkeyManager();
 
-  await manager.registerSlot("meeting", "Control+Alt", noop, { atomic: true });
-  manager.unregisterSlot("meeting");
+  await manager.registerSlot("voiceAgent", "Control+Alt", noop, { atomic: true });
+  manager.unregisterSlot("voiceAgent");
 
-  const reregistered = await manager.registerSlot("meeting", "Control+Alt", noop, { atomic: true });
+  const reregistered = await manager.registerSlot("voiceAgent", "Control+Alt", noop, {
+    atomic: true,
+  });
   assert.equal(reregistered.success, true);
-  assert.deepEqual(manager.getSlotHotkeys("meeting"), ["Control+Alt"]);
+  assert.deepEqual(manager.getSlotHotkeys("voiceAgent"), ["Control+Alt"]);
 });
 
 test("unregisterSlot never releases an accelerator the slot does not own", async () => {
   const manager = new HotkeyManager();
 
-  await manager.registerSlot("meeting", "F7", noop, { atomic: true });
+  await manager.registerSlot("voiceAgent", "F7", noop, { atomic: true });
   await manager.registerSlot("cancel", "F8", noop, { atomic: true });
   // Linux registration defensively unregisters first; only teardown is under test.
   unregisterCalls.length = 0;
 
-  manager.unregisterSlot("meeting");
+  manager.unregisterSlot("voiceAgent");
 
   assert.deepEqual(unregisterCalls, ["F7"]);
   assert.deepEqual([...registered.keys()], ["F8"]);
@@ -92,11 +94,11 @@ test("unregisterSlot skips hotkeys a native listener owns", async () => {
 test("unregisterSlot on an already-cleared slot is a no-op", async () => {
   const manager = new HotkeyManager();
 
-  await manager.registerSlot("meeting", "F7", noop, { atomic: true });
-  manager.unregisterSlot("meeting");
+  await manager.registerSlot("voiceAgent", "F7", noop, { atomic: true });
+  manager.unregisterSlot("voiceAgent");
   unregisterCalls.length = 0;
 
-  manager.unregisterSlot("meeting");
+  manager.unregisterSlot("voiceAgent");
 
   assert.deepEqual(unregisterCalls, []);
 });

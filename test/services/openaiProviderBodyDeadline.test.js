@@ -66,13 +66,6 @@ for (const { label, name, config, deadline, urls } of [
     deadline: 30_000,
     urls: ["https://body-cleanup.example/v1/models", "https://body-cleanup.example/v1/responses"],
   },
-  {
-    label: "a custom endpoint's 600s note",
-    name: "body-note",
-    config: { inferenceScope: "noteFormatting" },
-    deadline: 600_000,
-    urls: ["https://body-note.example/v1/models", "https://body-note.example/v1/responses"],
-  },
   // OpenRouter sends its 200 headers as soon as a provider accepts the request,
   // before the model generates, so the body read is the whole generation.
   {

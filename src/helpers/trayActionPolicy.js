@@ -1,8 +1,7 @@
 // The pill's command menu hides Ask assistant when it cannot run; the tray always
 // shows it, and only this renderer can open the panel. This decides what it does
 // with the request, and the message it explains a refusal with. Keys resolve
-// through i18n in the renderer. The meeting entry needs none of this: it starts
-// in the main process.
+// through i18n in the renderer.
 export const TRAY_REFUSAL_KEYS = Object.freeze({
   busy: "app.commandMenu.busyRecording",
 });

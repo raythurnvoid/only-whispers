@@ -108,7 +108,7 @@ test("an F13-F24 key binds the keysym the stock keymap gives it", async () => {
 test("modifiers stay on a remapped F13-F24 key", async () => {
   const { manager, calls } = loadManager();
 
-  assert.equal(await manager.registerKeybinding("<Control><Shift>F15", "meeting"), true);
+  assert.equal(await manager.registerKeybinding("<Control><Shift>F15", "voiceAgent"), true);
   assert.equal(writtenBinding(calls), "<Control><Shift>XF86Launch6");
 });
 
@@ -209,7 +209,7 @@ test("keys outside F13-F24 never read the keymap", async () => {
   const { manager, calls } = loadManager();
 
   assert.equal(await manager.registerKeybinding("F8", "dictation"), true);
-  assert.equal(await manager.registerKeybinding("<Alt>F1", "meeting"), true);
+  assert.equal(await manager.registerKeybinding("<Alt>F1", "voiceAgent"), true);
   assert.equal(readKeymap(calls), false);
 });
 
