@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "顯示語音輸入面板",
-      "hide": "隱藏語音輸入面板"
-    },
-    "openControlPanel": "開啟控制面板",
-    "hideControlPanel": "隱藏控制面板",
-    "quit": "結束 only-whispers",
+    "showControlPanel": "顯示控制面板",
+    "quit": "結束 Only Whispers",
     "tooltip": "only-whispers - 語音輸入"
   },
   "menu": {

@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "Показать панель диктовки",
-      "hide": "Скрыть панель диктовки"
-    },
-    "openControlPanel": "Открыть панель управления",
-    "hideControlPanel": "Скрыть панель управления",
-    "quit": "Закрыть only-whispers",
+    "showControlPanel": "Показать панель управления",
+    "quit": "Закрыть Only Whispers",
     "tooltip": "only-whispers — голосовая диктовка"
   },
   "menu": {

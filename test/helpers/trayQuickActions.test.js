@@ -2,10 +2,19 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const Module = require("node:module");
 
+const calls = [];
 const originalLoad = Module._load;
 Module._load = function loadTrayWithStubs(request, parent, isMain) {
-  if (request === "electron") return { Tray: class {}, Menu: {}, nativeImage: {}, app: {} };
-  if (request === "./debugLogger") return { info: () => undefined, debug: () => undefined };
+  if (request === "electron") {
+    return { Tray: class {}, Menu: {}, nativeImage: {}, app: { quit: () => calls.push("quit") } };
+  }
+  if (request === "./debugLogger") {
+    return {
+      info: () => undefined,
+      debug: () => undefined,
+      error: (message) => calls.push(message),
+    };
+  }
   if (request === "./dockManager") return {};
   if (request === "./i18nMain") return { i18nMain: { t: (key) => key } };
   return originalLoad.call(this, request, parent, isMain);
@@ -13,34 +22,41 @@ Module._load = function loadTrayWithStubs(request, parent, isMain) {
 const TrayManager = require("../../src/helpers/tray");
 Module._load = originalLoad;
 
-function createTrayManager(calls, { dictating = false } = {}) {
+function createTrayManager() {
   const trayManager = new TrayManager();
+  const controlPanel = {
+    isDestroyed: () => false,
+    on: () => undefined,
+    webContents: { isCrashed: () => false, send: (channel) => calls.push(channel) },
+  };
   trayManager.windowManager = {
-    isDictationPanelVisible: () => false,
-    isDictating: () => dictating,
-    sendStartDictation: () => calls.push("start-dictation"),
-    sendStopDictation: () => calls.push("stop-dictation"),
-    sendOpenAssistantPanel: () => calls.push("assistant"),
+    controlPanelWindow: controlPanel,
+    showControlPanel: () => calls.push("show-control-panel"),
   };
   return trayManager;
 }
 
-// The voice assistant is hidden in this release, so the tray has no Ask assistant item.
-test("the tray menu leads with the dictation pill's quick actions", () => {
-  const calls = [];
-  const [listen, separator] = createTrayManager(calls).buildContextMenuTemplate();
+test("the tray menu has only Show Control Panel and Quit", () => {
+  const items = createTrayManager().buildContextMenuTemplate();
 
-  assert.deepEqual([listen.label, separator.type], ["app.commandMenu.startListening", "separator"]);
-
-  listen.click();
-  assert.deepEqual(calls, ["start-dictation"]);
+  assert.deepEqual(
+    items.map((item) => item.label),
+    ["tray.showControlPanel", "tray.quit"]
+  );
 });
 
-test("the tray's listen item stops the recording it reflects", () => {
-  const calls = [];
-  const [listen] = createTrayManager(calls, { dictating: true }).buildContextMenuTemplate();
+test("Show Control Panel opens the panel on Home", async () => {
+  calls.length = 0;
+  const [show] = createTrayManager().buildContextMenuTemplate();
 
-  assert.equal(listen.label, "app.commandMenu.stopListening");
-  listen.click();
-  assert.deepEqual(calls, ["stop-dictation"]);
+  await show.click();
+  assert.deepEqual(calls, ["show-control-panel", "show-home"]);
+});
+
+test("Quit quits the app", () => {
+  calls.length = 0;
+  const [, quit] = createTrayManager().buildContextMenuTemplate();
+
+  quit.click();
+  assert.deepEqual(calls, ["quit"]);
 });

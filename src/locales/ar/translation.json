@@ -1131,13 +1131,8 @@
     }
   },
   "tray": {
-    "toggleDictation": {
-      "show": "إظهار لوحة الإملاء",
-      "hide": "إخفاء لوحة الإملاء"
-    },
-    "openControlPanel": "فتح لوحة التحكم",
-    "hideControlPanel": "إخفاء لوحة التحكم",
-    "quit": "إنهاء only-whispers",
+    "showControlPanel": "إظهار لوحة التحكم",
+    "quit": "إنهاء Only Whispers",
     "tooltip": "only-whispers - الإملاء الصوتي"
   },
   "menu": {

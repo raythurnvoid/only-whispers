@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "Mostra pannello dettatura",
-      "hide": "Nascondi pannello dettatura"
-    },
-    "openControlPanel": "Apri pannello di controllo",
-    "hideControlPanel": "Nascondi pannello di controllo",
-    "quit": "Esci da only-whispers",
+    "showControlPanel": "Mostra pannello di controllo",
+    "quit": "Esci da Only Whispers",
     "tooltip": "only-whispers - Dettatura vocale"
   },
   "menu": {

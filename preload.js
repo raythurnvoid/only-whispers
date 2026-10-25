@@ -474,6 +474,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Settings shortcut (Cmd+, / Ctrl+,)
   onShowSettings: registerListener("show-settings", (callback) => () => callback()),
+  // Tray "Show Control Panel"
+  onShowHome: registerListener("show-home", (callback) => () => callback()),
   getPendingSettingsSection: () => ipcRenderer.invoke("get-pending-settings-section"),
 
   // Accessibility permission events (macOS)

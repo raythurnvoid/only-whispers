@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "Afficher le panneau de dictée",
-      "hide": "Masquer le panneau de dictée"
-    },
-    "openControlPanel": "Ouvrir le panneau de contrôle",
-    "hideControlPanel": "Masquer le panneau de contrôle",
-    "quit": "Quitter only-whispers",
+    "showControlPanel": "Afficher le panneau de contrôle",
+    "quit": "Quitter Only Whispers",
     "tooltip": "only-whispers - Dictée vocale"
   },
   "menu": {

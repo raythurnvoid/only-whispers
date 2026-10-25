@@ -29,18 +29,9 @@ class TrayManager {
     this.mainWindow = mainWindow;
     this.controlPanelWindow = controlPanelWindow;
 
-    if (this.mainWindow) {
-      this.mainWindow.on("show", () => this.updateTrayMenu?.());
-      this.mainWindow.on("hide", () => this.updateTrayMenu?.());
-      this.mainWindow.on("minimize", () => this.updateTrayMenu?.());
-      this.mainWindow.on("restore", () => this.updateTrayMenu?.());
-    }
-
     if (this.controlPanelWindow) {
       this.attachControlPanelListeners(this.controlPanelWindow);
     }
-
-    this.updateTrayMenu?.();
   }
 
   setWindowManager(windowManager) {
@@ -58,25 +49,8 @@ class TrayManager {
 
     this.attachedControlPanels.add(window);
 
-    window.on("show", () => {
-      this.updateTrayMenu?.();
-    });
-
-    window.on("hide", () => {
-      this.updateTrayMenu?.();
-    });
-
-    window.on("minimize", () => {
-      this.updateTrayMenu?.();
-    });
-
-    window.on("restore", () => {
-      this.updateTrayMenu?.();
-    });
-
     window.on("destroyed", () => {
       this.controlPanelWindow = null;
-      this.updateTrayMenu?.();
     });
   }
 
@@ -279,43 +253,16 @@ class TrayManager {
   }
 
   buildContextMenuTemplate() {
-    const dictationVisible = this.windowManager?.isDictationPanelVisible?.() ?? false;
-    const dictating = this.windowManager?.isDictating?.() ?? false;
-
     return [
       {
-        label: dictating
-          ? i18nMain.t("app.commandMenu.stopListening")
-          : i18nMain.t("app.commandMenu.startListening"),
-        click: () =>
-          dictating
-            ? this.windowManager?.sendStopDictation()
-            : this.windowManager?.sendStartDictation(),
-      },
-      { type: "separator" },
-      {
-        label: dictationVisible
-          ? i18nMain.t("tray.toggleDictation.hide")
-          : i18nMain.t("tray.toggleDictation.show"),
-        click: () => {
-          if (!this.windowManager) return;
-          if (this.windowManager.isDictationPanelVisible()) {
-            this.windowManager.hideDictationPanel();
-          } else {
-            this.windowManager.showDictationPanel({ focus: true, reposition: true });
-          }
-          this.updateTrayMenu();
+        label: i18nMain.t("tray.showControlPanel"),
+        click: async () => {
+          await this.showControlPanelFromTray();
+          // A new panel already starts on Home; an open one is sent there.
+          const win = this.controlPanelWindow;
+          if (win && !win.isDestroyed()) win.webContents.send("show-home");
         },
       },
-      {
-        label: this.isControlPanelVisible()
-          ? i18nMain.t("tray.hideControlPanel")
-          : i18nMain.t("tray.openControlPanel"),
-        click: () => {
-          void this.toggleControlPanelFromTray();
-        },
-      },
-      { type: "separator" },
       {
         label: i18nMain.t("tray.quit"),
         click: () => {

@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "显示听写面板",
-      "hide": "隐藏听写面板"
-    },
-    "openControlPanel": "打开控制面板",
-    "hideControlPanel": "隐藏控制面板",
-    "quit": "退出 only-whispers",
+    "showControlPanel": "显示控制面板",
+    "quit": "退出 Only Whispers",
     "tooltip": "only-whispers - 语音听写"
   },
   "menu": {

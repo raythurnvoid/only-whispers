@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "ディクテーションパネルを表示",
-      "hide": "ディクテーションパネルを非表示"
-    },
-    "openControlPanel": "コントロールパネルを開く",
-    "hideControlPanel": "コントロールパネルを非表示",
-    "quit": "only-whispers を終了",
+    "showControlPanel": "コントロールパネルを表示",
+    "quit": "Only Whispers を終了",
     "tooltip": "only-whispers - 音声ディクテーション"
   },
   "menu": {

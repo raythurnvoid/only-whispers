@@ -131,6 +131,15 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     return () => cleanup?.();
   }, []);
 
+  // The tray's "Show Control Panel" always lands on Home.
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onShowHome?.(() => {
+      setShowSettings(false);
+      setActiveView("home");
+    });
+    return () => cleanup?.();
+  }, []);
+
   // When accessibility is missing on macOS, open the permissions settings page
   useEffect(() => {
     const cleanup = window.electronAPI?.onAccessibilityMissing?.(async () => {

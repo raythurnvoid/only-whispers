@@ -917,6 +917,8 @@ declare global {
 
       // Settings shortcut (Cmd+, / Ctrl+,)
       onShowSettings?: (callback: () => void) => () => void;
+      // Tray "Show Control Panel"
+      onShowHome?: (callback: () => void) => () => void;
       getPendingSettingsSection?: () => Promise<string | null>;
 
       // Accessibility permission events (macOS)

@@ -67,8 +67,6 @@ class WindowManager {
     // Set by IPCHandlers so its demo session dies with the demo kind on every
     // teardown path (id-matched end, onboarding exit, control panel closed).
     this.onOnboardingDemoTeardown = null;
-    // Set by main.js so the tray's listen item rebuilds with dictation state.
-    this.onDictationStateChanged = null;
     // Set by main.js: an app started to the tray creates no control panel.
     this.startedMinimized = false;
     this.agentDictationPillWindow = null;
@@ -1070,10 +1068,8 @@ class WindowManager {
     this._dictationInputKind = nextInputKind;
     this._isDictatingToggle = isDictationRecording(nextState);
     this._sendAgentDictationPillState();
-    this.onDictationStateChanged?.();
   }
 
-  // The tray's listen item is a toggle over this state, like the pill's.
   isDictating() {
     return this._isDictatingToggle;
   }

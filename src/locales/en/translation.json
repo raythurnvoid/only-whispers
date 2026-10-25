@@ -1,12 +1,7 @@
 {
   "tray": {
-    "toggleDictation": {
-      "show": "Show Dictation Panel",
-      "hide": "Hide Dictation Panel"
-    },
-    "openControlPanel": "Open Control Panel",
-    "hideControlPanel": "Hide Control Panel",
-    "quit": "Quit only-whispers",
+    "showControlPanel": "Show Control Panel",
+    "quit": "Quit Only Whispers",
     "tooltip": "only-whispers - Voice Dictation"
   },
   "menu": {
