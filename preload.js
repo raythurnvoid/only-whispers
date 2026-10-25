@@ -276,7 +276,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     "update-downloaded",
     (callback) => (_event, payload) => callback(payload)
   ),
-  markBundleMigrated: () => ipcRenderer.invoke("mark-bundle-migrated"),
 
   // Audio event listeners
   onCancelHotkeyPressed: registerListener("cancel-hotkey-pressed", (cb) => () => cb()),
@@ -528,12 +527,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   hideDictationPreview: () => ipcRenderer.invoke("hide-dictation-preview"),
 
   // Agent conversation persistence
-  createAgentConversation: (title, noteId, spaceId, folderId) =>
-    ipcRenderer.invoke("db-create-agent-conversation", title, noteId, spaceId, folderId),
+  createAgentConversation: (title) => ipcRenderer.invoke("db-create-agent-conversation", title),
   getAgentConversation: (id) => ipcRenderer.invoke("db-get-agent-conversation", id),
   addAgentMessage: (conversationId, role, content, metadata) =>
     ipcRenderer.invoke("db-add-agent-message", conversationId, role, content, metadata),
-
-  setSpeakerDiarizationEnabled: (enabled) =>
-    ipcRenderer.invoke("meeting-set-speaker-diarization-enabled", { enabled }),
 });

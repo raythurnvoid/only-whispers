@@ -862,8 +862,6 @@ declare global {
       getDownloadedUpdate?: () => Promise<string | null>;
       installUpdate?: () => Promise<boolean>;
       onUpdateDownloaded?: (callback: (payload: { version: string | null }) => void) => () => void;
-      markBundleMigrated: () => Promise<void>;
-
       openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
 
       // Hotkey management
@@ -1109,17 +1107,9 @@ declare global {
       // Agent Mode
       updateVoiceAgentHotkey?: (hotkey: string) => Promise<{ success: boolean; message?: string }>;
       getVoiceAgentKey?: () => Promise<string>;
-      createAgentConversation?: (
-        title: string,
-        noteId?: number | null,
-        spaceId?: number | null,
-        folderId?: number | null
-      ) => Promise<{
+      createAgentConversation?: (title: string) => Promise<{
         id: number;
         title: string;
-        note_id?: number | null;
-        space_id?: number | null;
-        folder_id?: number | null;
         created_at: string;
         updated_at: string;
       } | null>;
@@ -1175,9 +1165,6 @@ declare global {
       onDictationRealtimeError?: (callback: (error: string) => void) => () => void;
       onDictationRealtimeSessionEnd?: (callback: (data: { text: string }) => void) => () => void;
 
-      setSpeakerDiarizationEnabled?: (
-        enabled: boolean
-      ) => Promise<{ success: boolean; error?: string }>;
       onPreviewText?: (callback: (text: string) => void) => () => void;
       onPreviewAppend?: (callback: (text: string) => void) => () => void;
       onPreviewHold?: (callback: (payload: { showCleanup: boolean }) => void) => () => void;

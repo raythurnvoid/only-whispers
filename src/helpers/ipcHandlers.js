@@ -51,7 +51,6 @@ const {
   DEFAULT_RETENTION_SETTINGS,
   createRetentionSettingsHandler,
 } = require("./retentionSettings");
-const postMigrationDetector = require("./postMigrationDetector");
 const screenContextCapture = require("./screenContextCapture");
 const { classifyToneAppCategory } = require("./toneAppCategories");
 const { UPLOAD_AUDIO_EXTENSIONS } = require("../constants/uploadAudioFormats.json");
@@ -196,16 +195,6 @@ class IPCHandlers {
     this._retentionCleanupInterval = null;
     this._retentionSettings = { ...DEFAULT_RETENTION_SETTINGS }; // Synced from renderer
     this._retentionSettingsSynced = false;
-    this._noteFilesEnabled = false;
-    this._granolaImportPending = null;
-    this.speakerDiarizationEnabled = true;
-    // Default for the saved process-detection toggle. The engine keeps both detectors
-    // off until the renderer syncs (see meetingDetectionPreferencePolicy.js).
-    this.meetingProcessDetection = true;
-    this.activeMeetingSpeakerConfig = null;
-    // Diarization session id → { noteId, ceiling }: speaker ids a stopped session's
-    // diarization may still write to its note (see _resolveMeetingSpeakerIndexBase).
-    this._diarizationSpeakerReservations = new Map();
     this._setupTextEditMonitor();
     this._setupRetentionCleanup();
     this._logDetectedGpus();
@@ -219,53 +208,6 @@ class IPCHandlers {
   // which keys the native Globe listener owns.
   _notifyHotkeyChanged(hotkey) {
     ipcMain.emit("hotkey-changed", null, hotkey);
-  }
-
-  _asyncMirrorWrite(note) {
-    if (!this._noteFilesEnabled) {
-      debugLogger.debug(
-        "Mirror write skipped: note files disabled",
-        { noteId: note.id },
-        "note-files"
-      );
-      return;
-    }
-    setImmediate(() => {
-      const markdownMirror = require("./markdownMirror");
-      const folderName = this._getFolderName(note.folder_id);
-      markdownMirror.writeNote(note, folderName);
-      if (note.transcript) {
-        markdownMirror.writeTranscript(note, folderName, this._buildSpeakerMappings(note.id));
-      }
-    });
-  }
-
-  _asyncMirrorDelete(noteId) {
-    if (!this._noteFilesEnabled) {
-      debugLogger.debug("Mirror delete skipped: note files disabled", { noteId }, "note-files");
-      return;
-    }
-    setImmediate(() => {
-      const markdownMirror = require("./markdownMirror");
-      markdownMirror.deleteNote(noteId);
-    });
-  }
-
-  _buildSpeakerMappings(noteId) {
-    const arr = this.databaseManager.getSpeakerMappings(noteId);
-    const map = {};
-    for (const m of arr) {
-      map[m.speaker_id] = m.display_name;
-    }
-    return map;
-  }
-
-  _getFolderName(folderId) {
-    if (!folderId) return "Personal";
-    const folder = this.databaseManager.db
-      .prepare("SELECT name FROM folders WHERE id = ?")
-      .get(folderId);
-    return folder?.name || "Personal";
   }
 
   _getDictionarySafe() {
@@ -905,12 +847,9 @@ class IPCHandlers {
     });
 
     // Agent conversation handlers
-    ipcMain.handle(
-      "db-create-agent-conversation",
-      async (event, title, noteId, spaceId, folderId) => {
-        return this.databaseManager.createAgentConversation(title, noteId, spaceId, folderId);
-      }
-    );
+    ipcMain.handle("db-create-agent-conversation", async (event, title) => {
+      return this.databaseManager.createAgentConversation(title);
+    });
 
     ipcMain.handle("db-get-agent-conversation", async (event, id) => {
       return this.databaseManager.getAgentConversation(id);
@@ -3108,10 +3047,6 @@ class IPCHandlers {
 
     ipcMain.handle("install-update", () => this.updateManager?.installUpdate() ?? false);
 
-    ipcMain.handle("mark-bundle-migrated", () => {
-      postMigrationDetector.markBundleMigrated();
-    });
-
     // Agent mode handlers
     ipcMain.handle("update-voice-agent-hotkey", async (_event, hotkey) => {
       const hotkeyManager = this.windowManager.hotkeyManager;
@@ -3146,15 +3081,6 @@ class IPCHandlers {
       return this.environmentManager.getVoiceAgentKey?.() || "";
     });
 
-    ipcMain.handle("meeting-set-speaker-diarization-enabled", async (_event, payload) => {
-      try {
-        this.speakerDiarizationEnabled = payload?.enabled !== false;
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
-    });
-
     ipcMain.handle("get-pending-settings-section", async () => {
       return this.windowManager?.consumePendingSettingsSection() ?? null;
     });
@@ -3167,15 +3093,6 @@ class IPCHandlers {
       setImmediate(() => {
         broadcastToWindows("transcription-deleted", { id });
       });
-    }
-    return result;
-  }
-
-  deleteNoteInternal(id) {
-    const result = this.databaseManager.deleteNote(id);
-    if (result?.success) {
-      setImmediate(() => broadcastToWindows("note-deleted", { id }));
-      this._asyncMirrorDelete(id);
     }
     return result;
   }

@@ -76,7 +76,6 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
       });
 
       await window.electronAPI?.saveAllKeysToEnv?.();
-      await window.electronAPI?.markBundleMigrated?.();
       await window.electronAPI?.setOnboardingWindowMode?.("restore");
       // No upstream account: without these flags the app asks to sign in to one.
       localStorage.setItem("authenticationSkipped", "true");

@@ -208,8 +208,6 @@ const BOOLEAN_SETTINGS = new Set([
   "muteAppsOnDictation",
   "floatingIconAutoHide",
   "startMinimized",
-  "meetingProcessDetection",
-  "speakerDiarizationEnabled",
   "autoPasteEnabled",
   "keepTranscriptionInClipboard",
   "dataRetentionEnabled",
@@ -794,8 +792,6 @@ export interface SettingsState
   mcalAccounts: MicrosoftCalendarAccount[];
   mcalConnected: boolean;
   appleCalendarConnected: boolean;
-  meetingProcessDetection: boolean;
-  speakerDiarizationEnabled: boolean;
   panelStartPosition: "bottom-right" | "center" | "bottom-left";
   showTranscriptionPreview: boolean;
   autoPasteEnabled: boolean;
@@ -998,7 +994,6 @@ export interface SettingsState
   setTheme: (value: "light" | "dark" | "auto") => void;
   setFloatingIconAutoHide: (enabled: boolean) => void;
   setMuteAppsOnDictation: (value: boolean) => void;
-  setSpeakerDiarizationEnabled: (value: boolean) => void;
   setPanelStartPosition: (position: "bottom-right" | "center" | "bottom-left") => void;
   setShowTranscriptionPreview: (value: boolean) => void;
 
@@ -1380,8 +1375,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     };
   })(),
   appleCalendarConnected: readBoolean("appleCalendarConnected", false),
-  meetingProcessDetection: readBoolean("meetingProcessDetection", true),
-  speakerDiarizationEnabled: readBoolean("speakerDiarizationEnabled", true),
   panelStartPosition: (() => {
     const v = readString("panelStartPosition", "center");
     if (v === "bottom-right" || v === "center" || v === "bottom-left") return v;
@@ -1883,13 +1876,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     }
   },
   setMuteAppsOnDictation: createBooleanSetter("muteAppsOnDictation"),
-  setSpeakerDiarizationEnabled: (value: boolean) => {
-    if (isBrowser) localStorage.setItem("speakerDiarizationEnabled", String(value));
-    useSettingsStore.setState({ speakerDiarizationEnabled: value });
-    if (isBrowser) {
-      window.electronAPI?.setSpeakerDiarizationEnabled?.(value);
-    }
-  },
   setPanelStartPosition: (position: "bottom-right" | "center" | "bottom-left") => {
     if (get().panelStartPosition === position) return;
     if (isBrowser) localStorage.setItem("panelStartPosition", position);
