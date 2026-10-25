@@ -76,7 +76,7 @@ export function ProviderTabs({
     >
       <div
         ref={indicatorRef}
-        className="absolute top-0 left-0 rounded-full bg-primary/10 dark:bg-primary/15 ring-1 ring-primary/30 dark:ring-primary/25 transition-[width,height,transform,opacity] duration-200 ease-out pointer-events-none"
+        className="absolute top-0 left-0 rounded-sm bg-primary/10 dark:bg-primary/15 ring-1 ring-primary/30 dark:ring-primary/25 transition-[width,height,transform,opacity] duration-200 ease-out pointer-events-none"
         style={{ opacity: 0 }}
       />
 
@@ -97,7 +97,7 @@ export function ProviderTabs({
               onSelect(provider.id);
             }}
             className={cn(
-              "relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full font-medium text-xs whitespace-nowrap transition-colors duration-150",
+              "relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-sm font-medium text-xs whitespace-nowrap transition-colors duration-150",
               isDisabled
                 ? "text-muted-foreground/70 cursor-not-allowed ring-1 ring-border/40 dark:ring-white/5"
                 : isSelected

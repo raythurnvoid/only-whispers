@@ -3,15 +3,16 @@ import { Settings } from "./icons";
 import { useTranslation } from "react-i18next";
 import { cn } from "./lib/utils";
 import { useControlPanelNavItems, type ControlPanelView } from "./controlPanelNav";
+import LaurelLogo from "./LaurelLogo";
+import { getCachedPlatform } from "../utils/platform";
 
 export type { ControlPanelView };
 
-const rowIconClass =
-  "shrink-0 text-foreground/70 group-hover:text-foreground/90 dark:text-foreground/65 dark:group-hover:text-foreground/85 transition-colors duration-150";
-const rowLabelClass =
-  "text-[13px] text-foreground/90 group-hover:text-foreground dark:text-foreground/85 dark:group-hover:text-foreground transition-colors duration-150";
+const platform = getCachedPlatform();
+
+// Colors and the active state come from .pz-nav-item (styles/palazzo.css).
 const rowButtonClass =
-  "group flex items-center gap-2.5 w-full h-8 px-2.5 rounded-md text-start outline-none hover:bg-foreground/4 dark:hover:bg-white/4 focus-visible:ring-1 focus-visible:ring-primary/30 transition-colors duration-150";
+  "pz-nav-item flex items-center gap-2.5 w-full h-[34px] px-2.5 rounded-md text-start outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors duration-150";
 
 interface ControlPanelSidebarProps {
   activeView: ControlPanelView;
@@ -28,48 +29,36 @@ export default function ControlPanelSidebar({
   const navItems = useControlPanelNavItems();
 
   return (
-    <div className="w-48 h-full shrink-0 flex flex-col bg-surface-window">
+    <div className="pz-window relative w-56 h-full shrink-0 flex flex-col ps-2 pe-9 pb-3">
+      {/* Drag area; on macOS it also clears the traffic lights. */}
       <div
-        className="w-full h-10 shrink-0"
+        className={cn("w-full shrink-0", platform === "darwin" ? "h-10" : "h-3")}
         style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
       />
+      <div style={{ WebkitAppRegion: "drag" } as React.CSSProperties}>
+        <LaurelLogo />
+      </div>
 
-      <nav className="flex flex-col gap-0.5 px-2 pt-2 pb-2">
+      {/* Ionic column on the sidebar's end edge. */}
+      <div className="pz-column" aria-hidden="true">
+        <div className="pz-ornament pz-column-capital" />
+        <div className="pz-ornament pz-column-shaft" />
+        <div className="pz-ornament pz-column-base" />
+      </div>
+
+      <nav className="flex flex-col gap-0.5">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeView === item.id;
 
           return (
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
-              className={cn(
-                "group relative flex items-center gap-2.5 w-full h-8 px-2.5 rounded-md outline-none transition-colors duration-150 text-start",
-                "focus-visible:ring-1 focus-visible:ring-primary/30",
-                isActive
-                  ? "bg-primary/8 dark:bg-primary/10"
-                  : "hover:bg-foreground/4 dark:hover:bg-white/4 active:bg-foreground/6"
-              )}
+              data-active={activeView === item.id}
+              className={rowButtonClass}
             >
-              <Icon
-                size={16}
-                className={cn(
-                  "shrink-0 transition-colors duration-150",
-                  isActive
-                    ? "text-primary"
-                    : "text-foreground/70 group-hover:text-foreground/90 dark:text-foreground/65 dark:group-hover:text-foreground/85"
-                )}
-              />
-              <span
-                className={cn(
-                  "text-[13px] transition-colors duration-150",
-                  isActive
-                    ? "text-foreground font-medium"
-                    : "text-foreground/90 group-hover:text-foreground dark:text-foreground/85 dark:group-hover:text-foreground"
-                )}
-              >
-                {item.label}
-              </span>
+              <Icon size={16} className="shrink-0" />
+              <span>{item.label}</span>
             </button>
           );
         })}
@@ -77,16 +66,14 @@ export default function ControlPanelSidebar({
 
       <div className="flex-1" />
 
-      <div className="px-2 pb-2 space-y-0.5">
-        <button
-          onClick={onOpenSettings}
-          aria-label={t("sidebar.settings")}
-          className={rowButtonClass}
-        >
-          <Settings size={16} className={rowIconClass} />
-          <span className={rowLabelClass}>{t("sidebar.settings")}</span>
-        </button>
-      </div>
+      <button
+        onClick={onOpenSettings}
+        aria-label={t("sidebar.settings")}
+        className={rowButtonClass}
+      >
+        <Settings size={16} className="shrink-0" />
+        <span>{t("sidebar.settings")}</span>
+      </button>
     </div>
   );
 }

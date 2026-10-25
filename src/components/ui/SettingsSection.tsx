@@ -19,9 +19,9 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <h3 className="text-xs font-semibold text-foreground tracking-tight">{title}</h3>
+        <h3 className="text-sm text-foreground uppercase">{title}</h3>
         {description && (
-          <p className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{description}</p>
+          <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
         )}
       </div>
       {children}
@@ -78,9 +78,9 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
       } ${className}`}
     >
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-foreground">{label}</p>
+        <p className="text-base font-medium text-foreground">{label}</p>
         {description && (
-          <p className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{description}</p>
+          <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
         )}
       </div>
       <div className={isCompact ? "" : "shrink-0"}>{children}</div>
@@ -95,13 +95,7 @@ export function SettingsPanel({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div
-      className={`rounded-lg border border-border/70 dark:border-border-subtle/70 bg-card/50 dark:bg-surface-2/50 divide-y divide-border/60 dark:divide-border-subtle/50 ${className}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={`pz-panel divide-y divide-border ${className}`}>{children}</div>;
 }
 
 export function SettingsPanelRow({
@@ -119,19 +113,15 @@ export function SettingsPanelRow({
 }
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-2 ps-1">
-      {children}
-    </div>
-  );
+  return <div className="pz-section-label text-[10px] mb-2 ps-1">{children}</div>;
 }
 
 export function SectionHeader({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-3">
-      <h3 className="text-xs font-semibold text-foreground tracking-tight">{title}</h3>
+      <h3 className="text-sm text-foreground uppercase">{title}</h3>
       {description && (
-        <p className="text-xs text-muted-foreground/80 mt-0.5 leading-relaxed">{description}</p>
+        <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
       )}
     </div>
   );

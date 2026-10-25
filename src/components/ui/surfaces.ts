@@ -1,7 +1,7 @@
 // Surfaces shared by the redesigned control panel pages.
 
-export const CARD_SURFACE_CLASS =
-  "rounded-2xl border border-border/70 bg-card/50 dark:border-white/10 dark:bg-surface-2/60";
+// A calm marble panel with one border (styles/palazzo.css).
+export const CARD_SURFACE_CLASS = "pz-panel";
 
 // Icon tile above a centered page title: Notes overview and the Notes actions setup.
 export const PAGE_HERO_ICON_TILE_CLASS =

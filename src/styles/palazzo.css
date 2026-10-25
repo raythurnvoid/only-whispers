@@ -1,0 +1,281 @@
+/* Palazzo: the control panel's look (cut stone, cloudy marble, Roman capitals).
+   Only the control panel sets html.palazzo (ControlPanel.tsx), so the dictation
+   pill and onboarding keep their own look. Tokens are set on body too, because
+   useTheme puts .dark on body as well, and body's own values would win. */
+
+html.palazzo,
+html.palazzo body {
+  --stone-0: #ede3d2;
+  --stone-1: #f6efe3;
+  --stone-2: #fcf8f1;
+  --stone-3: #efe5d5;
+  --line: #d9cab0;
+  --ink: #2a1e16;
+  --ink-muted: #76624f;
+  --accent: #e07a1c;
+  --accent-ink: #b5590c;
+  --accent-wash: #f9e3c8;
+  --danger: #9e2f26;
+  --danger-wash: #f8ebe3;
+  --on-accent: #fffaf3;
+  /* Ornament masks are painted in this color. */
+  --ornament: #c4aa80;
+  --laurel: #5e7a36;
+  --marble: url("../assets/palazzo/marble-light.webp");
+
+  /* The app's tokens, mapped onto stone. */
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--on-accent);
+  --color-secondary: var(--stone-3);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--stone-3);
+  --color-muted-foreground: var(--ink-muted);
+  --color-accent: var(--accent-ink);
+  --color-accent-foreground: var(--on-accent);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--on-accent);
+  --color-border: var(--line);
+  --color-input: var(--stone-2);
+  --color-ring: var(--accent);
+  --color-background: var(--stone-1);
+  --color-foreground: var(--ink);
+  --color-card: var(--stone-2);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--stone-2);
+  --color-popover-foreground: var(--ink);
+  --color-link: var(--accent-ink);
+  --color-info: var(--accent-ink);
+  --color-warning: var(--accent-ink);
+  --color-surface-0: var(--stone-2);
+  --color-surface-1: var(--stone-1);
+  --color-surface-2: var(--stone-2);
+  --color-surface-3: var(--stone-3);
+  --color-surface-raised: var(--stone-3);
+  --color-surface-window: var(--stone-0);
+  --color-border-subtle: var(--line);
+  --color-border-hover: color-mix(in oklab, var(--line) 70%, var(--ink-muted));
+  --color-border-active: var(--accent);
+
+  /* Primary buttons are flat orange, not blue glass. */
+  --gradient-brand-glass: linear-gradient(var(--accent), var(--accent));
+  --shadow-brand-glass: none;
+
+  /* Cut stone: 2px corners everywhere. Toggles and avatars stay round (rounded-full). */
+  --radius: 2px;
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  --radius-3xl: 2px;
+  --radius-shell: 2px;
+
+  /* Garamond for reading, Cinzel for short labels. Noto Sans still covers CJK. */
+  --font-family-sans: "EB Garamond Variable", "Noto Sans", Georgia, serif;
+  --font-family-display: "Cinzel Variable", "EB Garamond Variable", Georgia, serif;
+}
+
+html.palazzo.dark,
+html.palazzo.dark body {
+  --stone-0: #140f0b;
+  --stone-1: #1c150f;
+  --stone-2: #251c15;
+  --stone-3: #2e231a;
+  --line: #4a3a2b;
+  --ink: #f1e6d3;
+  --ink-muted: #b39e86;
+  --accent: #f08b2e;
+  --accent-ink: #f6a55a;
+  --accent-wash: #3a2614;
+  --danger: #e0705f;
+  --danger-wash: #34201a;
+  --on-accent: #1c150f;
+  --ornament: #6e573f;
+  --laurel: #8fae5c;
+  --marble: url("../assets/palazzo/marble-dark.webp");
+}
+
+/* Garamond has a small x-height, so its letters are scaled up to read like the
+   old sans at the same font sizes. Cinzel is all capitals and keeps its size. */
+html.palazzo body {
+  font-size-adjust: 0.46;
+}
+
+html.palazzo :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-family-display);
+  font-size-adjust: none;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+/* Buttons carry Cinzel caps labels. Links stay in the reading face. */
+html.palazzo [data-slot="button"]:not([data-variant="link"]) {
+  border-radius: var(--radius);
+  font-family: var(--font-family-display);
+  font-size-adjust: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Theme pieces. In the components layer, so Tailwind utilities on the same
+   element still win. */
+@layer components {
+  .pz-display {
+    font-family: var(--font-family-display);
+    font-size-adjust: none;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---- Marble ----
+   One seamless 640px tile per theme (src/assets/palazzo), repeated, never
+   stretched. Fixed surfaces line up with each other: the window, the shell
+   (shifted, so its veins differ) and anything that must blend into them. */
+  .pz-window {
+    background-color: var(--stone-0);
+    background-image: var(--marble);
+    background-size: 640px 640px;
+    background-attachment: fixed;
+  }
+
+  .pz-shell {
+    background-color: var(--stone-1);
+    background-image: var(--marble);
+    background-size: 640px 640px;
+    background-position: -310px -140px;
+    background-attachment: fixed;
+  }
+
+  /* Where text sits, a 55% stone wash keeps the marble calm. */
+  .pz-panel {
+    background-color: var(--stone-2);
+    background-image:
+      linear-gradient(
+        color-mix(in oklab, var(--stone-2) 55%, transparent),
+        color-mix(in oklab, var(--stone-2) 55%, transparent)
+      ),
+      var(--marble);
+    background-size:
+      auto,
+      640px 640px;
+    background-position:
+      0 0,
+      -420px -60px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  /* ---- Ornaments ----
+   Small SVGs used as masks and painted in --ornament, so one file serves both
+   themes. They live only in the frame, never inside cards or rows. */
+  .pz-ornament {
+    background: var(--ornament);
+    mask-repeat: no-repeat;
+  }
+
+  /* Egg-and-dart moulding: the titlebar's bottom edge. */
+  .pz-moulding {
+    height: 10px;
+    flex: none;
+    mask-image: url("../assets/palazzo/egg.svg");
+    mask-repeat: repeat-x;
+    mask-position: center;
+  }
+
+  /* Ionic column on the sidebar's end edge: capital, fluted shaft, base. */
+  .pz-column {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 4px;
+    width: 28px;
+    pointer-events: none;
+  }
+
+  .pz-column > * {
+    position: absolute;
+    left: 0;
+    width: 28px;
+  }
+
+  .pz-column-capital {
+    top: 0;
+    height: 30px;
+    mask-image: url("../assets/palazzo/capital.svg");
+  }
+
+  .pz-column > .pz-column-shaft {
+    top: 30px;
+    bottom: 22px;
+    left: 5px;
+    width: 18px;
+    mask-image: url("../assets/palazzo/shaft.svg");
+    mask-repeat: repeat-y;
+  }
+
+  .pz-column-base {
+    bottom: 0;
+    height: 22px;
+    mask-image: url("../assets/palazzo/base.svg");
+  }
+
+  /* ---- Sidebar and section labels ---- */
+  .pz-nav-item {
+    font-family: var(--font-family-display);
+    font-size-adjust: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .pz-nav-item:hover {
+    background: var(--stone-3);
+    color: var(--ink);
+  }
+
+  /* Active: a wash with a full outline, never a bar on one side. */
+  .pz-nav-item[data-active="true"] {
+    background: var(--accent-wash);
+    color: var(--accent-ink);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, var(--accent-wash));
+  }
+
+  /* Cinzel caps label, then a hairline filling the row (add an empty .pz-rule). */
+  .pz-section-label {
+    font-family: var(--font-family-display);
+    font-size-adjust: none;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .pz-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* Ledger time: "11:27" over a small "PM". */
+  .pz-time {
+    font-family: var(--font-family-display);
+    font-size-adjust: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+  }
+
+  .pz-time small {
+    display: block;
+    margin-top: 1px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+}

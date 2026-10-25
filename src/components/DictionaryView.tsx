@@ -28,6 +28,10 @@ import { parseDictionaryImportText } from "../helpers/dictionaryImport";
 import { getDictionaryHintWords } from "../utils/snippets";
 import { WHISPER_DECODER_PROMPT_CHARS } from "../utils/dictionaryPromptCap";
 
+// Overrides the trigger's own active look with the sidebar's wash and outline.
+const TAB_CLASS =
+  "pz-nav-item h-[30px] gap-2 px-3.5 py-0 text-xs data-[state=active]:bg-(--accent-wash) data-[state=active]:text-(--accent-ink) data-[state=active]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_45%,var(--accent-wash))]";
+
 export default function DictionaryView() {
   const { t } = useTranslation();
   const { customDictionary, updateCustomDictionary, snippets } = useSettings();
@@ -146,7 +150,7 @@ export default function DictionaryView() {
           if (e.key === "Enter") handleAdd();
           if (e.key === "Escape" && userWords.length === 0) setShowEmptyInput(false);
         }}
-        className="h-10 w-full rounded-full! pe-24 text-sm placeholder:text-foreground/45"
+        className="h-11 w-full pe-24 text-base placeholder:text-foreground/45"
       />
       <div className="absolute end-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
         <button
@@ -202,12 +206,13 @@ export default function DictionaryView() {
       />
 
       <div className={cn(PAGE_CONTENT_WIDTH_CLASS, "px-6 pt-6")}>
-        <TabsList variant="pill">
-          <TabsTrigger value="dictionary" variant="pill">
+        {/* Stone tabs with the sidebar's active state (.pz-nav-item). */}
+        <TabsList className="h-auto gap-0.5 rounded-sm border border-border bg-card p-[3px] dark:bg-card">
+          <TabsTrigger value="dictionary" className={TAB_CLASS}>
             <NotebookPen size={17} />
             {t("dictionary.tabDictionary")}
           </TabsTrigger>
-          <TabsTrigger value="snippets" variant="pill">
+          <TabsTrigger value="snippets" className={TAB_CLASS}>
             <PanelRight size={17} />
             {t("dictionary.tabSnippets")}
           </TabsTrigger>
@@ -262,14 +267,19 @@ export default function DictionaryView() {
 
           {/* ─── Agent name (always recognized) ─── */}
           {userWords.length > 0 && (
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/15 bg-primary/3 px-4 py-3 dark:border-primary/20 dark:bg-primary/6">
-              <div className="flex items-center gap-2 min-w-0">
-                <Sparkles size={11} className="text-primary/70 shrink-0" />
-                <span dir="auto" className="text-xs font-medium text-primary truncate">
+            <div
+              className={cn(
+                CARD_SURFACE_CLASS,
+                "flex items-center justify-between gap-3 px-5 py-3"
+              )}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Sparkles size={14} className="text-accent shrink-0" />
+                <span dir="auto" className="text-base text-foreground truncate">
                   {agentName}
                 </span>
               </div>
-              <span className="text-xs text-foreground/45 shrink-0">
+              <span className="text-sm italic text-muted-foreground shrink-0">
                 {t("dictionary.agentDefault")}
               </span>
             </div>
@@ -277,25 +287,18 @@ export default function DictionaryView() {
 
           {/* ─── Dictionary list ─── */}
           <div
-            className={cn(
-              CARD_SURFACE_CLASS,
-              "shadow-sm",
-              userWords.length > 0
-                ? "px-4 py-3"
-                : "relative overflow-hidden rounded-3xl dark:bg-surface-window"
-            )}
+            className={cn(CARD_SURFACE_CLASS, userWords.length === 0 && "relative overflow-hidden")}
           >
             {userWords.length > 0 && (
               <>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-foreground/45">
-                    {t("dictionary.yourDictionary")}
-                  </h3>
+                <div className="flex items-center gap-3.5 border-b border-border px-5 pt-3 pb-2.5">
+                  <h3 className="pz-section-label">{t("dictionary.yourDictionary")}</h3>
+                  <div className="pz-rule" />
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setConfirmClear(true)}
                       aria-label={t("dictionary.clearAll")}
-                      className="text-xs text-foreground/45 hover:text-destructive/70 transition-colors"
+                      className="text-sm text-muted-foreground hover:text-destructive transition-colors"
                     >
                       {t("dictionary.clearAll")}
                     </button>
@@ -308,14 +311,13 @@ export default function DictionaryView() {
                     </button>
                   </div>
                 </div>
-                <div className="mt-2.5 border-t border-dashed border-foreground/10 dark:border-white/10" />
               </>
             )}
 
             {userWords.length === 0 ? (
               emptyState
             ) : visibleWords.length === 0 ? (
-              <p className="py-6 text-xs text-foreground/45 text-center">
+              <p className="py-6 text-sm text-muted-foreground text-center">
                 {t("dictionary.noMatches", { word: newWord.trim() })}
               </p>
             ) : (
@@ -325,7 +327,7 @@ export default function DictionaryView() {
                   return (
                     <li
                       key={word}
-                      className="group flex items-center gap-2 h-9 border-b border-foreground/4 dark:border-white/10 last:border-b-0"
+                      className="group flex items-center gap-2 h-11 px-5 border-b border-border last:border-b-0 hover:bg-muted/75 transition-colors"
                     >
                       {isEditing ? (
                         <Input
@@ -338,10 +340,10 @@ export default function DictionaryView() {
                             if (e.key === "Escape") setEditingWord(null);
                           }}
                           onBlur={commitEdit}
-                          className="h-7 text-xs flex-1"
+                          className="h-8 text-base flex-1"
                         />
                       ) : (
-                        <span dir="auto" className="flex-1 text-xs truncate text-foreground/60">
+                        <span dir="auto" className="flex-1 text-base truncate text-foreground">
                           {word}
                         </span>
                       )}

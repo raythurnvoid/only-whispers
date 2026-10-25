@@ -25,7 +25,7 @@ export default function LogsView() {
     <div className="h-full overflow-y-auto">
       <div className={cn(PAGE_CONTENT_WIDTH_CLASS, "flex flex-col gap-3 px-6 py-5")}>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-foreground/45">{t("logsView.description")}</p>
+          <p className="text-base italic text-muted-foreground">{t("logsView.description")}</p>
           <div className="flex items-center gap-1 shrink-0">
             <Button variant="ghost" size="sm" onClick={refresh}>
               <RefreshCw size={12} />
@@ -50,38 +50,40 @@ export default function LogsView() {
           </div>
         </div>
 
-        <div className={cn(CARD_SURFACE_CLASS, "shadow-sm px-4 py-3")}>
+        <div className={CARD_SURFACE_CLASS}>
           {entries.length === 0 ? (
-            <p className="py-6 text-xs text-foreground/45 text-center">{t("logsView.empty")}</p>
+            <p className="py-6 text-sm text-muted-foreground text-center">{t("logsView.empty")}</p>
           ) : (
             <ul>
               {entries.map((entry, index) => (
                 <li
                   key={`${entry.time}-${index}`}
-                  className="py-2 border-b border-foreground/4 dark:border-white/10 last:border-b-0"
+                  // A ledger row: date over time, level, then the message.
+                  className="grid grid-cols-[112px_64px_minmax(0,1fr)] items-baseline gap-x-3 px-5 py-3 border-b border-border last:border-b-0"
                 >
-                  <div className="flex items-baseline gap-2 text-xs">
-                    <span className="text-foreground/45 shrink-0 tabular-nums">
-                      {new Date(entry.time).toLocaleString()}
+                  <div className="contents">
+                    <span className="pz-time text-[12.5px] tabular-nums">
+                      {new Date(entry.time).toLocaleDateString()}
+                      <small>{new Date(entry.time).toLocaleTimeString()}</small>
                     </span>
                     <span
                       className={cn(
-                        "font-semibold uppercase shrink-0",
+                        "pz-section-label text-[11px] font-semibold",
                         entry.level === "warn" ? "text-warning" : "text-destructive"
                       )}
                     >
                       {entry.level}
                     </span>
-                    <span dir="auto" className="text-foreground break-words min-w-0">
+                    <span dir="auto" className="text-base text-foreground break-words min-w-0">
                       {entry.message}
                     </span>
                   </div>
                   {entry.details && (
-                    <details className="mt-1">
-                      <summary className="cursor-pointer text-xs text-foreground/45">
+                    <details className="col-start-3 mt-1">
+                      <summary className="cursor-pointer text-sm text-muted-foreground">
                         {t("logsView.details")}
                       </summary>
-                      <pre className="mt-1 max-h-60 overflow-auto whitespace-pre-wrap break-words text-[11px] text-foreground/60">
+                      <pre className="mt-1.5 max-h-60 overflow-auto whitespace-pre-wrap break-words rounded-sm bg-muted/70 px-3 py-2.5 font-mono text-[11px] text-muted-foreground">
                         {entry.details}
                       </pre>
                     </details>

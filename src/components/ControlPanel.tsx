@@ -29,7 +29,7 @@ import { providerErrorToastProps } from "../utils/describeProviderError";
 
 const platform = getCachedPlatform();
 
-const SIDEBAR_WIDTH_PX = 192;
+const SIDEBAR_WIDTH_PX = 224;
 
 const SettingsModal = React.lazy(() => import("./SettingsModal"));
 const DictionaryView = React.lazy(() => import("./DictionaryView"));
@@ -99,6 +99,13 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
   useEffect(() => {
     loadTranscriptions();
   }, [loadTranscriptions]);
+
+  // The Palazzo look (styles/palazzo.css) is the control panel only. It sits on
+  // <html> so dialogs and menus portalled into body get it too.
+  useEffect(() => {
+    document.documentElement.classList.add("palazzo");
+    return () => document.documentElement.classList.remove("palazzo");
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -399,7 +406,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
   }, [loadTranscriptions, showDiscarded]);
 
   return (
-    <div className="h-screen bg-surface-window flex flex-col">
+    <div className="pz-window h-screen flex flex-col">
       <ConfirmDialog
         open={confirmDialog.open}
         onOpenChange={hideConfirmDialog}
@@ -460,7 +467,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
           />
         </div>
         <main className="flex-1 flex flex-col overflow-hidden p-2">
-          <div className="flex min-h-0 flex-1 flex-col overflow-clip rounded-(--radius-shell) border border-border bg-background dark:border-white/10">
+          <div className="flex min-h-0 flex-1 flex-col overflow-clip pz-shell rounded-(--radius-shell) border border-border">
             <ControlPanelTopBar
               title={navItems.find((item) => item.id === activeView)?.label ?? ""}
               sidebarCollapsed={sidebarCollapsed}

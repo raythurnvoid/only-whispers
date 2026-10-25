@@ -140,7 +140,7 @@ export default function SidebarModal<T extends string>({
             // otherwise take the whole settings modal with it.
             if (shouldBlockDismiss(e)) e.preventDefault();
           }}
-          className="fixed left-[50%] top-[50%] z-50 max-h-[85vh] w-[90vw] max-w-4xl translate-x-[-50%] translate-y-[-50%] rounded-xl p-0 overflow-hidden outline-none bg-background border border-border shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:bg-surface-1 dark:border-border-subtle dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.05)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-98 data-[state=open]:zoom-in-98"
+          className="fixed left-[50%] top-[50%] z-50 max-h-[85vh] w-[90vw] max-w-4xl translate-x-[-50%] translate-y-[-50%] rounded-xl p-0 overflow-hidden outline-none pz-shell border border-border shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:border-border-subtle dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.05)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-98 data-[state=open]:zoom-in-98"
         >
           <div className="relative h-full max-h-[85vh] overflow-hidden">
             <div className="absolute end-4 top-4 z-10 flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function SidebarModal<T extends string>({
 
               {/* Sidebar */}
               <div
-                className={`${actualSidebarWidth} shrink-0 border-e border-border/70 dark:border-border-subtle flex flex-col bg-surface-1 dark:bg-surface-0 transition-[width] duration-200 ease-out`}
+                className={`${actualSidebarWidth} shrink-0 border-e border-border/70 dark:border-border-subtle flex flex-col transition-[width] duration-200 ease-out`}
               >
                 {/* Identity / custom header */}
                 {header && !isCompact && <div className="px-4 pt-5 pb-1">{header}</div>}
@@ -189,9 +189,7 @@ export default function SidebarModal<T extends string>({
                     <div key={groupIndex} className={groupIndex > 0 ? "mt-4" : ""}>
                       {!isCompact && group.label && (
                         <div className="px-2 pb-1">
-                          <span className="text-[11px] font-medium text-muted-foreground/70 dark:text-muted-foreground/65">
-                            {group.label}
-                          </span>
+                          <span className="pz-section-label text-[11px]">{group.label}</span>
                         </div>
                       )}
                       <div className="space-y-px">
@@ -205,26 +203,16 @@ export default function SidebarModal<T extends string>({
                               data-section-id={item.id}
                               onClick={() => onSectionChange(item.id)}
                               title={isCompact ? item.label : undefined}
-                              className={`group relative w-full flex items-center text-start text-xs rounded-md transition-colors duration-100 outline-none ${
-                                isCompact ? "justify-center px-0 py-2" : "gap-2 px-2 py-1.5"
-                              } ${
-                                isActive
-                                  ? "text-foreground bg-muted dark:bg-surface-raised"
-                                  : "text-muted-foreground dark:text-foreground/75 hover:text-foreground hover:bg-muted/50 dark:hover:bg-surface-2"
+                              // Colors and the active state come from .pz-nav-item (styles/palazzo.css).
+                              data-active={isActive}
+                              className={`pz-nav-item group relative w-full flex items-center text-start text-xs rounded-md transition-colors duration-100 outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                                isCompact ? "justify-center px-0 py-2" : "gap-2.5 px-2.5 h-8"
                               }`}
                             >
-                              <Icon
-                                className={`h-4 w-4 shrink-0 transition-colors duration-100 ${
-                                  isActive
-                                    ? "text-primary"
-                                    : "text-muted-foreground/70 dark:text-foreground/55 group-hover:text-foreground/80"
-                                }`}
-                              />
+                              <Icon className="h-4 w-4 shrink-0" />
                               {!isCompact && (
                                 <>
-                                  <span
-                                    className={`flex-1 truncate leading-tight ${isActive ? "font-medium" : "font-normal"}`}
-                                  >
+                                  <span className="flex-1 truncate leading-tight">
                                     {item.label}
                                   </span>
                                   {renderBadge(item)}
@@ -272,7 +260,7 @@ export default function SidebarModal<T extends string>({
               </div>
 
               {/* Main Content */}
-              <div className="flex-1 overflow-y-auto bg-background dark:bg-surface-1">
+              <div className="flex-1 overflow-y-auto">
                 <SettingsLayoutProvider value={{ isCompact }}>
                   {/* The close button (and compact notice badge) float over this column's top corner
                       (top-4, 26px tall); pt-[22px] centres a text-xs heading (line-height 1.15) on that row. */}

@@ -104,14 +104,14 @@ export default function HistoryView({
     <div className={cn(PAGE_CONTENT_WIDTH_CLASS, "px-6 pt-4 pb-6")}>
       <div className="mb-4 flex items-center justify-between gap-3">
         {/* Hidden until the first load settles, so a returning user isn't greeted as new. */}
-        <h2 className={cn("text-xl text-foreground", isLoading && !hasHistory && "invisible")}>
+        <h2 className={cn("text-2xl text-foreground", isLoading && !hasHistory && "invisible")}>
           {t(hasHistory ? "controlPanel.history.welcomeBack" : "controlPanel.history.welcome")}
         </h2>
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
-            className="h-7 gap-1.5 text-xs"
+            className="h-8 gap-1.5"
             onClick={() => setIsWriting(true)}
             disabled={isWriting}
           >
@@ -121,7 +121,7 @@ export default function HistoryView({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 gap-1.5 text-xs"
+            className="h-8 gap-1.5"
             onClick={onUploadAudio}
             disabled={isUploading}
           >
@@ -131,7 +131,7 @@ export default function HistoryView({
         </div>
       </div>
       {isWriting && (
-        <div className="mb-4 rounded-2xl border border-border/70 bg-card/50 p-3 dark:border-white/10 dark:bg-surface-2/60">
+        <div className="pz-panel mb-4 p-3">
           <TranscriptTextEditor
             placeholder={t("controlPanel.history.newTranscriptPlaceholder")}
             onSave={saveWrittenTranscript}
@@ -186,7 +186,7 @@ export default function HistoryView({
             </div>
           )}
           {isLoading && history.length === 0 ? (
-            <div className="rounded-2xl border border-border/70 bg-card/50 dark:border-white/10 dark:bg-surface-2/60">
+            <div className="pz-panel">
               <div className="flex items-center justify-center gap-2 py-10">
                 <Loader2 size={14} className="animate-spin text-primary" />
                 <span className="text-sm text-muted-foreground">{t("controlPanel.loading")}</span>
@@ -213,8 +213,10 @@ export default function HistoryView({
             <div className="group">
               {groupedHistory.map((group, index) => (
                 <div key={group.label} className={index > 0 ? "mt-6" : ""}>
-                  <div className="sticky -top-1 z-10 -mx-6 px-6 pt-2 pb-2.5 bg-background flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">{group.label}</span>
+                  {/* pz-shell repeats the shell's fixed marble, so the sticky label blends in. */}
+                  <div className="pz-shell sticky -top-1 z-10 -mx-6 px-6 pt-2 pb-2.5 flex items-center gap-3.5">
+                    <span className="pz-section-label">{group.label}</span>
+                    <div className="pz-rule" />
                     {index === 0 && (
                       <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                         {discardedToggle}
@@ -228,7 +230,7 @@ export default function HistoryView({
                       </div>
                     )}
                   </div>
-                  <div className="relative z-0 overflow-clip rounded-2xl border border-border/70 bg-card/50 divide-y divide-border/60 dark:border-white/10 dark:bg-surface-2/60">
+                  <div className="pz-panel relative z-0 overflow-clip divide-y divide-border">
                     {group.items.map((item) => (
                       <TranscriptionItem
                         key={item.id}

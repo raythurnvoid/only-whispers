@@ -38,7 +38,7 @@ const ACTION_BUTTON_CLASS =
   "h-7 w-7 rounded-full text-muted-foreground/70 hover:text-foreground hover:bg-foreground/6 dark:hover:bg-white/6";
 
 const TRANSCRIPT_TEXT_CLASS =
-  "text-base leading-normal wrap-break-word whitespace-pre-wrap text-foreground";
+  "text-base leading-[1.55] wrap-break-word whitespace-pre-wrap text-foreground";
 
 function getShowInFolderKey(): string {
   if (platform === "win32") return "controlPanel.history.showInFolderWindows";
@@ -80,12 +80,18 @@ export default function TranscriptionItem({
 
   const timestampSource = item.timestamp.endsWith("Z") ? item.timestamp : `${item.timestamp}Z`;
   const timestampDate = new Date(timestampSource);
-  const formattedTime = Number.isNaN(timestampDate.getTime())
-    ? ""
-    : timestampDate.toLocaleTimeString(i18n.language, {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+  // Split so the ledger shows "11:27" over a small "PM" (no period in 24-hour locales).
+  const timeParts = Number.isNaN(timestampDate.getTime())
+    ? []
+    : new Intl.DateTimeFormat(i18n.language, { hour: "2-digit", minute: "2-digit" }).formatToParts(
+        timestampDate
+      );
+  const formattedTime = timeParts
+    .filter((part) => part.type !== "dayPeriod")
+    .map((part) => part.value)
+    .join("")
+    .trim();
+  const dayPeriod = timeParts.find((part) => part.type === "dayPeriod")?.value;
 
   const handleRetry = async () => {
     if (isRetrying || !onRetryTranscription) return;
@@ -198,127 +204,130 @@ export default function TranscriptionItem({
   return (
     <div
       className={cn(
-        "group/row px-4 py-3 transition-colors duration-150",
+        // A ledger row: time in the left gutter, text beside it, actions in their own
+        // column so they never cover the text. Washes are see-through so the marble shows.
+        "group/row grid grid-cols-[72px_minmax(0,1fr)_auto] gap-x-3 ps-5 pe-3 pt-4 pb-[18px] transition-colors duration-150",
         isFailed
-          ? "bg-destructive/5"
+          ? "bg-(--danger-wash)/85"
           : isDiscarded
-            ? "bg-muted/20 opacity-80"
-            : "hover:bg-muted/20 dark:hover:bg-white/2"
+            ? "bg-muted/40 opacity-80"
+            : "hover:bg-muted/75"
       )}
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs tabular-nums text-muted-foreground">{formattedTime}</span>
-        <div
-          className={cn(
-            "-me-1.5 flex items-center gap-1 transition-opacity duration-150",
-            // Actions surface on hover, keyboard focus, or while the menu is open; failed and
-            // discarded rows keep them visible because recovery is the point of the row.
-            isTranscribed &&
-              "opacity-0 group-hover/row:opacity-100 has-[:focus-visible]:opacity-100 has-[[data-state=open]]:opacity-100"
-          )}
-        >
-          {/* Recovery is the point of a failed or discarded row, so its retry is a
+      <span className="pz-time pt-1 tabular-nums">
+        {formattedTime}
+        {dayPeriod && <small>{dayPeriod}</small>}
+      </span>
+      <div
+        className={cn(
+          "col-start-3 row-start-1 -mt-1 flex items-start justify-end gap-0.5 transition-opacity duration-150",
+          // Actions surface on hover, keyboard focus, or while the menu is open; failed and
+          // discarded rows keep them visible because recovery is the point of the row.
+          isTranscribed &&
+            "opacity-0 group-hover/row:opacity-100 has-[:focus-visible]:opacity-100 has-[[data-state=open]]:opacity-100"
+        )}
+      >
+        {/* Recovery is the point of a failed or discarded row, so its retry is a
               visible button, not only a menu item. */}
-          {!isTranscribed && hasAudio && (
+        {!isTranscribed && hasAudio && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRetry}
+            disabled={isRetrying}
+            className="h-7 rounded-full px-3 text-xs"
+          >
+            {isRetrying ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : isDiscarded ? (
+              <ArchiveRestore size={13} />
+            ) : (
+              <RotateCcw size={13} />
+            )}
+            {isDiscarded ? t("controlPanel.history.discarded.recover") : retryLabel}
+          </Button>
+        )}
+        {hasAudio && (
+          <Tooltip
+            content={t(
+              isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
+            )}
+          >
             <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRetry}
+              size="icon"
+              variant="ghost"
+              onClick={toggleAudio}
+              aria-label={t(
+                isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
+              )}
+              className={ACTION_BUTTON_CLASS}
+            >
+              {isPlaying ? <Square size={13} /> : <Play size={13} />}
+            </Button>
+          </Tooltip>
+        )}
+        {(isTranscribed || hasKeptText) && (
+          <Tooltip content={t("controlPanel.history.copyText")}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onCopy(item.text)}
+              aria-label={t("controlPanel.history.copyText")}
+              className={ACTION_BUTTON_CLASS}
+            >
+              <Copy size={13} />
+            </Button>
+          </Tooltip>
+        )}
+        {isTranscribed && (
+          <Tooltip content={t("controlPanel.history.editItem")}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setIsEditing(true)}
+              disabled={isEditing}
+              aria-label={t("controlPanel.history.editItem")}
+              className={ACTION_BUTTON_CLASS}
+            >
+              <Pencil size={13} />
+            </Button>
+          </Tooltip>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
               disabled={isRetrying}
-              className="h-7 rounded-full px-3 text-xs"
+              aria-label={t("controlPanel.history.moreActions")}
+              className={ACTION_BUTTON_CLASS}
             >
               {isRetrying ? (
                 <Loader2 size={13} className="animate-spin" />
-              ) : isDiscarded ? (
-                <ArchiveRestore size={13} />
               ) : (
-                <RotateCcw size={13} />
+                <MoreVertical size={13} />
               )}
-              {isDiscarded ? t("controlPanel.history.discarded.recover") : retryLabel}
             </Button>
-          )}
-          {hasAudio && (
-            <Tooltip
-              content={t(
-                isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
-              )}
-            >
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={toggleAudio}
-                aria-label={t(
-                  isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {menuActions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
+              <DropdownMenuItem
+                key={key}
+                onSelect={onSelect}
+                className={cn(
+                  "gap-2.5",
+                  destructive && "text-destructive focus:bg-destructive/8 focus:text-destructive"
                 )}
-                className={ACTION_BUTTON_CLASS}
               >
-                {isPlaying ? <Square size={13} /> : <Play size={13} />}
-              </Button>
-            </Tooltip>
-          )}
-          {(isTranscribed || hasKeptText) && (
-            <Tooltip content={t("controlPanel.history.copyText")}>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onCopy(item.text)}
-                aria-label={t("controlPanel.history.copyText")}
-                className={ACTION_BUTTON_CLASS}
-              >
-                <Copy size={13} />
-              </Button>
-            </Tooltip>
-          )}
-          {isTranscribed && (
-            <Tooltip content={t("controlPanel.history.editItem")}>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setIsEditing(true)}
-                disabled={isEditing}
-                aria-label={t("controlPanel.history.editItem")}
-                className={ACTION_BUTTON_CLASS}
-              >
-                <Pencil size={13} />
-              </Button>
-            </Tooltip>
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={isRetrying}
-                aria-label={t("controlPanel.history.moreActions")}
-                className={ACTION_BUTTON_CLASS}
-              >
-                {isRetrying ? (
-                  <Loader2 size={13} className="animate-spin" />
-                ) : (
-                  <MoreVertical size={13} />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {menuActions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
-                <DropdownMenuItem
-                  key={key}
-                  onSelect={onSelect}
-                  className={cn(
-                    "gap-2.5",
-                    destructive && "text-destructive focus:bg-destructive/8 focus:text-destructive"
-                  )}
-                >
-                  <Icon size={14} className="shrink-0 opacity-70" />
-                  {label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <Icon size={14} className="shrink-0 opacity-70" />
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="mt-1.5">
+      <div className="col-start-2 row-start-1 min-w-0">
         {isFailed ? (
           <div className="flex items-start gap-2">
             <AlertCircle size={14} className="mt-0.5 shrink-0 text-destructive" />
@@ -414,7 +423,7 @@ export default function TranscriptionItem({
         <div
           inert={!isExpanded}
           className={cn(
-            "grid transition-[grid-template-rows] duration-200",
+            "col-start-2 grid transition-[grid-template-rows] duration-200",
             isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
           )}
         >

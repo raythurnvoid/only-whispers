@@ -18,6 +18,11 @@ import i18n from "./i18n";
 // onboarding surfaces actually ask for it (see .onboarding-canvas in index.css).
 import "@fontsource-variable/inter/opsz.css";
 import "@fontsource-variable/caveat";
+// The control panel faces (see styles/palazzo.css): Cinzel caps for labels,
+// EB Garamond for reading.
+import "@fontsource-variable/cinzel";
+import "@fontsource-variable/eb-garamond";
+import "@fontsource-variable/eb-garamond/wght-italic.css";
 import "./index.css";
 
 bindDocumentLanguage(i18n, document.documentElement, import.meta.hot);
