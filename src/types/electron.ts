@@ -19,7 +19,7 @@ export interface MainWindowInputRegion {
 
 export type ChineseScriptPreference = "simplified" | "traditional" | "as-transcribed";
 
-export type InferenceMode = "openwhispr" | "providers" | "local" | "self-hosted" | "enterprise";
+export type InferenceMode = "providers" | "local" | "self-hosted" | "enterprise";
 
 /** Each LLM scope's resolved mode and model, from which the main process decides the shared llama-server. */
 export interface LocalServerPrefs {
@@ -66,7 +66,6 @@ export interface DictationRealtimeSessionOptions {
   provider: string;
   baseUrl?: string;
   model?: string;
-  mode?: "byok" | "openwhispr";
   language?: string;
   sampleRate?: number;
   keyterms?: string[];
@@ -78,7 +77,7 @@ export interface DictationRealtimeSessionOptions {
 export interface DictationLanguageMetadata {
   language: string | null;
   languageConfidence: number | null;
-  // Sum of detector scores for Orukeet's 25 languages, not a calibrated probability.
+  // Sum of detector scores for the supported languages, not a calibrated probability.
   languageSupportedScore?: number;
   languageAudioSeconds?: number;
 }
@@ -301,46 +300,6 @@ export interface ScreenRecordingAccessResult {
   supported: boolean;
   /** macOS only: granted mid-session, so capture stays broken until the app relaunches. */
   needsRelaunch?: boolean;
-}
-
-export type CloudReasonPurpose = "cleanup" | "assistant" | "noteFormatting";
-
-// Orukeet's audio language estimate, reported for the backend's per-user gate.
-export interface OrukeetLanguageRoutingTelemetry {
-  version: 1;
-  mode: "shadow" | "supported-0.30" | "supported-0.10";
-  auto: boolean;
-  eligible: boolean;
-  analyzedSeconds: number | null;
-  topLanguage: string | null;
-  topScore: number | null;
-  supportedScore: number | null;
-  legacyFallback: boolean;
-  top05Fallback: boolean;
-  candidate030: boolean | null;
-  candidate010: boolean | null;
-  selectedFallback: boolean;
-  fallbackAvailable: boolean;
-}
-export interface OrukeetCleanupTelemetry {
-  status: "complete" | "fallback" | "skipped";
-  model?: "gemma-4-12b";
-  processingMs?: number;
-  queueMs?: number;
-  firstTextMs?: number;
-  inputTokens?: number;
-  outputTokens?: number;
-}
-export interface OrukeetTelemetry {
-  orukeetLanguageRouting?: OrukeetLanguageRoutingTelemetry;
-  orukeetCleanup?: OrukeetCleanupTelemetry;
-}
-
-export interface SttDetectedLanguageFields {
-  sttDetectedLanguage?: string;
-  sttDetectedLanguageConfidence?: number;
-  sttDetectedLanguageAudioSeconds?: number;
-  sttDetectedLanguageStatus?: "detected" | "unknown";
 }
 
 export interface ScreenContextImage {
@@ -1146,7 +1105,6 @@ declare global {
       }>;
 
       // Usage limit events
-      notifyLimitReached?: (data: { wordsUsed: number; limit: number }) => void;
 
       // Agent Mode
       updateVoiceAgentHotkey?: (hotkey: string) => Promise<{ success: boolean; message?: string }>;

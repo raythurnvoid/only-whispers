@@ -1,5 +1,4 @@
 import type { SettingsState } from "../stores/settingsStore";
-import type { CloudReasonPurpose } from "../types/electron";
 
 export interface InferenceScopeStoreKeys {
   mode: keyof SettingsState;
@@ -16,22 +15,15 @@ export interface InferenceScopeStoreKeys {
 export interface InferenceScopeDefinition {
   storeKeys: InferenceScopeStoreKeys;
   fallbackScope?: string;
-  /** Server-side fallback chain OpenWhispr Cloud answers this scope on. */
-  cloudPurpose: CloudReasonPurpose;
   /**
    * Inert until the user picks its own model, inheriting the fallback scope
-   * meanwhile. Policy never invents that choice, and a policy that moves the
-   * chosen provider clears the model so the override asks to be picked again:
-   * an invented target would switch the override on and capture requests for
-   * a provider with no key. Only for scopes whose every offered mode needs a
-   * model, since a cloud mode counts as chosen with none.
+   * meanwhile. Only for scopes whose every offered mode needs a model.
    */
   optional?: true;
 }
 
 export const INFERENCE_SCOPES = {
   dictationCleanup: {
-    cloudPurpose: "cleanup",
     storeKeys: {
       mode: "cleanupMode",
       provider: "cleanupProvider",
@@ -45,7 +37,6 @@ export const INFERENCE_SCOPES = {
     },
   },
   dictationAgent: {
-    cloudPurpose: "assistant",
     storeKeys: {
       mode: "dictationAgentMode",
       provider: "dictationAgentProvider",
@@ -60,9 +51,8 @@ export const INFERENCE_SCOPES = {
   },
   // Optional override used only when a voice-agent request carries a screen
   // context screenshot. Unset fields resolve to the dictationAgent scope, and
-  // the UI offers only cloud/BYOK modes, so remoteUrl is deliberately absent.
+  // the UI offers only provider modes, so remoteUrl is deliberately absent.
   dictationAgentVision: {
-    cloudPurpose: "assistant",
     storeKeys: {
       mode: "dictationAgentVisionMode",
       provider: "dictationAgentVisionProvider",
@@ -77,7 +67,6 @@ export const INFERENCE_SCOPES = {
     optional: true,
   },
   noteFormatting: {
-    cloudPurpose: "noteFormatting",
     storeKeys: {
       mode: "noteFormattingMode",
       provider: "noteFormattingProvider",
@@ -95,7 +84,6 @@ export const INFERENCE_SCOPES = {
   // The voice assistant panel's spoken commands, like selection edits, run on
   // dictationAgent(Vision) — see resolveChatStreamingInference.
   chatIntelligence: {
-    cloudPurpose: "assistant",
     storeKeys: {
       mode: "chatAgentMode",
       provider: "chatAgentProvider",
@@ -118,5 +106,5 @@ export type InferenceScope = keyof typeof INFERENCE_SCOPES;
  * keep an old cloud provider, so catalog repairs must leave them alone.
  */
 export function usesCloudModelCatalog(mode: unknown): boolean {
-  return mode === "providers" || mode === "openwhispr";
+  return mode === "providers";
 }

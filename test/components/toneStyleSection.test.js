@@ -132,9 +132,9 @@ test("with cleanup off, the section says so and turns it on", async (t) => {
       useCleanupModel: false,
       toneStyleEnabled: true,
       toneStyles: DEFAULTS,
-      isSignedIn: true,
-      cleanupMode: "openwhispr",
-      cleanupCloudMode: "openwhispr",
+      cleanupMode: "providers",
+      cleanupProvider: "openai",
+      cleanupModel: "gpt-5-mini",
     },
     { onOpenCleanupSettings: () => opened++ }
   );
@@ -143,7 +143,7 @@ test("with cleanup off, the section says so and turns it on", async (t) => {
   await React.act(async () => click(button(container, "toneStyle.settings.turnOnCleanup")));
   assert.equal(store.getState().useCleanupModel, true);
   assert.equal(hasText(container, "toneStyle.settings.cleanupOff"), false);
-  // Cloud cleanup needs no model, so the user stays here.
+  // A cleanup model is already set, so the user stays here.
   assert.equal(opened, 0);
 });
 
@@ -155,7 +155,6 @@ test("turning cleanup on without a usable model opens its settings", async (t) =
       useCleanupModel: false,
       toneStyleEnabled: true,
       toneStyles: DEFAULTS,
-      isSignedIn: false,
       cleanupMode: "providers",
       cleanupProvider: "openai",
       cleanupModel: "",

@@ -16,8 +16,6 @@ async function loadAudioManager(t, { cachePrefix, settingsKey, reasoningKey }) {
       "/stores/settingsStore": `
         export const getSettings = () => globalThis.${settingsKey};
         export const getEffectiveCleanupModel = () => null;
-        export const isCloudCleanupMode = () => false;
-        export const isCloudDictationAgentMode = () => false;
       `,
       "/services/ReasoningService": `
         export default { processText: (...args) => globalThis.${reasoningKey}(...args) };

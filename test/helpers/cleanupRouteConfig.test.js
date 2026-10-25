@@ -13,8 +13,6 @@ async function loadRouteResolver(t, provider = "test", mode = "providers") {
         export const getSettings = () => globalThis.__cleanupRouteConfigSettings;
         export const getEffectiveCleanupModel = () => "cleanup-model";
         export const selectResolvedLLMConfig = () => ({ model: "cleanup-model", provider: ${JSON.stringify(provider)}, mode: ${JSON.stringify(mode)} });
-        export const isCloudCleanupMode = () => false;
-        export const isCloudDictationAgentMode = () => false;
       `,
       "/dictationAgentInference": `
         export const resolveDictationAgentInference = () => ({

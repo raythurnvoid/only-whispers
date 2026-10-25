@@ -9,7 +9,6 @@ async function loadManagerClass(t) {
     settingsKey: "__cancelLifecycleSettings",
     settings: {
       cloudTranscriptionMode: "byok",
-      isSignedIn: false,
     },
   });
   return { AudioManager, window };
@@ -276,20 +275,16 @@ async function loadCancelGuardManagerClass(t) {
     settingsKey: "__streamingLeakSettings",
     settings: {
       useLocalWhisper: false,
-      cloudTranscriptionMode: "openwhispr",
-      isSignedIn: true,
+      cloudTranscriptionMode: "byok",
       preferredLanguage: "auto",
-      cleanupCloudMode: "openwhispr",
       useCleanupModel: true,
       customPrompts: {},
     },
     mockModules: {
       "/stores/settingsStore": `
         export const getSettings = () => globalThis.__streamingLeakSettings;
-        export const getEffectiveCleanupModel = () => null;
-        export const selectResolvedLLMConfig = () => ({ model: null, provider: null });
-        export const isCloudCleanupMode = () => true;
-        export const isCloudDictationAgentMode = () => false;
+        export const getEffectiveCleanupModel = () => "test-model";
+        export const selectResolvedLLMConfig = () => ({ model: "test-model", provider: "openai" });
       `,
       // The real store: capturing recordCleanupFailure is the whole point of
       // the streaming-fallback-leak test below, so the mock just makes its
@@ -445,8 +440,9 @@ test("a cancelled batch pipeline does not swallow a real cleanup failure in a la
   const { manager, completions } = createStreamingLeakManager(AudioManager);
   globalThis.__streamingLeakCleanupFailureCalls = [];
   window.electronAPI.proxyMistralTranscription = async () => ({ text: "the raw transcript" });
+  manager.isReasoningAvailable = async () => true;
   manager.processWithReasoningModel = async () => {
-    throw Object.assign(new Error("genuine cloud reasoning failure"), { code: "SERVER_ERROR" });
+    throw Object.assign(new Error("genuine reasoning failure"), { code: "SERVER_ERROR" });
   };
 
   // Simulate an earlier batch cancellation. The new streaming session does
@@ -459,8 +455,8 @@ test("a cancelled batch pipeline does not swallow a real cleanup failure in a la
   assert.equal(completions[0].text, "the raw transcript");
   assert.equal(
     completions[0].cleanupFailure?.message,
-    "genuine cloud reasoning failure",
-    "a genuine cloud-reasoning failure in the streaming fallback must survive until paste"
+    "genuine reasoning failure",
+    "a genuine reasoning failure in the streaming fallback must survive until paste"
   );
   assert.deepEqual(
     globalThis.__streamingLeakCleanupFailureCalls,

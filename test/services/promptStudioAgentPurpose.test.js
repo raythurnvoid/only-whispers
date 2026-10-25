@@ -145,8 +145,8 @@ test("Prompt Studio marks dictation-agent runs as agent requests", async (t) => 
                 useCleanupModel: true,
                 cleanupModel: "",
                 useDictationAgent: true,
-                dictationAgentMode: "openwhispr",
-                dictationAgentProvider: "openwhispr",
+                dictationAgentMode: "providers",
+                dictationAgentProvider: "openai",
                 dictationAgentModel: "auto",
                 customPrompts: { cleanup: "", dictationAgent: "" },
                 preferredLanguage: "en",
@@ -155,8 +155,6 @@ test("Prompt Studio marks dictation-agent runs as agent requests", async (t) => 
               };
               export function useSettingsStore(selector) { return selector(state); }
               useSettingsStore.getState = () => state;
-              export const selectIsCloudCleanupMode = () => true;
-              export const selectIsCloudDictationAgentMode = () => true;
             `;
           }
           if (id === "\0prompt-studio-snippets") {
@@ -168,8 +166,8 @@ test("Prompt Studio marks dictation-agent runs as agent requests", async (t) => 
                 return {
                   reachable: true,
                   model: "auto",
-                  displayProvider: "openwhispr",
-                  config: { provider: "openwhispr" },
+                  displayProvider: "openai",
+                  config: { provider: "openai" },
                 };
               }
             `;

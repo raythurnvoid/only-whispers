@@ -4,7 +4,6 @@ const { loadAudioManager } = require("./harness/audioManager");
 
 const LOCAL_WHISPER_SETTINGS = {
   cloudTranscriptionMode: "byok",
-  isSignedIn: false,
 };
 
 async function loadManagerClass(t, settings = LOCAL_WHISPER_SETTINGS) {
@@ -60,11 +59,10 @@ test("dictionary-echo silence keeps the recording but shares the settled outcome
   assert.deepEqual(saved, [{ message: "No audio detected", code: DICTIONARY_ECHO_CODE }]);
 });
 
-test("Cloud finding no speech is the no-audio outcome and keeps the recording", async (t) => {
+test("A provider finding no speech is the no-audio outcome and keeps the recording", async (t) => {
   const AudioManager = await loadManagerClass(t, {
     useLocalWhisper: false,
-    cloudTranscriptionMode: "openwhispr",
-    isSignedIn: true,
+    cloudTranscriptionMode: "byok",
   });
   // cloud-transcribe's shape for the API's 422 (ipcHandlers.js).
   const failure = Object.assign(new Error("No speech detected in audio"), {

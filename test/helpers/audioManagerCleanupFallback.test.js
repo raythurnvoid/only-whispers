@@ -27,8 +27,6 @@ test("cleanup failure details ride the raw result instead of notifying before pa
           provider: "bedrock",
           model: "anthropic.claude-haiku"
         });
-        export const isCloudCleanupMode = () => false;
-        export const isCloudDictationAgentMode = () => false;
         export const useSettingsStore = { subscribe: () => () => {} };
       `,
       "/dictationAgentInference": `
@@ -114,8 +112,6 @@ test("a classified provider cleanup failure keeps the fields its toast needs", a
           provider: "gemini",
           model: "gemini-3-flash-preview"
         });
-        export const isCloudCleanupMode = () => false;
-        export const isCloudDictationAgentMode = () => false;
         export const useSettingsStore = { subscribe: () => () => {} };
       `,
       "/dictationAgentInference": `

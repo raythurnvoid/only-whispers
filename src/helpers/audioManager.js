@@ -36,8 +36,6 @@ import {
   getSettings,
   useSettingsStore,
   getEffectiveCleanupModel,
-  isCloudCleanupMode,
-  isCloudDictationAgentMode,
   selectResolvedLLMConfig,
 } from "../stores/settingsStore";
 import { getCloudModel, getProviderDisplayName } from "../models/ModelRegistry";
@@ -140,8 +138,7 @@ function dictationAgentPrompt(settings, agentName) {
 }
 
 function dictationAgentReachable(settings) {
-  return resolveDictationAgentInference(settings, { isCloudAgent: isCloudDictationAgentMode() })
-    .reachable;
+  return resolveDictationAgentInference(settings).reachable;
 }
 
 function resolveReasoningRoute(
@@ -159,11 +156,8 @@ function resolveReasoningRoute(
   // Direct Gemini owns its defaults (3: 1.0, older: 0); check mode to ignore stale providers.
   const cleanupTemperature =
     cleanup.mode === "providers" && cleanup.provider === "gemini" ? undefined : 0;
-  const cleanupReachable =
-    !!settings.useCleanupModel && (!!cleanup.model?.trim() || isCloudCleanupMode());
-  const agent = resolveDictationAgentInference(settings, {
-    isCloudAgent: isCloudDictationAgentMode(),
-  });
+  const cleanupReachable = !!settings.useCleanupModel && !!cleanup.model?.trim();
+  const agent = resolveDictationAgentInference(settings);
 
   const kind = resolveDictationRouteKind({
     cleanupReachable,
@@ -192,15 +186,12 @@ function resolveReasoningRoute(
     requireCompleteOutput: true,
   };
   if (kind === "agent") {
-    const vision = resolveDictationAgentVisionInference(settings, {
-      isSignedIn: settings.isSignedIn,
-    });
+    const vision = resolveDictationAgentVisionInference(settings);
     const { attach, useVisionOverride } = resolveAgentImageTarget({
       hasScreenContext: !!screenContext,
       visionOverrideActive: vision.active,
       visionProviderImageWired: providerSupportsImages(vision.config.provider),
       baseProviderImageWired: providerSupportsImages(agent.config.provider),
-      isCloudAgent: isCloudDictationAgentMode(),
       baseModelSupportsVision: !!getCloudModel(agent.model, agent.config.provider)?.supportsVision,
     });
     const target = useVisionOverride ? vision : agent;
@@ -2108,15 +2099,6 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       return false;
     }
 
-    if (s.useCleanupModel && isCloudCleanupMode()) {
-      this.reasoningAvailabilityCache = {
-        value: true,
-        expiresAt: now + REASONING_CACHE_TTL,
-      };
-      this.cachedReasoningPreference = useReasoning;
-      return true;
-    }
-
     try {
       const isAvailable = await ReasoningService.isAvailable();
 
@@ -2211,10 +2193,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     });
 
     const cleanupModel = getEffectiveCleanupModel();
-    const isCloud = isCloudCleanupMode();
     const settings = getSettings();
     const cleanupProvider = settings.cleanupProvider || "auto";
-    const cleanupReachable = !!settings.useCleanupModel && (!!cleanupModel || isCloud);
+    const cleanupReachable = !!settings.useCleanupModel && !!cleanupModel;
     const agentReachable = dictationAgentReachable(settings);
     const agentName =
       typeof window !== "undefined" && window.localStorage ? getAgentName() : "Wisper";
@@ -3715,14 +3696,6 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         source: batchFallbackResult?.source || `${providerName}-streaming`,
         clientTranscriptionId,
         analyticsOccurredAt: resultAnalyticsOccurredAt,
-        // The upgrade prompt opens on these, as after a batch recording.
-        ...(batchFallbackResult?.limitReached
-          ? {
-              limitReached: true,
-              wordsUsed: batchFallbackResult.wordsUsed,
-              wordsRemaining: batchFallbackResult.wordsRemaining,
-            }
-          : {}),
         ...this._takePendingResultExtras(),
         ...(batchWarning ? { warning: batchWarning } : {}),
       });

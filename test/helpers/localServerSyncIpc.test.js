@@ -114,11 +114,11 @@ function sync({ loaded, ...scopes }) {
     {
       useLocalWhisper: false,
       useCleanupModel: true,
-      cleanupMode: "openwhispr",
+      cleanupMode: "providers",
       useDictationAgent: true,
-      dictationAgentMode: "openwhispr",
-      noteFormattingMode: "openwhispr",
-      chatAgentMode: "openwhispr",
+      dictationAgentMode: "providers",
+      noteFormattingMode: "providers",
+      chatAgentMode: "providers",
       ...scopes,
     }
   );

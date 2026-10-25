@@ -3,7 +3,6 @@ const assert = require("node:assert/strict");
 const { createRendererServer, installBrowserGlobals } = require("../lib/rendererTestHarness");
 
 const UNCONFIGURED = "hooks.audioRecording.cleanupUnconfigured";
-const SIGNED_OUT = "hooks.audioRecording.cleanupSignedOut";
 
 async function loadRealAudioManager(t) {
   const { window } = installBrowserGlobals(t, { window: { dispatchEvent() {} } });
@@ -21,7 +20,6 @@ async function loadRealAudioManager(t) {
   t.after(() => service.destroy());
   const { useSettingsStore } = await vite.ssrLoadModule("/stores/settingsStore.ts");
   useSettingsStore.setState({
-    isSignedIn: false,
     useCleanupModel: true,
     cleanupMode: "providers",
     cleanupProvider: "openai",
@@ -71,19 +69,16 @@ test("cleanup on with no model warns once it is shown, and again after a fix bre
 
   setSettings({ useCleanupModel: false });
   assert.equal(await dictate(manager, "cleanup off"), undefined);
-
-  setSettings({ useCleanupModel: true, cleanupMode: "openwhispr", cleanupCloudMode: "openwhispr" });
-  assert.equal((await dictate(manager, "signed out")).messageKey, SIGNED_OUT);
 });
 
 test("cleanup with nothing to run on warns even when the assistant is reachable", async (t) => {
   const { manager, setSettings } = await loadRealAudioManager(t);
-  // The Cloud assistant skips the early "no model" return; cleanup still can't run.
+  // A reachable assistant skips the early "no model" return; cleanup still can't run.
   setSettings({
-    isSignedIn: true,
     useDictationAgent: true,
-    dictationAgentMode: "openwhispr",
-    dictationAgentCloudMode: "openwhispr",
+    dictationAgentMode: "providers",
+    dictationAgentProvider: "openai",
+    dictationAgentModel: "gpt-5",
   });
   manager.isReasoningAvailable = async () => false;
   assert.equal((await dictate(manager, "local words")).messageKey, UNCONFIGURED);

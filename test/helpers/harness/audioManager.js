@@ -19,8 +19,6 @@ const defaultMockModules = (settingsKey) => ({
     export const getSettings = () => globalThis.${settingsKey};
     export const getEffectiveCleanupModel = () => null;
     export const selectResolvedLLMConfig = () => ({ model: null, provider: null });
-    export const isCloudCleanupMode = () => false;
-    export const isCloudDictationAgentMode = () => false;
   `,
   "/services/ReasoningService":
     "export default class ReasoningService { static cancelAllRequests() {} }",
