@@ -43,7 +43,7 @@ import { SettingsRow, SettingsPanel, SettingsPanelRow } from "./ui/SettingsSecti
 import { FieldLabel, ProviderCheckField } from "./ui/ProviderCheckField";
 import { useSettingsStore } from "../stores/settingsStore";
 
-export type SettingsSectionType = "general" | "hotkeys" | "speechToText" | "llms";
+export type SettingsSectionType = "general" | "hotkeys" | "llms";
 
 interface SettingsPageProps {
   activeSection?: SettingsSectionType;
@@ -72,7 +72,7 @@ function SectionHeader({
   );
 }
 
-// Mistral Voxtral is the only speech-to-text service, so its key is the whole section.
+// Mistral Voxtral is the only speech-to-text service, so its key is all it needs.
 function MistralKeySection() {
   const { t } = useTranslation();
   const mistralApiKey = useSettingsStore((s) => s.mistralApiKey);
@@ -84,38 +84,32 @@ function MistralKeySection() {
   });
 
   return (
-    <div className="space-y-4">
-      <SectionHeader
-        title={t("settingsPage.speechToText.title")}
-        description={t("settingsPage.speechToText.description")}
-      />
-      <SettingsPanel>
-        <SettingsPanelRow>
-          <label className="block">
-            <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
-            <ProviderCheckField
-              aria-label={t("appSetup.mistralKey")}
-              check={check}
-              invalidOn="credentialsRejected"
-              type="password"
-              value={mistralApiKey}
-              onChange={(event) => setMistralApiKey(event.target.value.trim())}
-              placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <a
-              href="https://admin.mistral.ai/organization/api-keys"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
-            >
-              {t("appSetup.getMistralKey")}
-            </a>
-          </label>
-        </SettingsPanelRow>
-      </SettingsPanel>
-    </div>
+    <SettingsPanel>
+      <SettingsPanelRow>
+        <label className="block">
+          <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
+          <ProviderCheckField
+            aria-label={t("appSetup.mistralKey")}
+            check={check}
+            invalidOn="credentialsRejected"
+            type="password"
+            value={mistralApiKey}
+            onChange={(event) => setMistralApiKey(event.target.value.trim())}
+            placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <a
+            href="https://admin.mistral.ai/organization/api-keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
+          >
+            {t("appSetup.getMistralKey")}
+          </a>
+        </label>
+      </SettingsPanelRow>
+    </SettingsPanel>
   );
 }
 
@@ -146,13 +140,18 @@ function CleanupSection() {
   );
 }
 
-// 0.1.0 ships cleanup only, so the assistant tabs are not shown.
+// 0.1.0 has one AI page: the Mistral key for speech-to-text and the ChatGPT
+// sign-in for cleanup. The assistant tabs are not shown.
 function LlmsSection() {
   const { t } = useTranslation();
 
   return (
     <div className="space-y-4">
-      <SectionHeader title={t("settingsPage.llms.title")} />
+      <SectionHeader
+        title={t("settingsPage.aiModels.title")}
+        description={t("settingsPage.aiModels.description")}
+      />
+      <MistralKeySection />
       <CleanupSection />
     </div>
   );
@@ -1032,9 +1031,6 @@ EOF`,
             </div>
           </div>
         );
-
-      case "speechToText":
-        return <MistralKeySection />;
 
       case "llms":
         return <LlmsSection />;

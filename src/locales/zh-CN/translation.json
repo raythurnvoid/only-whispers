@@ -780,6 +780,10 @@
       "llms": {
         "description": "用于清理、笔记格式化和聊天的模型",
         "label": "语言模型"
+      },
+      "aiModels": {
+        "label": "AI 模型",
+        "description": "Mistral 密钥和 ChatGPT 登录"
       }
     },
     "title": "设置"
@@ -818,7 +822,9 @@
         "selfHostedDesc": "你的服务器，在你的网络上。",
         "enterprise": "企业级",
         "enterpriseDesc": "使用你组织的云账号（AWS、Azure、GCP）。"
-      }
+      },
+      "title": "AI 模型",
+      "description": "Mistral 将你的语音转为文字,你的 ChatGPT 套餐负责整理文字。"
     },
     "dictionary": {
       "autoLearnTitle": "从纠正中自动学习",

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sliders, Mic, Brain, Keyboard } from "./icons";
+import { Sliders, Brain, Keyboard } from "./icons";
 import SidebarModal, { type SidebarItem } from "./ui/SidebarModal";
 import SettingsPage, { SettingsSectionType } from "./SettingsPage";
 
@@ -15,7 +15,8 @@ const SECTION_ALIASES: Record<string, SettingsSectionType> = {
   dictationAgent: "llms",
   intelligence: "llms",
   prompts: "llms",
-  transcription: "speechToText",
+  speechToText: "llms",
+  transcription: "llms",
 };
 
 const LEGACY_SUB_TAB: Record<string, string> = {
@@ -27,7 +28,7 @@ const LEGACY_SUB_TAB: Record<string, string> = {
   prompts: "dictationCleanup",
 };
 
-const SECTION_IDS: SettingsSectionType[] = ["general", "hotkeys", "speechToText", "llms"];
+const SECTION_IDS: SettingsSectionType[] = ["general", "hotkeys", "llms"];
 
 interface SettingsModalProps {
   open: boolean;
@@ -54,18 +55,11 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
         group: t("settingsModal.groups.app"),
       },
       {
-        id: "speechToText",
-        label: t("settingsModal.sections.speechToText.label"),
-        icon: Mic,
-        description: t("settingsModal.sections.speechToText.description"),
-        group: t("settingsModal.groups.aiModels"),
-      },
-      {
         id: "llms",
-        label: t("settingsModal.sections.llms.label"),
+        label: t("settingsModal.sections.aiModels.label"),
         icon: Brain,
-        description: t("settingsModal.sections.llms.description"),
-        group: t("settingsModal.groups.aiModels"),
+        description: t("settingsModal.sections.aiModels.description"),
+        group: t("settingsModal.groups.app"),
       },
     ],
     [t]

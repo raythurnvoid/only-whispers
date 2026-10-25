@@ -780,6 +780,10 @@
       "llms": {
         "description": "Modelle für Chat, Bereinigung & Zusammenfassungen",
         "label": "Sprachmodelle"
+      },
+      "aiModels": {
+        "label": "KI-Modelle",
+        "description": "Mistral-Schlüssel und ChatGPT-Anmeldung"
       }
     },
     "title": "Einstellungen"
@@ -818,7 +822,9 @@
         "localDesc": "Modelle auf dem Gerät. Voll privat.",
         "selfHostedDesc": "Eigener Server in Ihrem Netzwerk.",
         "enterpriseDesc": "Nutzen Sie das Cloud-Konto Ihrer Organisation (AWS, Azure, GCP)."
-      }
+      },
+      "title": "KI-Modelle",
+      "description": "Mistral wandelt deine Sprache in Text um. Dein ChatGPT-Abo bereinigt den Text."
     },
     "dictionary": {
       "autoLearnTitle": "Automatisch aus Korrekturen lernen",

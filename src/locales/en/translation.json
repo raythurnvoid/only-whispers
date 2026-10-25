@@ -780,6 +780,10 @@
       "llms": {
         "description": "Models for chat, cleanup & summaries",
         "label": "Language Models"
+      },
+      "aiModels": {
+        "label": "AI Models",
+        "description": "Mistral key and ChatGPT sign-in"
       }
     },
     "title": "Settings"
@@ -818,7 +822,9 @@
         "localDesc": "On-device models. Fully private.",
         "selfHostedDesc": "Your own server on your network.",
         "enterpriseDesc": "Use your organization's cloud account (AWS, Azure, GCP)."
-      }
+      },
+      "title": "AI Models",
+      "description": "Mistral turns your speech into text. Your ChatGPT plan cleans up the text."
     },
     "dictionary": {
       "autoLearnTitle": "Auto-learn from corrections",

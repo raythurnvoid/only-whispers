@@ -981,7 +981,9 @@
         "localDesc": "نماذج على الجهاز. خاصة بالكامل.",
         "selfHostedDesc": "خادمك الخاص على شبكتك.",
         "enterpriseDesc": "استخدم الحساب السحابي لمؤسستك (AWS، Azure، GCP)."
-      }
+      },
+      "title": "نماذج الذكاء الاصطناعي",
+      "description": "يحوّل Mistral كلامك إلى نص، وتنظّف خطة ChatGPT النص."
     },
     "dictionary": {
       "autoLearnTitle": "التعلم التلقائي من التصحيحات",
@@ -1377,6 +1379,10 @@
       "llms": {
         "description": "نماذج الدردشة والتنظيف والملخصات",
         "label": "النماذج اللغوية"
+      },
+      "aiModels": {
+        "label": "نماذج الذكاء الاصطناعي",
+        "description": "مفتاح Mistral وتسجيل الدخول إلى ChatGPT"
       }
     },
     "title": "الإعدادات"

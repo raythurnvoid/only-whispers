@@ -774,6 +774,10 @@
       "llms": {
         "description": "Modelos para chat, limpeza e resumos",
         "label": "Modelos de linguagem"
+      },
+      "aiModels": {
+        "label": "Modelos de IA",
+        "description": "Chave da Mistral e login no ChatGPT"
       }
     },
     "title": "Configurações"
@@ -812,7 +816,9 @@
         "selfHostedDesc": "Seu servidor na sua rede.",
         "enterprise": "Corporativo",
         "enterpriseDesc": "Use a conta de nuvem da sua organização (AWS, Azure, GCP)."
-      }
+      },
+      "title": "Modelos de IA",
+      "description": "A Mistral transforma sua fala em texto. Seu plano do ChatGPT limpa o texto."
     },
     "dictionary": {
       "autoLearnTitle": "Aprender automaticamente com correções",

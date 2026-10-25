@@ -780,6 +780,10 @@
       "llms": {
         "description": "クリーンアップ、ノートのフォーマット、チャット用のモデル",
         "label": "言語モデル"
+      },
+      "aiModels": {
+        "label": "AIモデル",
+        "description": "Mistral キーと ChatGPT へのサインイン"
       }
     },
     "title": "設定"
@@ -818,7 +822,9 @@
         "selfHostedDesc": "自前サーバーをネットワーク上に。",
         "enterprise": "エンタープライズ",
         "enterpriseDesc": "組織のクラウドアカウントを使用 (AWS, Azure, GCP)。"
-      }
+      },
+      "title": "AIモデル",
+      "description": "Mistral が音声をテキストに変換し、ChatGPT プランがテキストを整えます。"
     },
     "dictionary": {
       "autoLearnTitle": "修正から自動学習",

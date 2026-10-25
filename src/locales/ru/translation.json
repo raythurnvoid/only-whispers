@@ -780,6 +780,10 @@
       "llms": {
         "description": "Модели для чата, очистки и резюме",
         "label": "Языковые модели"
+      },
+      "aiModels": {
+        "label": "Модели ИИ",
+        "description": "Ключ Mistral и вход в ChatGPT"
       }
     },
     "title": "Настройки"
@@ -818,7 +822,9 @@
         "selfHostedDesc": "Свой сервер в вашей сети.",
         "enterprise": "Корпоративный",
         "enterpriseDesc": "Используйте облачный аккаунт вашей организации (AWS, Azure, GCP)."
-      }
+      },
+      "title": "Модели ИИ",
+      "description": "Mistral превращает вашу речь в текст. Ваш план ChatGPT приводит текст в порядок."
     },
     "dictionary": {
       "autoLearnTitle": "Автоматическое обучение на исправлениях",

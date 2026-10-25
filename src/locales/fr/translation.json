@@ -780,6 +780,10 @@
       "llms": {
         "description": "Modèles pour chat, nettoyage & résumés",
         "label": "Modèles de langage"
+      },
+      "aiModels": {
+        "label": "Modèles IA",
+        "description": "Clé Mistral et connexion ChatGPT"
       }
     },
     "title": "Paramètres"
@@ -818,7 +822,9 @@
         "localDesc": "Modèles sur l'appareil. 100 % privé.",
         "selfHostedDesc": "Votre serveur sur votre réseau.",
         "enterpriseDesc": "Utilisez le compte cloud de votre organisation (AWS, Azure, GCP)."
-      }
+      },
+      "title": "Modèles IA",
+      "description": "Mistral transforme votre voix en texte. Votre forfait ChatGPT nettoie le texte."
     },
     "dictionary": {
       "autoLearnTitle": "Apprentissage automatique à partir des corrections",
