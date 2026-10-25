@@ -1,6 +1,6 @@
 {
   "tray": {
-    "showControlPanel": "開啟 Only Whispers",
+    "showControlPanel": "顯示控制面板",
     "quit": "結束 Only Whispers",
     "tooltip": "Only Whispers"
   },

@@ -984,7 +984,7 @@
     }
   },
   "tray": {
-    "showControlPanel": "فتح Only Whispers",
+    "showControlPanel": "إظهار لوحة التحكم",
     "quit": "إنهاء Only Whispers",
     "tooltip": "Only Whispers"
   },

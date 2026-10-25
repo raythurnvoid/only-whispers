@@ -1,6 +1,6 @@
 {
   "tray": {
-    "showControlPanel": "Open Only Whispers",
+    "showControlPanel": "Show Control Panel",
     "quit": "Quit Only Whispers",
     "tooltip": "Only Whispers"
   },
