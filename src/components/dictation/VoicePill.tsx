@@ -182,7 +182,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
           <span
             className={cn(
               "relative min-w-0 truncate text-[10.5px] leading-none",
-              dictationStatus.phase === "processing" && "inline-response-shimmer flex-1"
+              dictationStatus.phase === "processing" && "inline-response-shimmer"
             )}
           >
             <span className="font-semibold">{dictationStatus.model}</span>{" "}
@@ -197,8 +197,13 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
               className="relative h-4 min-w-0 flex-1 gap-0.5"
             />
           ) : (
-            // A soft ripple says the model is working, in the waveform's spot.
-            <span className="relative flex h-4 shrink-0 items-center gap-0.5" aria-hidden="true">
+            // A soft ripple says the model is working. It takes the waveform's
+            // stretchy, centered spot, so the label can change (Voxtral, then
+            // Luna) without leaving a gap.
+            <span
+              className="relative flex h-4 min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden"
+              aria-hidden="true"
+            >
               {Array.from({ length: DICTATION_RIPPLE_BAR_COUNT }, (_, index) => (
                 <span
                   key={index}
