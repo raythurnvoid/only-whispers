@@ -11,7 +11,6 @@ import type {
   LocalServerPrefs,
   SelfHostedType,
 } from "../types/electron";
-import type { CalendarAccount, MicrosoftCalendarAccount } from "../types/calendar";
 import { normalizeEmailDraftTarget, type EmailDraftTargetSetting } from "../utils/emailDraftTarget";
 import { normalizeToneStyles, type ToneStyles } from "../config/toneStyle";
 import { PROMPT_KIND_LIST, type PromptKind } from "../config/prompts/registry";
@@ -192,7 +191,6 @@ const BOOLEAN_SETTINGS = new Set([
   "allowOpenAIFallback",
   "allowLocalFallback",
   "assemblyAiStreaming",
-  "autoGenerateNoteTitle",
   "useCleanupModel",
   "toneStyleEnabled",
   "useDictationAgent",
@@ -218,14 +216,11 @@ const BOOLEAN_SETTINGS = new Set([
   "dictationAgentVisionDisableThinking",
   "noteFormattingDisableThinking",
   "chatAgentDisableThinking",
-  "appleCalendarConnected",
 ]);
 
 const ARRAY_SETTINGS = new Set([
   "customDictionary",
   "snippets",
-  "gcalAccounts",
-  "mcalAccounts",
   "onboardingUseCases",
   "spokenLanguages",
 ]);
@@ -786,12 +781,6 @@ export interface SettingsState
   muteAppsOnDictation: boolean;
   floatingIconAutoHide: boolean;
   startMinimized: boolean;
-  gcalAccounts: CalendarAccount[];
-  gcalConnected: boolean;
-  gcalEmail: string;
-  mcalAccounts: MicrosoftCalendarAccount[];
-  mcalConnected: boolean;
-  appleCalendarConnected: boolean;
   panelStartPosition: "bottom-right" | "center" | "bottom-left";
   showTranscriptionPreview: boolean;
   autoPasteEnabled: boolean;
@@ -1266,7 +1255,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   })(),
   assemblyAiStreaming: readBoolean("assemblyAiStreaming", true),
 
-  autoGenerateNoteTitle: readBoolean("autoGenerateNoteTitle", true),
   useCleanupModel: readBoolean("useCleanupModel", true),
   useDictationAgent: readBoolean("useDictationAgent", true),
   cleanupModel: readString("cleanupModel", ""),
@@ -1347,34 +1335,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   // only-whispers shows the pill only while dictating unless "Always visible" is on.
   floatingIconAutoHide: readBoolean("floatingIconAutoHide", true),
   startMinimized: readBoolean("startMinimized", false),
-  ...(() => {
-    let accounts: CalendarAccount[] = [];
-    try {
-      const parsed = JSON.parse(readString("gcalAccounts", "[]"));
-      if (Array.isArray(parsed)) accounts = parsed;
-    } catch {
-      /* use empty default */
-    }
-    return {
-      gcalAccounts: accounts,
-      gcalConnected: accounts.length > 0,
-      gcalEmail: accounts[0]?.email ?? "",
-    };
-  })(),
-  ...(() => {
-    let accounts: MicrosoftCalendarAccount[] = [];
-    try {
-      const parsed = JSON.parse(readString("mcalAccounts", "[]"));
-      if (Array.isArray(parsed)) accounts = parsed;
-    } catch {
-      /* use empty default */
-    }
-    return {
-      mcalAccounts: accounts,
-      mcalConnected: accounts.length > 0,
-    };
-  })(),
-  appleCalendarConnected: readBoolean("appleCalendarConnected", false),
   panelStartPosition: (() => {
     const v = readString("panelStartPosition", "center");
     if (v === "bottom-right" || v === "center" || v === "bottom-left") return v;
@@ -2703,18 +2663,6 @@ export async function initializeSettings(): Promise<void> {
     }
 
     useSettingsStore.setState({ [key]: value });
-
-    if (key === "gcalAccounts" && Array.isArray(value)) {
-      const accounts = value as CalendarAccount[];
-      useSettingsStore.setState({
-        gcalConnected: accounts.length > 0,
-        gcalEmail: accounts[0]?.email ?? "",
-      });
-    }
-
-    if (key === "mcalAccounts" && Array.isArray(value)) {
-      useSettingsStore.setState({ mcalConnected: (value as CalendarAccount[]).length > 0 });
-    }
 
     if (key === "uiLanguage" && typeof value === "string") {
       void i18n.changeLanguage(value);

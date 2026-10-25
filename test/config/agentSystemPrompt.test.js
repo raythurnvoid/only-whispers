@@ -6,8 +6,8 @@ const load = () => import("../../src/config/prompts.ts");
 test("the prompt lists what the assistant can do, grouped, before how to use each tool", async () => {
   const { getAgentSystemPrompt } = await load();
   const prompt = getAgentSystemPrompt([
-    "search_notes",
-    "create_note",
+    "update_dictionary",
+    "get_snippet",
     "web_search",
     "copy_to_clipboard",
     {
@@ -24,14 +24,13 @@ test("the prompt lists what the assistant can do, grouped, before how to use eac
   ]);
 
   assert.match(prompt, /You can use these tools:\n/);
-  assert.match(prompt, /^- The user's notes: search_notes, create_note$/m);
+  assert.match(prompt, /^- The user's snippets and dictionary: update_dictionary, get_snippet$/m);
   assert.match(prompt, /^- Web search: web_search$/m);
   assert.match(prompt, /^- Clipboard: copy_to_clipboard$/m);
   assert.match(prompt, /^- Slack: slack_send_message$/m);
   assert.match(prompt, /^- Linear: linear_search_issues, linear_comment$/m);
   assert.ok(prompt.indexOf("You can use these tools") < prompt.indexOf("How to use them"));
-  assert.match(prompt, /^- Use search_notes to find/m);
-  assert.doesNotMatch(prompt, /The user's calendar/);
+  assert.match(prompt, /^- Use update_dictionary when/m);
 });
 
 test("the prompt forbids claiming an ability a listed tool covers", async () => {
@@ -56,10 +55,10 @@ test("web search is for anything that may have changed, and when in doubt the mo
 
 test("web search stays on public information the context doesn't already answer", async () => {
   const { getAgentSystemPrompt } = await load();
-  const prompt = getAgentSystemPrompt(["web_search", "search_notes"]);
+  const prompt = getAgentSystemPrompt(["web_search"]);
   assert.doesNotMatch(prompt, /releases, people,/);
   assert.match(prompt, /Don't search for people the user knows personally/);
-  assert.match(prompt, /nor for anything the conversation, the user's notes or the context/);
+  assert.match(prompt, /nor for anything the conversation or the context provided here/);
   assert.match(prompt, /don't call one when the conversation or the context provided here/);
 });
 
@@ -80,12 +79,12 @@ test("connector tools group under their connector names", async () => {
 test("the tool-trace rule rides only with traced history", async () => {
   const { getAgentSystemPrompt } = await load();
   assert.match(
-    getAgentSystemPrompt(["web_search"], undefined, { toolTrace: true }),
+    getAgentSystemPrompt(["web_search"], { toolTrace: true }),
     /\[Tools used: …\] note .* Never write such a note yourself/
   );
   // A follow-up ("it's #engineering", "retry") must not redo what already went out.
   assert.match(
-    getAgentSystemPrompt(["web_search"], undefined, { toolTrace: true }),
+    getAgentSystemPrompt(["web_search"], { toolTrace: true }),
     /marked sent or draft opened already happened.*never do it again unless the user asks/
   );
   assert.doesNotMatch(getAgentSystemPrompt(["web_search"]), /Tools used/);
@@ -98,7 +97,7 @@ test("without tools there is no capability block", async () => {
 });
 test("the model ends an email without a signature rather than a placeholder", async () => {
   const { getAgentSystemPrompt } = await load();
-  const prompt = getAgentSystemPrompt(["search_notes"]);
+  const prompt = getAgentSystemPrompt(["copy_to_clipboard"]);
   assert.doesNotMatch(prompt, /The user's name is/);
   assert.match(prompt, /Never leave placeholders such as \[Your Name\]/);
   assert.match(prompt, /without a signature line/);
@@ -108,7 +107,7 @@ const TONES = { personal: "very_casual", work: "casual", email: "formal", other:
 
 test("Tone & Style lists the user's style for each kind of writing, after the sign-off rule", async () => {
   const { getAgentSystemPrompt } = await load();
-  const prompt = getAgentSystemPrompt([], undefined, {
+  const prompt = getAgentSystemPrompt([], {
     writingStyle: { tones: TONES },
   });
 
@@ -127,7 +126,7 @@ test("Tone & Style lists the user's style for each kind of writing, after the si
 
 test("an answer typed at the cursor gets that app's style, and tool text keeps its own kind", async () => {
   const { getAgentSystemPrompt } = await load();
-  const prompt = getAgentSystemPrompt([], undefined, {
+  const prompt = getAgentSystemPrompt([], {
     writingStyle: { tones: TONES, destination: "work" },
   });
 
@@ -145,7 +144,7 @@ test("an answer typed at the cursor gets that app's style, and tool text keeps i
 
 test("an answer typed at the cursor in another app reads naturally", async () => {
   const { getAgentSystemPrompt } = await load();
-  const prompt = getAgentSystemPrompt([], undefined, {
+  const prompt = getAgentSystemPrompt([], {
     writingStyle: { tones: TONES, destination: "other" },
   });
 
@@ -159,5 +158,5 @@ test("an answer typed at the cursor in another app reads naturally", async () =>
 
 test("without Tone & Style the prompt has no writing style", async () => {
   const { getAgentSystemPrompt } = await load();
-  assert.doesNotMatch(getAgentSystemPrompt([], undefined, {}), /WRITING STYLE/);
+  assert.doesNotMatch(getAgentSystemPrompt([], {}), /WRITING STYLE/);
 });

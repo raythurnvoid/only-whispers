@@ -26,8 +26,8 @@ test("an earlier turn's tools are noted before its answer, with their search que
       user("What's the weather in Lisbon?"),
       assistant("Sunny, 24°C.", [
         call("web_search", { query: "weather in Lisbon today" }),
-        call("search_notes", { query: "Lisbon trip" }),
-        call("get_calendar_events", {}),
+        call("linear_search_issues", { query: "Lisbon trip" }),
+        call("copy_to_clipboard", {}),
       ]),
       user("And tomorrow?"),
     ],
@@ -39,7 +39,7 @@ test("an earlier turn's tools are noted before its answer, with their search que
     {
       role: "assistant",
       content:
-        '[Tools used: web_search ("weather in Lisbon today"), search_notes ("Lisbon trip"), get_calendar_events]\n\nSunny, 24°C.',
+        '[Tools used: web_search ("weather in Lisbon today"), linear_search_issues ("Lisbon trip"), copy_to_clipboard]\n\nSunny, 24°C.',
     },
     { role: "user", content: "And tomorrow?" },
   ]);
@@ -57,7 +57,7 @@ test("drafted content, results and metadata are never replayed", async () => {
           { result: "Opened a draft to dana@example.com" }
         ),
         call("slack_send_message", { channel: "#eng", text: "slack message text" }),
-        call("update_note", { noteId: 4, content: "private note content" }),
+        call("update_dictionary", { add: ["private note content"] }),
         call("github_create_issue", { repo: "o/r", title: "t", body: "issue body text" }),
         call(
           "linear_search_issues",
@@ -71,7 +71,7 @@ test("drafted content, results and metadata are never replayed", async () => {
 
   assert.equal(
     answer.content,
-    '[Tools used: email_draft, slack_send_message, update_note, github_create_issue, linear_search_issues ("login bug")]\n\nDone.'
+    '[Tools used: email_draft, slack_send_message, update_dictionary, github_create_issue, linear_search_issues ("login bug")]\n\nDone.'
   );
   for (const leaked of [
     "Secret plan",
@@ -91,18 +91,16 @@ test("a long or multi-line query is flattened and cut, and odd arguments drop to
   const { toolTrace } = await load();
   const trace = toolTrace([
     call("web_search", { query: `line one\n"quoted" [x] ${"a".repeat(100)}` }),
-    call("create_note", { title: "Standup notes", content: "body" }),
     call("find_contact", { name: "Dana" }),
     call("web_search", "{not json"),
-    call("search_notes", { query: 42 }),
+    call("github_search_issues", { query: 42 }),
   ]);
   const [first] = trace.match(/web_search \("[^"]*"\)/);
   assert.ok(first.startsWith('web_search ("line one quoted x aaa'));
   assert.ok(first.endsWith('…")'));
   assert.ok(first.length <= 'web_search ("'.length + 81 + '")'.length);
-  assert.match(trace, /create_note \("Standup notes"\)/);
   assert.match(trace, /find_contact \("Dana"\)/);
-  assert.match(trace, /, web_search, search_notes\]$/);
+  assert.match(trace, /, web_search, github_search_issues\]$/);
 });
 
 test("a call cut off before its result says its outcome wasn't recorded, not that it failed", async () => {
@@ -200,14 +198,13 @@ test("every connector outcome is named, and nothing else from the result is repl
   });
   assert.equal(sent, "[Tools used: slack_send_message (sent: ENG-124)]");
 
-  // What other tools save (a note, calendar facts, search results) carries no outcome.
+  // What other tools save (a snippet, search results) carries no outcome.
   assert.equal(
     toolTrace([
-      call("get_note", { id: 1 }, { metadata: { id: 1, title: "Standup", content: "x" } }),
-      call("get_calendar_availability", {}, { metadata: { type: "calendar_availability_facts" } }),
-      call("search_notes", { query: "x" }, { metadata: [{ id: 2, title: "Plan" }] }),
+      call("get_snippet", { trigger: "x" }, { metadata: { trigger: "x", replacement: "y" } }),
+      call("linear_search_issues", { query: "x" }, { metadata: [{ id: 2, title: "Plan" }] }),
     ]),
-    '[Tools used: get_note, get_calendar_availability, search_notes ("x")]'
+    '[Tools used: get_snippet, linear_search_issues ("x")]'
   );
 });
 

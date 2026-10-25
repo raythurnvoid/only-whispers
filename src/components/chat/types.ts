@@ -7,7 +7,7 @@ export interface ToolCallInfo {
   arguments: string;
   status: "executing" | "completed" | "error";
   result?: string;
-  // Single object for note tools; search_notes attaches its result array.
+  // A single object, or an array for search results.
   metadata?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 

@@ -281,7 +281,7 @@ export function useChatStreaming({
         // The user's dictionary rides on every conversation so replies use their
         // jargon — same suffix the dictation prompts carry.
         let systemPrompt = appendDictionarySuffix(
-          getAgentSystemPrompt(registry?.getAll(), undefined, {
+          getAgentSystemPrompt(registry?.getAll(), {
             toolTrace: registry !== null,
             writingStyle: settings.toneStyleEnabled
               ? { tones: settings.toneStyles, destination: options?.destinationAppCategory }

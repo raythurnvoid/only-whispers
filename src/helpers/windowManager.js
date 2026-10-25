@@ -71,7 +71,6 @@ class WindowManager {
     this.onDictationStateChanged = null;
     // Set by main.js: an app started to the tray creates no control panel.
     this.startedMinimized = false;
-    this.notificationWindow = null;
     this.agentDictationPillWindow = null;
     this._agentDictationPillReady = false;
     this._agentDictationPillSize = AGENT_DICTATION_PILL_SIZE;

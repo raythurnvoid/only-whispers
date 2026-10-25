@@ -43,7 +43,6 @@ export interface TranscriptionSettings {
 }
 
 export interface CleanupSettings {
-  autoGenerateNoteTitle: boolean;
   useCleanupModel: boolean;
   useDictationAgent: boolean;
   cleanupModel: string;
@@ -276,7 +275,6 @@ function useSettingsInternal() {
     setSnippets: store.setSnippets,
     assemblyAiStreaming: store.assemblyAiStreaming,
     setAssemblyAiStreaming: store.setAssemblyAiStreaming,
-    autoGenerateNoteTitle: store.autoGenerateNoteTitle,
     useCleanupModel: store.useCleanupModel,
     useDictationAgent: store.useDictationAgent,
     cleanupModel: store.cleanupModel,
