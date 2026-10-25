@@ -233,19 +233,24 @@ header {
 }
 
 /* The stage and the zoom snap point only matter on phones. */
-.stage,
-.video-box { display: contents; }
+.stage { display: contents; }
 
 .snap-end { display: none; }
 
 /* The video sits on the right and fades into the page on its edges. */
-.hero video {
+.video-box {
   position: absolute;
   top: 50%;
   right: 0;
   width: min(66vw, 1240px);
   aspect-ratio: 16 / 9;
   transform: translateY(-50%);
+}
+
+.hero video {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   pointer-events: none;
   mask-image:
@@ -257,15 +262,47 @@ header {
 /* The promo is dark. On Day marble a fade reads as a smudge, so the video
    gets a clean frame, like a screen, instead. Phones: see .video-box. */
 @media (prefers-color-scheme: light) and (min-width: 801px) {
-  .hero video {
+  .video-box {
     right: 48px;
     /* The space right of the text column (.copy and the hero padding). */
     width: min(100vw - 31rem - clamp(16px, 6vw, 96px) - 96px, 1100px);
+    overflow: hidden;
     border-radius: 10px;
     box-shadow: 0 24px 60px -24px rgb(40 28 12 / 0.55);
-    mask-image: none;
   }
+
+  .hero video { mask-image: none; }
+
+  .video-controls { bottom: 14px; }
 }
+
+/* Replay and sound, on the video's bottom right corner, above its fade. The
+   video is dark in both themes, so the buttons are always light on dark. */
+.video-controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16%;
+  display: flex;
+  gap: 8px;
+}
+
+.video-controls button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 50%;
+  background: rgb(20 14 8 / 0.6);
+  color: #f3ead8;
+  cursor: pointer;
+}
+
+.video-controls button:hover { background: rgb(20 14 8 / 0.85); }
+
+#video-sound[aria-pressed="false"] .sound-on,
+#video-sound[aria-pressed="true"] .sound-off { display: none; }
 
 .copy {
   position: relative;
@@ -501,24 +538,29 @@ footer p { margin: 0; }
     display: flex;
     align-items: center;
     justify-content: center;
+    width: auto;
     height: var(--video-h);
+    aspect-ratio: auto;
     overflow: hidden;
     opacity: calc(1 - 1.6 * var(--p, 0));
     transform: translateY(calc(-20% * var(--p, 0)));
     mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent);
   }
 
+  .video-controls { right: 12px; bottom: 18%; }
+
   /* On Day marble the dark video keeps sharp edges, as on desktop. */
   @media (prefers-color-scheme: light) {
     .video-box { mask-image: none; }
+
+    .video-controls { bottom: 12px; }
   }
 
   .hero video {
-    position: static;
     flex: none;
     width: 100vw;
+    height: auto;
     aspect-ratio: 1;
-    transform: none;
     mask-image: none;
   }
 
@@ -603,7 +645,17 @@ footer p { margin: 0; }
   <section class="snap hero" id="download">
     <!-- On phones the stage stays put while the scroll zooms the text in. -->
     <div class="stage">
-      <div class="video-box"><video src="promo.mp4" autoplay muted loop playsinline aria-hidden="true"></video></div>
+      <div class="video-box">
+        <video src="promo.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
+        <div class="video-controls">
+          <button type="button" id="video-replay" aria-label="Replay">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9"/><path d="M2.2 2.2v3.6h3.6"/></svg>
+          </button>
+          <button type="button" id="video-sound" aria-label="Sound" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2 6h2.5L8 3v10L4.5 10H2z" fill="currentColor" stroke="none"/><path class="sound-on" d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.5 6.5 0 0 1 0 9"/><path class="sound-off" d="m10.5 6 4 4m0-4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="copy">
         <div class="titles">
           <h1 class="logo"><svg aria-hidden="true"><use href="#laurel"/></svg><span class="logo-name">Only Whispers</span></h1>
@@ -777,6 +829,7 @@ const hero = document.getElementById("download");
 const stage = hero.querySelector(".stage");
 const copy = hero.querySelector(".copy");
 const titles = hero.querySelector(".titles");
+const controls = hero.querySelector(".video-controls");
 const phone = matchMedia("(max-width: 800px)");
 const START_SCALE = 0.68;
 const EDGE = 24;
@@ -784,6 +837,7 @@ const EDGE = 24;
 function updateZoom() {
   if (!phone.matches) {
     for (const name of ["--p", "--s", "--copy-y", "--titles-h"]) hero.style.removeProperty(name);
+    controls.inert = false;
     return;
   }
   const distance = hero.offsetHeight - stage.offsetHeight;
@@ -797,6 +851,8 @@ function updateZoom() {
   hero.style.setProperty("--s", scale.toFixed(3));
   hero.style.setProperty("--copy-y", `${(startY + (EDGE - startY) * p).toFixed(1)}px`);
   hero.style.setProperty("--titles-h", `${titlesHeight}px`);
+  // The video fades away as the text zooms in; its buttons go with it.
+  controls.inert = p > 0.5;
 }
 
 addEventListener("scroll", () => requestAnimationFrame(updateZoom), { passive: true });
@@ -815,6 +871,17 @@ new IntersectionObserver(([entry]) => {
 // Browsers may pause it (for example in a background tab), so play it again.
 video.addEventListener("pause", () => { if (!document.hidden) play(); });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
+
+// Browsers autoplay only muted video, so sound starts off until a click.
+const sound = document.getElementById("video-sound");
+sound.addEventListener("click", () => {
+  video.muted = !video.muted;
+  sound.setAttribute("aria-pressed", String(!video.muted));
+});
+document.getElementById("video-replay").addEventListener("click", () => {
+  video.currentTime = 0;
+  play();
+});
 </script>
 </body>
 </html>
