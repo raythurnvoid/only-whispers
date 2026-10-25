@@ -1,81 +1,20 @@
-import {
-  resolveInferenceProvider,
-  getCloudModel,
-  getOpenAiApiConfig,
-  getProviderDisplayName,
-  isEnterpriseProvider,
-  type EnterpriseProvider,
-} from "../models/ModelRegistry";
+import { getModelProvider, getCloudModel, getProviderDisplayName } from "../models/ModelRegistry";
+import { chosenReasoningEffort } from "../models/reasoningEffort";
 import { BaseReasoningService, ReasoningConfig } from "./BaseReasoningService";
 import { SecureCache } from "../utils/SecureCache";
-import { withRetry, createApiRetryStrategy, httpError } from "../utils/retry";
-import { API_ENDPOINTS, TOKEN_LIMITS, buildApiUrl, ensureV1Suffix } from "../config/constants";
 import logger from "../utils/logger";
 import { assertValidCleanupOutput } from "../utils/cleanupOutput";
 import { getSettings } from "../stores/settingsStore";
-import { wrapCleanupTranscript } from "../config/prompts";
-import { stripThinkingTags } from "../helpers/stripThinking.js";
-import {
-  getLlmRequestTimeoutSeconds,
-  getLlmStreamingFirstByteTimeoutSeconds,
-  llmRequestTimeoutError,
-} from "../helpers/llmRequestTimeout.js";
 import { streamText, stepCountIs } from "ai";
 import { getAIModel } from "./ai/providers";
-import { createEnterpriseChatModel } from "./ai/enterpriseChatModel";
 import { PROVIDER_REGISTRY, type ProviderContext } from "./ai/inferenceProviders";
-import {
-  canBorrowCleanupCustomKey,
-  resolveConfiguredOpenAIBase,
-  resolveSelfHostedOpenAIBase,
-} from "./ai/openaiBase";
-import {
-  applyChatCompletionsParams,
-  chosenReasoningEffort,
-  emptyResponseError,
-  fetchWithParamFallback,
-  isTruncatedFinishReason,
-  truncatedOutputError,
-  type ParamFallbackDetails,
-} from "./ai/chatRequestBody";
-import { getModelFamilyConstraints } from "./ai/modelFamilyConstraints";
-import { detectEndpointDialect } from "./ai/thinkingSuppressionDialects";
-import { abortOnCancel, isRequestCancelled, requestCancelledError } from "./ai/requestCancellation";
-import { openCodeSessionHeaders } from "./ai/openCodeSession";
-import { createStreamingThinkFilter } from "./ai/streamingThinkFilter";
-import { extractApiErrorMessage } from "./ai/apiErrorMessage";
 import {
   PROVIDER_ERROR_CODES,
   asProviderError,
   providerError,
-  providerHttpError,
-  redactProviderBody,
 } from "../helpers/providerHttpErrors.js";
-import { clearTinfoilClientCache } from "./ai/tinfoilClient";
-import { resolveChatRoute } from "../helpers/chatRouting";
-import type { InferenceMode } from "../types/electron";
 
 export type ToolMetadata = Record<string, unknown> | Array<Record<string, unknown>>;
-
-const BYOK_STREAM_PROVIDERS = [
-  "openai",
-  "groq",
-  "gemini",
-  "anthropic",
-  "tinfoil",
-  "custom",
-  "openrouter",
-  "corti",
-] as const;
-
-type ByokStreamProvider = (typeof BYOK_STREAM_PROVIDERS)[number];
-
-function toByokStreamProvider(provider: string): ByokStreamProvider {
-  if (!(BYOK_STREAM_PROVIDERS as readonly string[]).includes(provider)) {
-    throw new Error(`Unsupported reasoning provider: ${provider}`);
-  }
-  return provider as ByokStreamProvider;
-}
 
 export type AgentStreamChunk =
   | { type: "content"; text: string }
@@ -89,17 +28,11 @@ export type AgentStreamChunk =
     }
   | { type: "done"; finishReason?: string };
 
-function logParamFallback(logEvent: string) {
-  return (details: ParamFallbackDetails) => logger.logReasoning(logEvent, details);
-}
-
 class ReasoningService extends BaseReasoningService {
   private apiKeyCache: SecureCache<string>;
   private static readonly MAX_TOOL_STEPS = 20;
   private cacheCleanupStop: (() => void) | undefined;
   private streamAbortController: AbortController | null = null;
-  private activeRequestControllers = new Set<AbortController>();
-  private requestCancellationGeneration = 0;
 
   private readonly providerContext: ProviderContext;
 
@@ -108,14 +41,7 @@ class ReasoningService extends BaseReasoningService {
     this.apiKeyCache = new SecureCache();
     this.cacheCleanupStop = this.apiKeyCache.startAutoCleanup();
     this.providerContext = {
-      getApiKey: (provider: string) =>
-        this.getApiKey(provider as Parameters<ReasoningService["getApiKey"]>[0]),
       getSystemPrompt: this.getSystemPrompt.bind(this),
-      getCustomDictionary: this.getCustomDictionary.bind(this),
-      getPreferredLanguage: this.getPreferredLanguage.bind(this),
-      getUiLanguage: this.getUiLanguage.bind(this),
-      callChatCompletionsApi: this.callChatCompletionsApi.bind(this),
-      calculateMaxTokens: this.calculateMaxTokens.bind(this),
     };
 
     if (typeof window !== "undefined") {
@@ -123,36 +49,8 @@ class ReasoningService extends BaseReasoningService {
     }
   }
 
-  private hasLanCleanupConfiguration(): boolean {
-    const settings = getSettings();
-    return settings.cleanupMode === "self-hosted" && !!settings.cleanupRemoteUrl?.trim();
-  }
-
-  private async getApiKey(
-    provider:
-      "openai" | "anthropic" | "gemini" | "groq" | "tinfoil" | "custom" | "openrouter" | "corti"
-  ): Promise<string> {
-    if (provider === "custom") {
-      let customKey = "";
-      try {
-        customKey = (await window.electronAPI?.getCleanupCustomKey?.()) || "";
-      } catch (err) {
-        logger.logReasoning("CUSTOM_KEY_IPC_FALLBACK", { error: (err as Error)?.message });
-      }
-      if (!customKey || !customKey.trim()) {
-        customKey = getSettings().cleanupCustomApiKey || "";
-      }
-      const trimmedKey = customKey.trim();
-
-      logger.logReasoning("CUSTOM_KEY_RETRIEVAL", {
-        provider,
-        hasKey: !!trimmedKey,
-        keyLength: trimmedKey.length,
-      });
-
-      return trimmedKey;
-    }
-
+  // The OpenAI API key, used only by the assistant panel's chat stream.
+  private async getApiKey(provider: "openai"): Promise<string> {
     let apiKey = this.apiKeyCache.get(provider);
 
     logger.logReasoning(`${provider.toUpperCase()}_KEY_RETRIEVAL`, {
@@ -163,16 +61,7 @@ class ReasoningService extends BaseReasoningService {
 
     if (!apiKey) {
       try {
-        const keyGetters = {
-          openai: () => window.electronAPI.getOpenAIKey(),
-          anthropic: () => window.electronAPI.getAnthropicKey(),
-          gemini: () => window.electronAPI.getGeminiKey(),
-          groq: () => window.electronAPI.getGroqKey(),
-          openrouter: () => window.electronAPI.getOpenrouterKey(),
-          tinfoil: () => window.electronAPI.getTinfoilKey?.(),
-          corti: () => window.electronAPI.getCortiKey?.(),
-        };
-        apiKey = (await keyGetters[provider]()) ?? undefined;
+        apiKey = (await window.electronAPI.getOpenAIKey()) ?? undefined;
 
         logger.logReasoning(`${provider.toUpperCase()}_KEY_FETCHED`, {
           provider,
@@ -208,217 +97,6 @@ class ReasoningService extends BaseReasoningService {
     return apiKey;
   }
 
-  // Single source for BYOK streaming credentials and endpoint overrides:
-  // rejects unknown providers instead of defaulting them to OpenAI, and only
-  // lets a custom scope borrow the shared cleanup key for the cleanup endpoint.
-  private async resolveByokAccess(
-    provider: string,
-    config: Pick<ReasoningConfig, "baseUrl" | "customApiKey">
-  ): Promise<{ apiKey: string; baseURL?: string }> {
-    const providerKey = toByokStreamProvider(provider);
-    const overrideKey = providerKey === "custom" ? config.customApiKey?.trim() || "" : "";
-    const canFallBackToSharedKey =
-      providerKey !== "custom" || canBorrowCleanupCustomKey(config.baseUrl);
-    const apiKey = overrideKey || (canFallBackToSharedKey ? await this.getApiKey(providerKey) : "");
-    const baseURL =
-      providerKey === "openrouter"
-        ? API_ENDPOINTS.OPENROUTER_BASE
-        : providerKey === "custom"
-          ? resolveConfiguredOpenAIBase(providerKey, config.baseUrl)
-          : undefined;
-    return { apiKey, baseURL };
-  }
-
-  private async callChatCompletionsApi(
-    endpoint: string,
-    apiKey: string,
-    model: string,
-    text: string,
-    agentName: string | null,
-    config: ReasoningConfig,
-    providerName: string
-  ): Promise<string> {
-    // No systemPrompt override means the default cleanup path: a deterministic
-    // transform, so zero temperature and a delimited transcript.
-    const isCleanup = !config.systemPrompt;
-    const systemPrompt = config.systemPrompt || this.getSystemPrompt(agentName, config.toneStyle);
-    const userPrompt = isCleanup ? wrapCleanupTranscript(text) : text;
-
-    const messages = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ];
-
-    const requestBody: any = { model, messages };
-    applyChatCompletionsParams(requestBody, {
-      model,
-      provider: providerName,
-      endpoint,
-      config,
-      maxTokens:
-        config.maxTokens ||
-        Math.max(
-          4096,
-          this.calculateMaxTokens(
-            text.length,
-            TOKEN_LIMITS.MIN_TOKENS,
-            TOKEN_LIMITS.MAX_TOKENS,
-            TOKEN_LIMITS.TOKEN_MULTIPLIER
-          )
-        ),
-    });
-
-    logger.logReasoning(`${providerName.toUpperCase()}_REQUEST`, {
-      endpoint,
-      model,
-      hasApiKey: !!apiKey,
-      requestBody: JSON.stringify(requestBody).substring(0, 200),
-    });
-
-    // Minted before the retry loop so every attempt of this call is one conversation.
-    const openCodeHeaders = openCodeSessionHeaders(endpoint);
-
-    const errorContext = {
-      provider: providerName,
-      selfHosted: providerName === "LAN",
-      model,
-      surface: "llm",
-    };
-
-    const requestGeneration = this.requestCancellationGeneration;
-    const response = await withRetry(async () => {
-      if (requestGeneration !== this.requestCancellationGeneration) {
-        throw httpError("Request cancelled", 499);
-      }
-      const controller = new AbortController();
-      this.activeRequestControllers.add(controller);
-      const timeoutSeconds = getLlmRequestTimeoutSeconds();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutSeconds * 1000);
-      const unlinkCancel = abortOnCancel(config.requestId, controller);
-      try {
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-          ...openCodeHeaders,
-        };
-        if (apiKey) {
-          headers["Authorization"] = `Bearer ${apiKey}`;
-        }
-
-        const res = await fetchWithParamFallback(
-          endpoint,
-          () =>
-            fetch(endpoint, {
-              method: "POST",
-              headers,
-              body: JSON.stringify(requestBody),
-              signal: controller.signal,
-            }),
-          requestBody,
-          logParamFallback(`${providerName.toUpperCase()}_PARAM_FALLBACK`)
-        );
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          let errorData: any = { error: res.statusText };
-
-          try {
-            errorData = JSON.parse(errorText);
-          } catch {
-            errorData = { error: errorText || res.statusText };
-          }
-
-          // Providers echo the rejected key back, so every logged field is redacted.
-          logger.logReasoning(`${providerName.toUpperCase()}_API_ERROR_DETAIL`, {
-            status: res.status,
-            statusText: res.statusText,
-            error: redactProviderBody(errorData),
-            errorMessage: redactProviderBody(
-              extractApiErrorMessage(errorData, `${providerName} API error: ${res.status}`)
-            ),
-            fullResponse: redactProviderBody(errorText),
-          });
-          throw providerHttpError({
-            ...errorContext,
-            status: res.status,
-            body: errorText,
-            headers: res.headers,
-          });
-        }
-
-        const jsonResponse = await res.json();
-
-        logger.logReasoning(`${providerName.toUpperCase()}_RAW_RESPONSE`, {
-          hasResponse: !!jsonResponse,
-          responseKeys: jsonResponse ? Object.keys(jsonResponse) : [],
-          hasChoices: !!jsonResponse?.choices,
-          choicesLength: jsonResponse?.choices?.length || 0,
-          fullResponse: JSON.stringify(jsonResponse).substring(0, 500),
-        });
-
-        return jsonResponse;
-      } catch (error) {
-        if ((error as Error).name === "AbortError") {
-          if (requestGeneration !== this.requestCancellationGeneration) {
-            throw httpError("Request cancelled", 499);
-          }
-          if (isRequestCancelled(config.requestId)) throw requestCancelledError();
-          throw llmRequestTimeoutError(timeoutSeconds);
-        }
-        throw error;
-      } finally {
-        clearTimeout(timeoutId);
-        unlinkCancel();
-        this.activeRequestControllers.delete(controller);
-      }
-    }, createApiRetryStrategy()).catch((error) => {
-      // Classified only once it has left withRetry, so the deadline is still
-      // attempted exactly once.
-      throw asProviderError(error, errorContext);
-    });
-
-    if (!response.choices || !response.choices[0]) {
-      logger.logReasoning(`${providerName.toUpperCase()}_RESPONSE_ERROR`, {
-        model,
-        response: JSON.stringify(response).substring(0, 500),
-        hasChoices: !!response.choices,
-        choicesCount: response.choices?.length || 0,
-      });
-      throw new Error(`Invalid response structure from ${providerName} API`);
-    }
-
-    const choice = response.choices[0];
-    if (config.requireCompleteOutput && isTruncatedFinishReason(choice?.finish_reason)) {
-      throw truncatedOutputError();
-    }
-    // Reasoning models leak <think> blocks into non-streamed output; strip them
-    // unless the user explicitly enabled thinking (same default as streaming).
-    const rawContent = choice.message?.content?.trim() || "";
-    const responseText =
-      config.disableThinking !== false ? stripThinkingTags(rawContent) : rawContent;
-
-    if (!responseText) {
-      logger.logReasoning(`${providerName.toUpperCase()}_EMPTY_RESPONSE`, {
-        model,
-        finishReason: choice.finish_reason,
-        hasMessage: !!choice.message,
-        response: JSON.stringify(choice).substring(0, 500),
-      });
-      throw (
-        emptyResponseError(providerName, config, isTruncatedFinishReason(choice.finish_reason)) ??
-        new Error(`${providerName} returned empty response`)
-      );
-    }
-
-    logger.logReasoning(`${providerName.toUpperCase()}_RESPONSE`, {
-      model,
-      responseLength: responseText.length,
-      tokensUsed: response.usage?.total_tokens || 0,
-      success: true,
-    });
-
-    return responseText;
-  }
-
   async processText(
     text: string,
     model: string = "",
@@ -433,30 +111,12 @@ class ReasoningService extends BaseReasoningService {
       !config.systemPrompt &&
       !config.requiresAgent &&
       !settings.customPrompts.cleanup;
-    const isImplicitCleanup =
-      config.provider === undefined && config.baseUrl === undefined && config.lanUrl === undefined;
-    const implicitProvider =
-      settings.cleanupMode === "self-hosted" ? "lan" : settings.cleanupProvider || undefined;
-    const isImplicitCustomCleanup =
-      isImplicitCleanup && settings.cleanupMode === "providers" && implicitProvider === "custom";
-    const dispatchConfig: ReasoningConfig = isImplicitCleanup
-      ? {
-          ...config,
-          provider: implicitProvider,
-          baseUrl: isImplicitCustomCleanup ? settings.cleanupCloudBaseUrl : undefined,
-          customApiKey: isImplicitCustomCleanup
-            ? (config.customApiKey ?? settings.cleanupCustomApiKey)
-            : config.customApiKey,
-        }
-      : config;
-    const isLanCleanup = !!dispatchConfig.lanUrl || dispatchConfig.provider === "lan";
-    const providerId = isLanCleanup
-      ? "lan"
-      : resolveInferenceProvider(dispatchConfig.provider, trimmedModel);
+    const providerId =
+      (config.provider ?? settings.cleanupProvider)?.trim() || getModelProvider(trimmedModel);
     if (!providerId) {
       throw new Error("No reasoning provider selected");
     }
-    if (!trimmedModel && providerId !== "lan") {
+    if (!trimmedModel) {
       throw new Error("No reasoning model selected");
     }
 
@@ -464,7 +124,6 @@ class ReasoningService extends BaseReasoningService {
       provider: providerId,
       model: trimmedModel,
       agentName,
-      isLanCleanup,
       textLength: text.length,
     });
 
@@ -479,7 +138,7 @@ class ReasoningService extends BaseReasoningService {
         text,
         model: trimmedModel,
         agentName,
-        config: dispatchConfig,
+        config,
         ctx: this.providerContext,
       });
 
@@ -503,261 +162,9 @@ class ReasoningService extends BaseReasoningService {
     }
   }
 
-  async *processTextStreaming(
-    messages: Array<{ role: string; content: string }>,
-    model: string,
-    provider: string,
-    config: ReasoningConfig & { systemPrompt: string }
-  ): AsyncGenerator<string, void, unknown> {
-    const abortController = new AbortController();
-    this.streamAbortController = abortController;
-    try {
-      yield* this.processTextStreamingRaw(messages, model, provider, config, abortController);
-    } finally {
-      if (this.streamAbortController === abortController) {
-        this.streamAbortController = null;
-      }
-    }
-  }
-
-  private async *processTextStreamingRaw(
-    messages: Array<{ role: string; content: string }>,
-    model: string,
-    provider: string,
-    config: ReasoningConfig & { systemPrompt: string },
-    abortController: AbortController
-  ): AsyncGenerator<string, void, unknown> {
-    const route = resolveChatRoute({
-      provider,
-      lanUrl: config.lanUrl,
-      customApiKey: config.customApiKey,
-    });
-    const isLocalProvider = route.kind === "local";
-    const isLanChat = route.kind === "self-hosted";
-
-    let endpoint: string;
-    let apiKey = "";
-
-    if (isLanChat) {
-      const baseUrl = resolveSelfHostedOpenAIBase(route.baseUrl);
-      endpoint = buildApiUrl(baseUrl, "/chat/completions");
-      apiKey = route.apiKey;
-    } else if (isLocalProvider) {
-      const serverResult = await window.electronAPI.llamaServerStart(model);
-      if (!serverResult.success || !serverResult.port) {
-        throw new Error(serverResult.error || "Failed to start local model server");
-      }
-      endpoint = `http://127.0.0.1:${serverResult.port}/v1/chat/completions`;
-    } else {
-      const access = await this.resolveByokAccess(provider, config);
-      apiKey = access.apiKey;
-      const chatBase =
-        access.baseURL ??
-        (
-          {
-            openai: API_ENDPOINTS.OPENAI_BASE,
-            groq: API_ENDPOINTS.GROQ_BASE,
-            corti: API_ENDPOINTS.CORTI_MODELS_BASE,
-            gemini: API_ENDPOINTS.GEMINI,
-          } as Partial<Record<string, string>>
-        )[provider];
-      // anthropic and tinfoil have no raw Chat Completions transport here.
-      if (!chatBase) {
-        throw new Error(`${provider} streaming must use the AI SDK transport`);
-      }
-      endpoint = buildApiUrl(
-        chatBase,
-        provider === "gemini" ? "/openai/chat/completions" : "/chat/completions"
-      );
-    }
-
-    if (abortController.signal.aborted) return;
-
-    const requestBody: Record<string, unknown> = {
-      model,
-      messages,
-      stream: true,
-    };
-
-    applyChatCompletionsParams(requestBody, {
-      model,
-      provider: isLanChat ? "lan" : isLocalProvider ? "local" : provider,
-      endpoint,
-      config,
-      maxTokens: config.maxTokens || Math.max(4096, TOKEN_LIMITS.MAX_TOKENS),
-    });
-
-    logger.logReasoning("AGENT_STREAM_REQUEST", {
-      endpoint,
-      model,
-      provider,
-      isLocal: isLocalProvider,
-      isLan: isLanChat,
-      messageCount: messages.length,
-    });
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...openCodeSessionHeaders(endpoint),
-    };
-    if (apiKey) {
-      headers["Authorization"] = `Bearer ${apiKey}`;
-    }
-
-    const timeoutSeconds = getLlmRequestTimeoutSeconds({ streaming: true });
-    let timeoutTriggered = false;
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const resetTimeout = (seconds: number) => {
-      clearTimeout(timeoutId);
-      if (abortController.signal.aborted) return;
-      timeoutId = setTimeout(() => {
-        if (abortController.signal.aborted) return;
-        timeoutTriggered = true;
-        abortController.abort();
-      }, seconds * 1000);
-    };
-    resetTimeout(
-      getLlmStreamingFirstByteTimeoutSeconds({ selfHosted: isLocalProvider || isLanChat })
-    );
-
-    const selfHostedErrorContext = {
-      selfHosted: true,
-      model,
-      surface: "llm",
-    };
-    const timeoutError = () =>
-      route.kind === "self-hosted"
-        ? providerError(PROVIDER_ERROR_CODES.TIMEOUT, selfHostedErrorContext)
-        : new Error("Streaming request timed out");
-    let response: Response;
-    try {
-      response = await fetchWithParamFallback(
-        endpoint,
-        () =>
-          fetch(endpoint, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(requestBody),
-            signal: abortController.signal,
-          }),
-        requestBody,
-        logParamFallback("AGENT_STREAM_PARAM_FALLBACK")
-      );
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if ((error as Error).name === "AbortError" && abortController.signal.aborted) {
-        if (!timeoutTriggered) return;
-        throw timeoutError();
-      }
-      // A stopped LAN server rejects the fetch before any response.
-      throw route.kind === "self-hosted" ? asProviderError(error, selfHostedErrorContext) : error;
-    }
-
-    if (!response.ok) {
-      // Keep the deadline running while the error body arrives, or a stalled body hangs.
-      let errorText: string;
-      try {
-        errorText = await response.text();
-      } catch (error) {
-        if (!abortController.signal.aborted) throw error;
-        if (!timeoutTriggered) return;
-        throw timeoutError();
-      } finally {
-        clearTimeout(timeoutId);
-      }
-      logger.logReasoning("AGENT_STREAM_ERROR", {
-        status: response.status,
-        body: redactProviderBody(errorText),
-      });
-      if (route.kind === "self-hosted") {
-        throw providerHttpError({
-          ...selfHostedErrorContext,
-          status: response.status,
-          body: errorText,
-          headers: response.headers,
-        });
-      }
-      let errorMessage: string;
-      try {
-        errorMessage = extractApiErrorMessage(
-          JSON.parse(errorText),
-          `API error: ${response.status}`
-        );
-      } catch {
-        errorMessage = errorText || `API error: ${response.status}`;
-      }
-      throw new Error(errorMessage);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      clearTimeout(timeoutId);
-      throw new Error("No response body");
-    }
-
-    const decoder = new TextDecoder();
-    let buffer = "";
-    const stripThinking = (isLocalProvider || isLanChat) && config.disableThinking !== false;
-    const filterThinkTags = stripThinking ? createStreamingThinkFilter() : null;
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        // Reset on bytes, including keepalives, partial SSE frames and hidden
-        // reasoning. A reply may stream for much longer than the idle timeout.
-        if (value.byteLength > 0) resetTimeout(timeoutSeconds);
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || !trimmed.startsWith("data: ")) continue;
-
-          const data = trimmed.slice(6);
-          if (data === "[DONE]") {
-            const trailing = filterThinkTags?.finish();
-            if (trailing) yield trailing;
-            return;
-          }
-
-          try {
-            const parsed = JSON.parse(data);
-            let content = parsed.choices?.[0]?.delta?.content;
-            if (!content) continue;
-
-            if (filterThinkTags) {
-              content = filterThinkTags(content);
-              if (!content) continue;
-            }
-
-            yield content;
-          } catch {
-            // skip malformed SSE chunks
-          }
-        }
-      }
-
-      const trailing = filterThinkTags?.finish();
-      if (trailing) yield trailing;
-    } catch (error) {
-      if ((error as Error).name === "AbortError" && abortController.signal.aborted) {
-        if (!timeoutTriggered) return;
-        throw timeoutError();
-      }
-      throw error;
-    } finally {
-      clearTimeout(timeoutId);
-      reader.releaseLock();
-    }
-  }
-
   async *processTextStreamingAI(
     // Content is a string, or text+image parts when a screenshot rides along
-    // (image-capable BYOK providers only — the caller drops it elsewhere).
+    // (image-capable providers only — the caller drops it elsewhere).
     messages: Array<{ role: string; content: string | Array<Record<string, unknown>> }>,
     model: string,
     provider: string,
@@ -765,133 +172,35 @@ class ReasoningService extends BaseReasoningService {
     tools?: Record<string, import("ai").Tool>
   ): AsyncGenerator<AgentStreamChunk, void, unknown> {
     config = { ...config, inferenceScope: config.inferenceScope || "chatIntelligence" };
-    const route = resolveChatRoute({
-      provider,
-      lanUrl: config.lanUrl,
-      customApiKey: config.customApiKey,
-      isEnterpriseProvider: isEnterpriseProvider(provider),
-    });
-    const mode: InferenceMode =
-      route.kind === "self-hosted"
-        ? "self-hosted"
-        : route.kind === "enterprise"
-          ? "enterprise"
-          : route.kind === "local"
-            ? "local"
-            : "providers";
-    // Both streaming transports share this owner so cancellation survives
-    // asynchronous server, key, and model setup.
+    if (provider !== "openai") {
+      throw new Error(`Unsupported reasoning provider: ${provider}`);
+    }
+    // Cancellation must survive the asynchronous key and model setup.
     const abortController = new AbortController();
     this.streamAbortController = abortController;
-    const isEnterprise = route.kind === "enterprise";
-    const isLocalProvider = route.kind === "local";
-    const isLanChat = route.kind === "self-hosted";
-
-    if ((isLocalProvider || isLanChat) && !tools) {
-      // Attachments are never routed to local/LAN providers, so content is string-only here.
-      try {
-        const contentGen = this.processTextStreamingRaw(
-          messages as Array<{ role: string; content: string }>,
-          model,
-          provider,
-          config,
-          abortController
-        );
-        for await (const text of contentGen) {
-          yield { type: "content", text };
-        }
-        yield { type: "done", finishReason: "stop" };
-      } catch (error) {
-        if (abortController.signal.aborted && (error as Error).name === "AbortError") return;
-        throw error;
-      } finally {
-        if (this.streamAbortController === abortController) {
-          this.streamAbortController = null;
-        }
-      }
-      return;
-    }
-
-    const filterThinkTags =
-      (isLocalProvider || isLanChat) && config.disableThinking !== false
-        ? createStreamingThinkFilter()
-        : null;
-    let apiKey = "";
-    let baseURL: string | undefined;
-
-    if (isEnterprise) {
-      // Enterprise SDKs run in the main process; the model below proxies
-      // doStream over IPC, so no key or base URL is resolved here.
-    } else if (isLanChat) {
-      apiKey = route.apiKey;
-      baseURL = resolveSelfHostedOpenAIBase(route.baseUrl);
-    } else if (isLocalProvider) {
-      const serverResult = await window.electronAPI.llamaServerStart(model);
-      if (!serverResult.success || !serverResult.port) {
-        throw new Error(serverResult.error || "Failed to start local model server");
-      }
-      baseURL = `http://127.0.0.1:${serverResult.port}/v1`;
-    } else {
-      ({ apiKey, baseURL } = await this.resolveByokAccess(provider, config));
-    }
-    const aiProvider = isLocalProvider || isLanChat ? "local" : provider;
-    // OpenRouter ids are never in the local registry, so the supportsThinking
-    // exemption below can't apply — honor the toggle directly.
-    const openrouterDisableThinking = provider === "openrouter" && config.disableThinking === true;
-    // No Tinfoil model offers a level, so this needn't wait for the registry refresh below.
-    const reasoningEffort = chosenReasoningEffort(aiProvider, model, config, baseURL);
-    // Resolving a Tinfoil model refreshes the registry, so read model config after it.
-    const aiModel = isEnterprise
-      ? createEnterpriseChatModel(provider as EnterpriseProvider, model)
-      : await getAIModel(aiProvider, model, apiKey, baseURL, {
-          disableThinking: openrouterDisableThinking,
-          reasoningEffort: provider === "openrouter" ? reasoningEffort : undefined,
-        });
+    // Signed in with ChatGPT, the assistant runs on the plan: the token works as a
+    // Bearer key on the same Responses endpoint. An OpenAI API key is the fallback.
+    const planToken = (await window.electronAPI?.getChatGPTAccessToken?.()) || "";
+    const apiKey = planToken || (await this.getApiKey(provider));
+    const reasoningEffort = chosenReasoningEffort(model, config);
+    const aiModel = await getAIModel(provider, model, apiKey);
 
     if (abortController.signal.aborted) {
       yield { type: "done", finishReason: "stop" };
       return;
     }
 
-    const apiConfig = detectEndpointDialect(baseURL) ?? getOpenAiApiConfig(model, provider);
-    const modelDef = getCloudModel(model);
-    const userSuppressesThinking = config.disableThinking === true && !!modelDef?.supportsThinking;
-    const needsGroqDisableThinking =
-      provider === "groq" && (modelDef?.disableThinking || userSuppressesThinking);
-    const needsGeminiMinimalThinking = provider === "gemini" && userSuppressesThinking;
     const providerOptions = {
-      // The effort value is a family fact: gpt-oss has no "none" (#1611).
-      ...(needsGroqDisableThinking
-        ? {
-            groq: {
-              reasoningEffort:
-                getModelFamilyConstraints(model)?.reasoningEffort?.suppressValue ?? "none",
-            },
-          }
-        : {}),
-      ...(needsGeminiMinimalThinking
-        ? { google: { thinkingConfig: { thinkingLevel: "minimal", includeThoughts: false } } }
-        : {}),
-      ...(reasoningEffort && provider === "groq" ? { groq: { reasoningEffort } } : {}),
-      ...(reasoningEffort && provider === "gemini"
-        ? { google: { thinkingConfig: { thinkingLevel: reasoningEffort, includeThoughts: false } } }
-        : {}),
       // store: false makes the SDK resend each tool step's reasoning inline
       // (encrypted) rather than by id: a Zero Data Retention org keeps nothing
       // to look an id up in, so the step after a tool call would 404.
       // The SDK sends a Responses effort only for model ids it knows as reasoning
       // models; forceReasoning covers newer OpenAI ids such as gpt-6-astra.
-      ...(provider === "openai"
-        ? {
-            openai: {
-              store: false,
-              ...(reasoningEffort ? { reasoningEffort, forceReasoning: true } : {}),
-            },
-          }
-        : {}),
-      ...(reasoningEffort && provider === "custom" ? { openai: { reasoningEffort } } : {}),
+      openai: {
+        store: false,
+        ...(reasoningEffort ? { reasoningEffort, forceReasoning: true } : {}),
+      },
     };
-    const hasProviderOptions = Object.keys(providerOptions).length > 0;
 
     logger.logReasoning("AGENT_AI_SDK_STREAM_REQUEST", {
       model,
@@ -901,7 +210,9 @@ class ReasoningService extends BaseReasoningService {
       messageCount: messages.length,
     });
 
-    const useTemperature = isLocalProvider || isLanChat || apiConfig.supportsTemperature;
+    // GPT-5 and newer reject temperature; the registry says which models take it.
+    // The plan route rejects temperature and max_output_tokens (see chatgptPlan.ts).
+    const useTemperature = !planToken && !!getCloudModel(model)?.supportsTemperature;
 
     const result = streamText({
       model: aiModel,
@@ -913,24 +224,14 @@ class ReasoningService extends BaseReasoningService {
       stopWhen: stepCountIs(tools ? ReasoningService.MAX_TOOL_STEPS : 1),
       abortSignal: abortController.signal,
       ...(useTemperature ? { temperature: config.temperature ?? 0.3 } : {}),
-      maxOutputTokens: config.maxTokens || 4096,
-      ...(hasProviderOptions ? { providerOptions } : {}),
+      ...(planToken ? {} : { maxOutputTokens: config.maxTokens || 4096 }),
+      providerOptions,
     });
-
-    let canFlushFilteredText = true;
-    const finishFilteredText = (): string => {
-      const trailing = filterThinkTags?.finish() ?? "";
-      return canFlushFilteredText ? trailing : "";
-    };
 
     try {
       for await (const chunk of result.fullStream) {
         if (chunk.type === "text-delta") {
-          const text = filterThinkTags ? filterThinkTags(chunk.text) : chunk.text;
-          if (text) yield { type: "content", text };
-        } else if (chunk.type === "text-end" || chunk.type === "finish-step") {
-          const trailing = finishFilteredText();
-          if (trailing) yield { type: "content", text: trailing };
+          if (chunk.text) yield { type: "content", text: chunk.text };
         } else if (chunk.type === "tool-call") {
           yield {
             type: "tool_calls",
@@ -946,11 +247,10 @@ class ReasoningService extends BaseReasoningService {
           const output = chunk.output;
           const displayText =
             typeof output === "string" ? output : output?.error ? String(output.error) : "Done";
-          // Mirror the cloud path: successful object outputs become metadata so
-          // tool-result cards (note cards) render on BYOK/local too. Only the
-          // registry's bare { error } wrapper is a failure: a connector's own
-          // "failed" result carries `error` beside its status, and the history
-          // reads that status.
+          // Successful object outputs become metadata so tool-result cards
+          // render. Only the registry's bare { error } wrapper is a failure: a
+          // connector's own "failed" result carries `error` beside its status,
+          // and the history reads that status.
           const isToolFailure =
             output && typeof output === "object" && "error" in output && !("status" in output);
           const metadata =
@@ -974,55 +274,38 @@ class ReasoningService extends BaseReasoningService {
             toolName: chunk.toolName,
             displayText: `Error: ${cause instanceof Error ? cause.message : String(cause)}`,
           };
-        } else if (chunk.type === "abort") {
-          canFlushFilteredText = false;
-          finishFilteredText();
         } else if (chunk.type === "error") {
           // streamText reports provider failures as error parts and then ends
           // the stream; swallowing them leaves callers with an empty reply and
           // no terminal signal. Re-throw unless we aborted on purpose.
-          canFlushFilteredText = false;
-          finishFilteredText();
           if (!abortController.signal.aborted) {
             const cause = (chunk as { error?: unknown }).error;
             throw cause instanceof Error ? cause : new Error(String(cause ?? "Stream failed"));
           }
         } else if (chunk.type === "finish") {
-          const trailing = finishFilteredText();
-          if (trailing) yield { type: "content", text: trailing };
           yield { type: "done", finishReason: chunk.finishReason };
         }
       }
     } catch (error) {
-      canFlushFilteredText = false;
-      finishFilteredText();
       if (abortController.signal.aborted) {
         yield { type: "done", finishReason: "stop" };
         return;
       }
-      // BYOK and LAN-with-tools failures arrive as AI SDK errors; enterprise
-      // providers have their own mappers and local errors their own keys.
-      if (mode === "providers" || mode === "self-hosted") {
-        // A "custom" BYOK provider (config.baseUrl) counts as self-hosted
-        // alongside LAN (config.lanUrl) — both are the user's own server.
-        // OpenRouter is a cloud provider and keeps its own display name.
-        const isSelfHosted = mode === "self-hosted" || provider === "custom";
-        const classified = asProviderError(error, {
-          provider: getProviderDisplayName(provider),
-          selfHosted: isSelfHosted,
-          model,
-          surface: "llm",
-        });
-        // The classified details already hold the status and the redacted body.
-        const details = classified.technicalDetails;
-        logger.warn(
-          "BYOK chat stream failed",
-          { provider, status: details?.status, body: details?.underlyingError },
-          "reasoning"
-        );
-        throw classified;
-      }
-      throw error;
+      // Failures arrive as AI SDK errors.
+      const classified = asProviderError(error, {
+        provider: getProviderDisplayName(provider),
+        selfHosted: false,
+        model,
+        surface: "llm",
+      });
+      // The classified details already hold the status and the redacted body.
+      const details = classified.technicalDetails;
+      logger.warn(
+        "BYOK chat stream failed",
+        { provider, status: details?.status, body: details?.underlyingError },
+        "reasoning"
+      );
+      throw classified;
     } finally {
       if (this.streamAbortController === abortController) {
         this.streamAbortController = null;
@@ -1037,90 +320,19 @@ class ReasoningService extends BaseReasoningService {
   }
 
   /**
-   * Aborts everything in flight in this renderer: the chat stream plus every
-   * single-shot request (cleanup, selection edit, titles) and the enterprise
-   * IPC jobs. Used by the dictation cancel path, never by chat lifecycle —
-   * a note or tab switch must not kill unrelated reasoning work.
+   * Used by the dictation cancel path. Only the chat stream is aborted here;
+   * ChatGPT plan cleanup requests are not.
    */
   cancelAllRequests(): void {
-    this.requestCancellationGeneration += 1;
-    for (const controller of this.activeRequestControllers) controller.abort();
-    this.activeRequestControllers.clear();
-    if (typeof window !== "undefined") {
-      window.electronAPI?.cancelEnterpriseReasoning?.();
-    }
     this.cancelActiveStream();
   }
 
+  // Cleanup runs only on the user's ChatGPT plan, so it is available once signed in.
   async isAvailable(): Promise<boolean> {
     try {
-      const settings = getSettings();
-      if (this.hasLanCleanupConfiguration()) {
-        logger.logReasoning("API_KEY_CHECK", { lanCleanup: true });
-        return true;
-      }
-
-      if (settings.cleanupProvider === "custom" && settings.cleanupCloudBaseUrl?.trim()) {
-        logger.logReasoning("API_KEY_CHECK", {
-          customProvider: true,
-          hasCustomEndpoint: true,
-        });
-        return true;
-      }
-
-      // Enterprise providers: detect credentials by provider, short-circuit.
-      // Runtime auth errors (expired SSO, missing ADC) surface via
-      // mapEnterpriseError with actionable remediation copy.
-      if (settings.cleanupProvider === "bedrock") {
-        const hasBedrockCreds =
-          !!settings.bedrockProfile?.trim() ||
-          (!!settings.bedrockAccessKeyId?.trim() && !!settings.bedrockSecretAccessKey?.trim());
-        logger.logReasoning("API_KEY_CHECK", { bedrock: true, hasBedrockCreds });
-        if (hasBedrockCreds) return true;
-      }
-      if (settings.cleanupProvider === "azure") {
-        const hasAzureCreds = !!settings.azureApiKey?.trim() && !!settings.azureEndpoint?.trim();
-        logger.logReasoning("API_KEY_CHECK", { azure: true, hasAzureCreds });
-        if (hasAzureCreds) return true;
-      }
-      if (settings.cleanupProvider === "vertex") {
-        const hasVertexCreds = !!settings.vertexApiKey?.trim() || !!settings.vertexProject?.trim();
-        logger.logReasoning("API_KEY_CHECK", { vertex: true, hasVertexCreds });
-        if (hasVertexCreds) return true;
-      }
-
-      const openaiKey =
-        (await window.electronAPI?.getOpenAIKey?.()) ||
-        (await window.electronAPI?.chatgptStatus?.())?.signedIn;
-      const anthropicKey = await window.electronAPI?.getAnthropicKey?.();
-      const geminiKey = await window.electronAPI?.getGeminiKey?.();
-      const groqKey = await window.electronAPI?.getGroqKey?.();
-      const openrouterKey = await window.electronAPI?.getOpenrouterKey?.();
-      const tinfoilKey = await window.electronAPI?.getTinfoilKey?.();
-      const cortiKey = await window.electronAPI?.getCortiKey?.();
-      const localAvailable = await window.electronAPI?.checkLocalReasoningAvailable?.();
-
-      logger.logReasoning("API_KEY_CHECK", {
-        hasOpenAI: !!openaiKey,
-        hasAnthropic: !!anthropicKey,
-        hasGemini: !!geminiKey,
-        hasGroq: !!groqKey,
-        hasOpenrouter: !!openrouterKey,
-        hasTinfoil: !!tinfoilKey,
-        hasCorti: !!cortiKey,
-        hasLocal: !!localAvailable,
-      });
-
-      return !!(
-        openaiKey ||
-        anthropicKey ||
-        geminiKey ||
-        groqKey ||
-        openrouterKey ||
-        tinfoilKey ||
-        cortiKey ||
-        localAvailable
-      );
+      const signedIn = !!(await window.electronAPI?.chatgptStatus?.())?.signedIn;
+      logger.logReasoning("API_KEY_CHECK", { chatgptSignedIn: signedIn });
+      return signedIn;
     } catch (error) {
       logger.logReasoning("API_KEY_CHECK_ERROR", {
         error: (error as Error).message,
@@ -1131,29 +343,12 @@ class ReasoningService extends BaseReasoningService {
     }
   }
 
-  clearApiKeyCache(
-    provider?:
-      | "openai"
-      | "anthropic"
-      | "gemini"
-      | "groq"
-      | "mistral"
-      | "tinfoil"
-      | "custom"
-      | "openrouter"
-      | "corti"
-  ): void {
+  clearApiKeyCache(provider?: string): void {
     if (provider) {
-      if (provider !== "custom") {
-        this.apiKeyCache.delete(provider);
-      }
-      if (provider === "tinfoil") {
-        clearTinfoilClientCache();
-      }
+      this.apiKeyCache.delete(provider);
       logger.logReasoning("API_KEY_CACHE_CLEARED", { provider });
     } else {
       this.apiKeyCache.clear();
-      clearTinfoilClientCache();
       logger.logReasoning("API_KEY_CACHE_CLEARED", { provider: "all" });
     }
   }

@@ -5,14 +5,7 @@ const { BYOK_API_KEYS } = require("../../src/config/secretKeys");
 
 const bindings = [
   ...BYOK_API_KEYS.map((key) => ({ ...key, channel: `save-${key.base}-key` })),
-  ...[
-    ["cleanup-custom-key", "cleanupCustomApiKey", "saveCleanupCustomKey"],
-    ["bedrock-access-key-id", "bedrockAccessKeyId", "saveBedrockAccessKeyId"],
-    ["bedrock-secret-access-key", "bedrockSecretAccessKey", "saveBedrockSecretAccessKey"],
-    ["bedrock-session-token", "bedrockSessionToken", "saveBedrockSessionToken"],
-    ["azure-api-key", "azureApiKey", "saveAzureApiKey"],
-    ["vertex-api-key", "vertexApiKey", "saveVertexApiKey"],
-  ].map(([channel, storeKey, save]) => ({
+  ...[].map(([channel, storeKey, save]) => ({
     channel: `save-${channel}`,
     storeKey,
     save,

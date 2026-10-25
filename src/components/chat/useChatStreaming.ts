@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import ReasoningService, { type AgentStreamChunk } from "../../services/ReasoningService";
-import { isEnterpriseProvider } from "../../models/ModelRegistry";
 import { providerSupportsImages } from "../../services/ai/inferenceProviders";
 import { getSettings, useSettingsStore } from "../../stores/settingsStore";
 import { resolveChatStreamingInference } from "../../helpers/dictationAgentInference.js";
@@ -27,13 +26,6 @@ import {
 } from "../../utils/agentSelectionContext";
 
 const STREAM_FLUSH_INTERVAL_MS = 32;
-
-const LOCAL_TOOL_MIN_PARAMS_B = 4;
-
-function estimateModelSizeB(modelId: string): number {
-  const match = modelId.match(/-([\d.]+)[bB]/);
-  return match ? parseFloat(match[1]) : 0;
-}
 
 /**
  * Which settings scope answers a conversation. Typed chat surfaces stay on the
@@ -237,45 +229,24 @@ export function useChatStreaming({
           isProviderImageWired: providerSupportsImages,
         });
         const requestedAttachment = attachScreenContext ? (options?.attachment ?? null) : null;
-        const llmMode = llmConfig.mode;
 
         setAgentState("thinking");
-        const isLanAgent = llmMode === "self-hosted" && !!llmConfig.remoteUrl;
-        const isCustomAgent = llmMode === "providers" && llmConfig.provider === "custom";
-        const isLocalProvider =
-          !isEnterpriseProvider(llmConfig.provider) &&
-          ![
-            "openai",
-            "groq",
-            "custom",
-            "anthropic",
-            "gemini",
-            "tinfoil",
-            "openrouter",
-            "corti",
-          ].includes(llmConfig.provider);
-        const localModelCanUseTool =
-          isLocalProvider && estimateModelSizeB(llmConfig.model) >= LOCAL_TOOL_MIN_PARAMS_B;
-        const supportsTools = !isLocalProvider || localModelCanUseTool;
-
         let registry: ToolRegistry | null = null;
-        if (supportsTools) {
-          // Triggers ride in the tool description, so a snippet edit rebuilds the registry.
-          const cacheKey = settings.snippets.map((s) => s.trigger).join("|");
-          if (toolRegistryRef.current?.key === cacheKey) {
-            registry = toolRegistryRef.current.registry;
-          } else {
-            registry = createToolRegistry({
-              vocabulary: {
-                getDictionary: () => getSettings().customDictionary,
-                updateDictionary: (changes) =>
-                  useSettingsStore.getState().updateCustomDictionary(changes),
-                getSnippets: () => getSettings().snippets,
-                setSnippets: (snippets) => useSettingsStore.getState().setSnippets(snippets),
-              },
-            });
-            toolRegistryRef.current = { key: cacheKey, registry };
-          }
+        // Triggers ride in the tool description, so a snippet edit rebuilds the registry.
+        const cacheKey = settings.snippets.map((s) => s.trigger).join("|");
+        if (toolRegistryRef.current?.key === cacheKey) {
+          registry = toolRegistryRef.current.registry;
+        } else {
+          registry = createToolRegistry({
+            vocabulary: {
+              getDictionary: () => getSettings().customDictionary,
+              updateDictionary: (changes) =>
+                useSettingsStore.getState().updateCustomDictionary(changes),
+              getSnippets: () => getSettings().snippets,
+              setSnippets: (snippets) => useSettingsStore.getState().setSnippets(snippets),
+            },
+          });
+          toolRegistryRef.current = { key: cacheKey, registry };
         }
 
         // The user's dictionary rides on every conversation so replies use their
@@ -387,10 +358,6 @@ export function useChatStreaming({
               // Chat, and the vision override as the agent scope it belongs to.
               inferenceScope:
                 llmConfig.scope === "dictationAgentVision" ? "dictationAgent" : llmConfig.scope,
-              lanUrl: isLanAgent ? llmConfig.remoteUrl : undefined,
-              baseUrl: isCustomAgent ? llmConfig.cloudBaseUrl || undefined : undefined,
-              customApiKey:
-                isCustomAgent || isLanAgent ? llmConfig.customApiKey || undefined : undefined,
               disableThinking: llmConfig.disableThinking,
               reasoningEffort: llmConfig.reasoningEffort,
             },
@@ -485,8 +452,8 @@ export function useChatStreaming({
           flushContentNow();
           const hasDeliverableContent = fullContent.trim().length > 0;
           if (!responseAnnounced && !cancelled()) {
-            // The stream ended without a visible token or tool call (think-only
-            // local model, empty completion). Show that as a reply so every
+            // The stream ended without a visible token or tool call (an empty
+            // completion). Show that as a reply so every
             // listener — the assistant panel's thinking state included — sees a
             // terminal outcome.
             fullContent = t("agentMode.chat.emptyResponse");
@@ -523,7 +490,7 @@ export function useChatStreaming({
               "Assistant request failed",
               {
                 scope: llmConfig.scope,
-                mode: llmMode,
+                mode: llmConfig.mode,
                 provider: llmConfig.provider,
                 model: llmConfig.model,
                 attachScreenContext,

@@ -8,11 +8,9 @@ import {
 } from "./dictationRouting.js";
 import { getCloudModel, isProviderValidForMode } from "../models/ModelRegistry";
 import { selectResolvedLLMConfig } from "../stores/settingsStore";
-import { inheritsFallbackEndpoint } from "./reasoningRouting.js";
 
-// The dictation agent's inference scope, shared by the dictation route in
-// audioManager and the Prompt Studio test tab so a prompt test hits the same
-// provider, endpoint and credentials a real dictation does.
+// The dictation agent's inference scope, used by the dictation route in
+// audioManager.
 //
 // Callers must add `systemPrompt` to the config: ReasoningService treats a
 // missing one as its cleanup path, which echoes the input back instead of
@@ -29,7 +27,6 @@ export function resolveDictationAgentInference(settings) {
     dictationAgentMode: settings.dictationAgentMode,
     dictationAgentProvider: providerForMode,
   });
-  const isCustom = settings.dictationAgentMode === "providers" && provider === "custom";
 
   return {
     reachable: resolveDictationAgentReachability({
@@ -47,10 +44,6 @@ export function resolveDictationAgentInference(settings) {
     config: {
       inferenceScope: /** @type {const} */ ("dictationAgent"),
       provider,
-      lanUrl: isSelfHosted ? settings.dictationAgentRemoteUrl : undefined,
-      baseUrl: isCustom ? settings.dictationAgentCloudBaseUrl || undefined : undefined,
-      customApiKey:
-        isCustom || isSelfHosted ? settings.dictationAgentCustomApiKey || undefined : undefined,
       disableThinking: settings.dictationAgentDisableThinking,
       reasoningEffort: settings.dictationAgentReasoningEffort,
     },
@@ -69,21 +62,9 @@ export function resolveDictationAgentVisionInference(settings) {
   const storedProvider = resolved.provider?.trim() || "";
   const providerForMode = isProviderValidForMode(storedProvider, mode) ? storedProvider : undefined;
   const provider = resolveModeProvider({ mode, provider: providerForMode });
-  const isCustom = mode === "providers" && provider === "custom";
 
   // The user must have picked a model for this scope specifically.
   const chosen = !!settings.dictationAgentVisionModel?.trim();
-
-  // The endpoint falls back to the agent scope, so the key that opens it must
-  // too — an inherited endpoint with only the vision key (or none) would call
-  // the agent's host with the wrong credential.
-  const agent = selectResolvedLLMConfig(settings, "dictationAgent");
-  const borrowsAgentEndpoint = inheritsFallbackEndpoint(
-    { mode, cloudBaseUrl: settings.dictationAgentVisionCloudBaseUrl },
-    agent.mode
-  );
-  const customApiKey =
-    resolved.customApiKey || (borrowsAgentEndpoint ? agent.customApiKey || "" : "");
 
   return {
     active:
@@ -97,8 +78,6 @@ export function resolveDictationAgentVisionInference(settings) {
       // scope, not dictation cleanup.
       inferenceScope: /** @type {const} */ ("dictationAgent"),
       provider,
-      baseUrl: isCustom ? resolved.cloudBaseUrl || undefined : undefined,
-      customApiKey: isCustom ? customApiKey || undefined : undefined,
       disableThinking: resolved.disableThinking,
       reasoningEffort: resolved.reasoningEffort,
     },
@@ -159,7 +138,7 @@ export function resolveChatStreamingInference(
     baseProviderImageWired: isProviderImageWired(
       resolveModeProvider({ mode: config.mode, provider: config.provider })
     ),
-    baseModelSupportsVision: !!getCloudModel(config.model, config.provider)?.supportsVision,
+    baseModelSupportsVision: !!getCloudModel(config.model)?.supportsVision,
   });
   if (!useVisionOverride) return { config, attachScreenContext: attach };
   return {
@@ -168,8 +147,6 @@ export function resolveChatStreamingInference(
       mode: vision.mode,
       provider: vision.config.provider,
       model: vision.model,
-      cloudBaseUrl: vision.config.baseUrl,
-      customApiKey: vision.config.customApiKey,
       disableThinking: vision.config.disableThinking,
       reasoningEffort: vision.config.reasoningEffort,
     },

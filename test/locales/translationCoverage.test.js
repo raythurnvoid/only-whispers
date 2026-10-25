@@ -93,8 +93,8 @@ test("every t() key referenced in source resolves in en", () => {
 // to English. Other locales are covered by the en-parity test below.
 test("every model registry descriptionKey resolves in en", () => {
   const en = flatten(load("en", "translation"));
+  // The registry now lists only the ChatGPT plan model, which has no description.
   const keys = registryDescriptionKeys(modelRegistry);
-  assert.ok(keys.length > 0, "no descriptionKey found in the model registry");
 
   const broken = keys.filter((key) => typeof en.get(key) !== "string" || en.get(key) === "");
   assert.deepEqual(broken, [], `Registry descriptionKeys missing in en:\n${broken.join("\n")}`);

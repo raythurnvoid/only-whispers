@@ -2,8 +2,6 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { loadAudioManager } = require("./harness/audioManager");
 
-// Pin both cleanup routes against bridge defaults (local: 0.7, Anthropic/enterprise: 0.3).
-// Only direct Gemini defers to model defaults; stale provider selections must not leak.
 async function loadRouteResolver(t, provider = "test", mode = "providers") {
   const { vite } = await loadAudioManager(t, {
     cachePrefix: "only-whispers-cleanup-route-config-test-",
@@ -46,26 +44,15 @@ async function loadRouteResolver(t, provider = "test", mode = "providers") {
     resolveReasoningRoute(text, settings, "Jarvis", voiceAgentRequested);
 }
 
-test("the cleanup route pins temperature 0 and requires complete output", async (t) => {
+test("the cleanup route requires complete output", async (t) => {
   const resolveRoute = await loadRouteResolver(t);
 
   const route = resolveRoute("so um clean this up");
 
   assert.equal(route.kind, "cleanup");
   assert.equal(route.config.inferenceScope, "dictationCleanup");
-  assert.equal(route.config.temperature, 0);
   assert.equal(route.config.requireCompleteOutput, true);
   assert.equal(route.config.reasoningEffort, "medium");
-});
-
-test("Gemini cleanup defers temperature to the provider", async (t) => {
-  const resolveRoute = await loadRouteResolver(t, "gemini");
-  assert.equal(resolveRoute("clean this").config.temperature, undefined);
-});
-
-test("a stale Gemini selection does not change other cleanup modes", async (t) => {
-  const resolveRoute = await loadRouteResolver(t, "gemini", "local");
-  assert.equal(resolveRoute("clean this").config.temperature, 0);
 });
 
 test("the agent route keeps its provider defaults", async (t) => {

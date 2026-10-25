@@ -10,7 +10,6 @@ const baseSettings = {
   dictationAgentModel: "gpt-5-mini",
   dictationAgentRemoteUrl: "",
   dictationAgentCloudBaseUrl: "",
-  dictationAgentCustomApiKey: "",
   dictationAgentDisableThinking: true,
   dictationAgentReasoningEffort: "high",
 };
@@ -37,49 +36,6 @@ test("a model-required agent is unreachable without an explicit model", async ()
   const result = resolveDictationAgentInference({ ...baseSettings, dictationAgentModel: "" });
 
   assert.equal(result.reachable, false);
-});
-
-test("self-hosted is reachable with no model and forwards the LAN url", async () => {
-  const { resolveDictationAgentInference } = await load();
-
-  const result = resolveDictationAgentInference({
-    ...baseSettings,
-    dictationAgentMode: "self-hosted",
-    dictationAgentModel: "",
-    dictationAgentRemoteUrl: "http://127.0.0.1:8080/v1",
-    dictationAgentCustomApiKey: "test-key",
-  });
-
-  assert.equal(result.reachable, true);
-  assert.equal(result.config.lanUrl, "http://127.0.0.1:8080/v1");
-  assert.equal(result.config.customApiKey, "test-key");
-});
-
-test("a custom provider forwards its base url and api key", async () => {
-  const { resolveDictationAgentInference } = await load();
-
-  const result = resolveDictationAgentInference({
-    ...baseSettings,
-    dictationAgentProvider: "custom",
-    dictationAgentCloudBaseUrl: "https://example.test/v1",
-    dictationAgentCustomApiKey: "sk-test",
-  });
-
-  assert.equal(result.config.baseUrl, "https://example.test/v1");
-  assert.equal(result.config.customApiKey, "sk-test");
-});
-
-test("a non-custom provider leaks neither base url nor api key", async () => {
-  const { resolveDictationAgentInference } = await load();
-
-  const result = resolveDictationAgentInference({
-    ...baseSettings,
-    dictationAgentCloudBaseUrl: "https://example.test/v1",
-    dictationAgentCustomApiKey: "sk-test",
-  });
-
-  assert.equal(result.config.baseUrl, undefined);
-  assert.equal(result.config.customApiKey, undefined);
 });
 
 test("a disabled agent is unreachable", async () => {
@@ -115,21 +71,6 @@ test("local mode with an empty provider routes to llama.cpp", async () => {
   assert.equal(result.config.provider, "local");
 });
 
-test("self-hosted mode with a leftover provider routes only via the LAN url", async () => {
-  const { resolveDictationAgentInference } = await load();
-
-  const result = resolveDictationAgentInference({
-    ...baseSettings,
-    dictationAgentMode: "self-hosted",
-    dictationAgentProvider: "openai",
-    dictationAgentModel: "",
-    dictationAgentRemoteUrl: "http://127.0.0.1:8080/v1",
-  });
-
-  assert.equal(result.config.provider, undefined);
-  assert.equal(result.config.lanUrl, "http://127.0.0.1:8080/v1");
-});
-
 test("self-hosted mode without a remote url never keeps a leftover provider", async () => {
   const { resolveDictationAgentInference } = await load();
 
@@ -144,7 +85,6 @@ test("self-hosted mode without a remote url never keeps a leftover provider", as
   assert.equal(result.reachable, false);
   assert.equal(result.displayProvider, "self-hosted");
   assert.equal(result.config.provider, undefined);
-  assert.equal(result.config.lanUrl, undefined);
 });
 
 test("providers mode keeps an explicit cloud provider", async () => {
@@ -187,57 +127,6 @@ test("enterprise mode with a missing provider fails closed", async () => {
   assert.equal(result.config.provider, undefined);
 });
 
-test("vision override runs as the dictation agent scope and inherits key with endpoint", async () => {
-  const { resolveDictationAgentVisionInference } = await load();
-
-  const result = resolveDictationAgentVisionInference({
-    ...baseSettings,
-    dictationAgentProvider: "custom",
-    dictationAgentCloudBaseUrl: "https://agent.example.com/v1",
-    dictationAgentCustomApiKey: "agent-key",
-    useDictationAgentVisionModel: true,
-    dictationAgentVisionMode: "providers",
-    dictationAgentVisionProvider: "",
-    dictationAgentVisionModel: "vision-model",
-    dictationAgentVisionCloudBaseUrl: "",
-    dictationAgentVisionCustomApiKey: "",
-    dictationAgentVisionReasoningEffort: "low",
-  });
-
-  assert.equal(result.config.inferenceScope, "dictationAgent");
-  assert.equal(result.config.reasoningEffort, "low", "the vision scope keeps its own effort");
-  assert.equal(result.config.baseUrl, "https://agent.example.com/v1");
-  assert.equal(
-    result.config.customApiKey,
-    "agent-key",
-    "an inherited endpoint must carry the agent's key with it"
-  );
-});
-
-test("a vision scope with its own endpoint never borrows the agent's key", async () => {
-  const { resolveDictationAgentVisionInference } = await load();
-
-  const result = resolveDictationAgentVisionInference({
-    ...baseSettings,
-    dictationAgentProvider: "custom",
-    dictationAgentCloudBaseUrl: "https://agent.example.com/v1",
-    dictationAgentCustomApiKey: "agent-key",
-    useDictationAgentVisionModel: true,
-    dictationAgentVisionMode: "providers",
-    dictationAgentVisionProvider: "custom",
-    dictationAgentVisionModel: "vision-model",
-    dictationAgentVisionCloudBaseUrl: "https://vision.example.com/v1",
-    dictationAgentVisionCustomApiKey: "",
-  });
-
-  assert.equal(result.config.baseUrl, "https://vision.example.com/v1");
-  assert.equal(
-    result.config.customApiKey,
-    undefined,
-    "the agent's key must not ride to the vision scope's own endpoint"
-  );
-});
-
 // The assistant panel answers spoken commands on the Voice Assistant scope —
 // the tab the user actually edits — and gates screenshots exactly like the
 // dictation route does.
@@ -245,14 +134,13 @@ const imageWired = (providerId) => ["openai", "anthropic", "gemini"].includes(pr
 const panelSettings = {
   ...baseSettings,
   chatAgentMode: "providers",
-  chatAgentProvider: "anthropic",
-  chatAgentModel: "claude-sonnet-4-5",
+  chatAgentProvider: "openai",
+  chatAgentModel: "gpt-6-luna",
   useDictationAgentVisionModel: false,
   dictationAgentVisionMode: "",
   dictationAgentVisionProvider: "",
   dictationAgentVisionModel: "",
   dictationAgentVisionCloudBaseUrl: "",
-  dictationAgentVisionCustomApiKey: "",
 };
 const panel = (settings, options = {}) =>
   resolveChatStreamingInference(settings, {
@@ -272,7 +160,7 @@ test("typed chat surfaces stay on the Chat scope even when the Voice Assistant s
   });
 
   assert.equal(config.scope, "chatIntelligence");
-  assert.equal(config.model, "claude-sonnet-4-5");
+  assert.equal(config.model, "gpt-6-luna");
   assert.equal(attachScreenContext, true, "Chat's own model can see images");
 });
 
@@ -288,8 +176,8 @@ test("an unreachable Voice Assistant scope falls the panel back to the Chat scop
   );
 
   assert.equal(config.scope, "chatIntelligence");
-  assert.equal(config.provider, "anthropic");
-  assert.equal(config.model, "claude-sonnet-4-5");
+  assert.equal(config.provider, "openai");
+  assert.equal(config.model, "gpt-6-luna");
   assert.equal(attachScreenContext, true, "the fallback is gated on Chat's model, not the agent's");
 });
 
@@ -309,21 +197,20 @@ test("the assistant panel resolves the Voice Assistant scope, not the Chat scope
 });
 
 test("a screenshot attaches to the base scope when its model can see images", () => {
-  const { config, attachScreenContext } = panel(panelSettings, { hasScreenContext: true });
+  const { config, attachScreenContext } = panel(
+    { ...panelSettings, dictationAgentModel: "gpt-6-luna" },
+    { hasScreenContext: true }
+  );
 
   assert.equal(config.scope, "dictationAgent");
-  assert.equal(config.model, "gpt-5-mini");
+  assert.equal(config.model, "gpt-6-luna");
   assert.equal(attachScreenContext, true);
 });
 
 test("a screenshot is dropped when the base scope's provider is not image-wired", () => {
   const { config, attachScreenContext } = panel(
-    {
-      ...panelSettings,
-      dictationAgentProvider: "groq",
-      dictationAgentModel: "llama-3.3-70b-versatile",
-    },
-    { hasScreenContext: true }
+    { ...panelSettings, dictationAgentModel: "gpt-6-luna" },
+    { hasScreenContext: true, isProviderImageWired: () => false }
   );
 
   assert.equal(config.scope, "dictationAgent");
@@ -333,10 +220,8 @@ test("a screenshot is dropped when the base scope's provider is not image-wired"
 const visionOverride = {
   useDictationAgentVisionModel: true,
   dictationAgentVisionMode: "providers",
-  dictationAgentVisionProvider: "gemini",
-  // Not in the local registry under gemini: a configured override is trusted
-  // to see images, the way the dictation route trusts it.
-  dictationAgentVisionModel: "gemini-2.5-flash",
+  dictationAgentVisionProvider: "openai",
+  dictationAgentVisionModel: "gpt-6-luna",
 };
 
 test("a screenshot swaps the panel onto the vision override and keeps the image", () => {
@@ -347,8 +232,8 @@ test("a screenshot swaps the panel onto the vision override and keeps the image"
 
   assert.equal(config.scope, "dictationAgentVision");
   assert.equal(config.mode, "providers");
-  assert.equal(config.provider, "gemini");
-  assert.equal(config.model, "gemini-2.5-flash");
+  assert.equal(config.provider, "openai");
+  assert.equal(config.model, "gpt-6-luna");
   assert.equal(attachScreenContext, true);
 });
 
@@ -360,7 +245,12 @@ test("the vision override is ignored without a screenshot", () => {
 
 test("the vision override toggle alone does not redirect without a chosen model", () => {
   const { config, attachScreenContext } = panel(
-    { ...panelSettings, useDictationAgentVisionModel: true, dictationAgentVisionMode: "providers" },
+    {
+      ...panelSettings,
+      dictationAgentModel: "gpt-6-luna",
+      useDictationAgentVisionModel: true,
+      dictationAgentVisionMode: "providers",
+    },
     { hasScreenContext: true }
   );
 
@@ -370,14 +260,8 @@ test("the vision override toggle alone does not redirect without a chosen model"
 
 test("a vision override that cannot see images drops the screenshot instead of redirecting", () => {
   const { config, attachScreenContext } = panel(
-    {
-      ...panelSettings,
-      ...visionOverride,
-      // groq's client is not image-wired in the provider registry.
-      dictationAgentVisionProvider: "groq",
-      dictationAgentVisionModel: "llama-3.3-70b-versatile",
-    },
-    { hasScreenContext: true }
+    { ...panelSettings, ...visionOverride },
+    { hasScreenContext: true, isProviderImageWired: () => false }
   );
 
   assert.equal(config.scope, "dictationAgent");

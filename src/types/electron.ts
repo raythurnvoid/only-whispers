@@ -1,7 +1,4 @@
-import type { ModelDefinition } from "../models/ModelRegistry";
-import type { ReasoningConfig } from "../services/BaseReasoningService";
 import type { PermissionGuideState, PermissionGuideAction } from "./permissionGuide";
-import type { TinfoilCatalogModel } from "../models/tinfoilModels";
 import type { ToneAppCategory } from "../config/toneStyle";
 import type { TechnicalErrorDetailsData } from "../components/ui/useToast";
 import type { ProviderSettingsTarget } from "../utils/describeProviderError";
@@ -18,18 +15,6 @@ export interface MainWindowInputRegion {
 export type ChineseScriptPreference = "simplified" | "traditional" | "as-transcribed";
 
 export type InferenceMode = "providers" | "local" | "self-hosted" | "enterprise";
-
-/** Each LLM scope's resolved mode and model, from which the main process decides the shared llama-server. */
-export interface LocalServerPrefs {
-  useCleanupModel: boolean;
-  cleanupMode: InferenceMode;
-  cleanupModel: string;
-  useDictationAgent: boolean;
-  dictationAgentMode: InferenceMode;
-  dictationAgentModel: string;
-  chatAgentMode: InferenceMode;
-  chatAgentModel: string;
-}
 
 export type TranscriptionStatus = "completed" | "failed" | "pending" | "discarded";
 
@@ -282,16 +267,7 @@ export interface ScreenContextImage {
   data: string;
 }
 
-export interface LocalModelDownloadStatus {
-  modelType: "llm";
-  modelId: string;
-  phase: "downloading" | "installing";
-  progress: number;
-  downloadedBytes: number;
-  totalBytes: number;
-  sequence: number;
-}
-
+modelType: "llm";
 export interface PasteToolsResult {
   platform: "darwin" | "win32" | "linux";
   available: boolean;
@@ -309,75 +285,6 @@ export interface PasteToolsResult {
   tools?: string[];
   recommendedInstall?: string;
 }
-
-export type GpuBackend = "vulkan" | "cpu" | "metal" | null;
-
-export interface LlamaServerStatus {
-  available: boolean;
-  running: boolean;
-  port: number | null;
-  modelPath: string | null;
-  modelName: string | null;
-  backend: GpuBackend;
-  gpuAccelerated: boolean;
-}
-
-export interface VulkanGpuResult {
-  available: boolean;
-  deviceName?: string;
-  reason?: string;
-  error?: string;
-}
-
-export interface LlamaVulkanStatus {
-  supported: boolean;
-  downloaded: boolean;
-  downloading?: boolean;
-  error?: string;
-}
-
-export interface LlamaVulkanDownloadProgress {
-  downloaded: number;
-  total: number;
-  percentage: number;
-}
-
-export interface LocalLLMModelStatus extends ModelDefinition {
-  providerId?: string;
-  providerName?: string;
-  isDownloaded: boolean;
-  isDownloading: boolean;
-  downloadProgress: number;
-  downloadedSize: number;
-  totalSize: number;
-  path: string | null;
-}
-
-export type LocalLLMDownloadProgressEvent =
-  | {
-      type?: "progress";
-      modelId: string;
-      progress: number;
-      downloadedSize: number;
-      totalSize: number;
-      sequence?: number;
-    }
-  | {
-      type: "complete";
-      modelId: string;
-      progress: 100;
-      downloadedSize?: number;
-      totalSize?: number;
-      sequence?: number;
-    }
-  | {
-      type: "error";
-      modelId: string;
-      error: string;
-      code?: string;
-      details?: unknown;
-      sequence?: number;
-    };
 
 export type OnboardingDemoKind = "dictation" | "assistant";
 /**
@@ -648,16 +555,10 @@ declare global {
       // API key management
       getOpenAIKey: () => Promise<string>;
       saveOpenAIKey: (key: string) => Promise<{ success: boolean }>;
-      getAnthropicKey: () => Promise<string | null>;
-      saveAnthropicKey: (key: string) => Promise<void>;
       getUiLanguage: () => Promise<string>;
       setUiLanguage: (language: string) => Promise<{ success: boolean; language: string }>;
       saveAllKeysToEnv: () => Promise<{ success: boolean; path: string }>;
-      syncStartupPreferences: (
-        prefs: LocalServerPrefs & {
-          keepLocalModelLoaded: boolean;
-        }
-      ) => Promise<void>;
+      syncStartupPreferences: () => Promise<void>;
 
       // Clipboard operations
       checkAccessibilityPermission: (silent?: boolean) => Promise<boolean>;
@@ -666,125 +567,6 @@ declare global {
       checkPasteTools: () => Promise<PasteToolsResult>;
 
       // Audio
-
-      // One-time "GPU pack needs re-downloading" notice, taken by the window that shows it
-      takeGpuPackMigrationNotice: () => Promise<{ packs: string[] } | null>;
-      onGpuPackMigrationNoticeReady: (callback: () => void) => () => void;
-
-      // Local AI model management
-      modelGetAll: () => Promise<LocalLLMModelStatus[]>;
-      modelGetActiveDownloads: () => Promise<LocalModelDownloadStatus[]>;
-      modelDownload: (modelId: string) => Promise<{
-        success: boolean;
-        path?: string;
-        error?: string;
-        code?: string;
-        details?: string;
-      }>;
-      modelDelete: (modelId: string) => Promise<{
-        success: boolean;
-        error?: string;
-        code?: string;
-        details?: string;
-      }>;
-      modelCancelDownload: (modelId: string) => Promise<{ success: boolean; error?: string }>;
-      onModelDownloadProgress: (
-        callback: (event: any, data: LocalLLMDownloadProgressEvent) => void
-      ) => () => void;
-
-      // Local reasoning
-      processLocalReasoning: (
-        text: string,
-        modelId: string,
-        agentName: string | null,
-        config: ReasoningConfig
-      ) => Promise<{
-        success: boolean;
-        text?: string;
-        error?: string;
-        code?: string;
-        details?: Record<string, unknown>;
-      }>;
-      checkLocalReasoningAvailable: () => Promise<boolean>;
-      /** Aborts the local request tagged with this `requestId`, if it is still in flight. */
-      cancelLocalReasoning: (requestId: string) => Promise<void>;
-
-      // Anthropic reasoning
-      processAnthropicReasoning: (
-        text: string,
-        modelId: string,
-        agentName: string | null,
-        config: any
-      ) => Promise<{ success: boolean; text?: string } & Partial<IpcErrorFields>>;
-
-      // Enterprise reasoning (Bedrock, Azure, Vertex)
-      processEnterpriseReasoning: (
-        text: string,
-        modelId: string,
-        agentName: string | null,
-        config: any
-      ) => Promise<{
-        success: boolean;
-        text?: string;
-        error?: string;
-        messageKey?: string;
-        messageParams?: Record<string, string | number>;
-        action?: string;
-        actionKey?: string;
-        copyCommand?: string;
-        retryable?: boolean;
-        technicalDetails?: {
-          status?: number;
-          exceptionType?: string;
-          requestId?: string;
-          underlyingError?: string;
-        };
-      }>;
-      cancelEnterpriseReasoning?: () => void;
-      enterpriseStreamStart?: (payload: {
-        streamId: string;
-        provider: string;
-        modelId: string;
-        config: Record<string, unknown>;
-        options: Record<string, unknown>;
-      }) => Promise<{ success: boolean; error?: string }>;
-      enterpriseStreamCancel?: (streamId: string) => Promise<void>;
-      onEnterpriseStreamPart?: (
-        callback: (payload: {
-          streamId: string;
-          part?: unknown;
-          done?: boolean;
-          error?: string;
-        }) => void
-      ) => () => void;
-      listBedrockModels?: (config: Record<string, unknown>) => Promise<{
-        success: boolean;
-        models?: Array<{ value: string; label: string; vendor: string }>;
-        error?: string;
-      }>;
-
-      // llama-server
-      llamaServerStart: (
-        modelId: string
-      ) => Promise<{ success: boolean; port?: number; error?: string }>;
-      llamaServerStatus: () => Promise<LlamaServerStatus>;
-      llamaGpuReset: () => Promise<{ success: boolean; error?: string }>;
-      detectVulkanGpu?: () => Promise<VulkanGpuResult>;
-      getLlamaVulkanStatus?: () => Promise<LlamaVulkanStatus>;
-      downloadLlamaVulkanBinary?: () => Promise<{
-        success: boolean;
-        cancelled?: boolean;
-        error?: string;
-      }>;
-      cancelLlamaVulkanDownload?: () => Promise<{ success: boolean }>;
-      deleteLlamaVulkanBinary?: () => Promise<{
-        success: boolean;
-        deletedCount?: number;
-        error?: string;
-      }>;
-      onLlamaVulkanDownloadProgress?: (
-        callback: (data: LlamaVulkanDownloadProgress) => void
-      ) => () => void;
 
       // Window control operations
       windowMinimize: () => Promise<void>;
@@ -893,15 +675,9 @@ declare global {
       markMacAccessibilityFeaturesReady?: () => void;
       onAccessibilityMissing?: (callback: () => void) => () => void;
 
-      // Gemini API key management
-      getGeminiKey: () => Promise<string | null>;
-      saveGeminiKey: (key: string) => Promise<void>;
-
       // Groq API key management
       getGroqKey: () => Promise<string | null>;
       saveGroqKey: (key: string) => Promise<void>;
-      getOpenrouterKey: () => Promise<string | null>;
-      saveOpenrouterKey: (key: string) => Promise<void>;
 
       // Sign in with ChatGPT (OpenAI cleanup on the user's ChatGPT plan)
       chatgptSignIn: () => Promise<{ signedIn: boolean; email: string } | { error: string }>;
@@ -931,57 +707,8 @@ declare global {
       }) => Promise<ProxyTranscriptionResult>;
 
       // Corti credential management
-      getCortiKey?: () => Promise<string | null>;
-      saveCortiKey?: (key: string) => Promise<void>;
-      getTinfoilKey?: () => Promise<string | null>;
-      saveTinfoilKey?: (key: string) => Promise<void>;
-      getTinfoilChatModels?: () => Promise<TinfoilCatalogModel[]>;
 
       // Custom endpoint API keys
-      getCleanupCustomKey?: () => Promise<string | null>;
-      saveCleanupCustomKey?: (key: string) => Promise<void>;
-      getDictationAgentCustomKey?: () => Promise<string | null>;
-      saveDictationAgentCustomKey?: (key: string) => Promise<void>;
-      getDictationAgentVisionCustomKey?: () => Promise<string | null>;
-      saveDictationAgentVisionCustomKey?: (key: string) => Promise<void>;
-      getChatAgentCustomKey?: () => Promise<string | null>;
-      saveChatAgentCustomKey?: (key: string) => Promise<void>;
-
-      saveBedrockRegion?: (value: string) => Promise<void>;
-      saveBedrockProfile?: (value: string) => Promise<void>;
-      getBedrockAccessKeyId?: () => Promise<string | null>;
-      saveBedrockAccessKeyId?: (key: string) => Promise<void>;
-      getBedrockSecretAccessKey?: () => Promise<string | null>;
-      saveBedrockSecretAccessKey?: (key: string) => Promise<void>;
-      getBedrockSessionToken?: () => Promise<string | null>;
-      saveBedrockSessionToken?: (key: string) => Promise<void>;
-      saveAzureEndpoint?: (value: string) => Promise<void>;
-      getAzureApiKey?: () => Promise<string | null>;
-      saveAzureApiKey?: (key: string) => Promise<void>;
-      saveAzureDeployment?: (value: string) => Promise<void>;
-      saveAzureApiVersion?: (value: string) => Promise<void>;
-      saveVertexProject?: (value: string) => Promise<void>;
-      saveVertexLocation?: (value: string) => Promise<void>;
-      getVertexApiKey?: () => Promise<string | null>;
-      saveVertexApiKey?: (key: string) => Promise<void>;
-      testEnterpriseConnection?: (
-        provider: string,
-        config: Record<string, unknown>
-      ) => Promise<{
-        success: boolean;
-        error?: string;
-        messageKey?: string;
-        messageParams?: Record<string, string | number>;
-        action?: string;
-        actionKey?: string;
-        copyCommand?: string;
-        technicalDetails?: {
-          status?: number;
-          exceptionType?: string;
-          requestId?: string;
-          underlyingError?: string;
-        };
-      }>;
 
       // Dictation key persistence (file-based for reliable startup)
       getDictationKey?: () => Promise<string | null>;

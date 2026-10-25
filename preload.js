@@ -6,25 +6,9 @@ const { contextBridge, ipcRenderer } = require("electron");
 // src/config/secretKeys.js (the main process derives its plumbing from that).
 const BYOK_KEY_BRIDGES = [
   { base: "openai", get: "getOpenAIKey", save: "saveOpenAIKey" },
-  { base: "anthropic", get: "getAnthropicKey", save: "saveAnthropicKey" },
-  { base: "gemini", get: "getGeminiKey", save: "saveGeminiKey" },
   { base: "groq", get: "getGroqKey", save: "saveGroqKey" },
   { base: "xai", get: "getXaiKey", save: "saveXaiKey" },
   { base: "mistral", get: "getMistralKey", save: "saveMistralKey" },
-  { base: "openrouter", get: "getOpenrouterKey", save: "saveOpenrouterKey" },
-  { base: "tinfoil", get: "getTinfoilKey", save: "saveTinfoilKey" },
-  { base: "corti", get: "getCortiKey", save: "saveCortiKey" },
-  {
-    base: "dictation-agent-custom",
-    get: "getDictationAgentCustomKey",
-    save: "saveDictationAgentCustomKey",
-  },
-  {
-    base: "dictation-agent-vision-custom",
-    get: "getDictationAgentVisionCustomKey",
-    save: "saveDictationAgentVisionCustomKey",
-  },
-  { base: "chat-agent-custom", get: "getChatAgentCustomKey", save: "saveChatAgentCustomKey" },
 ];
 const secretKeyApi = {};
 for (const k of BYOK_KEY_BRIDGES) {
@@ -216,13 +200,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveTempAudio: (buffer) => ipcRenderer.invoke("save-temp-audio", buffer),
   deleteTempAudio: (tempPath) => ipcRenderer.invoke("delete-temp-audio", tempPath),
 
-  // One-time "GPU pack needs re-downloading" notice
-  takeGpuPackMigrationNotice: () => ipcRenderer.invoke("take-gpu-pack-migration-notice"),
-  onGpuPackMigrationNoticeReady: registerListener(
-    "gpu-pack-migration-notice-ready",
-    (callback) => () => callback()
-  ),
-
   // Window control functions
   windowMinimize: () => ipcRenderer.invoke("window-minimize"),
   windowMaximize: () => ipcRenderer.invoke("window-maximize"),
@@ -279,44 +256,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // External link opener
   openExternal: (url) => ipcRenderer.invoke("open-external", url),
 
-  // Model management functions
-  modelGetAll: () => ipcRenderer.invoke("model-get-all"),
-  modelGetActiveDownloads: () => ipcRenderer.invoke("model-get-active-downloads"),
-  modelDownload: (modelId) => ipcRenderer.invoke("model-download", modelId),
-  modelDelete: (modelId) => ipcRenderer.invoke("model-delete", modelId),
-  modelCancelDownload: (modelId) => ipcRenderer.invoke("model-cancel-download", modelId),
-  onModelDownloadProgress: registerListener("model-download-progress"),
-
   getUiLanguage: () => ipcRenderer.invoke("get-ui-language"),
   setUiLanguage: (language) => ipcRenderer.invoke("set-ui-language", language),
 
   proxyMistralTranscription: (data) => ipcRenderer.invoke("proxy-mistral-transcription", data),
 
-  getTinfoilChatModels: () => ipcRenderer.invoke("get-tinfoil-chat-models"),
-
   // Custom endpoint API keys
-  getCleanupCustomKey: () => ipcRenderer.invoke("get-cleanup-custom-key"),
-  saveCleanupCustomKey: (key) => ipcRenderer.invoke("save-cleanup-custom-key", key),
-
-  saveBedrockRegion: (value) => ipcRenderer.invoke("save-bedrock-region", value),
-  saveBedrockProfile: (value) => ipcRenderer.invoke("save-bedrock-profile", value),
-  getBedrockAccessKeyId: () => ipcRenderer.invoke("get-bedrock-access-key-id"),
-  saveBedrockAccessKeyId: (key) => ipcRenderer.invoke("save-bedrock-access-key-id", key),
-  getBedrockSecretAccessKey: () => ipcRenderer.invoke("get-bedrock-secret-access-key"),
-  saveBedrockSecretAccessKey: (key) => ipcRenderer.invoke("save-bedrock-secret-access-key", key),
-  getBedrockSessionToken: () => ipcRenderer.invoke("get-bedrock-session-token"),
-  saveBedrockSessionToken: (key) => ipcRenderer.invoke("save-bedrock-session-token", key),
-  saveAzureEndpoint: (value) => ipcRenderer.invoke("save-azure-endpoint", value),
-  getAzureApiKey: () => ipcRenderer.invoke("get-azure-api-key"),
-  saveAzureApiKey: (key) => ipcRenderer.invoke("save-azure-api-key", key),
-  saveAzureDeployment: (value) => ipcRenderer.invoke("save-azure-deployment", value),
-  saveAzureApiVersion: (value) => ipcRenderer.invoke("save-azure-api-version", value),
-  saveVertexProject: (value) => ipcRenderer.invoke("save-vertex-project", value),
-  saveVertexLocation: (value) => ipcRenderer.invoke("save-vertex-location", value),
-  getVertexApiKey: () => ipcRenderer.invoke("get-vertex-api-key"),
-  saveVertexApiKey: (key) => ipcRenderer.invoke("save-vertex-api-key", key),
-  testEnterpriseConnection: (provider, config) =>
-    ipcRenderer.invoke("test-enterprise-connection", provider, config),
 
   // Dictation key persistence (file-based for reliable startup)
   getDictationKey: () => ipcRenderer.invoke("get-dictation-key"),
@@ -328,46 +273,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getActivationMode: () => ipcRenderer.invoke("get-activation-mode"),
 
   saveAllKeysToEnv: () => ipcRenderer.invoke("save-all-keys-to-env"),
-  syncStartupPreferences: (prefs) => ipcRenderer.invoke("sync-startup-preferences", prefs),
-
-  // Local reasoning
-  processLocalReasoning: (text, modelId, agentName, config) =>
-    ipcRenderer.invoke("process-local-reasoning", text, modelId, agentName, config),
-  checkLocalReasoningAvailable: () => ipcRenderer.invoke("check-local-reasoning-available"),
-  cancelLocalReasoning: (requestId) => ipcRenderer.invoke("cancel-local-reasoning", requestId),
-
-  // Anthropic reasoning
-  processAnthropicReasoning: (text, modelId, agentName, config) =>
-    ipcRenderer.invoke("process-anthropic-reasoning", text, modelId, agentName, config),
-
-  // Enterprise reasoning (Bedrock, Azure, Vertex) — runs in main process so
-  // Node-only SDKs (AWS/Azure/Google credential providers) can resolve.
-  processEnterpriseReasoning: (text, modelId, agentName, config) =>
-    ipcRenderer.invoke("process-enterprise-reasoning", text, modelId, agentName, config),
-  cancelEnterpriseReasoning: () => ipcRenderer.send("enterprise-reasoning-cancel"),
-  enterpriseStreamStart: (payload) => ipcRenderer.invoke("enterprise-stream-start", payload),
-  enterpriseStreamCancel: (streamId) => ipcRenderer.invoke("enterprise-stream-cancel", streamId),
-  onEnterpriseStreamPart: registerListener(
-    "enterprise-stream-part",
-    (callback) => (_event, payload) => callback(payload)
-  ),
-  listBedrockModels: (config) => ipcRenderer.invoke("bedrock-list-models", config),
-
-  // llama-server
-  llamaServerStart: (modelId) => ipcRenderer.invoke("llama-server-start", modelId),
-  llamaServerStatus: () => ipcRenderer.invoke("llama-server-status"),
-  llamaGpuReset: () => ipcRenderer.invoke("llama-gpu-reset"),
-
-  // Vulkan GPU acceleration
-  detectVulkanGpu: () => ipcRenderer.invoke("detect-vulkan-gpu"),
-  getLlamaVulkanStatus: () => ipcRenderer.invoke("get-llama-vulkan-status"),
-  downloadLlamaVulkanBinary: () => ipcRenderer.invoke("download-llama-vulkan-binary"),
-  cancelLlamaVulkanDownload: () => ipcRenderer.invoke("cancel-llama-vulkan-download"),
-  deleteLlamaVulkanBinary: () => ipcRenderer.invoke("delete-llama-vulkan-binary"),
-  onLlamaVulkanDownloadProgress: registerListener(
-    "llama-vulkan-download-progress",
-    (callback) => (_event, data) => callback(data)
-  ),
+  syncStartupPreferences: () => ipcRenderer.invoke("sync-startup-preferences"),
 
   getLogLevel: () => ipcRenderer.invoke("get-log-level"),
   log: (entry) => ipcRenderer.invoke("app-log", entry),

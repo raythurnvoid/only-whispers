@@ -92,19 +92,12 @@
     "continue": "Continuer",
     "retry": "Réessayer",
     "back": "Retour",
-    "reset": "Réinitialiser",
-    "refresh": "Actualiser",
-    "download": "Télécharger",
     "cancel": "Annuler",
-    "recommended": "Recommandé",
     "active": "Actif",
-    "managedByOrg": "Géré par votre organisation",
     "signInRequired": "Connexion requise",
     "signIn": "Se connecter",
-    "apiKey": "Clé API",
     "loading": "Chargement...",
     "unknown": "Inconnu",
-    "availableModels": "Modèles disponibles",
     "hold": "Maintenir",
     "tap": "Appui",
     "close": "Fermer",
@@ -171,11 +164,7 @@
     "errors": {
       "cloudUnreachable": {
         "title": "Impossible de joindre le service de transcription",
-        "generic": "La requête réseau a échoué. Vérifiez votre connexion.",
-        "dnsBlocked": "Le DNS ne trouve pas l'adresse du service — un bloqueur de publicités ou un filtre la bloque peut-être.",
-        "refused": "La connexion a été refusée — probablement un pare-feu ou un VPN.",
-        "timeout": "Délai réseau dépassé — VPN, portail captif ou connexion instable.",
-        "tls": "Échec du handshake TLS — vérifiez l'horloge système ou un proxy d'entreprise."
+        "generic": "La requête réseau a échoué. Vérifiez votre connexion."
       }
     }
   },
@@ -261,115 +250,7 @@
     "loading": "Chargement..."
   },
   "reasoning": {
-    "mode": {
-      "cloud": "Cloud",
-      "local": "Local",
-      "localDescription": "S'exécute sur votre appareil. Confidentialité totale et fonctionnement hors ligne.",
-      "cloudDescription": "Modèles avancés via API. Rapides et puissants, nécessitent internet."
-    },
-    "custom": {
-      "endpointWithProtocol": "Saisissez une URL de base complète avec protocole (ex : https://server/v1).",
-      "httpsRequired": "HTTPS requis (HTTP autorisé seulement en réseau local).",
-      "endpointInvalid": "Le point de terminaison personnalisé est invalide ou non configuré. Vérifiez l'URL du point de terminaison dans Réglages → Modèles d'IA.",
-      "endpointUnauthorized": "Le endpoint a rejeté la requête (401/403). Ajoutez une clé API ou ajustez l'authentification du serveur.",
-      "endpointTitle": "URL du endpoint",
-      "endpointExamples": "Exemples :",
-      "apiKeyOptional": "Clé API (optionnelle)",
-      "apiKeyHelp": "Optionnelle. Envoyée comme token Bearer pour l'authentification. Séparée de votre clé API OpenAI.",
-      "applyAndRefresh": "Appliquer et actualiser",
-      "queryPrefix": "Nous interrogerons",
-      "querySuffix": "pour les modèles disponibles.",
-      "modelsReloadHint": "Les modèles seront rechargés quand vous quitterez le champ URL ou en cliquant sur « Appliquer et actualiser ».",
-      "enterEndpoint": "Saisissez ci-dessus une URL de endpoint pour charger les modèles.",
-      "fetchingModels": "Récupération de la liste des modèles...",
-      "noModels": "Aucun modèle renvoyé. Vérifiez l'URL du endpoint.",
-      "providerName": "Personnalisé",
-      "ownerLabel": "Propriétaire : {{owner}}",
-      "unableToLoadModels": "Impossible de charger les modèles depuis le endpoint.",
-      "searchPlaceholder": "Rechercher des modèles…",
-      "selectedGroup": "Sélectionné",
-      "otherGroup": "Autre",
-      "noSearchResults": "Aucun modèle ne correspond à « {{query}} »",
-      "selectModelHint": "Aucun modèle sélectionné — choisissez-en un dans la liste ci-dessous.",
-      "keyRequiredHint": "Une clé API est requise pour l'inférence — ajoutez-en une pour utiliser ce fournisseur."
-    },
-    "effort": {
-      "title": "Effort de raisonnement",
-      "description": "Le temps de réflexion du modèle avant de répondre.",
-      "descriptionWithDefault": "Le temps de réflexion du modèle avant de répondre. Auto utilise la valeur par défaut du fournisseur ({{value}}).",
-      "auto": "Auto",
-      "options": {
-        "none": "Aucun",
-        "minimal": "Minimal",
-        "low": "Faible",
-        "medium": "Moyen",
-        "high": "Élevé",
-        "xhigh": "Très élevé",
-        "max": "Maximum"
-      }
-    },
-    "getApiKey": "Obtenir la clé API ->",
-    "selectModel": "Sélectionner un modèle",
-    "availableModels": "Modèles disponibles",
-    "disableThinking": {
-      "label": "Désactiver la sortie de raisonnement",
-      "help": "Ignore les jetons de raisonnement pour une sortie plus propre. Recommandé pour le nettoyage. Certains serveurs ignorent cette indication."
-    },
-    "keepModelLoaded": {
-      "label": "Garder le modèle chargé",
-      "help": "Reste en mémoire au lieu d'être déchargé après 5 minutes d'inactivité, ce qui évite un démarrage à froid à la requête suivante. S'applique à toutes les fonctionnalités utilisant un modèle local."
-    },
-    "selfHosted": {
-      "endpointHelp": "Pointez vers un serveur compatible OpenAI sur votre réseau local (par ex. Ollama, LM Studio, vLLM ou llama-server)."
-    },
     "enterprise": {
-      "testConnection": "Tester la connexion",
-      "testing": "Test en cours…",
-      "testSuccess": "Connecté",
-      "testFailed": "Échec de la connexion",
-      "authMode": "Authentification",
-      "ssoProfile": "Profil SSO",
-      "accessKeys": "Clés d'accès",
-      "adc": "Application Default Credentials",
-      "apiKeyMode": "Clé API",
-      "region": "Région",
-      "profile": "Nom du profil",
-      "accessKeyId": "Access Key ID",
-      "secretAccessKey": "Secret Access Key",
-      "sessionToken": "Session Token (facultatif)",
-      "endpoint": "URL de l'endpoint",
-      "deploymentName": "Nom du déploiement",
-      "apiVersion": "Version de l'API",
-      "projectId": "ID du projet",
-      "location": "Emplacement",
-      "customModelId": "ID de modèle personnalisé",
-      "customModelPlaceholder": "Saisissez un ID de modèle ou un nom de déploiement",
-      "suggestedModels": "Modèles suggérés",
-      "browseModels": "Parcourir tous les modèles",
-      "loadingModels": "Récupération des modèles...",
-      "allModels": "Tous les modèles dans {{region}}",
-      "modelListError": "Impossible de charger les modèles.",
-      "bedrock": {
-        "ssoHelp": "Utilise votre configuration SSO d'AWS CLI. Assurez-vous d'avoir exécuté 'aws sso login'."
-      },
-      "errors": {
-        "bedrock": {
-          "ssoExpired": "La session SSO AWS a expiré.",
-          "credentialsRejected": "Les identifiants AWS ont été refusés. Vérifiez l’ID de clé d’accès, le secret et le jeton de session.",
-          "accessDenied": "AWS Bedrock a refusé cette requête. Demandez à votre administrateur AWS l’autorisation d’appeler le modèle sélectionné dans la région {{region}}.",
-          "modelNotFound": "AWS Bedrock n’a pas trouvé le modèle sélectionné dans la région {{region}}. Vérifiez l’ID du modèle et sa disponibilité dans cette région.",
-          "configurationRejected": "AWS Bedrock a refusé la configuration du modèle pour la région {{region}}. Vérifiez l’ID du modèle, le profil d’inférence et la région.",
-          "notConfigured": "AWS Bedrock n’est pas configuré correctement. Vérifiez la région et les identifiants AWS.",
-          "serviceUnavailable": "AWS Bedrock est temporairement indisponible en raison d’une forte demande. Il s’agit d’un problème du service AWS, et non d’une panne d’only-whispers. Réessayez dans quelques minutes.",
-          "throttled": "AWS Bedrock limite temporairement les requêtes car il en reçoit trop. Patientez un instant et réessayez. Si le problème persiste, demandez à votre administrateur AWS de vérifier l’utilisation et les quotas Bedrock.",
-          "timeout": "AWS Bedrock n’a pas répondu à temps. Réessayez. Si le problème persiste, vérifiez votre connexion Internet et l’état du service AWS Bedrock.",
-          "network": "AWS Bedrock est inaccessible. Vérifiez votre connexion Internet et réessayez.",
-          "unknown": "Erreur AWS Bedrock : {{error}}",
-          "actions": {
-            "reauthenticate": "Exécutez la commande suivante dans votre terminal pour vous réauthentifier :"
-          }
-        }
-      },
       "technicalDetails": {
         "title": "Détails techniques",
         "httpStatus": "État HTTP",
@@ -378,26 +259,7 @@
         "underlyingError": "Erreur sous-jacente",
         "copy": "Copier les détails techniques",
         "copyCommand": "Copier la commande de récupération"
-      },
-      "azure": {
-        "endpointHelp": "L'endpoint de votre ressource Azure OpenAI (par ex. https://myresource.openai.azure.com).",
-        "deploymentHelp": "Nom du déploiement de votre modèle dans Azure OpenAI."
-      },
-      "vertex": {
-        "adcHelp": "Utilise Application Default Credentials. Exécutez : gcloud auth application-default login",
-        "apikeyHelp": "Clé API Vertex AI Express Mode obtenue depuis Google AI Studio."
       }
-    },
-    "modelRetiredTitle": "Modèle non disponible",
-    "groq": {
-      "modelRetired": "Groq a retiré {{from}}. Basculé vers {{to}}."
-    },
-    "tinfoil": {
-      "modelRetired": "Tinfoil a retiré {{from}}. Basculé vers {{to}}.",
-      "refreshingModels": "Actualisation des modèles…"
-    },
-    "corti": {
-      "euOnly": "Les modèles Corti ne sont disponibles que dans la région UE."
     },
     "chatgpt": {
       "title": "Forfait ChatGPT",
@@ -405,12 +267,6 @@
       "signingIn": "Terminez la connexion dans votre navigateur...",
       "signOut": "Se déconnecter",
       "signedInAs": "Connecté en tant que {{email}}"
-    }
-  },
-  "transcription": {
-    "deleteModel": {
-      "title": "Supprimer le modèle",
-      "description": "Voulez-vous vraiment supprimer ce modèle ? Vous devrez le retélécharger pour le réutiliser."
     }
   },
   "hooks": {
@@ -448,9 +304,7 @@
         "agentReasoningFailed": "Votre assistant vocal n'a pas pu traiter la commande ; la transcription brute a été insérée à la place.",
         "screenContextSkipped": "La capture n'a pas pu être envoyée ; votre commande a été exécutée sans contexte d'écran.",
         "providerKeyMissing": "Aucune clé API n’est définie pour {{provider}}. Ajoutez-la dans Réglages → Modèles IA.",
-        "cleanupTruncated": "Le modèle d'IA a manqué de place avant de terminer le nettoyage de votre dictée.",
-        "cleanupDuplicated": "Le nettoyage par IA a répété la transcription. Le texte original a été conservé.",
-        "cleanupEmptyReply": "Le modèle d'IA a renvoyé une réponse vide au lieu de la dictée nettoyée."
+        "cleanupDuplicated": "Le nettoyage par IA a répété la transcription. Le texte original a été conservé."
       },
       "pushForceStopped": {
         "title": "Transcription non collée",
@@ -518,41 +372,6 @@
       },
       "messages": {
         "nowUsing": "Utilisation de {{hotkey}} pour la dictée"
-      }
-    },
-    "modelDownload": {
-      "errors": {
-        "timeout": "Le téléchargement a expiré. Vérifiez votre connexion et réessayez.",
-        "notFound": "Impossible de joindre le serveur de téléchargement. Vérifiez votre connexion.",
-        "corrupted": "Le téléchargement est incomplet ou corrompu. Réessayez.",
-        "rateLimited": "Le serveur limite les requêtes. Attendez quelques minutes et réessayez.",
-        "server": "Erreur serveur ({{error}}). Réessayez plus tard.",
-        "generic": "Échec du téléchargement : {{error}}",
-        "extractionFailed": "Modèle téléchargé, mais l'installation a échoué. Cliquez sur télécharger pour relancer l'installation sans retélécharger.",
-        "tlsError": "Erreur de certificat — votre réseau utilise peut-être une inspection SSL qui bloque les téléchargements. Essayez depuis un autre réseau.",
-        "unknown": "Erreur inconnue"
-      },
-      "downloadFailed": {
-        "title": "Échec du téléchargement"
-      },
-      "installationFailed": {
-        "title": "Échec de l'installation"
-      },
-      "downloadInProgress": {
-        "title": "Téléchargement en cours",
-        "description": "Attendez la fin du téléchargement actuel ou annulez-le d'abord."
-      },
-      "modelDeleted": {
-        "title": "Modèle supprimé",
-        "description": "Modèle supprimé avec succès !"
-      },
-      "deleteFailed": {
-        "title": "Échec de la suppression",
-        "description": "Impossible de supprimer le modèle : {{error}}"
-      },
-      "downloadCancelled": {
-        "title": "Téléchargement annulé",
-        "description": "Le téléchargement a été annulé."
       }
     },
     "permissions": {
@@ -722,14 +541,7 @@
       "enableTextCleanup": "Activer la correction de texte",
       "enableTextCleanupDescription": "Supprime les mots de remplissage et corrige la grammaire et la ponctuation. Désactivé, le texte brut est collé.",
       "modes": {
-        "providers": "Apportez votre propre clé",
-        "local": "Local",
-        "selfHosted": "Auto-hébergé",
-        "enterprise": "Enterprise",
-        "providersDesc": "Utilisez votre propre clé API pour connecter votre fournisseur de LLM préféré.",
-        "localDesc": "Modèles sur l'appareil. 100 % privé.",
-        "selfHostedDesc": "Votre serveur sur votre réseau.",
-        "enterpriseDesc": "Utilisez le compte cloud de votre organisation (AWS, Azure, GCP)."
+        "selfHosted": "Auto-hébergé"
       },
       "title": "Modèles IA",
       "description": "Mistral transforme votre voix en texte. Votre forfait ChatGPT nettoie le texte."
@@ -869,112 +681,6 @@
         "dictationAgent": "Assistant vocal",
         "chatIntelligence": "Chat"
       }
-    }
-  },
-  "models": {
-    "learnMore": "En savoir plus",
-    "noneAvailable": "Aucun modèle disponible",
-    "descriptions": {
-      "cloud": {
-        "openai_gpt_5_2": "Modèle de raisonnement performant",
-        "openai_gpt_5_mini": "Rapide et économique",
-        "openai_gpt_5_nano": "Ultra-rapide, faible latence",
-        "openai_gpt_4_1": "Base solide, contexte 1M",
-        "openai_gpt_4_1_mini": "Modèle GPT-4.1 plus petit",
-        "openai_gpt_4_1_nano": "GPT-4.1 à la latence la plus faible",
-        "anthropic_claude_fable_5_1": "Le modèle le plus performant d'Anthropic, classe Mythos",
-        "anthropic_claude_fable_5": "Ancien modèle phare de classe Mythos",
-        "anthropic_claude_opus_5_5": "Dernier modèle Opus pour le raisonnement complexe, contexte 1M",
-        "anthropic_claude_sonnet_5_5": "Dernier Sonnet : rapide et performant au quotidien, contexte 1M",
-        "anthropic_claude_haiku_5_5": "Le modèle Claude le plus rapide et le moins cher, contexte 1M",
-        "anthropic_claude_sonnet_5": "Modèle assistant rapide et performant à moindre coût",
-        "anthropic_claude_sonnet_4_6": "Performances équilibrées",
-        "anthropic_claude_sonnet_4_5": "Génération Sonnet précédente",
-        "anthropic_claude_haiku_4_5": "Rapide avec une intelligence de pointe",
-        "gemini_gemini_3_5_flash": "Dernier modèle Gemini rapide et très performant",
-        "gemini_gemini_3_5_flash_lite": "Le modèle 3.5 le plus rapide et économique",
-        "gemini_gemini_3_1_pro_preview": "Modèle phare nouvelle génération pour le raisonnement complexe",
-        "gemini_gemini_3_1_flash_lite": "Performances de pointe à faible coût",
-        "gemini_gemini_3_flash_preview": "Modèle nouvelle génération ultra-rapide et très performant",
-        "gemini_gemini_2_5_flash_lite": "Latence et coût les plus faibles",
-        "gemini_gemma_4_31b_it": "Le plus grand Gemma 4 de Google, 31B dense, contexte 256K",
-        "gemini_gemma_4_26b_a4b_it": "Gemma 4 MoE de Google, 4B paramètres actifs, contexte 256K",
-        "groq_openai_gpt_oss_120b": "Modèle phare open source d'OpenAI, 500 T/s",
-        "groq_qwen_qwen3_8_27b": "Modèle Qwen rapide, 450 T/s, contexte 131K",
-        "groq_openai_gpt_oss_20b": "Modèle open source rapide, 1000 T/s",
-        "openai_gpt_6_astra": "Le modèle le plus performant d'OpenAI pour le codage et la recherche",
-        "openai_gpt_5_6_sol": "GPT-5.6 phare pour le codage et la recherche complexes",
-        "openai_gpt_5_6_terra": "GPT-5.6 équilibré pour le travail quotidien",
-        "openai_gpt_5_6_luna": "Le GPT-5.6 le plus rapide et le plus économique",
-        "openai_gpt_5_5": "Modèle frontier pour le raisonnement complexe",
-        "anthropic_claude_opus_5": "Ancien modèle phare Opus, contexte 1M",
-        "anthropic_claude_opus_4_8": "Modèle Opus puissant axé sur l'honnêteté et la fiabilité",
-        "anthropic_claude_opus_4_7": "Modèle Opus puissant",
-        "anthropic_claude_opus_4_6": "Génération Opus précédente, contexte 1M",
-        "anthropic_claude_opus_4_5": "Modèle Opus antérieur",
-        "tinfoil_glm_5_3": "Modèle privé de codage agentique dans des enclaves sécurisées, contexte 1M",
-        "tinfoil_gemma4_31b": "Modèle privé de raisonnement multilingue avec appel d'outils, contexte 256K",
-        "tinfoil_gpt_oss_120b": "Modèle privé de raisonnement à poids ouverts avec usage d'outils, contexte 131K",
-        "tinfoil_llama3_3_70b": "Modèle privé conversationnel avec appel d'outils, contexte 128K",
-        "corti_corti_s1_instant": "Modèle de santé rapide, sans trace de raisonnement",
-        "corti_corti_s1": "Modèle clinique le plus performant avec raisonnement",
-        "corti_corti_s1_mini_instant": "Modèle de santé compact, le plus rapide et le moins cher",
-        "corti_corti_s1_mini": "Modèle clinique compact avec raisonnement à moitié prix"
-      },
-      "enterprise": {
-        "bedrock_claude_fable_5": "Le modèle Claude le plus performant. Idéal pour les tâches d'assistant les plus difficiles.",
-        "bedrock_claude_haiku_4_5": "Rapide et économique. Parfait pour nettoyer le texte.",
-        "bedrock_claude_sonnet_5": "Équilibré. Choix par défaut pour les tâches d'assistant.",
-        "bedrock_claude_opus_4_8": "Intelligence maximale. Pour les tâches d'assistant complexes.",
-        "bedrock_gpt_oss_120b": "Modèle ouvert d'OpenAI. Raisonnement solide à faible coût.",
-        "bedrock_deepseek_v3_2": "Modèle frontière à poids ouverts. Excellent rapport qualité-prix pour les tâches d'assistant.",
-        "bedrock_qwen3_next_80b": "Modèle ouvert épars. Rapide et multilingue.",
-        "vertex_gemini_2_5_flash": "Fast multimodal model via Vertex",
-        "vertex_gemini_2_5_pro": "Advanced reasoning via Vertex"
-      },
-      "local": {
-        "qwen_qwen3_5_9b_q4_k_m": "Modèle hybride puissant",
-        "qwen_qwen3_5_4b_q4_k_m": "Qwen3.5 équilibré pour usage général",
-        "qwen_qwen3_5_2b_q4_k_m": "Qwen3.5 compact pour tâches rapides",
-        "qwen_qwen3_8b_q4_k_m": "Dernier Qwen3 avec prise en charge du mode réflexion",
-        "qwen_qwen3_8b_q5_k_m": "Qwen3 de meilleure qualité avec mode réflexion",
-        "qwen_qwen3_4b_q4_k_m": "Qwen3 compact avec capacités de raisonnement",
-        "qwen_qwen3_1_7b_q8_0": "Petit modèle Qwen3 mais performant",
-        "qwen_qwen3_32b_q4_k_m": "Le Qwen3 local le plus puissant avec raisonnement approfondi",
-        "qwen_qwen2_5_1_5b_instruct_q5_k_m": "Petit modèle, bon pour les tâches de base",
-        "qwen_qwen2_5_3b_instruct_q5_k_m": "Modèle équilibré pour un usage général",
-        "qwen_qwen2_5_7b_instruct_q4_k_m": "Grand modèle de haute qualité (Q4_K_M)",
-        "qwen_qwen2_5_7b_instruct_q5_k_m": "Grand modèle, raisonnement de haute qualité (Q5_K_M)",
-        "mistral_mistral_7b_instruct_v0_3_q4_k_m": "Modèle d'instructions rapide et efficace",
-        "mistral_mistral_7b_instruct_v0_3_q5_k_m": "Modèle d'instructions de meilleure qualité",
-        "mistral_nemo_12b_instruct_q4_k_m": "Modèle 12B de Mistral, bonnes performances multilingues",
-        "llama_llama_3_2_1b_instruct_q4_k_m": "Modèle minuscule pour appareils edge",
-        "llama_llama_3_2_3b_instruct_q4_k_m": "Petit modèle multilingue mais performant",
-        "llama_llama_3_1_8b_instruct_q4_k_m": "Modèle puissant avec d'excellentes performances",
-        "openai_oss_gpt_oss_20b_mxfp4": "Modèle open-weight d'OpenAI pour matériel grand public",
-        "gemma_gemma_3_4b_it_q4_k_m": "Modèle open-weight de Google, excellent équilibre vitesse/qualité",
-        "gemma_gemma_4_31b_it_q4_k_m": "Le plus grand Gemma 4 de Google, meilleure qualité",
-        "gemma_gemma_4_31b_it_qat_q4_0": "Build QAT officiel de Google, plus léger à qualité égale",
-        "gemma_gemma_4_26b_a4b_it_q4_k_m": "Gemma 4 MoE de Google, rapide avec 4B paramètres actifs",
-        "gemma_gemma_4_26b_a4b_it_qat_q4_0": "Build QAT MoE officiel de Google, plus léger à qualité égale",
-        "gemma_gemma_4_e4b_it_q4_k_m": "Dernier multimodal de Google, raisonnement avancé",
-        "gemma_gemma_4_e4b_it_qat_q4_0": "Build QAT officiel de Google, raisonnement avancé en moins d'espace",
-        "gemma_gemma_4_e2b_it_q4_k_m": "Gemma 4 compact de Google, rapide et efficace",
-        "gemma_gemma_4_e2b_it_qat_q4_0": "Build QAT compact officiel de Google, qualité préservée",
-        "gemma_gemma_3_12b_it_q4_k_m": "Modèle milieu de gamme de Google, raisonnement solide",
-        "gemma_gemma_3_1b_it_q4_k_m": "Modèle Google ultra-rapide, idéal pour le nettoyage de courtes dictées",
-        "liquidai_lfm2_5_1_2b_instruct_q4_k_m": "Modèle efficace de Liquid AI, excellent suivi des instructions",
-        "liquidai_lfm2_5_8b_a1b_q4_k_m": "MoE de Liquid AI, haute qualité avec seulement 1,5B de paramètres actifs",
-        "liquidai_lfm2_2_6b_q4_k_m": "LFM2 équilibré pour un nettoyage de meilleure qualité",
-        "liquidai_lfm2_5_350m_q8_0": "Modèle ultraléger pour un nettoyage rapide de la dictée",
-        "liquidai_lfm2_5_230m_q8_0": "Modèle minuscule, nettoyage instantané sur du matériel modeste"
-      }
-    },
-    "errors": {
-      "contextTooLarge": "C’est trop long pour que {{model}} puisse le lire sur cet ordinateur. Il faut environ {{needed}} jetons de contexte, mais seuls {{max}} tiennent en mémoire. Essayez un modèle cloud ou exécutez l’action sur une sélection plus courte.",
-      "contextTooLargeGeneric": "C’est trop long pour que {{model}} puisse le lire sur cet ordinateur. Essayez un modèle cloud ou exécutez l’action sur une sélection plus courte.",
-      "localServerUnavailable": "Impossible de démarrer {{model}} sur cet ordinateur. Réessayez ou passez à un modèle cloud.",
-      "localModelBusy": "Le modèle local traite encore une autre requête. Attendez qu'elle se termine, puis réessayez."
     }
   },
   "sidebar": {
@@ -1121,29 +827,6 @@
     "getMistralKey": "Obtenir une clé dans Mistral admin",
     "start": "Commencer à dicter"
   },
-  "apiKeyInput": {
-    "placeholder": "Collez votre clé API",
-    "label": "Clé API",
-    "save": "Enregistrer la clé API",
-    "cancelEdit": "Annuler la modification",
-    "edit": "Modifier la clé API",
-    "add": "Ajouter une clé API",
-    "editButton": "modifier",
-    "addButton": "ajouter"
-  },
-  "gpu": {
-    "reasoningBanner": "Accélérez le traitement IA avec le GPU",
-    "enableButton": "Activer le GPU",
-    "active": "Accélération GPU active",
-    "ready": "Accélération GPU prête",
-    "activating": "Activation du GPU...",
-    "activationFailed": "Accélération GPU indisponible",
-    "reasoningActivationFailedDescription": "only-whispers est passé au traitement par CPU.",
-    "retryActivation": "Réessayer l'accélération GPU",
-    "remove": "Supprimer",
-    "dismiss": "Pas maintenant",
-    "cancel": "Annuler"
-  },
   "app": {
     "toasts": {
       "hotkeyChanged": {
@@ -1156,10 +839,6 @@
       },
       "addedToDict": "{{words}} ajouté à votre dictionnaire",
       "undo": "Annuler",
-      "gpuPackMigration": {
-        "title": "Le pack GPU doit être retéléchargé",
-        "description": "Cette version ne peut pas utiliser votre ancien pack GPU ({{packs}}). Retéléchargez-le dans les paramètres pour réactiver l'accélération GPU."
-      },
       "cleanupFailed": {
         "title": "Échec du nettoyage",
         "description": "Votre dictée a été collée sans nettoyage par IA."

@@ -3,6 +3,8 @@ const debugLogger = require("./debugLogger");
 const sidecarPidFile = require("./sidecarPidFile");
 
 const EXPECTED_BINARY_FRAGMENTS = {
+  // No build ships llama-server now. Kept so a llama-server left running by an
+  // older build is still stopped.
   llama: ["llama-server"],
 };
 

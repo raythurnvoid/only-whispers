@@ -1,8 +1,4 @@
 import ReasoningService from "../services/ReasoningService";
-import {
-  EMPTY_OUTPUT_MESSAGE_KEY,
-  TRUNCATED_OUTPUT_MESSAGE_KEY,
-} from "../services/ai/chatRequestBody";
 import logger from "../utils/logger";
 import { assertValidCleanupOutput } from "../utils/cleanupOutput";
 import { getBaseLanguageCode } from "../utils/languageSupport";
@@ -44,7 +40,7 @@ import { transcriptionFailureOutcome } from "./transcriptionFailureOutcome";
 import { errorFromIpcResult } from "./ipcErrorFields";
 import { PROVIDER_ERROR_CODES, asProviderError, providerError } from "./providerHttpErrors";
 import { hasTextContent } from "./textContent";
-import { stripAgentAddress, stripAgentAddressPreservingFormatting } from "../config/agentDetection";
+import { stripAgentAddress } from "../config/agentDetection";
 import {
   cleanupUnconfiguredNotice,
   resolveDictationRouteKind,
@@ -74,10 +70,6 @@ import { getAgentName } from "../utils/agentName";
 import {
   buildSelectionEditSystemPrompt,
   buildSelectionEditUserPrompt,
-  buildLocalSelectionEditSystemPrompt,
-  buildLocalSelectionEditUserPrompt,
-  extractLocalSelectionEditReplacement,
-  SELECTION_EDIT_RESPONSE_FORMAT,
   extractSelectionEditReplacement,
   getSelectionCaptureDisposition,
   isSelectionQuestionResponse,
@@ -147,11 +139,6 @@ function resolveReasoningRoute(
 ) {
   const wakeWordLanguage = resolveWakeWordLanguage(settings, detectedLanguage, text);
   const cleanup = selectResolvedLLMConfig(settings, "dictationCleanup");
-  // Pin cleanup to 0 where supported; bridges otherwise default to 0.7 (local)
-  // or 0.3 (Anthropic/enterprise). Zero does not guarantee determinism.
-  // Direct Gemini owns its defaults (3: 1.0, older: 0); check mode to ignore stale providers.
-  const cleanupTemperature =
-    cleanup.mode === "providers" && cleanup.provider === "gemini" ? undefined : 0;
   const cleanupReachable = !!settings.useCleanupModel && !!cleanup.model?.trim();
   const agent = resolveDictationAgentInference(settings);
 
@@ -179,7 +166,6 @@ function resolveReasoningRoute(
     inferenceScope: /** @type {const} */ ("dictationCleanup"),
     disableThinking: settings.cleanupDisableThinking,
     reasoningEffort: settings.cleanupReasoningEffort,
-    temperature: cleanupTemperature,
     requireCompleteOutput: true,
   };
   if (kind === "agent") {
@@ -189,7 +175,7 @@ function resolveReasoningRoute(
       visionOverrideActive: vision.active,
       visionProviderImageWired: providerSupportsImages(vision.config.provider),
       baseProviderImageWired: providerSupportsImages(agent.config.provider),
-      baseModelSupportsVision: !!getCloudModel(agent.model, agent.config.provider)?.supportsVision,
+      baseModelSupportsVision: !!getCloudModel(agent.model)?.supportsVision,
     });
     const target = useVisionOverride ? vision : agent;
     logger.logReasoning("AGENT_IMAGE_TARGET", {
@@ -291,8 +277,6 @@ const SELECTION_EDIT_FAILURE_COPY = {
   SELECTION_EDIT_INVALID_RESPONSE: "invalidResponse",
   OUTPUT_COMPLETION_UNVERIFIED: "invalidResponse",
   SELECTION_EDIT_EMPTY_RESPONSE: "emptyResponse",
-  [EMPTY_OUTPUT_MESSAGE_KEY]: "emptyResponse",
-  [TRUNCATED_OUTPUT_MESSAGE_KEY]: "truncatedResponse",
 };
 
 class AudioManager {
@@ -1981,53 +1965,26 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const selectionConfig = {
       ...reasoningOptions,
       maxTokens: Math.max(config?.maxTokens || 0, 8192),
-      contextSize: Math.max(config?.contextSize || 0, 16384),
       temperature: config?.temperature ?? 0.2,
       requireCompleteOutput: true,
     };
-    const isLocalSelection = config?.provider === "local";
     const toneSentence = toneStyle ? selectionEditToneSentence(toneStyle) : "";
     const withToneSentence = (prompt) =>
       toneSentence ? `${String(prompt ?? "").trim()}\n\n${toneSentence}` : prompt;
-    let userPrompt;
-    let completionMarker;
-    if (isLocalSelection) {
-      const settings = getSettings();
-      selectionConfig.systemPrompt = buildLocalSelectionEditSystemPrompt({
-        customPrompt: (settings.customPrompts.dictationAgent || "").replace(
-          /\{\{agentName\}\}/g,
-          agentName?.trim() || "Assistant"
-        ),
-        dictionary: getDictionaryHintWords(settings),
-        toneSentence,
-      });
-      selectionConfig.responseFormat = SELECTION_EDIT_RESPONSE_FORMAT;
-      selectionConfig.disableThinking = true;
-      const instruction = this.voiceAgentRequested
-        ? text
-        : stripAgentAddressPreservingFormatting(
-            text,
-            agentName,
-            wakeWordLanguage ?? resolveWakeWordLanguage(settings),
-            config?.snippets ?? settings.snippets
-          );
-      userPrompt = buildLocalSelectionEditUserPrompt(instruction, capture.text);
-    } else {
-      completionMarker = `__ONLY_WHISPERS_SELECTION_COMPLETE_${crypto.randomUUID()}__`;
-      selectionConfig.systemPrompt = buildSelectionEditSystemPrompt(
-        withToneSentence(config?.systemPrompt),
+    const completionMarker = `__ONLY_WHISPERS_SELECTION_COMPLETE_${crypto.randomUUID()}__`;
+    selectionConfig.systemPrompt = buildSelectionEditSystemPrompt(
+      withToneSentence(config?.systemPrompt),
+      completionMarker
+    );
+    if (selectionConfig.textOnlySystemPrompt) {
+      // The text-only retry prompt must carry the same selection-edit
+      // instructions and marker, or a rejected screenshot loses the command.
+      selectionConfig.textOnlySystemPrompt = buildSelectionEditSystemPrompt(
+        withToneSentence(selectionConfig.textOnlySystemPrompt),
         completionMarker
       );
-      if (selectionConfig.textOnlySystemPrompt) {
-        // The text-only retry prompt must carry the same selection-edit
-        // instructions and marker, or a rejected screenshot loses the command.
-        selectionConfig.textOnlySystemPrompt = buildSelectionEditSystemPrompt(
-          withToneSentence(selectionConfig.textOnlySystemPrompt),
-          completionMarker
-        );
-      }
-      userPrompt = buildSelectionEditUserPrompt(text, capture.text);
     }
+    const userPrompt = buildSelectionEditUserPrompt(text, capture.text);
 
     try {
       const result = await this.processWithReasoningModel(
@@ -2038,9 +1995,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       );
       if (wasCancelled()) return text;
       if (!isSelectionQuestionResponse(result, completionMarker)) {
-        const replacement = isLocalSelection
-          ? extractLocalSelectionEditReplacement(result)
-          : extractSelectionEditReplacement(result, completionMarker);
+        const replacement = extractSelectionEditReplacement(result, completionMarker);
         this.pendingSelectionEdit = { sessionId: capture.sessionId };
         return replacement;
       }

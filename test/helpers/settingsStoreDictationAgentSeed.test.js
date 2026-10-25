@@ -33,7 +33,7 @@ test("the Voice Assistant scope is seeded from Chat once for profiles that never
     assert.equal(state.dictationAgentProvider, "llama");
     assert.equal(state.dictationAgentModel, "qwen3-8b");
     assert.equal(state.dictationAgentCloudMode, "byok");
-    assert.equal(storage.getItem("_dictationAgentSeeded"), "key-pending");
+    assert.equal(storage.getItem("_dictationAgentSeeded"), "1");
   });
 
   await t.test("a self-hosted chat carries its endpoint", async () => {
