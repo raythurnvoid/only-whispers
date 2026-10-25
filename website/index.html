@@ -802,6 +802,19 @@ function updateZoom() {
 addEventListener("scroll", () => requestAnimationFrame(updateZoom), { passive: true });
 addEventListener("resize", updateZoom);
 updateZoom();
+
+// The promo always plays, and starts over each time the top section comes
+// back to the middle of the screen (when its tab turns active).
+const video = hero.querySelector("video");
+const play = () => video.play().catch(() => {});
+new IntersectionObserver(([entry]) => {
+  if (!entry.isIntersecting) return;
+  video.currentTime = 0;
+  play();
+}, { rootMargin: "-50% 0px -50% 0px" }).observe(hero);
+// Browsers may pause it (for example in a background tab), so play it again.
+video.addEventListener("pause", () => { if (!document.hidden) play(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) play(); });
 </script>
 </body>
 </html>

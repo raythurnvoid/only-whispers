@@ -1,0 +1,46 @@
+name: Deploy website
+
+# Deploys website/ to Cloudflare (only-whispers.bonobo-senate.com) when a push
+# to main changes it.
+#
+# Needs, in the repo settings:
+# - secret CLOUDFLARE_API_TOKEN (Cloudflare token from the "Edit Cloudflare Workers" template)
+# - variable CLOUDFLARE_ACCOUNT_ID
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy-website.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; a newer push replaces a waiting one.
+concurrency:
+  group: deploy-website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Deploy
+        working-directory: website
+        run: pnpm dlx wrangler@4.152.0 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
