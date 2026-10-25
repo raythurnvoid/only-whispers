@@ -6,6 +6,9 @@ name: Deploy website
 # Needs, in the repo settings:
 # - secret CLOUDFLARE_API_TOKEN (Cloudflare token from the "Edit Cloudflare Workers" template)
 # - variable CLOUDFLARE_ACCOUNT_ID
+#
+# The token expires every 7 days. When this fails with "Authentication error",
+# rotate it with the local setup-website-deploy skill (.claude/skills/).
 
 on:
   push:
