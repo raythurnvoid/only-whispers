@@ -1,4 +1,4 @@
-// whisper-server stderr, rebuilt line by line from the pinned OpenWhispr/whisper.cpp
+// whisper-server stderr, rebuilt line by line from the pinned only-whispers/whisper.cpp
 // tag (src/whisper.cpp, ggml/src/ggml-vulkan, ggml/src/ggml-cuda, ggml-backend.cpp,
 // examples/server/server.cpp) and the logs on #1340 and #1606.
 
@@ -9,7 +9,7 @@
 const VULKAN_DEVICE_LOST_STDERR = [
   "ggml_vulkan: Found 1 Vulkan devices:",
   "ggml_vulkan: 0 = AMD Radeon RX 9070 XT (AMD proprietary driver) | uma: 0 | fp16: 1 | bf16: 1 | warp size: 64 | shared memory: 32768 | int dot: 1 | matrix cores: KHR_coopmat",
-  "whisper_init_from_file_with_params_no_state: loading model from 'C:\\Users\\Mika\\.cache\\openwhispr\\whisper-models\\ggml-large-v3-turbo.bin'",
+  "whisper_init_from_file_with_params_no_state: loading model from 'C:\\Users\\Mika\\.cache\\only-whispers\\whisper-models\\ggml-large-v3-turbo.bin'",
   "whisper_init_with_params_no_state: use gpu    = 1",
   "whisper_init_with_params_no_state: flash attn = 1",
   "whisper_init_with_params_no_state: gpu_device = 0",
@@ -33,7 +33,7 @@ const VULKAN_DEVICE_LOST_STDERR = [
 const CUDA_KERNEL_IMAGE_STDERR = [
   "ggml_cuda_init: found 1 CUDA devices (Total VRAM: 4096 MiB):",
   "  Device 0: NVIDIA GeForce GTX 970, compute capability 5.2, VMM: yes, VRAM: 4096 MiB",
-  "whisper_init_from_file_with_params_no_state: loading model from '/home/ana/.cache/openwhispr/whisper-models/ggml-base.bin'",
+  "whisper_init_from_file_with_params_no_state: loading model from '/home/ana/.cache/only-whispers/whisper-models/ggml-base.bin'",
   "whisper_backend_init_gpu: using CUDA0 backend",
   "whisper_model_load:        CUDA0 total size =   147.37 MB",
   "CUDA error: no kernel image is available for execution on the device",
@@ -48,7 +48,7 @@ const CUDA_KERNEL_IMAGE_STDERR = [
 const CUDA_OUT_OF_MEMORY_STDERR = [
   "ggml_cuda_init: found 1 CUDA devices (Total VRAM: 2048 MiB):",
   "  Device 0: NVIDIA GeForce GTX 1050, compute capability 6.1, VMM: yes, VRAM: 2048 MiB",
-  "whisper_init_from_file_with_params_no_state: loading model from 'C:\\Users\\Ana\\.cache\\openwhispr\\whisper-models\\ggml-large-v3-turbo.bin'",
+  "whisper_init_from_file_with_params_no_state: loading model from 'C:\\Users\\Ana\\.cache\\only-whispers\\whisper-models\\ggml-large-v3-turbo.bin'",
   "whisper_backend_init_gpu: using CUDA0 backend",
   "ggml_backend_cuda_buffer_type_alloc_buffer: allocating 1533.14 MiB on device 0: cudaMalloc failed: out of memory",
   "alloc_tensor_range: failed to allocate CUDA0 buffer of size 1607598080",

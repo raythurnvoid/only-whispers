@@ -13,7 +13,7 @@ function buildLongDictionaryPrompt(count = 100) {
 
 test("the dictionary reaches Mistral as at most 100 context-bias words, head first", async (t) => {
   const { window, createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-dictionary-prompt-cap-test-",
+    cachePrefix: "only-whispers-dictionary-prompt-cap-test-",
     settingsKey: "__dictionaryPromptCapSettings",
     settings: {},
   });

@@ -59,7 +59,7 @@ async function mount(t) {
   });
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-paste-recovery-hook-",
+    cachePrefix: "only-whispers-paste-recovery-hook-",
     mockModules: {
       "/utils/logger": "export default { debug() {}, info() {}, warn() {}, error() {} };",
       "/utils/visualFrame": "export async function waitForVisualFrames() {}",

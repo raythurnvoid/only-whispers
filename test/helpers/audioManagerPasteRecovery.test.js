@@ -4,7 +4,7 @@ const { loadAudioManager } = require("./harness/audioManager");
 
 test("safePaste preserves exact final text only for confirmed permission recovery", async (t) => {
   const { window, createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-paste-recovery-",
+    cachePrefix: "only-whispers-paste-recovery-",
     settingsKey: "__pasteRecoverySettings",
   });
   const errors = [];

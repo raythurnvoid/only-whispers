@@ -16,8 +16,8 @@ function ensureDir(dir) {
 
 function getAsciiSafeFallbackRoot() {
   const candidates = [
-    path.join(process.env.ProgramData || "C:\\ProgramData", "OpenWhispr", "cache"),
-    path.join(process.env.SystemDrive || "C:", "OpenWhispr", "cache"),
+    path.join(process.env.ProgramData || "C:\\ProgramData", "only-whispers", "cache"),
+    path.join(process.env.SystemDrive || "C:", "only-whispers", "cache"),
   ];
 
   for (const candidate of candidates) {
@@ -31,21 +31,21 @@ function getAsciiSafeFallbackRoot() {
 }
 
 function getPreferredCacheRoot(homeCache) {
-  if (process.env.OPENWHISPR_CACHE_ROOT) {
-    return process.env.OPENWHISPR_CACHE_ROOT;
+  if (process.env.ONLY_WHISPERS_CACHE_ROOT) {
+    return process.env.ONLY_WHISPERS_CACHE_ROOT;
   }
 
   if (process.platform === "win32") {
     const redirectedProfile = process.env.USERPROFILE;
     if (redirectedProfile && path.isAbsolute(redirectedProfile)) {
-      return path.join(redirectedProfile, ".cache", "openwhispr");
+      return path.join(redirectedProfile, ".cache", "only-whispers");
     }
   }
 
   if (process.platform === "linux") {
     const xdgCacheHome = process.env.XDG_CACHE_HOME;
     if (xdgCacheHome && path.isAbsolute(xdgCacheHome)) {
-      return path.join(xdgCacheHome, "openwhispr");
+      return path.join(xdgCacheHome, "only-whispers");
     }
   }
 
@@ -122,7 +122,7 @@ function migrateLegacyModelDirs(legacyRoot, targetRoot) {
 
 function getCacheRoot() {
   const homeDir = app?.getPath?.("home") || os.homedir();
-  const homeCache = path.join(homeDir, ".cache", "openwhispr");
+  const homeCache = path.join(homeDir, ".cache", "only-whispers");
   let targetRoot = getPreferredCacheRoot(homeCache);
 
   if (process.platform === "win32" && pathHasProblematicChars(targetRoot)) {

@@ -9,7 +9,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 async function loadModule(t, file, platform) {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: `openwhispr-backdrop-blur-${platform}-test-`,
+    cachePrefix: `only-whispers-backdrop-blur-${platform}-test-`,
     mockModules: { "/utils/platform": `export const getCachedPlatform = () => "${platform}";` },
   });
   return vite.ssrLoadModule(file);

@@ -204,7 +204,7 @@ test(
       ["anthropic", "https://console.anthropic.com/settings/keys"],
       ["gemini", "https://aistudio.google.com/app/api-keys"],
       ["groq", "https://console.groq.com/keys"],
-      ["corti", "https://www.corti.ai/?utm_source=referral&utm_campaign=openwhispr"],
+      ["corti", "https://www.corti.ai/?utm_source=referral&utm_campaign=only-whispers"],
     ]) {
       await t.test(provider, async (t) => {
         const panel = await mount(t, { overrides: { localReasoningProvider: provider } });

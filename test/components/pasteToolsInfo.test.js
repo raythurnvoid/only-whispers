@@ -7,7 +7,9 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 // The harness renders i18n keys verbatim, so assertions match keys.
 async function renderPasteToolsInfo(t, pasteToolsInfo) {
   installBrowserGlobals(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-paste-tools-info-test-" });
+  const vite = await createRendererServer(t, {
+    cachePrefix: "only-whispers-paste-tools-info-test-",
+  });
   const { default: PasteToolsInfo } = await vite.ssrLoadModule("/components/ui/PasteToolsInfo.tsx");
   return renderToStaticMarkup(
     createElement(PasteToolsInfo, { pasteToolsInfo, isChecking: false, onCheck: () => {} })

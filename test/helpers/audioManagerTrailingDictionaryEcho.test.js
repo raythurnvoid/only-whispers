@@ -7,7 +7,7 @@ const { loadAudioManager } = require("./harness/audioManager");
 // the saved transcript.
 test("Mistral transcription drops a dictionary list recited after the speech", async (t) => {
   const { window, setSettings, createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-trailing-dictionary-echo-test-",
+    cachePrefix: "only-whispers-trailing-dictionary-echo-test-",
     settingsKey: "__trailingDictionaryEchoSettings",
   });
   const audioBlob = new Blob([new ArrayBuffer(8)], { type: "audio/webm" });
@@ -32,28 +32,33 @@ test("Mistral transcription drops a dictionary list recited after the speech", a
   };
 
   await t.test("the recited tail is removed from text and rawText", async () => {
-    const payloads = respondWith("Appreciate the time. Thanks, all. Thanks, you. OpenWhispr, n8n.");
+    const payloads = respondWith(
+      "Appreciate the time. Thanks, all. Thanks, you. only-whispers, n8n."
+    );
 
-    const result = await makeManager(["OpenWhispr", "n8n"]).processWithOpenAIAPI(audioBlob, {});
+    const result = await makeManager(["only-whispers", "n8n"]).processWithOpenAIAPI(audioBlob, {});
 
-    assert.deepEqual(payloads[0].contextBias, ["OpenWhispr", "n8n"]);
+    assert.deepEqual(payloads[0].contextBias, ["only-whispers", "n8n"]);
     assert.equal(result.success, true);
     assert.equal(result.rawText, "Appreciate the time. Thanks, all. Thanks, you.");
     assert.equal(result.text, "Appreciate the time. Thanks, all. Thanks, you.");
   });
 
   await t.test("a whole-response echo is discarded", async () => {
-    respondWith("OpenWhispr, n8n.");
+    respondWith("only-whispers, n8n.");
 
-    await assert.rejects(makeManager(["OpenWhispr", "n8n"]).processWithOpenAIAPI(audioBlob, {}), {
-      code: "DICTIONARY_ECHO",
-    });
+    await assert.rejects(
+      makeManager(["only-whispers", "n8n"]).processWithOpenAIAPI(audioBlob, {}),
+      {
+        code: "DICTIONARY_ECHO",
+      }
+    );
   });
 
   await t.test("a snippet trigger said as its own sentence is kept", async () => {
     respondWith("Text him. On my way, see you.");
     const manager = makeManager(
-      ["OpenWhispr", "n8n"],
+      ["only-whispers", "n8n"],
       [{ trigger: "on my way, see you", replacement: "On my way, see you soon!" }]
     );
 
@@ -63,11 +68,11 @@ test("Mistral transcription drops a dictionary list recited after the speech", a
   });
 
   await t.test("a request sent no dictionary keeps its whole transcript", async () => {
-    const payloads = respondWith("Thanks, you. OpenWhispr, n8n.");
+    const payloads = respondWith("Thanks, you. only-whispers, n8n.");
 
     const result = await makeManager([]).processWithOpenAIAPI(audioBlob, {});
 
     assert.equal(payloads[0].contextBias, undefined);
-    assert.equal(result.rawText, "Thanks, you. OpenWhispr, n8n.");
+    assert.equal(result.rawText, "Thanks, you. only-whispers, n8n.");
   });
 });

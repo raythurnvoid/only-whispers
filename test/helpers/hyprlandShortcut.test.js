@@ -38,7 +38,7 @@ async function withDbusMock(dbusModule, fn) {
 
 function withTempHyprConfig(fn) {
   return async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-hyprland-test-"));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-hyprland-test-"));
     const saved = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
     for (const key of ENV_KEYS) delete process.env[key];
     process.env.XDG_CONFIG_HOME = path.join(root, "config");
@@ -70,7 +70,7 @@ function successfulHyprctl(provider) {
 }
 
 const DBUS_COMMAND =
-  "dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Toggle";
+  "dbus-send --session --type=method_call --dest=com.raythurnvoid.OnlyWhispers /com/raythurnvoid/OnlyWhispers com.raythurnvoid.OnlyWhispers.Toggle";
 
 test("exports every Hyprland D-Bus toggle", async () => {
   let exported;
@@ -173,10 +173,10 @@ test(
     assert.ok(
       fs
         .readFileSync(configPath, "utf8")
-        .includes(`source = ${path.join(configDir, "openwhispr-binds.conf")}\n`)
+        .includes(`source = ${path.join(configDir, "only-whispers-binds.conf")}\n`)
     );
     assert.match(
-      fs.readFileSync(path.join(configDir, "openwhispr-binds.conf"), "utf8"),
+      fs.readFileSync(path.join(configDir, "only-whispers-binds.conf"), "utf8"),
       /bind = CTRL SHIFT, Return, exec, dbus-send/
     );
     assert.equal(await manager.unregisterKeybinding(), true);
@@ -204,7 +204,7 @@ test(
     assert.equal(manager.persistencePending, true);
     assert.deepEqual(Object.keys(manager.desiredBinds).sort(), ["dictation", "meeting"]);
     assert.deepEqual(Object.keys(manager.bindings).sort(), ["dictation", "meeting"]);
-    assert.equal(fs.existsSync(path.join(configDir, "openwhispr-binds.conf")), false);
+    assert.equal(fs.existsSync(path.join(configDir, "only-whispers-binds.conf")), false);
   })
 );
 
@@ -221,7 +221,7 @@ test(
     fs.writeFileSync(configPath, "# config\n");
     assert.equal(await manager.registerKeybinding("F8"), true);
 
-    assert.match(fs.readFileSync(configPath, "utf8"), /openwhispr-binds\.conf/);
+    assert.match(fs.readFileSync(configPath, "utf8"), /only-whispers-binds\.conf/);
     assert.match(readBinds(configDir), /bind = , F8, exec/);
   })
 );
@@ -273,17 +273,17 @@ test(
     assert.equal(hyprctl.calls.filter(({ args }) => args[0] === "systeminfo").length, 1);
 
     assert.equal(HyprlandShortcutManager.getHyprlandConfigStatus().path, luaPath);
-    assert.match(fs.readFileSync(luaPath, "utf8"), /pcall\(require, .+openwhispr-binds\.lua/);
+    assert.match(fs.readFileSync(luaPath, "utf8"), /pcall\(require, .+only-whispers-binds\.lua/);
     assert.equal(
-      (fs.readFileSync(luaPath, "utf8").match(/openwhispr-binds\.lua/g) || []).length,
+      (fs.readFileSync(luaPath, "utf8").match(/only-whispers-binds\.lua/g) || []).length,
       1
     );
-    const binds = fs.readFileSync(path.join(configDir, "openwhispr-binds.lua"), "utf8");
-    assert.match(binds, /^-- OpenWhispr keybinds/m);
+    const binds = fs.readFileSync(path.join(configDir, "only-whispers-binds.lua"), "utf8");
+    assert.match(binds, /^-- only-whispers keybinds/m);
     assert.match(binds, /hl\.bind\("CTRL \+ SHIFT \+ RETURN", hl\.dsp\.exec_cmd\("dbus-send/);
     assert.doesNotMatch(
       fs.readFileSync(path.join(configDir, "hyprland.conf"), "utf8"),
-      /openwhispr/
+      /only-whispers/
     );
     assert.equal(hyprctl.calls.filter(({ args }) => args[0] === "systeminfo").length, 1);
   })
@@ -412,7 +412,7 @@ test(
     assert.equal(await manager.registerKeybinding("Control+Shift+Enter"), false);
     assert.equal(manager.isRegistered, false);
     assert.equal(manager.bindings.dictation, undefined);
-    assert.equal(fs.existsSync(path.join(configDir, "openwhispr-binds.lua")), false);
+    assert.equal(fs.existsSync(path.join(configDir, "only-whispers-binds.lua")), false);
   })
 );
 
@@ -480,7 +480,10 @@ test(
     assert.equal(HyprlandShortcutManager.getHyprlandConfigStatus().path, configPath);
     assert.equal(hyprctl.calls.filter(({ args }) => args[0] === "systeminfo").length, 0);
     assert.match(fs.readFileSync(configPath, "utf8"), /pcall\(require,/);
-    assert.equal(fs.existsSync(path.join(path.dirname(configPath), "openwhispr-binds.lua")), true);
+    assert.equal(
+      fs.existsSync(path.join(path.dirname(configPath), "only-whispers-binds.lua")),
+      true
+    );
   })
 );
 
@@ -502,7 +505,7 @@ test(
     assert.equal(await manager.registerKeybinding("Control+Shift+Enter"), true);
     assert.equal(calls.filter(({ args }) => args[0] === "systeminfo").length, 1);
     assert.equal(calls.filter(({ args }) => args[0] === "eval").length, 2);
-    assert.equal(fs.existsSync(path.join(configDir, "openwhispr-binds.lua")), true);
+    assert.equal(fs.existsSync(path.join(configDir, "only-whispers-binds.lua")), true);
   })
 );
 
@@ -531,7 +534,7 @@ test(
   "replaces an old dofile loader before a trailing top-level return",
   withTempHyprConfig(async (configDir) => {
     const luaPath = path.join(configDir, "hyprland.lua");
-    const bindsPath = path.join(configDir, "openwhispr-binds.lua");
+    const bindsPath = path.join(configDir, "only-whispers-binds.lua");
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
       luaPath,
@@ -548,7 +551,7 @@ test(
     const content = fs.readFileSync(luaPath, "utf8");
     const protectedLoader = `pcall(require, "${bindsPath}")`;
     assert.doesNotMatch(content, /dofile\(/);
-    assert.equal((content.match(/openwhispr-binds\.lua/g) || []).length, 1);
+    assert.equal((content.match(/only-whispers-binds\.lua/g) || []).length, 1);
     assert.ok(content.indexOf(protectedLoader) < content.indexOf("return {}"));
   })
 );
@@ -557,17 +560,17 @@ test(
   "preserves user-authored lines that merely mention the D-Bus service",
   withTempHyprConfig(async (configDir) => {
     const configPath = path.join(configDir, "hyprland.conf");
-    const bindsPath = path.join(configDir, "openwhispr-binds.conf");
+    const bindsPath = path.join(configDir, "only-whispers-binds.conf");
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(configPath, "# legacy config\n");
-    fs.writeFileSync(bindsPath, "exec-once = notify-send com.openwhispr.App\n");
+    fs.writeFileSync(bindsPath, "exec-once = notify-send com.raythurnvoid.OnlyWhispers\n");
     const hyprctl = successfulHyprctl("hyprlang");
     const HyprlandShortcutManager = loadManager(hyprctl.execFileSync);
 
     assert.equal(await new HyprlandShortcutManager().registerKeybinding("F8"), true);
 
     const content = fs.readFileSync(bindsPath, "utf8");
-    assert.match(content, /exec-once = notify-send com\.openwhispr\.App/);
+    assert.match(content, /exec-once = notify-send com\.raythurnvoid\.OnlyWhispers/);
     assert.match(content, /bind = , F8, exec, dbus-send/);
   })
 );
@@ -577,7 +580,7 @@ test(
   withTempHyprConfig(async (configDir) => {
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(path.join(configDir, "hyprland.conf"), "# legacy config\n");
-    fs.mkdirSync(path.join(configDir, "openwhispr-binds.conf"));
+    fs.mkdirSync(path.join(configDir, "only-whispers-binds.conf"));
     const HyprlandShortcutManager = loadManager(successfulHyprctl("hyprlang").execFileSync);
 
     assert.equal(HyprlandShortcutManager.getHyprlandConfigStatus().canWrite, false);
@@ -588,12 +591,12 @@ test(
   "removes the previous header wording when rewriting managed binds",
   withTempHyprConfig(async (configDir) => {
     const configPath = path.join(configDir, "hyprland.conf");
-    const bindsPath = path.join(configDir, "openwhispr-binds.conf");
+    const bindsPath = path.join(configDir, "only-whispers-binds.conf");
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(configPath, "# legacy config\n");
     fs.writeFileSync(
       bindsPath,
-      "# OpenWhispr keybinds (managed automatically)\n" +
+      "# only-whispers keybinds (managed automatically)\n" +
         "# If you delete this file, also remove the matching source line from your Hyprland config.\n"
     );
     const hyprctl = successfulHyprctl("hyprlang");
@@ -606,7 +609,7 @@ test(
 
     const content = fs.readFileSync(bindsPath, "utf8");
     assert.doesNotMatch(content, /matching source line/);
-    assert.equal((content.match(/OpenWhispr keybinds/g) || []).length, 1);
+    assert.equal((content.match(/only-whispers keybinds/g) || []).length, 1);
   })
 );
 
@@ -614,14 +617,14 @@ test(
   "preserves user content while removing stale managed legacy binds",
   withTempHyprConfig(async (configDir) => {
     const confPath = path.join(configDir, "hyprland.conf");
-    const legacyBindsPath = path.join(configDir, "openwhispr-binds.conf");
+    const legacyBindsPath = path.join(configDir, "only-whispers-binds.conf");
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(path.join(configDir, "hyprland.lua"), "-- lua config\n");
-    fs.writeFileSync(confPath, "source = ./openwhispr-binds.conf\n");
+    fs.writeFileSync(confPath, "source = ./only-whispers-binds.conf\n");
     fs.writeFileSync(
       legacyBindsPath,
-      "# OpenWhispr keybinds (managed automatically)\n" +
-        "exec-once = notify-send com.openwhispr.App\n" +
+      "# only-whispers keybinds (managed automatically)\n" +
+        "exec-once = notify-send com.raythurnvoid.OnlyWhispers\n" +
         `bind = CTRL SHIFT, Return, exec, ${DBUS_COMMAND}\n`
     );
     const HyprlandShortcutManager = loadManager(successfulHyprctl("lua").execFileSync);
@@ -630,9 +633,9 @@ test(
 
     assert.equal(
       fs.readFileSync(legacyBindsPath, "utf8"),
-      "exec-once = notify-send com.openwhispr.App\n"
+      "exec-once = notify-send com.raythurnvoid.OnlyWhispers\n"
     );
-    assert.equal(fs.readFileSync(confPath, "utf8"), "source = ./openwhispr-binds.conf\n");
+    assert.equal(fs.readFileSync(confPath, "utf8"), "source = ./only-whispers-binds.conf\n");
   })
 );
 
@@ -640,10 +643,10 @@ test(
   "keeps the legacy source target intact until cleanup can be retried",
   withTempHyprConfig(async (configDir) => {
     const confPath = path.join(configDir, "hyprland.conf");
-    const legacyBindsPath = path.join(configDir, "openwhispr-binds.conf");
-    const legacyConfig = "# keep this comment\nsource = ./openwhispr-binds.conf\n";
+    const legacyBindsPath = path.join(configDir, "only-whispers-binds.conf");
+    const legacyConfig = "# keep this comment\nsource = ./only-whispers-binds.conf\n";
     const legacyBinds =
-      "# OpenWhispr keybinds (managed automatically)\n" +
+      "# only-whispers keybinds (managed automatically)\n" +
       `bind = CTRL SHIFT, Return, exec, ${DBUS_COMMAND}\n`;
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(path.join(configDir, "hyprland.lua"), "-- lua config\n");
@@ -680,13 +683,13 @@ test(
   "removes stale managed legacy artifacts after migrating to Lua",
   withTempHyprConfig(async (configDir) => {
     const confPath = path.join(configDir, "hyprland.conf");
-    const legacyBindsPath = path.join(configDir, "openwhispr-binds.conf");
+    const legacyBindsPath = path.join(configDir, "only-whispers-binds.conf");
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(path.join(configDir, "hyprland.lua"), "-- lua config\n");
-    fs.writeFileSync(confPath, "# keep this comment\nsource = ./openwhispr-binds.conf\n");
+    fs.writeFileSync(confPath, "# keep this comment\nsource = ./only-whispers-binds.conf\n");
     fs.writeFileSync(
       legacyBindsPath,
-      "# OpenWhispr keybinds (managed automatically)\n" +
+      "# only-whispers keybinds (managed automatically)\n" +
         `bind = CTRL SHIFT, Return, exec, ${DBUS_COMMAND}\n`
     );
     const hyprctl = successfulHyprctl("lua");
@@ -703,7 +706,7 @@ test(
 );
 
 function readBinds(configDir) {
-  return fs.readFileSync(path.join(configDir, "openwhispr-binds.conf"), "utf8");
+  return fs.readFileSync(path.join(configDir, "only-whispers-binds.conf"), "utf8");
 }
 
 test(

@@ -9,7 +9,7 @@ async function loadStore(t, electronAPI) {
     window: { electronAPI },
   });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-registered-hotkey-setter-test-",
+    cachePrefix: "only-whispers-registered-hotkey-setter-test-",
     resolveAlias: { "@": path.resolve(__dirname, "../../src") },
   });
   return vite.ssrLoadModule("/stores/settingsStore.ts");

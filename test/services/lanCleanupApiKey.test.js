@@ -9,7 +9,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 test("self-hosted cleanup sends the current cleanup key, not the store's stale copy", async (t) => {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-lan-cleanup-key-test-",
+    cachePrefix: "only-whispers-lan-cleanup-key-test-",
   });
 
   const { lanProvider } = await vite.ssrLoadModule("/services/ai/inferenceProviders/lan.ts");

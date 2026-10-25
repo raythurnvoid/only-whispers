@@ -51,7 +51,7 @@ test("web search is for anything that may have changed, and when in doubt the mo
   );
   assert.match(prompt, /whenever the user asks you to look something up/);
   assert.match(prompt, /search rather than decline/);
-  assert.doesNotMatch(prompt, /OpenWhispr/);
+  assert.doesNotMatch(prompt, /only-whispers/);
 });
 
 test("web search stays on public information the context doesn't already answer", async () => {

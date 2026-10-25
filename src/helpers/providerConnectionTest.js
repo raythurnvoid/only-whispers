@@ -162,7 +162,7 @@ function resolveProviderRequest(config) {
 
   if (provider === "openai") {
     const override = normalizeBaseUrl(
-      process.env.OPENWHISPR_OPENAI_BASE_URL || process.env.OPENAI_BASE_URL
+      process.env.ONLY_WHISPERS_OPENAI_BASE_URL || process.env.OPENAI_BASE_URL
     );
     if (override) {
       endpoints = buildModelEndpoints(override);

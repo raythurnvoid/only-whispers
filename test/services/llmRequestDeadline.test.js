@@ -167,7 +167,7 @@ test("enterprise note formatting sends the long deadline to the main process", a
     },
   });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-enterprise-deadline-test-",
+    cachePrefix: "only-whispers-enterprise-deadline-test-",
     mockModules: {
       "/models/ModelRegistry": `
         export const getOpenAiApiConfig = () => ({ supportsTemperature: true });
@@ -202,7 +202,7 @@ test("enterprise note formatting sends the long deadline to the main process", a
 test("Tinfoil note formatting passes the long deadline to the SDK and does not retry its timeout", async (t) => {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-tinfoil-deadline-test-",
+    cachePrefix: "only-whispers-tinfoil-deadline-test-",
     mockModules: {
       "/tinfoilClient": `
         export const getTinfoilChatClient = async () => ({

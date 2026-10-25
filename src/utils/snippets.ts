@@ -85,7 +85,7 @@ function resolveReplacement(match: string, replacements: Map<string, string>): s
  * Character ranges of every trigger occurrence, matched against `text` exactly
  * as given so the offsets index that same string. Wake-word detection uses
  * these to ignore an agent name that only appears because it opens a trigger
- * the user chose, such as "openwhispr review" (see `agentDetection`).
+ * the user chose, such as "only-whispers review" (see `agentDetection`).
  */
 export function findSnippetTriggerRanges(
   text: string,

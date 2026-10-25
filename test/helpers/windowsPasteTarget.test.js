@@ -5,7 +5,7 @@ const {
   parseWindowHandle,
 } = require("../../src/helpers/windowsPasteTarget");
 
-const OWN_EXE = "OpenWhispr.exe";
+const OWN_EXE = "only-whispers.exe";
 
 function handleBuffer(hex, bytes = 8) {
   const buffer = Buffer.alloc(bytes);
@@ -26,7 +26,7 @@ test("another app's window is restored, as it was before the tray could start di
 
 test("our own window stays a target, so dictating into a note still pastes there", () => {
   const restorable = isRestorablePasteTarget({
-    target: { id: "00001A2B", exeName: "openwhispr.exe" },
+    target: { id: "00001A2B", exeName: "only-whispers.exe" },
     ownExeName: OWN_EXE,
     ownWindowHandles: [handleBuffer("0000BEEF"), handleBuffer("00001A2B")],
   });
@@ -37,7 +37,7 @@ test("our own window stays a target, so dictating into a note still pastes there
 // The tray menu's owner window: ours, but not one of our windows.
 test("our own non-window surface is dropped rather than force-activated", () => {
   const restorable = isRestorablePasteTarget({
-    target: { id: "00001A2B", exeName: "OpenWhispr.exe" },
+    target: { id: "00001A2B", exeName: "only-whispers.exe" },
     ownExeName: OWN_EXE,
     ownWindowHandles: [handleBuffer("0000BEEF")],
   });

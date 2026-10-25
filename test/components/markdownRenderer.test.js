@@ -18,7 +18,7 @@ const TABLE_MARKDOWN = [
 async function renderMarkdown(t, content) {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-markdown-renderer-test-",
+    cachePrefix: "only-whispers-markdown-renderer-test-",
   });
   const mod = await vite.ssrLoadModule("/components/ui/MarkdownRenderer.tsx");
   if (Array.isArray(content)) {
@@ -62,8 +62,8 @@ test("separate messages with the same footnote label have distinct destinations"
 });
 
 test("external links still open separately with safe relationship attributes", async (t) => {
-  const html = await renderMarkdown(t, "[Website](https://openwhispr.com)");
-  assert.ok(html.includes('href="https://openwhispr.com"'));
+  const html = await renderMarkdown(t, "[Website](https://only-whispers.com)");
+  assert.ok(html.includes('href="https://only-whispers.com"'));
   assert.ok(html.includes('target="_blank"'));
   assert.ok(html.includes('rel="noopener noreferrer"'));
 });
@@ -98,7 +98,7 @@ test("a wide table scrolls instead of stretching its container", async (t) => {
 test("Markdown component types stay stable across streaming and parent rerenders", async (t) => {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-markdown-reconciliation-test-",
+    cachePrefix: "only-whispers-markdown-reconciliation-test-",
   });
   const { MarkdownRenderer } = await vite.ssrLoadModule("/components/ui/MarkdownRenderer.tsx");
   let components;
@@ -143,12 +143,12 @@ test("non-table markdown is unchanged", async (t) => {
 test("GFM extras the plugin enables render as elements, not literal syntax", async (t) => {
   const html = await renderMarkdown(
     t,
-    "~~gone~~ and https://openwhispr.com\n\n- [ ] open\n- [x] done\n"
+    "~~gone~~ and https://only-whispers.com\n\n- [ ] open\n- [x] done\n"
   );
 
   assert.ok(html.includes("<del"), "strikethrough renders as del");
   assert.ok(!html.includes("~~"), "no literal tildes survive");
-  assert.ok(html.includes('href="https://openwhispr.com"'), "a bare URL is autolinked");
+  assert.ok(html.includes('href="https://only-whispers.com"'), "a bare URL is autolinked");
   assert.equal(
     (html.match(/type="checkbox"/g) || []).length,
     2,
@@ -170,8 +170,8 @@ test("a Markdown image never renders an <img>; it becomes a link the user can cl
       "![upper](HTTPS://attacker.example/upper.png)",
       "![plain](http://attacker.example/plain.png)",
       "![reference][pixel]",
-      "[![badge](https://attacker.example/badge.svg)](https://github.com/openwhispr)",
-      "[![](https://attacker.example/blank-badge.svg)](https://github.com/openwhispr/blank)",
+      "[![badge](https://attacker.example/badge.svg)](https://github.com/only-whispers)",
+      "[![](https://attacker.example/blank-badge.svg)](https://github.com/only-whispers/blank)",
       "",
       "[pixel]: https://attacker.example/ref.png",
       "",
@@ -206,9 +206,9 @@ test("a Markdown image never renders an <img>; it becomes a link the user can cl
       ["http://attacker.example/plain.png", "plain"],
       ["https://attacker.example/ref.png", "reference"],
       // A nested link would take the click, so the surrounding link keeps it.
-      ["https://github.com/openwhispr", "badge"],
+      ["https://github.com/only-whispers", "badge"],
       // The image URL would read as the destination of a link that goes elsewhere.
-      ["https://github.com/openwhispr/blank", ""],
+      ["https://github.com/only-whispers/blank", ""],
     ],
     "each image is a link labelled with its alt text, or its URL when the alt text is blank"
   );

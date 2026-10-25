@@ -2018,7 +2018,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           );
       userPrompt = buildLocalSelectionEditUserPrompt(instruction, capture.text);
     } else {
-      completionMarker = `__OPENWHISPR_SELECTION_COMPLETE_${crypto.randomUUID()}__`;
+      completionMarker = `__ONLY_WHISPERS_SELECTION_COMPLETE_${crypto.randomUUID()}__`;
       selectionConfig.systemPrompt = buildSelectionEditSystemPrompt(
         withToneSentence(config?.systemPrompt),
         completionMarker

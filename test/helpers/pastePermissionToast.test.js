@@ -16,7 +16,7 @@ async function setup(t, mockModules = {}) {
   installBrowserGlobals(t, { window: { location: { search: "", pathname: "/" } } });
   const container = installInteractiveDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-recovery-card-",
+    cachePrefix: "only-whispers-recovery-card-",
     mockModules,
   });
   const [{ default: i18n }, { initReactI18next }] = await Promise.all([

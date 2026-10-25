@@ -18,7 +18,7 @@ const GLOBALS_LISTED = 3;
 const TOPLEVEL_INFO_ID = 4;
 const TOPLEVELS_LISTED = 5;
 
-// Wayland messages use host byte order, little-endian on every platform OpenWhispr ships.
+// Wayland messages use host byte order, little-endian on every platform only-whispers ships.
 function message(objectId, opcode, ...args) {
   const body = Buffer.concat(args);
   const header = Buffer.alloc(8);

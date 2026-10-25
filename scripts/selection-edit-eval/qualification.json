@@ -1,10 +1,7 @@
 {
   "suite": "independent-final-qualification-2026-10-06",
   "scoring": "exact string equality; no trimming, punctuation normalization or retry substitution",
-  "seeds": [
-    613,
-    947
-  ],
+  "seeds": [613, 947],
   "cases": [
     {
       "id": "qualify_01",
@@ -62,7 +59,7 @@
     },
     {
       "id": "qualify_10",
-      "instruction": "OpenWhispr, um, change the word tentative to confirmed, and, uh, keep all the other words the same.",
+      "instruction": "only-whispers, um, change the word tentative to confirmed, and, uh, keep all the other words the same.",
       "text": "The booking is tentative until noon.",
       "expected": "The booking is confirmed until noon."
     },

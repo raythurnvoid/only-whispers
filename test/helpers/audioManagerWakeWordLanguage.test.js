@@ -25,7 +25,7 @@ async function loadAudioManager(t) {
   });
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-wake-language-test-",
+    cachePrefix: "only-whispers-wake-language-test-",
     mockModules: {
       "/utils/logger":
         "export default { debug() {}, info() {}, warn() {}, error() {}, logReasoning() {} };",

@@ -36,7 +36,7 @@ async function mountTrayQuickActions(t, props) {
   installBrowserGlobals(t, { window: { electronAPI } });
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-tray-quick-actions-test-",
+    cachePrefix: "only-whispers-tray-quick-actions-test-",
   });
   const [{ useTrayQuickActions }, { TRAY_REFUSAL_KEYS }] = await Promise.all([
     vite.ssrLoadModule("/hooks/useTrayQuickActions.js"),

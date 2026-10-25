@@ -6,7 +6,7 @@ import logger from "../utils/logger";
 // thread; a spool routed through IPC waits on that thread instead. Only opening
 // the database goes through it, so the dictation window opens it at launch
 // (takeInterruptedRecordings), before any recording.
-const DB_NAME = "openwhispr-recording-spool";
+const DB_NAME = "only-whispers-recording-spool";
 const STORE = "chunks";
 
 // Every session this page started, finished or not. Anything else in the store

@@ -51,7 +51,7 @@ async function renderSection(t, settings, props = {}) {
   installBrowserGlobals(t, { window: { electronAPI: {} } });
   const container = installInteractiveDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-tone-style-section-test-",
+    cachePrefix: "only-whispers-tone-style-section-test-",
     noExternal: ["react-i18next"],
     mockModules: MOCKS,
   });

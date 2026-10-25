@@ -2,23 +2,23 @@ const { execFileSync } = require("child_process");
 const debugLogger = require("./debugLogger");
 const GnomeGlobalShortcutsPortal = require("./gnomeGlobalShortcutsPortal");
 
-const DBUS_SERVICE_NAME = "com.openwhispr.App";
-const DBUS_OBJECT_PATH = "/com/openwhispr/App";
-const DBUS_INTERFACE = "com.openwhispr.App";
+const DBUS_SERVICE_NAME = "com.raythurnvoid.OnlyWhispers";
+const DBUS_OBJECT_PATH = "/com/raythurnvoid/OnlyWhispers";
+const DBUS_INTERFACE = "com.raythurnvoid.OnlyWhispers";
 
 // Per-slot gsettings paths and display names
 const SLOT_CONFIG = {
   dictation: {
-    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/openwhispr/",
-    name: "OpenWhispr Toggle",
+    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers/",
+    name: "only-whispers Toggle",
   },
   meeting: {
-    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/openwhispr-meeting/",
-    name: "OpenWhispr Meeting",
+    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-meeting/",
+    name: "only-whispers Meeting",
   },
   voiceAgent: {
-    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/openwhispr-voice-agent/",
-    name: "OpenWhispr Voice Assistant",
+    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-voice-agent/",
+    name: "only-whispers Voice Assistant",
   },
 };
 
@@ -208,7 +208,7 @@ class GnomeShortcutManager {
   // so the entry errors silently forever and squats its key. Prune it once.
   removeRetiredAgentKeybinding() {
     const retiredPath =
-      "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/openwhispr-agent/";
+      "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-agent/";
     try {
       const existing = this.getExistingKeybindings();
       if (!existing.includes(retiredPath)) return;

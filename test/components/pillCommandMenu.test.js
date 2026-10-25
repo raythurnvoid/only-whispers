@@ -9,7 +9,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 async function renderMenu(t, props) {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-pill-command-menu-test-",
+    cachePrefix: "only-whispers-pill-command-menu-test-",
   });
   const mod = await vite.ssrLoadModule("/components/dictation/PillCommandMenu.tsx");
   return renderToStaticMarkup(

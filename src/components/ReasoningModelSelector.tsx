@@ -422,12 +422,12 @@ export default function ReasoningModelSelector({
     tinfoil: {
       value: tinfoilApiKey,
       set: setTinfoilApiKey,
-      url: "https://tinfoil.sh/inference?utm_source=referral&utm_campaign=openwhispr",
+      url: "https://tinfoil.sh/inference",
     },
     corti: {
       value: cortiApiKey,
       set: setCortiApiKey,
-      url: "https://www.corti.ai/?utm_source=referral&utm_campaign=openwhispr",
+      url: "https://www.corti.ai/",
     },
   };
   const hostedKey = hostedKeys[displayedCloudProvider];

@@ -3,7 +3,7 @@
 // request when a keyword carries `<`, `>` or a line break, or when the form has
 // more than ~1,000 parts ("Could not parse multipart form", #2224). So the first
 // 900 terms go out as keywords and the rest ride in `prompt` as context. Same
-// rules as the server-side adapter in openwhispr-api (lib/providers/openai.ts).
+// rules as the server-side adapter on the original server.
 const MAX_TRANSCRIPTION_KEYWORDS = 900;
 
 export function usesTranscriptionKeywords(model) {

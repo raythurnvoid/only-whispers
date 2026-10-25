@@ -56,7 +56,9 @@ async function mountScroller(t) {
   installBrowserGlobals(t);
   const container = installInteractiveDom(t);
   const resizeObservers = installResizeObservers(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-stick-to-bottom-test-" });
+  const vite = await createRendererServer(t, {
+    cachePrefix: "only-whispers-stick-to-bottom-test-",
+  });
   const { useStickToBottom } = await vite.ssrLoadModule("/hooks/useStickToBottom.ts");
   function Scroller() {
     const { scrollRef, handleScroll } = useStickToBottom("messages");

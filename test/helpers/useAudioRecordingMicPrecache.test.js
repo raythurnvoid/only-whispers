@@ -49,7 +49,7 @@ test("the mount effect pre-caches the microphone device id when streaming is off
   const container = installHookDom(t);
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-recording-mic-precache-",
+    cachePrefix: "only-whispers-audio-recording-mic-precache-",
     mockModules: {
       "/helpers/audioManager": FAKE_AUDIO_MANAGER_SOURCE,
     },

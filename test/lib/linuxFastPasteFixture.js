@@ -18,7 +18,7 @@ async function runLinuxFastPasteFixture(
   fixtureName,
   { env = process.env, sharedLibraries = [] } = {}
 ) {
-  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-fast-paste-"));
+  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-fast-paste-"));
   let xvfb;
   t.after(async () => {
     if (xvfb && xvfb.exitCode === null && xvfb.signalCode === null) {

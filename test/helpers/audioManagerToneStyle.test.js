@@ -11,7 +11,7 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
   Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
   t.after(() => delete navigator.onLine);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-tone-style-",
+    cachePrefix: "only-whispers-audio-tone-style-",
     mockModules: {
       "/utils/logger":
         "export default { debug() {}, info() {}, warn() {}, error() {}, logReasoning() {} };",

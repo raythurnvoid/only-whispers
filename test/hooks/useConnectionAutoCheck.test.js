@@ -29,7 +29,7 @@ async function mountCheck(t, initialProps = {}) {
     },
   });
   const container = installHookDom(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-auto-check-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-auto-check-" });
   const { useConnectionAutoCheck } = await vite.ssrLoadModule("/hooks/useConnectionAutoCheck.ts");
   t.mock.timers.enable({ apis: ["setTimeout"] });
 

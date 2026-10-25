@@ -221,7 +221,7 @@ async function streamRequestBody(t, { provider, model, config, tools, keys = {} 
       },
     },
   });
-  const vite = await createRendererServer(t, { cachePrefix: `openwhispr-effort-${provider}-` });
+  const vite = await createRendererServer(t, { cachePrefix: `only-whispers-effort-${provider}-` });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   t.after(() => reasoningService.destroy());
 
@@ -324,7 +324,7 @@ test("settings: each scope keeps its own effort", async (t) => {
     initialStorage: { _llmScopeKeysMigrated: "1", _dictationAgentSeeded: "1" },
   });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-effort-settings-",
+    cachePrefix: "only-whispers-effort-settings-",
     resolveAlias: { "@": path.resolve(__dirname, "../../src") },
   });
   await vite.ssrLoadModule("/models/ModelRegistry.ts");

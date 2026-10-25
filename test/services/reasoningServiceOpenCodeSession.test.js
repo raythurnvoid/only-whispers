@@ -42,7 +42,7 @@ async function streamAgainst(reasoningService, lanUrl) {
 }
 
 test("self-hosted streaming sends a session id to OpenCode Go", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-opencode-stream-test-");
+  const reasoningService = await loadReasoningService(t, "only-whispers-opencode-stream-test-");
   const sent = [];
   installStreamRecorder(t, sent);
 
@@ -54,7 +54,10 @@ test("self-hosted streaming sends a session id to OpenCode Go", async (t) => {
 });
 
 test("self-hosted streaming sends no session id to other endpoints", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-opencode-stream-other-test-");
+  const reasoningService = await loadReasoningService(
+    t,
+    "only-whispers-opencode-stream-other-test-"
+  );
   const sent = [];
   installStreamRecorder(t, sent);
 
@@ -80,7 +83,7 @@ function installCompletionRecorder(t, sent) {
 }
 
 test("self-hosted cleanup sends a session id to OpenCode Go", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-opencode-cleanup-test-");
+  const reasoningService = await loadReasoningService(t, "only-whispers-opencode-cleanup-test-");
   const sent = [];
   installCompletionRecorder(t, sent);
 

@@ -147,7 +147,7 @@ class TrayManager {
         this.tray.setIgnoreDoubleClickEvents(true);
       } else if (
         process.platform === "win32" &&
-        process.env.OPENWHISPR_CHANNEL === "production" &&
+        process.env.ONLY_WHISPERS_CHANNEL === "production" &&
         windowsTrayIdentity === true
       ) {
         // Other channels have their own profile and single-instance lock, so they can

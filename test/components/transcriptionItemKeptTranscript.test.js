@@ -35,7 +35,7 @@ const row = (overrides = {}) => ({
 async function loadTranscriptionItem(t) {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-transcription-item-test-",
+    cachePrefix: "only-whispers-transcription-item-test-",
     noExternal: ["react-i18next"],
     mockModules: {
       "react-i18next": `

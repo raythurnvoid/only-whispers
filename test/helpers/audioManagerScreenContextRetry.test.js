@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { createRendererServer, installBrowserGlobals } = require("../lib/rendererTestHarness");
 
-const MARKER_RE = /__OPENWHISPR_SELECTION_COMPLETE_[0-9a-f-]+__/;
+const MARKER_RE = /__ONLY_WHISPERS_SELECTION_COMPLETE_[0-9a-f-]+__/;
 
 // audioManager pulls in the whole renderer graph; ReasoningService is routed
 // through a globalThis slot so each test can script its responses.
@@ -44,7 +44,7 @@ async function loadAudioManager(t, { cachePrefix, settingsKey, reasoningKey }) {
 
 test("a selection edit survives a rejected screenshot via the text-only retry", async (t) => {
   const { window, setProcessText, createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-sc-retry-test-",
+    cachePrefix: "only-whispers-sc-retry-test-",
     settingsKey: "__scRetrySettings",
     reasoningKey: "__scRetryProcessText",
   });
@@ -100,7 +100,7 @@ test("a selection edit survives a rejected screenshot via the text-only retry", 
 
 test("the text-only retry swaps in the pre-built prompt verbatim", async (t) => {
   const { setProcessText, createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-sc-retry-direct-test-",
+    cachePrefix: "only-whispers-sc-retry-direct-test-",
     settingsKey: "__scRetryDirectSettings",
     reasoningKey: "__scRetryDirectProcessText",
   });
@@ -125,7 +125,7 @@ test("the text-only retry swaps in the pre-built prompt verbatim", async (t) => 
 
 test("a non-voice-agent recording clears a stale screen capture", async (t) => {
   const { createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-sc-stale-test-",
+    cachePrefix: "only-whispers-sc-stale-test-",
     settingsKey: "__scStaleSettings",
     reasoningKey: "__scStaleProcessText",
   });

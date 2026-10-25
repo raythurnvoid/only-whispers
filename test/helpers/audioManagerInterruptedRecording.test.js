@@ -12,7 +12,7 @@ const keptAudio = { dataRetentionEnabled: true, audioRetentionDays: 30 };
 
 async function load(t, settings = keptAudio) {
   const loaded = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-interrupted-recording-test-",
+    cachePrefix: "only-whispers-interrupted-recording-test-",
     settingsKey: "__interruptedRecordingSettings",
     settings,
     mockModules: {
@@ -73,7 +73,7 @@ test("an interrupted recording comes back as a failed row with its audio, then l
     return { success: true };
   };
 
-  await createManager().recoverInterruptedRecordings("OpenWhispr closed early.");
+  await createManager().recoverInterruptedRecordings("only-whispers closed early.");
 
   assert.deepEqual(saved, [
     {
@@ -81,7 +81,7 @@ test("an interrupted recording comes back as a failed row with its audio, then l
       rawText: null,
       options: {
         status: "failed",
-        errorMessage: "OpenWhispr closed early.",
+        errorMessage: "only-whispers closed early.",
         errorCode: "CRASH_RECOVERY",
         analyticsOccurredAt: "2026-09-05T08:00:00.000Z",
       },

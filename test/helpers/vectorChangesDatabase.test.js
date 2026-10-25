@@ -160,7 +160,7 @@ test("indexing reads current notes across accounts including soft deletion", (t)
 });
 
 test("pending deletions and acknowledged revisions survive database restart", (t) => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-vector-journal-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-vector-journal-"));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const filename = path.join(directory, "notes.db");
   const manager = createDatabase(t, { filename });

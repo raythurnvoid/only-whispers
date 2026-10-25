@@ -17,7 +17,7 @@ require.cache[electronPath] = {
 const { write, clear, readAll } = require("../../src/helpers/sidecarPidFile");
 
 function createUserDataDir(t) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ow-sidecar-pids-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-sidecar-pids-"));
   userDataDir = dir;
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   return path.join(dir, "sidecar-pids");

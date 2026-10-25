@@ -9,7 +9,7 @@ const debugLogger = require("../helpers/debugLogger");
 // VRAM, then aborts on the first kernel launch with "no kernel image is
 // available for execution on the device" — so those cards must be offered
 // Vulkan instead, which works on any NVIDIA GPU. Keep this floor in lockstep
-// with CUDA_ARCHITECTURES in OpenWhispr/whisper.cpp's build-binaries.yml.
+// with CUDA_ARCHITECTURES in whisper.cpp's build-binaries.yml.
 const MIN_CUDA_COMPUTE_CAP = 6.1;
 
 let cachedGpuInfo = null;

@@ -48,7 +48,7 @@ test("the mount effect recovers interrupted recordings with the translated messa
   const container = installHookDom(t);
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-recording-interrupted-recovery-",
+    cachePrefix: "only-whispers-audio-recording-interrupted-recovery-",
     mockModules: {
       "/helpers/audioManager": FAKE_AUDIO_MANAGER_SOURCE,
     },

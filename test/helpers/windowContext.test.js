@@ -11,7 +11,7 @@ test("a packaged dictation window ignores control in its install path", async (t
   globalThis.window = {
     location: {
       pathname:
-        "/Users/controller/Applications/OpenWhispr.app/Contents/Resources/app.asar/src/dist/index.html",
+        "/Users/controller/Applications/only-whispers.app/Contents/Resources/app.asar/src/dist/index.html",
       search: "",
     },
   };
@@ -29,7 +29,7 @@ test("only the explicit panel=true query selects the control panel", async (t) =
   });
   globalThis.window = {
     location: {
-      pathname: "/Applications/OpenWhispr.app/Contents/Resources/app.asar/src/dist/index.html",
+      pathname: "/Applications/only-whispers.app/Contents/Resources/app.asar/src/dist/index.html",
       search: "?panel=true",
     },
   };

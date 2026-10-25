@@ -9,7 +9,7 @@ const { loadAudioManager } = require("./harness/audioManager");
 // happened, and the column means two different things depending on the row.
 async function loadManagerClass(t) {
   return loadAudioManager(t, {
-    cachePrefix: "openwhispr-occurrence-time-test-",
+    cachePrefix: "only-whispers-occurrence-time-test-",
     settingsKey: "__occurrenceTimeSettings",
     settings: { dataRetentionEnabled: true, audioRetentionDays: 0 },
   });

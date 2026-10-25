@@ -1,7 +1,7 @@
 // The editor's verdict that the spoken instruction asks about the selection
 // ("explain this") rather than for a change to it. Pasting an answer over the
 // selection would destroy it, so the app answers in the assistant panel instead.
-export const SELECTION_QUESTION_MARKER = "__OPENWHISPR_SELECTION_QUESTION__";
+export const SELECTION_QUESTION_MARKER = "__ONLY_WHISPERS_SELECTION_QUESTION__";
 
 const SELECTION_QUESTION_REPLY = JSON.stringify({ replacement: SELECTION_QUESTION_MARKER });
 

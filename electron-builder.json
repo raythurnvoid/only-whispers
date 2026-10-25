@@ -7,7 +7,7 @@
   "productName": "only-whispers",
   "protocols": {
     "name": "only-whispers Protocol",
-    "schemes": ["openwhispr"]
+    "schemes": ["only-whispers"]
   },
   "directories": {
     "output": "dist"
@@ -151,9 +151,9 @@
     ],
     "extendInfo": {
       "LSUIElement": false,
-      "CFBundleIconName": "openwhispr",
-      "NSMicrophoneUsageDescription": "OpenWhispr uses the microphone to capture your voice for transcription.",
-      "NSAccessibilityUsageDescription": "OpenWhispr needs accessibility permissions to paste transcribed text into other applications."
+      "CFBundleIconName": "only-whispers",
+      "NSMicrophoneUsageDescription": "only-whispers uses the microphone to capture your voice for transcription.",
+      "NSAccessibilityUsageDescription": "only-whispers needs accessibility permissions to paste transcribed text into other applications."
     }
   },
   "win": {

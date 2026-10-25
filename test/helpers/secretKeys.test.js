@@ -8,7 +8,7 @@ const Module = require("module");
 // Mock electron and the OS keyring before environment.js / secretCrypto load,
 // so secrets take the plaintext (process.env) fallback path instead of writing
 // to the developer's real keychain.
-const tmpUserData = fs.mkdtempSync(path.join(os.tmpdir(), "ow-secret-test-"));
+const tmpUserData = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-secret-test-"));
 process.resourcesPath = tmpUserData; // Electron-only global; harmless dummy for the .env fallback scan
 const fakeElectron = {
   app: { getPath: () => tmpUserData },

@@ -157,7 +157,7 @@ export interface NoteAttendeesRequest {
   participants: CalendarAttendee[];
   /** Its calendar event, whose organizer is an attendee too. */
   calendarEventId: string | null;
-  /** The signed-in user's OpenWhispr address, never listed. */
+  /** The signed-in user's only-whispers address, never listed. */
   selfEmail: string | null;
 }
 

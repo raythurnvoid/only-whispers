@@ -6,7 +6,7 @@ const { loadAudioManager } = require("./harness/audioManager");
 // Only direct Gemini defers to model defaults; stale provider selections must not leak.
 async function loadRouteResolver(t, provider = "test", mode = "providers") {
   const { vite } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-cleanup-route-config-test-",
+    cachePrefix: "only-whispers-cleanup-route-config-test-",
     settingsKey: "__cleanupRouteConfigSettings",
     mockModules: {
       "/stores/settingsStore": `

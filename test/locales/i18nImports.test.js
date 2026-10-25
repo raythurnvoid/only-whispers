@@ -5,7 +5,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 test("i18n still loads under a window stub that lacks localStorage", async (t) => {
   installBrowserGlobals(t, { window: { localStorage: undefined } });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-i18n-import-test-",
+    cachePrefix: "only-whispers-i18n-import-test-",
   });
 
   const mod = await vite.ssrLoadModule("/i18n.ts");

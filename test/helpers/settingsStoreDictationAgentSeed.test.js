@@ -10,7 +10,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 test("the Voice Assistant scope is seeded from Chat once for profiles that never configured it", async (t) => {
   const { storage } = installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-dictation-agent-seed-test-",
+    cachePrefix: "only-whispers-dictation-agent-seed-test-",
   });
   const load = async (seed) => {
     storage.clear();

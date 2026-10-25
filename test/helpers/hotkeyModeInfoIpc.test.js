@@ -146,7 +146,7 @@ for (const [desktop, backend] of Object.entries(DESKTOP_BACKENDS)) {
 }
 
 // GNOME holds only through its GlobalShortcuts portal, which has nothing to do
-// with OpenWhispr's own key listener.
+// with only-whispers's own key listener.
 test("GNOME without the shortcuts portal names the portal, not the key listener", async () => {
   const info = await hotkeyModeInfo({
     useGnome: true,

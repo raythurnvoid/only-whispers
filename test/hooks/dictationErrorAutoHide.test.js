@@ -34,7 +34,7 @@ async function mountWithErrorCard(t) {
   });
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-dictation-error-auto-hide-",
+    cachePrefix: "only-whispers-dictation-error-auto-hide-",
     mockModules: { "stores/settingsStore": AUTO_HIDE_ON },
   });
   const { useMainWindowSizeOwner } = await vite.ssrLoadModule("/hooks/useMainWindowSizeOwner.js");

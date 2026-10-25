@@ -101,13 +101,16 @@ const computeBaseUrl = (candidates: Array<string | undefined>, fallback: string)
 };
 
 const DEFAULT_OPENAI_BASE = computeBaseUrl(
-  [env.OPENWHISPR_OPENAI_BASE_URL as string | undefined, env.OPENAI_BASE_URL as string | undefined],
+  [
+    env.ONLY_WHISPERS_OPENAI_BASE_URL as string | undefined,
+    env.OPENAI_BASE_URL as string | undefined,
+  ],
   "https://api.openai.com/v1"
 );
 
 const DEFAULT_TRANSCRIPTION_BASE = computeBaseUrl(
   [
-    env.OPENWHISPR_TRANSCRIPTION_BASE_URL as string | undefined,
+    env.ONLY_WHISPERS_TRANSCRIPTION_BASE_URL as string | undefined,
     env.WHISPER_BASE_URL as string | undefined,
   ],
   DEFAULT_OPENAI_BASE

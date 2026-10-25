@@ -34,7 +34,7 @@ async function mountHold(t) {
   });
   installBrowserGlobals(t);
   const container = installHookDom(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-focus-hold-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-focus-hold-" });
   const { useFocusHold } = await vite.ssrLoadModule("/hooks/useFocusHold.ts");
   let hold;
   function Harness() {

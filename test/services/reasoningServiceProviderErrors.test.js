@@ -35,7 +35,7 @@ const runLanCleanup = (reasoningService) =>
   });
 
 test("a BYOK request that hits its client-side deadline surfaces as PROVIDER_TIMEOUT after one attempt", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-provider-timeout-test-");
+  const reasoningService = await loadReasoningService(t, "only-whispers-provider-timeout-test-");
   // What fetch rejects with once the request's AbortController fires.
   const calls = mockFetch(t, async () => {
     throw new DOMException("The operation was aborted.", "AbortError");
@@ -54,7 +54,10 @@ test("a BYOK request that hits its client-side deadline surfaces as PROVIDER_TIM
 });
 
 test("a stopped self-hosted server surfaces as PROVIDER_NO_RESPONSE, still retried", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-provider-unreachable-test-");
+  const reasoningService = await loadReasoningService(
+    t,
+    "only-whispers-provider-unreachable-test-"
+  );
   const calls = mockFetch(t, async () => {
     throw new TypeError("Failed to fetch");
   });
@@ -82,7 +85,7 @@ test("a stopped self-hosted server surfaces as PROVIDER_NO_RESPONSE, still retri
 });
 
 test("a stopped LAN server on a chat without tools is classified, not a raw fetch error", async (t) => {
-  const reasoningService = await loadReasoningService(t, "openwhispr-lan-stream-fetch-test-");
+  const reasoningService = await loadReasoningService(t, "only-whispers-lan-stream-fetch-test-");
   mockFetch(t, async () => {
     throw new TypeError("Failed to fetch");
   });
@@ -113,7 +116,7 @@ for (const { provider, model, displayName } of [
   test(`a ${displayName} cleanup that hits its deadline surfaces as PROVIDER_TIMEOUT after one attempt`, async (t) => {
     const reasoningService = await loadReasoningService(
       t,
-      `openwhispr-provider-timeout-${provider}-test-`
+      `only-whispers-provider-timeout-${provider}-test-`
     );
     const calls = mockFetch(t, async () => {
       throw new DOMException("The operation was aborted.", "AbortError");

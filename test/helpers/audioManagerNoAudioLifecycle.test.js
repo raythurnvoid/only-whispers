@@ -8,7 +8,7 @@ const LOCAL_WHISPER_SETTINGS = {
 
 async function loadManagerClass(t, settings = LOCAL_WHISPER_SETTINGS) {
   const { AudioManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-no-audio-lifecycle-test-",
+    cachePrefix: "only-whispers-no-audio-lifecycle-test-",
     settingsKey: "__noAudioLifecycleSettings",
     settings,
   });

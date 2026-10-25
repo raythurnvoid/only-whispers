@@ -46,7 +46,7 @@ async function createTrayOn(platform, { channel = "production", metadata = {} } 
     traySource,
     {
       module: loadedModule,
-      process: { platform, env: { OPENWHISPR_CHANNEL: channel } },
+      process: { platform, env: { ONLY_WHISPERS_CHANNEL: channel } },
       require: (specifier) => stubs[specifier] ?? require(specifier),
     },
     { filename: trayPath }

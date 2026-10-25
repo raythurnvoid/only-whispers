@@ -75,7 +75,7 @@ async function mountSettingsPanel(
   });
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-settings-check-",
+    cachePrefix: "only-whispers-settings-check-",
     noExternal: ["react-i18next"],
     resolveAlias: { "@": path.resolve(__dirname, "../../src") },
     mockModules: {

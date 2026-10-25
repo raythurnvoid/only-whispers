@@ -106,7 +106,7 @@ function resolveAllowedAudioPath(filePath) {
 }
 
 function buildMultipartBody(fileBuffer, fileName, contentType, fields = {}) {
-  const boundary = `----OpenWhispr${Date.now()}`;
+  const boundary = `----OnlyWhispers${Date.now()}`;
   const parts = [];
 
   parts.push(
@@ -1154,7 +1154,7 @@ class IPCHandlers {
     ipcMain.handle("save-temp-audio", async (_event, buffer) => {
       const tempPath = path.join(
         os.tmpdir(),
-        `ow-voice-draft-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.webm`
+        `only-whispers-voice-draft-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.webm`
       );
       fs.writeFileSync(tempPath, Buffer.from(buffer));
       return { success: true, path: tempPath };
@@ -1163,7 +1163,7 @@ class IPCHandlers {
     ipcMain.handle("delete-temp-audio", async (_event, tempPath) => {
       // Only files this handler family created are deletable.
       const resolved = path.resolve(tempPath);
-      const validPrefix = path.join(os.tmpdir(), "ow-voice-draft-");
+      const validPrefix = path.join(os.tmpdir(), "only-whispers-voice-draft-");
       if (!resolved.startsWith(validPrefix)) {
         return { success: false, error: "Invalid temp path" };
       }

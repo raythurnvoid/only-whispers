@@ -225,7 +225,7 @@ test("leftover preference recovery is skipped without a marker or off macOS", as
 
 test("spawn args include mouse buttons, a spaced state path, and the suppression flag", () => {
   const statePath =
-    "/Users/a b/Library/Application Support/open whispr/globe-preference-state.json";
+    "/Users/a b/Library/Application Support/only whispers/globe-preference-state.json";
   const { GlobeKeyManager, spawnCalls } = loadManager();
   const manager = new GlobeKeyManager({ preferenceStatePath: statePath });
 

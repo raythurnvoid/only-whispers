@@ -12,7 +12,7 @@ const source = (relativePath) =>
 async function load(t) {
   installBrowserGlobals(t);
   return createRendererServer(t, {
-    cachePrefix: "openwhispr-settings-check-plumbing-",
+    cachePrefix: "only-whispers-settings-check-plumbing-",
     noExternal: ["react-i18next"],
     mockModules: {
       "react-i18next": `

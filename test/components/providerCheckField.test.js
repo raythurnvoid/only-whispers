@@ -17,7 +17,7 @@ const LABEL = "onboarding.rehaul.provider.apiKey";
 async function loadField(t) {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-provider-check-field-",
+    cachePrefix: "only-whispers-provider-check-field-",
     noExternal: ["react-i18next"],
     mockModules: {
       "react-i18next": `

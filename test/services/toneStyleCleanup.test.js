@@ -4,7 +4,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 
 async function loadModules(t) {
   installBrowserGlobals(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-tone-style-test-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-tone-style-test-" });
   return {
     prompts: await vite.ssrLoadModule("/config/prompts.ts"),
     toneStyle: await vite.ssrLoadModule("/config/toneStyle.ts"),
@@ -13,11 +13,11 @@ async function loadModules(t) {
 
 test("the cleanup prompt ends with the app's medium, the tone and its priority", async (t) => {
   const { prompts } = await loadModules(t);
-  const base = prompts.getCleanupSystemPrompt(null, ["OpenWhispr"], "en", "en");
+  const base = prompts.getCleanupSystemPrompt(null, ["only-whispers"], "en", "en");
 
-  assert.equal(prompts.getCleanupSystemPrompt(null, ["OpenWhispr"], "en", "en", null), base);
+  assert.equal(prompts.getCleanupSystemPrompt(null, ["only-whispers"], "en", "en", null), base);
 
-  const email = prompts.getCleanupSystemPrompt(null, ["OpenWhispr"], "en", "en", {
+  const email = prompts.getCleanupSystemPrompt(null, ["only-whispers"], "en", "en", {
     appCategory: "email",
     tone: "excited",
   });

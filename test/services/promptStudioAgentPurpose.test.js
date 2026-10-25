@@ -22,7 +22,7 @@ test("Prompt Studio marks dictation-agent runs as agent requests", async (t) => 
   globalThis.__promptStudioReasoningCalls = calls;
 
   const { createServer } = await import("vite");
-  const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-prompt-studio-test-"));
+  const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-prompt-studio-test-"));
   const vite = await createServer({
     root: path.resolve(__dirname, "../../src"),
     cacheDir,

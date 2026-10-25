@@ -143,7 +143,7 @@ async function mountHarness(
   globalThis.__forceStopShownNotices = [];
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-recording-force-stop-",
+    cachePrefix: "only-whispers-audio-recording-force-stop-",
     noExternal: ["react-i18next"],
     mockModules: {
       "/helpers/audioManager": FAKE_AUDIO_MANAGER_SOURCE,

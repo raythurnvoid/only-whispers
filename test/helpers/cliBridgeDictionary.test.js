@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const Module = require("node:module");
 
-let userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-cli-dict-"));
+let userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-cli-dict-"));
 const originalLoad = Module._load;
 // Routes broadcast through the shared windowBroadcast module, which reaches for
 // Electron's BrowserWindow; capture the calls so they can be asserted here.
@@ -46,7 +46,7 @@ function isNativeBindingUnavailable(error) {
 // Builds the route table against a real database with broadcasts stubbed. The
 // constructor does not start a server, so routes can be invoked directly.
 function createBridge(t) {
-  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-cli-dict-"));
+  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-cli-dict-"));
   let db;
   try {
     const BetterSqlite = require("better-sqlite3");
@@ -71,21 +71,21 @@ test("GET /v1/dictionary/list returns the stored words", (t) => {
   const ctx = createBridge(t);
   if (!ctx) return;
 
-  ctx.db.setDictionary(["OpenWhispr", "Alice"]);
+  ctx.db.setDictionary(["only-whispers", "Alice"]);
   const result = call(ctx.bridge, "GET", "/v1/dictionary/list");
-  assert.deepEqual(result.data, ["OpenWhispr", "Alice"]);
+  assert.deepEqual(result.data, ["only-whispers", "Alice"]);
 });
 
 test("POST /v1/dictionary/update bulk-adds words that survive a reload", (t) => {
   const ctx = createBridge(t);
   if (!ctx) return;
 
-  ctx.db.setDictionary(["OpenWhispr"]);
+  ctx.db.setDictionary(["only-whispers"]);
   const contacts = ["Ada Lovelace", "Grace Hopper", "Katherine Johnson"];
   const result = call(ctx.bridge, "POST", "/v1/dictionary/update", { add: contacts });
 
   assert.equal(result.data.added, 3);
-  assert.deepEqual(ctx.db.getDictionary(), ["OpenWhispr", ...contacts]);
+  assert.deepEqual(ctx.db.getDictionary(), ["only-whispers", ...contacts]);
 
   // The point of the endpoint: rows arrive with the sync columns set, so they
   // are uploadable rather than invisible to the cloud push (#1295).
@@ -98,11 +98,11 @@ test("POST /v1/dictionary/update removes only the named words", (t) => {
   const ctx = createBridge(t);
   if (!ctx) return;
 
-  ctx.db.setDictionary(["OpenWhispr", "Alice", "Bob"]);
+  ctx.db.setDictionary(["only-whispers", "Alice", "Bob"]);
   const result = call(ctx.bridge, "POST", "/v1/dictionary/update", { remove: ["Alice"] });
 
   assert.equal(result.data.removed, 1);
-  assert.deepEqual(ctx.db.getDictionary(), ["OpenWhispr", "Bob"]);
+  assert.deepEqual(ctx.db.getDictionary(), ["only-whispers", "Bob"]);
 });
 
 test("POST /v1/dictionary/update broadcasts the new list to renderers", async (t) => {
@@ -115,14 +115,14 @@ test("POST /v1/dictionary/update broadcasts the new list to renderers", async (t
   const ctx = createBridge(t);
   if (!ctx) return;
 
-  ctx.db.setDictionary(["OpenWhispr"]);
+  ctx.db.setDictionary(["only-whispers"]);
   call(ctx.bridge, "POST", "/v1/dictionary/update", { add: ["Alice"] });
 
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(ctx.broadcasts.length, 1);
   assert.equal(ctx.broadcasts[0].channel, "dictionary-updated");
-  assert.deepEqual(ctx.broadcasts[0].payload, ["OpenWhispr", "Alice"]);
+  assert.deepEqual(ctx.broadcasts[0].payload, ["only-whispers", "Alice"]);
 });
 
 test("POST /v1/dictionary/update rejects a non-array field", (t) => {

@@ -1,5 +1,5 @@
 // Tone & Style: the tone dictation cleanup writes in, picked per kind of app.
-// Category and tone values are the ones openwhispr-api's /api/reason accepts
+// Category and tone values are the ones the original server's /api/reason accepts
 // (`appCategory`, `tone`), plus this fork's "code" (never sent to the cloud);
 // main's toneAppCategories.js returns the same categories.
 

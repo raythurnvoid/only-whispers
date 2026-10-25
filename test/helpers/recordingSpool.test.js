@@ -56,7 +56,7 @@ async function loadSpool(t) {
   globalThis.__spoolWarnings = warnings;
   t.after(() => delete globalThis.__spoolWarnings);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-recording-spool-test-",
+    cachePrefix: "only-whispers-recording-spool-test-",
     mockModules: {
       "/utils/logger":
         "export default { warn: (message) => globalThis.__spoolWarnings.push(message) };",

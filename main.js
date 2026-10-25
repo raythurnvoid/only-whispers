@@ -61,7 +61,11 @@ function inferDefaultChannel() {
 }
 
 function resolveAppChannel() {
-  const rawChannel = (process.env.OPENWHISPR_CHANNEL || process.env.VITE_OPENWHISPR_CHANNEL || "")
+  const rawChannel = (
+    process.env.ONLY_WHISPERS_CHANNEL ||
+    process.env.VITE_ONLY_WHISPERS_CHANNEL ||
+    ""
+  )
     .trim()
     .toLowerCase();
 
@@ -73,14 +77,14 @@ function resolveAppChannel() {
 }
 
 const APP_CHANNEL = resolveAppChannel();
-process.env.OPENWHISPR_CHANNEL = APP_CHANNEL;
+process.env.ONLY_WHISPERS_CHANNEL = APP_CHANNEL;
 
 function configureChannelUserDataPath() {
   if (APP_CHANNEL === "production") {
     return;
   }
 
-  const isolatedPath = path.join(app.getPath("appData"), `OpenWhispr-${APP_CHANNEL}`);
+  const isolatedPath = path.join(app.getPath("appData"), `only-whispers-${APP_CHANNEL}`);
   app.setPath("userData", isolatedPath);
 }
 
@@ -124,7 +128,7 @@ if (process.platform === "linux" && process.env.XDG_SESSION_TYPE === "wayland") 
 // Set desktop filename so Wayland compositors can match windows to the .desktop entry.
 // This allows XDG portals (e.g. PipeWire) to persist permissions across sessions.
 if (process.platform === "linux") {
-  app.setDesktopName("open-whispr.desktop");
+  app.setDesktopName("only-whispers.desktop");
 }
 
 // Group all windows under single taskbar entry on Windows

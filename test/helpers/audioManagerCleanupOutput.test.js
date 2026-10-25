@@ -12,7 +12,7 @@ test("invalid completed cleanup keeps raw text across dictation routes", async (
   Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
   t.after(() => delete navigator.onLine);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-cleanup-output-",
+    cachePrefix: "only-whispers-audio-cleanup-output-",
     mockModules: {
       "/utils/logger":
         "export default { debug() {}, info() {}, warn() {}, error() {}, logReasoning() {} };",

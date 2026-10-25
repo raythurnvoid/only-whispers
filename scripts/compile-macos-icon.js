@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Compiles src/assets/openwhispr.icon (Apple Icon Composer bundle) into
+// Compiles src/assets/only-whispers.icon (Apple Icon Composer bundle) into
 // src/assets/Assets.car so macOS 26+ can render Liquid Glass layers.
 // The legacy src/assets/icon.icns is maintained separately for macOS <26.
 //
@@ -12,9 +12,9 @@ const os = require("os");
 const path = require("path");
 const { execFileSync, spawnSync } = require("child_process");
 
-const ICON_BUNDLE = path.join(__dirname, "..", "src", "assets", "openwhispr.icon");
+const ICON_BUNDLE = path.join(__dirname, "..", "src", "assets", "only-whispers.icon");
 const OUTPUT_CAR = path.join(__dirname, "..", "src", "assets", "Assets.car");
-const APP_ICON_NAME = "openwhispr";
+const APP_ICON_NAME = "only-whispers";
 
 if (process.platform !== "darwin") {
   console.log("compile-macos-icon: not macOS, skipping");
@@ -35,7 +35,7 @@ if (actoolLookup.status !== 0) {
   process.exit(0);
 }
 
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ow-icon-"));
+const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-icon-"));
 try {
   execFileSync(
     "xcrun",

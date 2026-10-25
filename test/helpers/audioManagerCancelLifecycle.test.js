@@ -5,7 +5,7 @@ const { deferred } = require("./harness/deferred");
 
 async function loadManagerClass(t) {
   const { AudioManager, window } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-cancel-lifecycle-test-",
+    cachePrefix: "only-whispers-cancel-lifecycle-test-",
     settingsKey: "__cancelLifecycleSettings",
     settings: {
       cloudTranscriptionMode: "byok",
@@ -271,7 +271,7 @@ test("cancelling when nothing is processing dismisses nothing", async (t) => {
 // batch pipeline that captured it.
 async function loadCancelGuardManagerClass(t) {
   const { AudioManager, window } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-streaming-leak-test-",
+    cachePrefix: "only-whispers-streaming-leak-test-",
     settingsKey: "__streamingLeakSettings",
     settings: {
       useLocalWhisper: false,

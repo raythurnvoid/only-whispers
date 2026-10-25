@@ -19,7 +19,7 @@ async function loadReasoningService(t, cachePrefix, electronAPI = {}) {
 test("a nested error object with no .message logs its content, not [object Object]", async (t) => {
   const { reasoningService, logger } = await loadReasoningService(
     t,
-    "openwhispr-error-logging-test-"
+    "only-whispers-error-logging-test-"
   );
   const logs = [];
   t.mock.method(logger, "logReasoning", (event, data) => logs.push({ event, data }));
@@ -50,7 +50,7 @@ test("a nested error object with no .message logs its content, not [object Objec
 test("an error.message string still logs as-is", async (t) => {
   const { reasoningService, logger } = await loadReasoningService(
     t,
-    "openwhispr-error-logging-message-test-"
+    "only-whispers-error-logging-message-test-"
   );
   const logs = [];
   t.mock.method(logger, "logReasoning", (event, data) => logs.push({ event, data }));
@@ -93,7 +93,7 @@ function mockFetch(t, respond) {
 test("a provider body that echoes the key is redacted in every API_ERROR_DETAIL field", async (t) => {
   const { reasoningService, logger } = await loadReasoningService(
     t,
-    "openwhispr-error-logging-redact-test-"
+    "only-whispers-error-logging-redact-test-"
   );
   const logs = [];
   t.mock.method(logger, "logReasoning", (event, data) => logs.push({ event, data }));
@@ -114,7 +114,7 @@ test("a provider body that echoes the key is redacted in every API_ERROR_DETAIL 
 test("a self-hosted chat stream failure logs a redacted body", async (t) => {
   const { reasoningService, logger } = await loadReasoningService(
     t,
-    "openwhispr-error-logging-stream-test-"
+    "only-whispers-error-logging-stream-test-"
   );
   const logs = [];
   t.mock.method(logger, "logReasoning", (event, data) => logs.push({ event, data }));
@@ -140,7 +140,7 @@ test("a self-hosted chat stream failure logs a redacted body", async (t) => {
 test("a BYOK AI SDK stream failure logs its status and a redacted body", async (t) => {
   const { reasoningService, logger } = await loadReasoningService(
     t,
-    "openwhispr-error-logging-sdk-stream-test-",
+    "only-whispers-error-logging-sdk-stream-test-",
     { getOpenAIKey: async () => "sk-test" }
   );
   const warnings = [];

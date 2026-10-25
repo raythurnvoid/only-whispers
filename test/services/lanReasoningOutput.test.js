@@ -8,7 +8,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 // That cut-off carries the code note formatting retries with more room (#2008).
 test("a self-hosted reply that only thought until the cap carries the cut-off code", async (t) => {
   installBrowserGlobals(t, { window: { electronAPI: {} } });
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-lan-reasoning-test-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-lan-reasoning-test-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   t.after(() => reasoningService.destroy());
 
@@ -38,7 +38,7 @@ test("a self-hosted reply that only thought until the cap carries the cut-off co
 
 test("a cancelled run aborts its self-hosted request and is not retried", async (t) => {
   installBrowserGlobals(t, { window: { electronAPI: {} } });
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-lan-reasoning-test-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-lan-reasoning-test-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   const { cancelRequest, trackRequest } = await vite.ssrLoadModule(
     "/services/ai/requestCancellation.ts"

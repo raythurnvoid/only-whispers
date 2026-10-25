@@ -123,7 +123,7 @@ function runFFmpegConversion(args, outputPath, { signal } = {}) {
     if (!ffmpegPath) {
       reject(
         new Error(
-          "FFmpeg not found - the bundled FFmpeg is missing from this install and no system FFmpeg was found on PATH; reinstalling OpenWhispr should fix this"
+          "FFmpeg not found - the bundled FFmpeg is missing from this install and no system FFmpeg was found on PATH; reinstalling only-whispers should fix this"
         )
       );
       return;
@@ -253,8 +253,8 @@ async function convertBufferToWav(audioBuffer, options = {}) {
   // process.pid is constant within a process and Date.now() only has
   // millisecond resolution, so concurrent retries need a sequence suffix.
   const stamp = `${Date.now()}-${process.pid}-${++reencodeSequence}`;
-  const inputPath = path.join(tempDir, `ow-reencode-${stamp}.input`);
-  const outputPath = path.join(tempDir, `ow-reencode-${stamp}.wav`);
+  const inputPath = path.join(tempDir, `only-whispers-reencode-${stamp}.input`);
+  const outputPath = path.join(tempDir, `only-whispers-reencode-${stamp}.wav`);
 
   try {
     fs.writeFileSync(inputPath, audioBuffer);
@@ -484,7 +484,7 @@ async function mergeAudioSegments(segments) {
   const ffmpegPath = getFFmpegPath();
   if (!ffmpegPath) throw new Error("FFmpeg not found - required for audio segment recovery");
 
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-audio-merge-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-audio-merge-"));
   const outputPath = path.join(tempDir, "merged.webm");
   try {
     const inputPaths = segments.map((segment, index) => {

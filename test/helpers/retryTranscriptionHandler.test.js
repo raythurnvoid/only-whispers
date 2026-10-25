@@ -207,7 +207,7 @@ test("proxy-mistral-transcription resolves to a structured error instead of reje
   assert.equal(typeof result.error, "string");
 });
 
-const uploadTempFile = path.join(os.tmpdir(), "openwhispr-upload-handler-test.webm");
+const uploadTempFile = path.join(os.tmpdir(), "only-whispers-upload-handler-test.webm");
 
 const invokeUpload = (payload) => {
   const uploadHandler = handlers.get("transcribe-audio-file-byok");

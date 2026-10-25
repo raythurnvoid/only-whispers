@@ -67,7 +67,7 @@ test("OpenAI reasoning model: the step after a tool call works without stored it
   installBrowserGlobals(t, {
     window: { electronAPI: { getOpenAIKey: async () => "test-key" } },
   });
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-openai-zdr-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-openai-zdr-" });
   const reasoningService = (await vite.ssrLoadModule("/services/ReasoningService.ts")).default;
   const { ToolRegistry } = await vite.ssrLoadModule("/services/tools/ToolRegistry.ts");
   t.after(() => reasoningService.destroy());

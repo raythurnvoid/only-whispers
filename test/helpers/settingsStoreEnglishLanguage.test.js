@@ -7,7 +7,7 @@ const { createRendererServer, installBrowserGlobals } = require("../lib/renderer
 test("dictation language is English for a fresh setup and an old auto setting", async (t) => {
   const { storage } = installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-english-language-test-",
+    cachePrefix: "only-whispers-english-language-test-",
   });
 
   for (const [stored, expected] of [

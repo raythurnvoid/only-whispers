@@ -4,7 +4,7 @@ function buildLinuxWrapperScript(binaryName) {
   }
 
   return `#!/bin/bash
-# OpenWhispr launcher
+# only-whispers launcher
 # User flags: ~/.config/${binaryName}-flags.conf (one per line, # = comment)
 
 HERE="$(dirname "$(readlink -f "\${BASH_SOURCE[0]}")")"

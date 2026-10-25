@@ -28,7 +28,7 @@ const GRACES = { sigtermGraceMs: 1000, sigkillGraceMs: 1000 };
 const posixOnly = { skip: process.platform === "win32" };
 
 function createUserDataDir(t) {
-  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "ow-sidecar-reaper-"));
+  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-sidecar-reaper-"));
   const dir = userDataDir;
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   return dir;

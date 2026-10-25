@@ -6,7 +6,7 @@ const { createRendererServer } = require("../lib/rendererTestHarness");
 
 test("technical values are isolated without changing localized sentence order", async (t) => {
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-bidi-interpolation-",
+    cachePrefix: "only-whispers-bidi-interpolation-",
   });
   const { BIDI_VALUE_TOKEN, BidiInterpolatedText } = await vite.ssrLoadModule(
     "/components/ui/BidiInterpolatedText.tsx"
@@ -24,7 +24,7 @@ test("technical values are isolated without changing localized sentence order", 
 
 test("a missing interpolation marker fails closed to the translated text", async (t) => {
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-bidi-interpolation-fallback-",
+    cachePrefix: "only-whispers-bidi-interpolation-fallback-",
   });
   const { BidiInterpolatedText } = await vite.ssrLoadModule(
     "/components/ui/BidiInterpolatedText.tsx"

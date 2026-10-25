@@ -152,7 +152,7 @@ function baseLanguageOf(language?: string): string | undefined {
 
 // The name only counts as addressing the agent when it starts the dictation,
 // follows a greeting cue ("hey Jarvis"), or opens a new sentence. A mere
-// mention elsewhere ("I showed OpenWhispr to a friend") is dictated content,
+// mention elsewhere ("I showed only-whispers to a friend") is dictated content,
 // not a command.
 function isAddressedAt(
   index: number,
@@ -170,7 +170,7 @@ function isAddressedAt(
 // inside one is the trigger being spoken, not the agent being addressed. The
 // window has to be *contained*: candidates span up to maxSpan tokens to absorb
 // STT splitting the name, so a window that merely clips a trigger ("open" out
-// of "open whispr summarize this") is still a real address.
+// of "only whispers summarize this") is still a real address.
 function insideTrigger(start: number, end: number, ranges: SnippetTriggerRange[]): boolean {
   return ranges.some((range) => range.start <= start && end <= range.end);
 }
@@ -224,7 +224,7 @@ function locateAgentAddress(
   const triggerRanges = findSnippetTriggerRanges(rangeSource, snippets);
 
   const maxEdits = maxEditsForLength(nameLower.length);
-  // STT may split the name across tokens ("open whispr") or mishear it, so
+  // STT may split the name across tokens ("only whispers") or mishear it, so
   // compare joined windows up to the name's own token count (minimum 2)
   // against the name, allowing length-scaled edits.
   const maxSpan = Math.max(2, detectionName.split(/\s+/).length);
@@ -257,7 +257,7 @@ function locateAgentAddress(
           : nameEnd;
         const start = cueBefore ? i - 1 : i;
         // Selection edits refine only the prefix of the first match:
-        // "B. OpenWhispr" must prefer "OpenWhispr", without extending a fuzzy
+        // "B. only-whispers" must prefer "only-whispers", without extending a fuzzy
         // name over a following operand ("OpenWhisp, R.").
         if (!address) searchEnd = nameEnd;
         bestDistance = distance;

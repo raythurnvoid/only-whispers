@@ -225,7 +225,7 @@ class WindowManager {
         if (!this.mainWindow.isVisible()) this.mainWindow.showInactive();
         this.mainWindow.setFocusable(true);
         // macOS: never request app activation for the overlay. focus() calls
-        // NSApp activate, and when another OpenWhispr window (control panel)
+        // NSApp activate, and when another only-whispers window (control panel)
         // lives on a different Space, macOS answers a granted activation by
         // sliding the whole desktop to it — the "massive flash" on panel
         // open/close. The window is a non-activating panel, so clicking its
@@ -242,7 +242,7 @@ class WindowManager {
         // on the Linux pill.
         const hadFocus = this.mainWindow.isFocused();
         // On Windows the pill is a normal window, so focus() activated
-        // OpenWhispr — blur before dropping focusability to hand the
+        // only-whispers — blur before dropping focusability to hand the
         // foreground back to the app the user was in (Linux needs the remap
         // below). On macOS nothing was activated, and blur() would only churn
         // key-window state.

@@ -11,7 +11,7 @@ const source = (relativePath) => fs.readFileSync(path.join(repoRoot, relativePat
 const ICON_CSS = "src/styles/connection-status-icon.css";
 
 async function loadIcon(t) {
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-status-icon-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-status-icon-" });
   const module = await vite.ssrLoadModule("/components/ui/ConnectionStatusIcon.tsx");
   return module.ConnectionStatusIcon;
 }

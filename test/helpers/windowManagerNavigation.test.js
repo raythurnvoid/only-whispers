@@ -8,7 +8,7 @@ const {
 } = require("../../src/helpers/navigationGuard.js");
 
 const PACKAGED_APP_URL =
-  "file:///Applications/OpenWhispr.app/Contents/Resources/app.asar/src/dist/index.html";
+  "file:///Applications/only-whispers.app/Contents/Resources/app.asar/src/dist/index.html";
 
 test("packaged app: the window's own reload is allowed regardless of query or hash", () => {
   // location.reload() fires will-navigate with the window's own URL —
@@ -23,7 +23,8 @@ test("packaged app: the window's own reload is allowed regardless of query or ha
 });
 
 test("packaged app: Windows-style file URLs compare on the encoded pathname", () => {
-  const winAppUrl = "file:///C:/Program%20Files/OpenWhispr/resources/app.asar/src/dist/index.html";
+  const winAppUrl =
+    "file:///C:/Program%20Files/only-whispers/resources/app.asar/src/dist/index.html";
   assert.equal(isAllowedAppNavigation(`${winAppUrl}?panel=true`, winAppUrl), true);
 });
 

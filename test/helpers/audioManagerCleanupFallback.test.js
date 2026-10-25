@@ -7,7 +7,7 @@ test("cleanup failure details ride the raw result instead of notifying before pa
   t.after(() => delete globalThis.__cleanupFallbackImmediateNotifications);
 
   const { createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-audio-cleanup-fallback-",
+    cachePrefix: "only-whispers-audio-cleanup-fallback-",
     settingsKey: "__audioCleanupFallbackSettings",
     settings: {
       useCleanupModel: true,
@@ -53,7 +53,7 @@ test("cleanup failure details ride the raw result instead of notifying before pa
   };
   const failure = Object.assign(
     new Error(
-      "AWS Bedrock is temporarily unavailable due to high demand. This is an AWS service issue, not an OpenWhispr outage. Please try again in a few minutes."
+      "AWS Bedrock is temporarily unavailable due to high demand. This is an AWS service issue, not an only-whispers outage. Please try again in a few minutes."
     ),
     {
       messageKey: "reasoning.enterprise.errors.bedrock.serviceUnavailable",
@@ -93,7 +93,7 @@ test("cleanup failure details ride the raw result instead of notifying before pa
 
 test("a classified provider cleanup failure keeps the fields its toast needs", async (t) => {
   const { createManager } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-classified-cleanup-failure-",
+    cachePrefix: "only-whispers-classified-cleanup-failure-",
     settingsKey: "__classifiedCleanupFailureSettings",
     settings: {
       useCleanupModel: true,
@@ -167,7 +167,7 @@ test("a classified provider cleanup failure keeps the fields its toast needs", a
 
 test("safePaste reports not pasted when the preload reports that no text was pasted", async (t) => {
   const { createManager, window } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-audio-cleanup-paste-outcome-",
+    cachePrefix: "only-whispers-audio-cleanup-paste-outcome-",
     settingsKey: "__audioCleanupPasteOutcomeSettings",
   });
   const manager = createManager({
@@ -182,7 +182,7 @@ test("safePaste reports not pasted when the preload reports that no text was pas
 
 test("safePaste reports pasted only when the preload reports a completed paste", async (t) => {
   const { createManager, window } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-audio-cleanup-paste-success-",
+    cachePrefix: "only-whispers-audio-cleanup-paste-success-",
     settingsKey: "__audioCleanupPasteSuccessSettings",
   });
   const manager = createManager({
@@ -199,7 +199,7 @@ test("safePaste reports pasted only when the preload reports a completed paste",
 // ordinary clipboard-only fallback by this reason, so it must survive safePaste.
 test("safePaste passes through why a paste was held back", async (t) => {
   const { createManager, window } = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-audio-cleanup-paste-held-",
+    cachePrefix: "only-whispers-audio-cleanup-paste-held-",
     settingsKey: "__audioCleanupPasteHeldSettings",
   });
   const manager = createManager({

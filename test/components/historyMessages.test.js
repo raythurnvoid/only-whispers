@@ -124,14 +124,14 @@ test("a sent action is noted with what it created, so a follow-up turn doesn't c
       assistant("Which Slack channel should I post it in?", [
         call(
           "github_create_issue",
-          { repo: "OpenWhispr/openwhispr", title: "Login bug", body: "issue body text" },
+          { repo: "only-whispers/only-whispers", title: "Login bug", body: "issue body text" },
           {
-            result: "Created OpenWhispr/openwhispr#2570",
+            result: "Created only-whispers/only-whispers#2570",
             metadata: {
               status: "sent",
-              url: "https://github.com/OpenWhispr/openwhispr/issues/2570",
-              destination: "OpenWhispr/openwhispr",
-              reference: "OpenWhispr/openwhispr#2570",
+              url: "https://github.com/raythurnvoid/only-whispers/issues/2570",
+              destination: "only-whispers/only-whispers",
+              reference: "only-whispers/only-whispers#2570",
             },
           }
         ),
@@ -154,7 +154,7 @@ test("a sent action is noted with what it created, so a follow-up turn doesn't c
 
   assert.equal(
     answer.content,
-    "[Tools used: github_create_issue (sent: OpenWhispr/openwhispr#2570 https://github.com/OpenWhispr/openwhispr/issues/2570), slack_send_message (needed details)]\n\nWhich Slack channel should I post it in?"
+    "[Tools used: github_create_issue (sent: only-whispers/only-whispers#2570 https://github.com/raythurnvoid/only-whispers/issues/2570), slack_send_message (needed details)]\n\nWhich Slack channel should I post it in?"
   );
 });
 

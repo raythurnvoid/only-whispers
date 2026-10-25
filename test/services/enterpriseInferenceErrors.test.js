@@ -27,7 +27,7 @@ test("enterprise cleanup preserves AWS technical details on the renderer error",
     },
   });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-enterprise-inference-errors-",
+    cachePrefix: "only-whispers-enterprise-inference-errors-",
     mockModules: {
       "/models/ModelRegistry": `
         export const getOpenAiApiConfig = () => ({ supportsTemperature: true });

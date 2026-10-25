@@ -24,7 +24,7 @@ async function mountHistoryView(t) {
   installBrowserGlobals(t);
   const container = installInteractiveDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-history-greeting-test-",
+    cachePrefix: "only-whispers-history-greeting-test-",
     noExternal: ["react-i18next"],
     mockModules: {
       // Echo the key and its values, so the test sees which greeting was picked and

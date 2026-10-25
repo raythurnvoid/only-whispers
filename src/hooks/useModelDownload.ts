@@ -14,7 +14,7 @@ const PROGRESS_THROTTLE_MS = 100;
  * (download complete, model deleted), so surfaces that mirror disk truth
  * without owning the download — e.g. useRequiredLocalModels — can re-check.
  */
-export const LOCAL_MODELS_CHANGED_EVENT = "openwhispr-local-models-changed";
+export const LOCAL_MODELS_CHANGED_EVENT = "only-whispers-local-models-changed";
 
 function notifyLocalModelsChanged(): void {
   window.dispatchEvent(new Event(LOCAL_MODELS_CHANGED_EVENT));
@@ -114,8 +114,8 @@ export function useModelDownload({
 
   useEffect(() => {
     const handleModelsCleared = () => onModelsClearedRef.current?.();
-    window.addEventListener("openwhispr-models-cleared", handleModelsCleared);
-    return () => window.removeEventListener("openwhispr-models-cleared", handleModelsCleared);
+    window.addEventListener("only-whispers-models-cleared", handleModelsCleared);
+    return () => window.removeEventListener("only-whispers-models-cleared", handleModelsCleared);
   }, []);
 
   const updateDownload = useCallback(

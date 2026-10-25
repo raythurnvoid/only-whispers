@@ -94,7 +94,7 @@ test("a browser is judged by the page's host", () => {
   assert.equal(categoryOf(chrome, { urlHost: "mail.google.com" }), "email");
   assert.equal(categoryOf(chrome, { urlHost: "outlook.office.com" }), "email");
   assert.equal(categoryOf(chrome, { urlHost: "app.slack.com" }), "work");
-  assert.equal(categoryOf(chrome, { urlHost: "openwhispr.slack.com" }), "work");
+  assert.equal(categoryOf(chrome, { urlHost: "only-whispers.slack.com" }), "work");
   assert.equal(categoryOf(chrome, { urlHost: "www.linkedin.com" }), "work");
   assert.equal(categoryOf(chrome, { urlHost: "web.whatsapp.com" }), "personal");
   assert.equal(categoryOf(chrome, { urlHost: "x.com" }), "personal");
@@ -144,7 +144,7 @@ test("without a host, a browser is judged by the site name its title ends with",
       "Gmail and 4 more pages - Work - Microsoft\u200b Edge",
       "email",
     ],
-    ["firefox", "engineering (Channel) - OpenWhispr - Slack — Mozilla Firefox", "work"],
+    ["firefox", "engineering (Channel) - only-whispers - Slack — Mozilla Firefox", "work"],
     ["Arc company.thebrowser.Browser", "(5) Feed | LinkedIn", "work"],
     ["Safari com.apple.Safari", "Chat | Saket | Microsoft Teams", "work"],
     ["brave.exe Chrome_WidgetWin_1", "(3) WhatsApp - Brave", "personal"],

@@ -82,7 +82,7 @@ test("a failed dictation start reports the lifecycle back to idle instead of sti
   };
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-audio-recording-preparing-reset-",
+    cachePrefix: "only-whispers-audio-recording-preparing-reset-",
     mockModules: {
       "/helpers/audioManager": FAKE_AUDIO_MANAGER_SOURCE,
     },

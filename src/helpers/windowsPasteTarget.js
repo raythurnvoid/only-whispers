@@ -1,7 +1,7 @@
 // Whether a Windows paste may restore the window captured at record start
 // (#859). The predicate is "ours and not one of our windows", not "ours and
 // editable": a tray-menu start leaves the menu's owner window foreground, and
-// force-activating that at paste time would pull the foreground onto OpenWhispr
+// force-activating that at paste time would pull the foreground onto only-whispers
 // and drop the keystroke. Our real windows — the control panel's note editor —
 // stay valid targets, so dictating into a note still pastes there.
 

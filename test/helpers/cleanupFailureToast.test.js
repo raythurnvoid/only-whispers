@@ -19,7 +19,7 @@ test("cleanup toast localizes AWS recovery guidance and keeps fallback status qu
   installBrowserGlobals(t);
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-cleanup-failure-toast-",
+    cachePrefix: "only-whispers-cleanup-failure-toast-",
     mockModules: {
       "/ui/useToast": `
         export const useToast = () => ({
@@ -46,7 +46,7 @@ test("cleanup toast localizes AWS recovery guidance and keeps fallback status qu
 
   const failure = {
     message:
-      "AWS Bedrock is temporarily unavailable due to high demand. This is an AWS service issue, not an OpenWhispr outage. Please try again in a few minutes.",
+      "AWS Bedrock is temporarily unavailable due to high demand. This is an AWS service issue, not an only-whispers outage. Please try again in a few minutes.",
     messageKey: "reasoning.enterprise.errors.bedrock.serviceUnavailable",
     action: "Run the command below in your terminal to re-authenticate:",
     actionKey: "reasoning.enterprise.errors.bedrock.actions.reauthenticate",
@@ -76,7 +76,7 @@ test("cleanup toast localizes AWS recovery guidance and keeps fallback status qu
 test("technical AWS details use the selected UI language", async (t) => {
   installBrowserGlobals(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-technical-error-details-",
+    cachePrefix: "only-whispers-technical-error-details-",
   });
   const { TechnicalErrorDetails } = await vite.ssrLoadModule(
     "/components/ui/TechnicalErrorDetails.tsx"
@@ -122,7 +122,7 @@ async function recordCleanupFailureToast(t, { dictationWindow, failure = CLASSIF
   installBrowserGlobals(t);
   const container = installHookDom(t);
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-cleanup-failure-toast-llm-",
+    cachePrefix: "only-whispers-cleanup-failure-toast-llm-",
     mockModules: {
       "/ui/useToast": `
         export const useToast = () => ({
@@ -225,4 +225,3 @@ test("an unconfigured-cleanup notice for a dictation that was not pasted claims 
   );
   assert.equal(toastProps.presentation, undefined, "the held-back paste keeps its pill");
 });
-

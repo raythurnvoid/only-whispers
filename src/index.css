@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* OpenWhispr Theme — registers color tokens with Tailwind v4.
+  /* only-whispers Theme — registers color tokens with Tailwind v4.
      These are the light-mode defaults; .dark overrides them below. */
   /* Midpoint of the brand glass gradient (#5588F0 → #3466E2) so tints, rings and links match it. */
   --color-primary: #4577e9;
@@ -805,7 +805,7 @@ body:has(.onboarding-canvas) kbd {
   mask-composite: intersect;
 }
 
-/* OpenWhispr Brand Typography */
+/* only-whispers Brand Typography */
 .brand-heading {
   font-family: var(--font-family-display);
   font-weight: 600;
@@ -1324,17 +1324,6 @@ a:hover {
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
-}
-
-/* Transcript tab indicator while a meeting is being recorded. */
-@keyframes ow-wave {
-  0%,
-  100% {
-    transform: scaleY(0.4);
-  }
-  50% {
-    transform: scaleY(1);
-  }
 }
 
 ::-webkit-scrollbar-track {

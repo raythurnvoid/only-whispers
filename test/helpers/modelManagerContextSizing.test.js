@@ -54,7 +54,7 @@ async function setup(
   t,
   { tokenCount = null, totalMemoryBytes = 48 * GIB, finishReason = "stop" } = {}
 ) {
-  const home = await fs.mkdtemp(path.join(os.tmpdir(), "openwhispr-ctx-sizing-"));
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "only-whispers-ctx-sizing-"));
   electronHome = home;
   t.after(() => fs.rm(home, { recursive: true, force: true }));
 

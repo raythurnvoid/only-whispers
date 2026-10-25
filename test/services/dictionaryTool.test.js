@@ -16,7 +16,7 @@ function harness(words) {
 
 test("adds new words and removes existing ones case-insensitively in one call", async () => {
   const { createUpdateDictionaryTool } = await load();
-  const { actions, calls } = harness(["OpenWhispr", "Parakeat"]);
+  const { actions, calls } = harness(["only-whispers", "Parakeat"]);
   const tool = createUpdateDictionaryTool(actions);
 
   const result = await tool.execute({ add: [" Parakeet ", "Orukeet"], remove: ["parakeat"] });
@@ -36,19 +36,19 @@ test("adds new words and removes existing ones case-insensitively in one call", 
 
 test("words already present are reported instead of re-added", async () => {
   const { createUpdateDictionaryTool } = await load();
-  const { actions, calls } = harness(["OpenWhispr"]);
+  const { actions, calls } = harness(["only-whispers"]);
   const tool = createUpdateDictionaryTool(actions);
 
-  const result = await tool.execute({ add: ["openwhispr"] });
+  const result = await tool.execute({ add: ["only-whispers"] });
 
   assert.equal(calls.length, 0);
   assert.equal(result.success, false);
-  assert.equal(result.displayText, 'Already in the dictionary: "openwhispr"');
+  assert.equal(result.displayText, 'Already in the dictionary: "only-whispers"');
 });
 
 test("removing a word that is not there fails without writing", async () => {
   const { createUpdateDictionaryTool } = await load();
-  const { actions, calls } = harness(["OpenWhispr"]);
+  const { actions, calls } = harness(["only-whispers"]);
   const tool = createUpdateDictionaryTool(actions);
 
   const result = await tool.execute({ remove: ["Whisper"] });

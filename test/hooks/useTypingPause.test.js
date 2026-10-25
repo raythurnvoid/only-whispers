@@ -17,7 +17,7 @@ async function mountPause(t, initialArgs = {}) {
   });
   installBrowserGlobals(t);
   const container = installHookDom(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-typing-pause-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-typing-pause-" });
   const { useTypingPause } = await vite.ssrLoadModule("/hooks/useTypingPause.ts");
   let args = { typed: "", context: "a", held: false, ...initialArgs };
   let delay;

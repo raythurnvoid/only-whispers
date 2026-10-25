@@ -59,7 +59,7 @@ test("a raw cleanup fallback is reported with whether the dictation was pasted",
   const container = installHookDom(t);
   localStorage.setItem("onboardingCompleted", "true");
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-cleanup-fallback-hook-",
+    cachePrefix: "only-whispers-cleanup-fallback-hook-",
     mockModules: {
       "/helpers/audioManager": FAKE_AUDIO_MANAGER_SOURCE,
       "/utils/logger": `

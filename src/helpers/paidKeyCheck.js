@@ -7,7 +7,7 @@ const PAID_KEY_CHECKS_FILE = "paid-key-checks.json";
 // A key is a secret, so it is stored through a password hash; a long random key needs only a
 // light one.
 const digestOf = (key) =>
-  crypto.scryptSync(key, "openwhispr-paid-key-check", 32, { N: 1024 }).toString("hex");
+  crypto.scryptSync(key, "only-whispers-paid-key-check", 32, { N: 1024 }).toString("hex");
 
 // A key check that spends the user's credits runs once per key. A key that passed is
 // remembered by its digest, never the key itself, so showing a panel again or restarting the

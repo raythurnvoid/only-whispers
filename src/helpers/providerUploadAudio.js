@@ -35,7 +35,7 @@ async function prepareProviderUpload(sourcePath, { signal } = {}) {
 
   const mp3Path = path.join(
     getSafeTempDir(),
-    `ow-upload-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.mp3`
+    `only-whispers-upload-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.mp3`
   );
   await convertToMp3(sourcePath, mp3Path, { signal });
   return {

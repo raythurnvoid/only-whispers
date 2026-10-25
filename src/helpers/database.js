@@ -31,7 +31,7 @@ const {
 const { normalizeSections } = require("./templatePrompts");
 const { app } = require("electron");
 
-// Server-enforced trigger cap (openwhispr-api); enforced here so one oversized
+// Server-enforced trigger cap (the original server); enforced here so one oversized
 // trigger can't 400 the whole sync batch.
 const MAX_SNIPPET_TRIGGER_LENGTH = 100;
 
@@ -671,7 +671,7 @@ class DatabaseManager {
         "CREATE INDEX IF NOT EXISTS idx_connector_actions_connector ON connector_actions(connector, created_at)"
       );
       // Destination labels name channels and people in someone's workspace,
-      // so a receipt belongs to the OpenWhispr account that made it. Tables
+      // so a receipt belongs to the only-whispers account that made it. Tables
       // created before the column existed gain it here.
       try {
         this.db.exec("ALTER TABLE connector_actions ADD COLUMN account_id TEXT");

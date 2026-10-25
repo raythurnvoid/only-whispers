@@ -64,10 +64,10 @@ if (shouldForceXWayland(args)) {
 
 // Chromium flags must come before the app path, app args after.
 const chromiumFlags = args.filter((a) => a.startsWith(OZONE_PLATFORM_PREFIX));
-// Dev-only: OW_DEBUG_CDP=<port> exposes the Chrome DevTools Protocol so tools
+// Dev-only: ONLY_WHISPERS_DEBUG_CDP=<port> exposes the Chrome DevTools Protocol so tools
 // can inspect the renderers (used for animation/window diagnostics).
-if (process.env.OW_DEBUG_CDP) {
-  chromiumFlags.push(`--remote-debugging-port=${process.env.OW_DEBUG_CDP}`);
+if (process.env.ONLY_WHISPERS_DEBUG_CDP) {
+  chromiumFlags.push(`--remote-debugging-port=${process.env.ONLY_WHISPERS_DEBUG_CDP}`);
 }
 const appArgs = args.filter((a) => !a.startsWith(OZONE_PLATFORM_PREFIX));
 const child = spawn(electronPath, [...chromiumFlags, appDir, ...appArgs], {

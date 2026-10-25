@@ -52,7 +52,7 @@ test("macOS accessibility checks follow the onboarding feature gate", async (t) 
   });
 
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-permissions-accessibility-gate-",
+    cachePrefix: "only-whispers-permissions-accessibility-gate-",
     noExternal: ["react-i18next"],
     mockModules: {
       "react-i18next": `

@@ -6,7 +6,7 @@ const { loadAudioManager } = require("./harness/audioManager");
 // { error } fields main serialises for the proxied request.
 async function loadManager(t, settings, window = {}) {
   const loaded = await loadAudioManager(t, {
-    cachePrefix: "openwhispr-provider-errors-test-",
+    cachePrefix: "only-whispers-provider-errors-test-",
     settingsKey: "__providerErrorsSettings",
     settings: { useLocalWhisper: false, allowLocalFallback: false, ...settings },
   });

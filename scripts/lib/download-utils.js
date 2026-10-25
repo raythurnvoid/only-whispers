@@ -31,7 +31,7 @@ function fetchJsonResponse(url, redirectCount = 0) {
     }
 
     const headers = {
-      "User-Agent": "OpenWhispr-Downloader",
+      "User-Agent": "only-whispers-Downloader",
       Accept: "application/vnd.github+json",
     };
 

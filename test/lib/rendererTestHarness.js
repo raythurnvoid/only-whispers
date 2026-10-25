@@ -226,7 +226,7 @@ function installHostDom(t) {
 async function createRendererServer(
   t,
   {
-    cachePrefix = "openwhispr-renderer-test-",
+    cachePrefix = "only-whispers-renderer-test-",
     mockModules = {},
     noExternal = false,
     resolveAlias = {},

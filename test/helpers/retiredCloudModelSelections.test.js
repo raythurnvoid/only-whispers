@@ -15,7 +15,7 @@ test("retired cloud model selections are repointed to the provider default", asy
     },
   });
   const vite = await createRendererServer(t, {
-    cachePrefix: "openwhispr-retired-cloud-model-test-",
+    cachePrefix: "only-whispers-retired-cloud-model-test-",
   });
   const { useSettingsStore, reconcileRetiredCloudModelSelections } = await vite.ssrLoadModule(
     "/stores/settingsStore.ts"

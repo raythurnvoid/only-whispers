@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const Module = require("node:module");
 
-// Mirrors app.dock: the icon starts visible, as OpenWhispr's does
+// Mirrors app.dock: the icon starts visible, as only-whispers's does
 // (LSUIElement is false), and isVisible() reports what show()/hide() did.
 const dock = {
   visible: true,

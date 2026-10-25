@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const Module = require("node:module");
 
-let userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-dict-db-"));
+let userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-dict-db-"));
 const originalLoad = Module._load;
 
 Module._load = function patchedLoad(request, parent, isMain) {
@@ -29,12 +29,13 @@ const loadStartup = () => import("../../src/helpers/dictionaryStartup.js");
 function isNativeBindingUnavailable(error) {
   const message = String(error?.message || error);
   return (
-    message.includes("NODE_MODULE_VERSION") || message.includes("Could not locate the bindings file")
+    message.includes("NODE_MODULE_VERSION") ||
+    message.includes("Could not locate the bindings file")
   );
 }
 
 function createDb(t) {
-  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-dict-db-"));
+  userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-dict-db-"));
   try {
     const BetterSqlite = require("better-sqlite3");
     const probe = new BetterSqlite(path.join(userDataDir, "probe.db"));
@@ -63,12 +64,12 @@ test("setDictionary replaces the full dictionary (why a stale cache wipe was des
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice", "Bob"]);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice", "Bob"]);
+  db.setDictionary(["only-whispers", "Alice", "Bob"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Bob"]);
 
   // Writing only the cached subset is exactly what startup used to do.
-  db.setDictionary(["OpenWhispr"]);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr"]);
+  db.setDictionary(["only-whispers"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers"]);
 });
 
 test("startup reconcile preserves DB words that a stale renderer cache omitted (#1295)", async (t) => {
@@ -76,15 +77,15 @@ test("startup reconcile preserves DB words that a stale renderer cache omitted (
   if (!db) return;
   const { chooseDictionaryStartupAction } = await loadStartup();
 
-  db.setDictionary(["OpenWhispr", "Alice", "Bob", "Imported Term"]);
-  const staleCache = ["OpenWhispr"];
+  db.setDictionary(["only-whispers", "Alice", "Bob", "Imported Term"]);
+  const staleCache = ["only-whispers"];
   const decision = chooseDictionaryStartupAction(db.getDictionary(), staleCache);
   assert.equal(decision.action, "pull-db-to-local");
 
   // After adopting the DB snapshot, rewriting that same list (agent name already
   // present) must not delete the words the stale cache lacked.
   db.setDictionary(decision.words);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice", "Bob", "Imported Term"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Bob", "Imported Term"]);
 });
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -95,12 +96,10 @@ test("rows inserted outside the app get a client_dict_id from the schema", (t) =
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr"]);
+  db.setDictionary(["only-whispers"]);
   db.db.prepare("INSERT INTO custom_dictionary (word) VALUES (?)").run("Contact Name");
 
-  const row = db.db
-    .prepare("SELECT * FROM custom_dictionary WHERE word = 'Contact Name'")
-    .get();
+  const row = db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Contact Name'").get();
   assert.match(row.client_dict_id, UUID_V4);
 
   const pending = db.getPendingDictionary().find((r) => r.word === "Contact Name");
@@ -140,7 +139,7 @@ test("cloud pull upserts remotes without deleting local-only pending rows", (t) 
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
   const alice = db.getPendingDictionary().find((row) => row.word === "Alice");
 
   db.upsertDictionaryFromCloud({
@@ -152,7 +151,7 @@ test("cloud pull upserts remotes without deleting local-only pending rows", (t) 
     updated_at: "2026-07-22T10:00:00.000Z",
   });
 
-  assert.deepEqual(db.getDictionary().sort(), ["Alice", "Carol", "OpenWhispr"].sort());
+  assert.deepEqual(db.getDictionary().sort(), ["Alice", "Carol", "only-whispers"].sort());
   const aliceAfter = db.db.prepare("SELECT * FROM custom_dictionary WHERE id = ?").get(alice.id);
   assert.equal(aliceAfter.sync_status, "pending");
   assert.equal(aliceAfter.cloud_id, null);
@@ -162,7 +161,7 @@ test("repeated cloud upsert does not duplicate words", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr"]);
+  db.setDictionary(["only-whispers"]);
   const payload = {
     id: "cloud-1",
     client_dict_id: "client-1",
@@ -182,28 +181,28 @@ test("repeated cloud upsert does not duplicate words", (t) => {
     .prepare("SELECT COUNT(*) AS count FROM custom_dictionary WHERE lower(word) = 'delta'")
     .get();
   assert.equal(deltas.count, 1);
-  assert.deepEqual(db.getDictionary().sort(), ["Delta", "OpenWhispr"].sort());
+  assert.deepEqual(db.getDictionary().sort(), ["Delta", "only-whispers"].sort());
 });
 
-test("default OpenWhispr row is neither removed nor duplicated by cloud upsert", (t) => {
+test("default only-whispers row is neither removed nor duplicated by cloud upsert", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
   db.upsertDictionaryFromCloud({
     id: "cloud-ow",
     client_dict_id: "client-ow",
-    word: "OpenWhispr",
+    word: "only-whispers",
     source: "manual",
     created_at: "2026-07-22T10:00:00.000Z",
     updated_at: "2026-07-22T12:00:00.000Z",
   });
 
-  const openWhisprRows = db.db
-    .prepare("SELECT * FROM custom_dictionary WHERE lower(word) = 'openwhispr'")
+  const onlyWhispersRows = db.db
+    .prepare("SELECT * FROM custom_dictionary WHERE lower(word) = 'only-whispers'")
     .all();
-  assert.equal(openWhisprRows.length, 1);
-  assert.equal(openWhisprRows[0].cloud_id, "cloud-ow");
+  assert.equal(onlyWhispersRows.length, 1);
+  assert.equal(onlyWhispersRows[0].cloud_id, "cloud-ow");
   assert.ok(db.getDictionary().includes("Alice"));
 });
 
@@ -211,13 +210,13 @@ test("intentional removal tombstones synced rows and hard-deletes unsynced ones"
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Temp", "Synced"]);
+  db.setDictionary(["only-whispers", "Temp", "Synced"]);
   const pending = db.getPendingDictionary();
   const synced = pending.find((row) => row.word === "Synced");
   db.markDictionaryEntrySynced(synced.id, "cloud-synced");
 
-  db.setDictionary(["OpenWhispr"]);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr"]);
+  db.setDictionary(["only-whispers"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers"]);
 
   const tempGone = db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Temp'").get();
   assert.equal(tempGone, undefined);
@@ -238,37 +237,40 @@ test("adding words leaves every other row untouched", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice", "Bob"]);
+  db.setDictionary(["only-whispers", "Alice", "Bob"]);
   const result = db.applyDictionaryChanges({ add: ["Carol"] });
 
   assert.equal(result.added, 1);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice", "Bob", "Carol"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Bob", "Carol"]);
 });
 
 test("a caller holding a stale one-word view cannot delete anything (#1295)", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice", "Bob", "Imported Term"]);
+  db.setDictionary(["only-whispers", "Alice", "Bob", "Imported Term"]);
   // The exact call startup used to make, but expressed as a delta.
-  db.applyDictionaryChanges({ add: ["OpenWhispr"] });
+  db.applyDictionaryChanges({ add: ["only-whispers"] });
 
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice", "Bob", "Imported Term"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Bob", "Imported Term"]);
 });
 
 test("removing words hard-deletes unsynced rows and tombstones synced ones", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Temp", "Synced"]);
+  db.setDictionary(["only-whispers", "Temp", "Synced"]);
   const synced = db.getPendingDictionary().find((row) => row.word === "Synced");
   db.markDictionaryEntrySynced(synced.id, "cloud-synced");
 
   const result = db.applyDictionaryChanges({ remove: ["Temp", "Synced"] });
   assert.equal(result.removed, 2);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers"]);
 
-  assert.equal(db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Temp'").get(), undefined);
+  assert.equal(
+    db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Temp'").get(),
+    undefined
+  );
   const tombstone = db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Synced'").get();
   assert.ok(tombstone.deleted_at);
   assert.equal(tombstone.sync_status, "pending");
@@ -279,7 +281,7 @@ test("adding a tombstoned word restores it instead of duplicating", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Synced"]);
+  db.setDictionary(["only-whispers", "Synced"]);
   const synced = db.getPendingDictionary().find((row) => row.word === "Synced");
   db.markDictionaryEntrySynced(synced.id, "cloud-synced");
   db.applyDictionaryChanges({ remove: ["Synced"] });
@@ -314,17 +316,17 @@ test("an edit is a remove plus an add in one transaction", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Kubernets", "Alice"]);
+  db.setDictionary(["only-whispers", "Kubernets", "Alice"]);
   db.applyDictionaryChanges({ add: ["Kubernetes"], remove: ["Kubernets"] });
 
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice", "Kubernetes"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Kubernetes"]);
 });
 
 test("a word on both sides is kept, not deleted", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
   const result = db.applyDictionaryChanges({ add: ["Alice"], remove: ["Alice"] });
 
   assert.equal(result.removed, 0);
@@ -356,7 +358,7 @@ test("counts report words that changed, not words requested", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
 
   // Already present, so nothing was actually added.
   assert.equal(db.applyDictionaryChanges({ add: ["Alice"] }).added, 0);
@@ -372,7 +374,7 @@ test("an empty delta touches nothing", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
   const synced = db.getPendingDictionary().find((row) => row.word === "Alice");
   db.markDictionaryEntrySynced(synced.id, "cloud-alice");
 
@@ -382,24 +384,24 @@ test("an empty delta touches nothing", (t) => {
   // Still synced: an empty delta must not mark rows pending again.
   const after = db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Alice'").get();
   assert.equal(after.sync_status, "synced");
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr", "Alice"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice"]);
 });
 
 test("removing a word that isn't there is a no-op", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr"]);
+  db.setDictionary(["only-whispers"]);
   const result = db.applyDictionaryChanges({ remove: ["Nonexistent"] });
   assert.equal(result.removed, 0);
-  assert.deepEqual(db.getDictionary(), ["OpenWhispr"]);
+  assert.deepEqual(db.getDictionary(), ["only-whispers"]);
 });
 
 test("case-variant adds do not create duplicate rows", (t) => {
   const db = createDb(t);
   if (!db) return;
 
-  db.setDictionary(["OpenWhispr", "Alice"]);
+  db.setDictionary(["only-whispers", "Alice"]);
   db.applyDictionaryChanges({ add: ["alice", "ALICE"] });
 
   const rows = db.db

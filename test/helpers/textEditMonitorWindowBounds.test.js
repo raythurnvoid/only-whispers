@@ -10,7 +10,7 @@ const TextEditMonitor = require("../../src/helpers/textEditMonitor");
 // display the dictation target is on. A stub binary stands in for the real
 // window-server read so the parsing, the fallback, and the cache are covered.
 function withStubBinary(t, script) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ow-window-bounds-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-window-bounds-"));
   const binary = path.join(dir, "macos-text-monitor");
   fs.writeFileSync(binary, `#!/bin/sh\n${script}\n`, { mode: 0o755 });
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
@@ -48,14 +48,12 @@ test("a failing read resolves to null rather than throwing", darwinOnly, async (
 // The panel and the screenshot both ask at press time; one spawn should serve
 // both. A later dictation must still get a fresh read.
 test("reads are cached per pid for one press, then re-read", darwinOnly, async (t) => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ow-window-bounds-count-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "only-whispers-window-bounds-count-"));
   const counter = path.join(dir, "count");
   const binary = path.join(dir, "macos-text-monitor");
-  fs.writeFileSync(
-    binary,
-    `#!/bin/sh\nprintf x >> ${counter}\necho "BOUNDS:0,33,1512,949"\n`,
-    { mode: 0o755 }
-  );
+  fs.writeFileSync(binary, `#!/bin/sh\nprintf x >> ${counter}\necho "BOUNDS:0,33,1512,949"\n`, {
+    mode: 0o755,
+  });
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   const monitor = new TextEditMonitor();

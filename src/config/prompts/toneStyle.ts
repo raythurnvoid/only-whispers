@@ -7,7 +7,7 @@ import {
 } from "../toneStyle";
 
 // What each tone does. Cleanup wraps it into the exact TONE_INSTRUCTIONS
-// sentences of openwhispr-api's lib/prompts.ts (with APP_CATEGORY_INSTRUCTIONS
+// sentences of the original server's lib/prompts.ts (with APP_CATEGORY_INSTRUCTIONS
 // and TONE_PRIORITY_INSTRUCTION copied verbatim below), which Cloud cleanup
 // appends for the same `tone` and `appCategory`; change both together. The
 // chat's writing-style block lists the rules as they are. English in every

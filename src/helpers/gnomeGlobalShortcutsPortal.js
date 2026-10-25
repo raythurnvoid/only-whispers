@@ -8,7 +8,7 @@ const GLOBAL_SHORTCUTS_INTERFACE = "org.freedesktop.portal.GlobalShortcuts";
 const REQUEST_INTERFACE = "org.freedesktop.portal.Request";
 const SESSION_INTERFACE = "org.freedesktop.portal.Session";
 const REGISTRY_INTERFACE = "org.freedesktop.host.portal.Registry";
-const APP_ID = "open-whispr";
+const APP_ID = "only-whispers";
 const DBUS_CALL_TIMEOUT_MS = 5000;
 const PORTAL_REQUEST_TIMEOUT_MS = 120000;
 
@@ -327,7 +327,7 @@ class GnomeGlobalShortcutsPortal {
   }
 
   _newToken() {
-    return `openwhispr_${crypto.randomUUID().replace(/-/g, "_")}`;
+    return `only_whispers_${crypto.randomUUID().replace(/-/g, "_")}`;
   }
 
   _requestPath(token) {

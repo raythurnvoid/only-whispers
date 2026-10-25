@@ -15,7 +15,7 @@ async function mountDraft(t) {
   });
   installBrowserGlobals(t);
   const container = installHookDom(t);
-  const vite = await createRendererServer(t, { cachePrefix: "openwhispr-credential-draft-" });
+  const vite = await createRendererServer(t, { cachePrefix: "only-whispers-credential-draft-" });
   const { useCredentialDraft } = await vite.ssrLoadModule("/hooks/useCredentialDraft.ts");
   let draft;
   function Harness() {

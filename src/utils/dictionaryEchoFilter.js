@@ -129,7 +129,7 @@ export function isLikelyDictionaryPromptFragment(text, dictionaryPrompt) {
 }
 
 // Prompt-conditioned models can recite the hint list after the speech ends
-// ("... Thanks, you. OpenWhispr, n8n."). matchesDictionaryPrompt cannot see
+// ("... Thanks, you. only-whispers, n8n."). matchesDictionaryPrompt cannot see
 // that: the real speech dilutes its word ratios (#2581). The recited tail is a
 // sentence of its own that copies the prompt in its own consecutive order,
 // starting on a custom-dictionary entry, with at least two of them. It must

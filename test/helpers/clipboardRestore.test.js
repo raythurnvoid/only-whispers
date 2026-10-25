@@ -383,7 +383,7 @@ for (const { original, x11, when, writeAppText } of [
     original: "rich",
     x11: RICH_COPY,
     when: "a selection capture",
-    writeAppText: (manager) => manager._writeClipboardTextAll("__OPENWHISPR_SELECTION_test__"),
+    writeAppText: (manager) => manager._writeClipboardTextAll("__ONLY_WHISPERS_SELECTION_test__"),
   },
   {
     original: "image",
@@ -1585,7 +1585,7 @@ test("pasteMacOS restores clipboard after the short macOS delay on successful fa
   const originalClipboard = { type: "text", data: "previous clipboard" };
   let restoreCall;
 
-  manager.resolveFastPasteBinary = () => "/tmp/openwhispr-fast-paste";
+  manager.resolveFastPasteBinary = () => "/tmp/only-whispers-fast-paste";
   manager._restoreClipboardAfterDelay = (original, options) => {
     restoreCall = { original, options };
     return Promise.resolve();
@@ -1598,7 +1598,7 @@ test("pasteMacOS restores clipboard after the short macOS delay on successful fa
   await result.restoreComplete;
 
   assert.equal(spawnCalls.length, 1);
-  assert.equal(spawnCalls[0].command, "/tmp/openwhispr-fast-paste");
+  assert.equal(spawnCalls[0].command, "/tmp/only-whispers-fast-paste");
   assert.equal(restoreCall.original, originalClipboard);
   assert.deepEqual(restoreCall.options, {
     delayMs: 450,
@@ -1613,7 +1613,7 @@ test("pasteMacOS leaves text on the clipboard when the keyboard layout cannot be
     spawn: createSpawn(spawnCalls, [3]),
   });
   const manager = new TestClipboardManager();
-  manager.fastPastePath = "/tmp/openwhispr-fast-paste";
+  manager.fastPastePath = "/tmp/only-whispers-fast-paste";
   manager.fastPasteChecked = true;
   let restoreCalls = 0;
   manager._restoreClipboardAfterDelay = () => {
@@ -1626,11 +1626,11 @@ test("pasteMacOS leaves text on the clipboard when the keyboard layout cannot be
     /could not resolve the active keyboard layout/
   );
 
-  assert.deepEqual(spawnCalls, [{ command: "/tmp/openwhispr-fast-paste", args: [] }]);
+  assert.deepEqual(spawnCalls, [{ command: "/tmp/only-whispers-fast-paste", args: [] }]);
   assert.equal(fakeClipboard.text, "dictated text");
   assert.deepEqual(fakeClipboard.writes, []);
   assert.equal(restoreCalls, 0);
-  assert.equal(manager.fastPastePath, "/tmp/openwhispr-fast-paste");
+  assert.equal(manager.fastPastePath, "/tmp/only-whispers-fast-paste");
   assert.equal(manager.fastPasteChecked, true);
 });
 
