@@ -631,6 +631,7 @@ Hidden features (the voice assistant, Tone & Style) are not in this list. Test t
 - Microphone privacy settings at `ms-settings:privacy-microphone`
 - Sound settings at `ms-settings:sound`
 - NSIS installer for distribution
+- **Installed name**: the Start menu and desktop shortcuts and the Apps list say "Only Whispers" (`nsis.shortcutName`, `nsis.uninstallDisplayName`). Keep `productName` as `only-whispers`: Electron names the user data folder after it, so changing it would lose every user's keys, settings and history. An update renames the old `only-whispers` shortcuts
 - **Launch at login**: `HKCU\...\Run` entry written by Electron, named after the AppUserModelId, carrying `--hidden` so a login launch goes to the tray
   - Read the state from `executableWillLaunchAtLogin`; `openAtLogin` misses a startup app disabled from Task Manager or Settings
   - `resources/nsis/installer.nsh` removes the `Run` and `StartupApproved\Run` values on uninstall (but not on update), which Electron itself never cleans up

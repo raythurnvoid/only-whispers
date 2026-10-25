@@ -229,6 +229,8 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
+    "shortcutName": "Only Whispers",
+    "uninstallDisplayName": "Only Whispers",
     "include": "resources/nsis/installer.nsh"
   },
   "dmg": {
