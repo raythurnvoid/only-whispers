@@ -812,7 +812,6 @@
     "logs": "Registros"
   },
   "appSetup": {
-    "title": "Configurar Only Whispers",
     "description": "Mantén pulsada la tecla, habla y aparece texto limpio en cualquier app. Añade dos cosas para empezar.",
     "mistralKey": "Clave de API de Mistral (voz a texto)",
     "getMistralKey": "Obtén una clave en Mistral admin",

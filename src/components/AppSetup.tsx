@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
-import appIcon from "@/assets/icon.png";
 import ChatGPTSignIn from "./ChatGPTSignIn";
+import LaurelLogo from "./LaurelLogo";
 import WindowControls from "./WindowControls";
 import { Button } from "./ui/button";
 import { FieldLabel, ProviderCheckField } from "./ui/ProviderCheckField";
@@ -107,20 +107,9 @@ export default function AppSetup({ onComplete }: { onComplete: () => void }) {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-6">
         <div className="mx-auto flex max-w-[26rem] flex-col">
-          <img
-            src={appIcon}
-            alt=""
-            aria-hidden="true"
-            width={64}
-            height={64}
-            decoding="async"
-            draggable={false}
-            className="mx-auto"
-          />
-          <h1 className="mt-3 text-balance text-center text-xl text-foreground">
-            {t("appSetup.title")}
-          </h1>
-          <p className="mx-auto mt-2 max-w-sm text-center text-[15px] italic text-muted-foreground">
+          {/* The same logo as the control panel sidebar and the website. */}
+          <LaurelLogo />
+          <p className="mx-auto max-w-sm text-center text-[15px] italic text-muted-foreground">
             {t("appSetup.description")}
           </p>
 

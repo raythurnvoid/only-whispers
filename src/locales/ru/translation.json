@@ -814,7 +814,6 @@
     "logs": "Журнал"
   },
   "appSetup": {
-    "title": "Настройка Only Whispers",
     "description": "Удерживайте клавишу, говорите, и чистый текст появится в любом приложении. Для начала добавьте две вещи.",
     "mistralKey": "API-ключ Mistral (речь в текст)",
     "getMistralKey": "Получить ключ в Mistral admin",

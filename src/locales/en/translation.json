@@ -812,7 +812,6 @@
     }
   },
   "appSetup": {
-    "title": "Set up Only Whispers",
     "description": "Hold the hotkey, speak, and clean text appears in any app. Add two things to start.",
     "mistralKey": "Mistral API key (speech-to-text)",
     "getMistralKey": "Get a key in Mistral admin",

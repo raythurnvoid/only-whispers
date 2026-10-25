@@ -812,7 +812,6 @@
     }
   },
   "appSetup": {
-    "title": "Only Whispers einrichten",
     "description": "Halte die Taste gedrückt, sprich, und sauberer Text erscheint in jeder App. Füge zwei Dinge hinzu, um zu starten.",
     "mistralKey": "Mistral-API-Schlüssel (Sprache zu Text)",
     "getMistralKey": "Schlüssel in Mistral admin erstellen",
