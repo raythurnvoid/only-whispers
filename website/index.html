@@ -77,6 +77,26 @@
   }
 }
 
+/* The download section is always dark, so the dark promo blends into its
+   marble in both themes. Same values as the dark block above. */
+.hero {
+  --stone-0: #140f0b;
+  --stone-2: #251c15;
+  --stone-3: #2e231a;
+  --line: #4a3a2b;
+  --ink: #f1e6d3;
+  --ink-muted: #b39e86;
+  --accent: #f08b2e;
+  --accent-ink: #f6a55a;
+  --accent-wash: #3a2614;
+  --on-accent: #1c150f;
+  --ornament: #6e573f;
+  --laurel: #8fae5c;
+  --marble: url("marble-dark.webp");
+  --shadow-float: 0 4px 14px -4px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.5);
+  color: var(--ink);
+}
+
 * { box-sizing: border-box; }
 
 /* Each section fills the screen and the scroll snaps to it. */
@@ -100,9 +120,10 @@ body {
   overflow-x: hidden;
 }
 
-/* Fixed marble, so the header and the body line up. */
+/* Fixed marble, so the header, the body and the download section line up. */
 body,
-header {
+header,
+.hero {
   background-color: var(--stone-0);
   background-image: var(--marble);
   background-size: 640px 640px;
