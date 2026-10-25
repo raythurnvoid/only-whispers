@@ -970,48 +970,6 @@
     "learnMore": "Mehr erfahren",
     "noneAvailable": "Keine Modelle verfügbar",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "Präzisestes lokales ASR (5,42 % durchschnittliche WER, 14 Sprachen). Keine automatische Spracherkennung"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "Schnelle mehrsprachige ASR mit automatischer Spracherkennung (25 Sprachen)",
-        "parakeet_unified_en_0_6b": "Englisch-only ASR mit Spitzen-Genauigkeit (5,91% durchschnittliche WER)",
-        "nemotron_speech_streaming_en_0_6b": "Englische Streaming-ASR von NVIDIA Nemotron",
-        "nemotron_3_5_asr_streaming_0_6b": "Mehrsprachige Streaming-ASR von NVIDIA Nemotron mit automatischer Spracherkennung (15 Sprachen)",
-        "orukeet": "Feinabgestimmtes Parakeet für mehrsprachige Spracherkennung"
-      },
-      "diarization": {
-        "segmentation": "Sprachgrenzerkennung für die Sprecherzuordnung",
-        "embedding_en": "Stimmerkennung zur Sprecheridentifikation"
-      },
-      "whisper": {
-        "tiny": "Am schnellsten, geringere Qualität",
-        "base": "Gute Balance",
-        "small": "Bessere Qualität, langsamer",
-        "medium": "Hohe Qualität",
-        "large": "Beste Qualität, am langsamsten",
-        "turbo": "Schnell mit guter Qualität"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "Neueste, genaueste Transkription",
-        "openai_gpt_4o_mini_transcribe": "Schnelle und genaue Transkription",
-        "openai_gpt_4o_transcribe": "Genaueste Transkription",
-        "openai_whisper_1": "Originales Whisper-Modell",
-        "groq_whisper_large_v3": "Hochpräzise Spracherkennung",
-        "groq_whisper_large_v3_turbo": "216x Echtzeitgeschwindigkeit",
-        "mistral_voxtral_mini_latest": "Schnelle mehrsprachige Transkription",
-        "gemini_3_5_transcribe": "Googles Gemini-Spracherkennung",
-        "gemini_3_5_transcribe_live": "Spracherkennung per Echtzeit-Streaming",
-        "corti_transcribe": "Medizinische Transkription in klinischer Qualität",
-        "xai_grok_stt": "Hochpräzise Spracherkennung von xAI",
-        "tinfoil_voxtral": "Nachweisbar private Transkription",
-        "deepgram_nova_3": "Deepgrams genauestes Echtzeitmodell",
-        "assemblyai_universal_streaming_english": "Unveränderliche Echtzeit-Transkripte, Englisch",
-        "assemblyai_universal_streaming_multilingual": "Unveränderliche Echtzeit-Transkripte, mehrsprachig",
-        "assemblyai_universal_3_5_pro": "Höchste Genauigkeit in Echtzeit, 18 Sprachen",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: schnell, genau, 50+ Sprachen, 0,0035 $/Min.",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: am genauesten, 50+ Sprachen, 0,004 $/Min."
-      },
       "cloud": {
         "openai_gpt_5_2": "Starkes Reasoning-Modell",
         "openai_gpt_5_mini": "Schnell und kosteneffizient",
@@ -1219,7 +1177,6 @@
     "wordsReady_other": "{{count}} Wörter bereit",
     "import": "Importieren",
     "yourDictionary": "Dein Wörterbuch",
-    "promptLimitNotice": "Dein Wörterbuch umfasst {{chars}} Zeichen. Groq- und Whisper-Modelle lesen davon nur die letzten paar hundert Zeichen – eine kürzere Liste funktioniert dort besser. Andere Modelle erhalten die vollständige Liste.",
     "exportDictionary": "Wörterbuch exportieren",
     "exportFailed": "Export fehlgeschlagen",
     "editWord": "{{word}} bearbeiten",

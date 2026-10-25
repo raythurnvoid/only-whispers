@@ -35,9 +35,8 @@ Out of scope:
 
 ## Security Model
 
-- **Local-first audio processing** — Audio is transcribed on-device using
-  whisper.cpp or nvidia parakeet. Recordings are not sent to external servers unless explicitly
-  configured by the user.
+- **Audio processing** — Audio is sent to Mistral (Voxtral) for transcription,
+  with the user's own API key. Recordings are not sent to any other server.
 - **Credential storage** — API keys provided by users (BYOK) and enterprise
   cloud credentials (AWS, Azure, Vertex) are encrypted at rest using
   Electron's `safeStorage` API, which delegates to the OS keychain (Keychain

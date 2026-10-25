@@ -24,8 +24,6 @@ import DictionaryEmptyIllustration from "./DictionaryEmptyIllustration";
 import { useSettings } from "../hooks/useSettings";
 import { getAgentName } from "../utils/agentName";
 import { parseDictionaryImportText } from "../helpers/dictionaryImport";
-import { getDictionaryHintWords } from "../utils/snippets";
-import { WHISPER_DECODER_PROMPT_CHARS } from "../utils/dictionaryPromptCap";
 
 // Overrides the trigger's own active look with the sidebar's wash and outline.
 const TAB_CLASS =
@@ -33,7 +31,7 @@ const TAB_CLASS =
 
 export default function DictionaryView() {
   const { t } = useTranslation();
-  const { customDictionary, updateCustomDictionary, snippets } = useSettings();
+  const { customDictionary, updateCustomDictionary } = useSettings();
   const agentName = getAgentName();
   const { toast } = useToast();
 
@@ -47,14 +45,6 @@ export default function DictionaryView() {
   const addInputRef = useRef<HTMLInputElement>(null);
 
   const pendingImportCount = useMemo(() => parseDictionaryImportText(bulkText).length, [bulkText]);
-
-  // Length of the prompt string the STT request builds (words + snippet
-  // triggers, comma-joined), so the warning fires on real request size. A
-  // Chinese script bias adds ~21 chars on top for zh-CN / zh-TW users.
-  const promptChars = useMemo(
-    () => getDictionaryHintWords({ customDictionary, snippets }).join(", ").length,
-    [customDictionary, snippets]
-  );
 
   // Same membership rule as agentNameDictionaryChanges: a stored spelling that
   // differs only by case is still the agent name's entry, so keep it hidden.
@@ -351,13 +341,6 @@ export default function DictionaryView() {
               </ul>
             )}
           </div>
-
-          {/* ─── Provider prompt-limit notice ─── */}
-          {promptChars > WHISPER_DECODER_PROMPT_CHARS && (
-            <p className="text-xs text-foreground/45 leading-relaxed">
-              {t("dictionary.promptLimitNotice", { chars: promptChars })}
-            </p>
-          )}
         </div>
       </TabsContent>
 

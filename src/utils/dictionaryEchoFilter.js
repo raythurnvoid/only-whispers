@@ -135,7 +135,7 @@ export function isLikelyDictionaryPromptFragment(text, dictionaryPrompt) {
 // starting on a custom-dictionary entry, with at least two of them. It must
 // open the prompt, which is where observed recitals start, or, when it is
 // MIN_PROMPT_END_ECHO_TERMS+ long, close it: a Whisper decoder keeps only the
-// tail of a long prompt (dictionaryPromptCap). A shorter run from mid-list is
+// tail of a long prompt. A shorter run from mid-list is
 // kept, since the dictionary stores entries oldest first and auto-learn and
 // imports add names in the order people say them. Snippet triggers ride in
 // the same prompt after the dictionary (getDictionaryHintWords), so a recital

@@ -2,11 +2,9 @@ import type { ModelDefinition } from "../models/ModelRegistry";
 import type { ReasoningConfig } from "../services/BaseReasoningService";
 import type { PermissionGuideState, PermissionGuideAction } from "./permissionGuide";
 import type { TinfoilCatalogModel } from "../models/tinfoilModels";
-import type { DictationTone, ToneAppCategory } from "../config/toneStyle";
+import type { ToneAppCategory } from "../config/toneStyle";
 import type { TechnicalErrorDetailsData } from "../components/ui/useToast";
 import type { ProviderSettingsTarget } from "../utils/describeProviderError";
-
-export type LocalTranscriptionProvider = "whisper" | "nvidia" | "cohere";
 
 export interface MainWindowInputRegion {
   viewportWidth: number;
@@ -33,8 +31,6 @@ export interface LocalServerPrefs {
   chatAgentModel: string;
 }
 
-export type SelfHostedType = "openai-compatible" | "lan";
-
 export type TranscriptionStatus = "completed" | "failed" | "pending" | "discarded";
 
 export interface PolicyFailureMetadata {
@@ -45,31 +41,11 @@ export interface PolicyFailureMetadata {
   details?: unknown;
 }
 
-// Session options every dictation streaming channel takes — the shared
-// dictation-realtime-* set and the per-provider ones. `provider` is
-// what fetchRealtimeToken's allowlist keys on — the renderer must always send
-// it (built by dictationStreamingRouting.buildStreamingSessionOptions); the
-// main process defaults a missing value to "openai-realtime" for pre-1.8.4
-// renderers (#1624).
+// Options for the Mistral dictation-realtime-* channels, built by
+// dictationStreamingRouting.buildStreamingSessionOptions.
 export interface DictationRealtimeSessionOptions {
-  pipelineOptions?: {
-    agentName?: string;
-    customDictionary?: string[];
-    customPrompt?: string;
-    tone?: DictationTone;
-    appCategory?: ToneAppCategory;
-    language?: string;
-    locale?: string;
-  };
-  provider: string;
-  baseUrl?: string;
-  model?: string;
   language?: string;
-  sampleRate?: number;
   keyterms?: string[];
-  environment?: string;
-  tenant?: string;
-  preview?: boolean;
 }
 
 export interface DictationLanguageMetadata {
@@ -307,7 +283,7 @@ export interface ScreenContextImage {
 }
 
 export interface LocalModelDownloadStatus {
-  modelType: "whisper" | "parakeet" | "llm";
+  modelType: "llm";
   modelId: string;
   phase: "downloading" | "installing";
   progress: number;
@@ -442,10 +418,6 @@ declare global {
         apiKey?: string;
         baseUrl?: string;
         model?: string;
-        clientId?: string;
-        clientSecret?: string;
-        environment?: string;
-        tenant?: string;
       }) => Promise<{
         success: boolean;
         error?: string;
@@ -683,10 +655,6 @@ declare global {
       saveAllKeysToEnv: () => Promise<{ success: boolean; path: string }>;
       syncStartupPreferences: (
         prefs: LocalServerPrefs & {
-          useLocalWhisper: boolean;
-          localTranscriptionProvider: LocalTranscriptionProvider;
-          model?: string;
-          language?: string;
           keepLocalModelLoaded: boolean;
         }
       ) => Promise<void>;
@@ -963,23 +931,13 @@ declare global {
       }) => Promise<ProxyTranscriptionResult>;
 
       // Corti credential management
-      getCortiClientId?: () => Promise<string | null>;
-      saveCortiClientId?: (key: string) => Promise<void>;
-      getCortiClientSecret?: () => Promise<string | null>;
-      saveCortiClientSecret?: (key: string) => Promise<void>;
       getCortiKey?: () => Promise<string | null>;
       saveCortiKey?: (key: string) => Promise<void>;
       getTinfoilKey?: () => Promise<string | null>;
       saveTinfoilKey?: (key: string) => Promise<void>;
       getTinfoilChatModels?: () => Promise<TinfoilCatalogModel[]>;
-      getDeepgramKey?: () => Promise<string | null>;
-      saveDeepgramKey?: (key: string) => Promise<void>;
-      getAssemblyAIKey?: () => Promise<string | null>;
-      saveAssemblyAIKey?: (key: string) => Promise<void>;
 
       // Custom endpoint API keys
-      getCustomTranscriptionKey?: () => Promise<string | null>;
-      saveCustomTranscriptionKey?: (key: string) => Promise<void>;
       getCleanupCustomKey?: () => Promise<string | null>;
       saveCleanupCustomKey?: (key: string) => Promise<void>;
       getDictationAgentCustomKey?: () => Promise<string | null>;

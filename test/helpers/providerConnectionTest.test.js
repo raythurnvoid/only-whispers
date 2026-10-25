@@ -3,7 +3,7 @@ const http = require("node:http");
 const test = require("node:test");
 const providerTest = require("../../src/helpers/providerConnectionTest.js");
 
-const { describeCortiTokenFailure, resolveProviderRequest, testProviderConnection } = providerTest;
+const { resolveProviderRequest, testProviderConnection } = providerTest;
 
 test("builds provider tests without placing credentials in the URL", () => {
   const request = resolveProviderRequest({ provider: "openai", apiKey: "secret" });
@@ -753,34 +753,6 @@ test("a busy Tinfoil, or a retired check model, gives no verdict on the key", as
   );
   assert.equal(unpaid.status, 402);
   assert.equal(unpaid.unverified, undefined, "an account Tinfoil refuses is an answer");
-});
-
-test("only Corti's own answer refuses its credentials; no answer is unverified", () => {
-  const cortiError = (message, status) => Object.assign(new Error(message), { status });
-  const aborted = Object.assign(new Error("This operation was aborted"), { name: "AbortError" });
-  for (const [error, errorCode, unverified] of [
-    [aborted, "timeout", true],
-    [new TypeError("fetch failed"), "network", true],
-    [
-      cortiError("Corti authentication failed: 503 Service Unavailable", 503),
-      "providerStatus",
-      true,
-    ],
-    [cortiError("Corti authentication failed: 429", 429), "providerStatus", true],
-    [cortiError("Corti authentication failed: 401 invalid_client", 401), "credentialsRejected"],
-    [
-      cortiError("Corti authentication failed: 400 unauthorized_client", 400),
-      "credentialsRejected",
-    ],
-    [cortiError("Corti authentication failed: no access token in response"), "credentialsRejected"],
-    [cortiError("Invalid Corti tenant name"), "credentialsRejected"],
-  ]) {
-    const result = describeCortiTokenFailure(error);
-    assert.equal(result.success, false, error.message);
-    assert.equal(result.errorCode, errorCode, error.message);
-    assert.equal(result.unverified, unverified, error.message);
-    assert.doesNotMatch(result.error, /invalid_client|unauthorized_client/, "no upstream detail");
-  }
 });
 
 test("a model list whose body never arrives is no verdict, not a missing model", async () => {

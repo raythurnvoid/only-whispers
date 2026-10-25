@@ -108,14 +108,6 @@ const DEFAULT_OPENAI_BASE = computeBaseUrl(
   "https://api.openai.com/v1"
 );
 
-const DEFAULT_TRANSCRIPTION_BASE = computeBaseUrl(
-  [
-    env.ONLY_WHISPERS_TRANSCRIPTION_BASE_URL as string | undefined,
-    env.WHISPER_BASE_URL as string | undefined,
-  ],
-  DEFAULT_OPENAI_BASE
-);
-
 export const API_ENDPOINTS = {
   OPENAI_BASE: DEFAULT_OPENAI_BASE,
   OPENAI: buildApiUrl(DEFAULT_OPENAI_BASE, "/responses"),
@@ -125,8 +117,6 @@ export const API_ENDPOINTS = {
   GROQ_BASE: "https://api.groq.com/openai/v1",
   CORTI_MODELS_BASE: "https://ai.eu.corti.app/v1",
   OPENROUTER_BASE: "https://openrouter.ai/api/v1",
-  TRANSCRIPTION_BASE: DEFAULT_TRANSCRIPTION_BASE,
-  TRANSCRIPTION: buildApiUrl(DEFAULT_TRANSCRIPTION_BASE, "/audio/transcriptions"),
 } as const;
 
 export const API_VERSIONS = {

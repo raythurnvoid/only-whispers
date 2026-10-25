@@ -2,12 +2,11 @@
 
 ## Quick Diagnostics
 
-| Check               | Command                                |
-| ------------------- | -------------------------------------- |
-| Host architecture   | `uname -m`                             |
-| Node architecture   | `node -p "process.arch"`               |
-| whisper.cpp install | `which whisper` or `which whisper-cpp` |
-| FFmpeg availability | `ffmpeg -version`                      |
+| Check               | Command                  |
+| ------------------- | ------------------------ |
+| Host architecture   | `uname -m`               |
+| Node architecture   | `node -p "process.arch"` |
+| FFmpeg availability | `ffmpeg -version`        |
 
 ## Common Issues
 
@@ -55,7 +54,6 @@
 **Causes:**
 
 - Microphone permission revoked mid-session
-- Stale Whisper cache with corrupted clips
 - Hotkey triggering without audio input
 - Wrong audio input device selected
 
@@ -63,9 +61,8 @@
 
 1. Check microphone permissions (see above)
 2. Open sound settings and verify the correct input device is selected
-3. Clear caches: `rm -rf ~/.cache/whisper`
-4. Try a different hotkey
-5. Re-run onboarding
+3. Try a different hotkey
+4. Re-run onboarding
 
 ### FFmpeg Not Found
 
@@ -87,22 +84,6 @@
 2. Ensure npm install scripts are enabled: `npm config set ignore-scripts false`
 3. Rebuild Electron's platform binary: `npm rebuild electron`
 4. If `ELECTRON_SKIP_BINARY_DOWNLOAD` is set, unset it and run `npm install` again
-
-### whisper.cpp Issues
-
-**Symptoms:** Local transcription fails, "whisper.cpp not found"
-
-**Fix:**
-
-1. The whisper.cpp binary is bundled with the app
-2. If running from source, download the current-platform binary: `npm run download:whisper-cpp`
-3. If bundled binary fails, install via package manager:
-   - macOS: `brew install whisper-cpp`
-   - Linux: Build from source at https://github.com/ggml-org/whisper.cpp
-4. Clear model cache: `rm -rf ~/.cache/only-whispers/whisper-models`
-5. Try cloud transcription as fallback
-
-**GPU acceleration (CUDA / Vulkan):** If the GPU-accelerated whisper-server crashes at startup (unsupported GPU, out of VRAM), only-whispers automatically restarts it on CPU, retries the same request, and shows a "using CPU instead" notice — the dictation still completes. GPU acceleration can be toggled off from the GPU card in the transcription model picker. That card also shows the error line that caused the fallback (for example `vk::PhysicalDevice::createDevice: ErrorDeviceLost`); include it, or a screenshot of the card, when you report a GPU problem.
 
 ### Wayland Clipboard Issues (Linux)
 
@@ -209,7 +190,7 @@ When you report the flicker, add `--log-level=debug` on its own line in the same
 
 **Antivirus / Windows Defender blocking binaries:**
 
-whisper.cpp and FFmpeg may be quarantined silently. Add only-whispers to exclusions: Settings → Virus & threat protection → Exclusions.
+FFmpeg and the bundled helper binaries may be quarantined silently. Add only-whispers to exclusions: Settings → Virus & threat protection → Exclusions.
 
 **Permission errors:**
 
@@ -218,10 +199,6 @@ Right-click only-whispers → Run as administrator (or set permanently in Proper
 **Firewall blocking cloud mode:**
 
 Allow only-whispers through Windows Firewall when using cloud transcription providers.
-
-**Firewall prompt for sherpa-onnx (local Parakeet transcription):**
-
-Windows may ask whether to allow `sherpa-onnx-ws-win32-x64` on public and private networks the first time local Parakeet transcription starts. The bundled sherpa-onnx server only serves only-whispers itself over `127.0.0.1`, but it has no loopback-only bind option, so Windows sees it listening on all interfaces. Either choice is safe — Windows never filters loopback traffic, so transcription works even if you click Cancel. All-users installs register a firewall rule that blocks outside access and suppresses the prompt entirely; per-user installs may still see it once.
 
 **Complete reset (after uninstalling):**
 

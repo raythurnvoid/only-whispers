@@ -244,8 +244,8 @@ const isValidApiKey = (key, provider = "openai") => {
   return key !== placeholder;
 };
 
-// Realtime providers expose no finalize handshake (unlike Deepgram/AssemblyAI/
-// Corti), so the transcript tail lands whenever it lands — wait, don't sleep.
+// A realtime provider with no finalize handshake lands the transcript tail
+// whenever it lands — wait, don't sleep.
 const STREAMING_FINAL_QUIET_MS = 250;
 const STREAMING_FINAL_CEILING_MS = 2000;
 

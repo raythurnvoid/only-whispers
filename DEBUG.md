@@ -40,7 +40,7 @@ ONLY_WHISPERS_LOG_LEVEL=debug
 | --------------------- | ---------------------------------------------------------------- |
 | FFmpeg                | Path resolution, permissions, ASAR unpacking                     |
 | Audio Recording       | Permission requests, chunk sizes, audio levels                   |
-| Audio Processing      | File creation, Whisper command, process output                   |
+| Audio Processing      | File creation, Mistral request and response                      |
 | IPC                   | Messages between renderer and main process                       |
 | Agent Mode            | Streaming responses, conversation management, model selection    |
 | Meeting Detection     | Process monitoring, audio activity, calendar event matching      |
@@ -63,9 +63,7 @@ Look for:
 
 Look for:
 
-- `Whisper stderr:` → whisper.cpp/FFmpeg errors
-- `Process closed with code: [non-zero]` → Process failure
-- `Failed to parse Whisper output` → Invalid JSON
+- Mistral errors → check the Mistral API key and the network
 
 ### Permission Issues
 

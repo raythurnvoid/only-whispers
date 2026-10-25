@@ -970,44 +970,6 @@
     "learnMore": "Scopri di più",
     "noneAvailable": "Nessun modello disponibile",
     "descriptions": {
-      "cohere": {
-        "cohere_transcribe_03_2026": "ASR locale più preciso (5,42% WER medio, 14 lingue). Nessun rilevamento automatico della lingua"
-      },
-      "parakeet": {
-        "parakeet_tdt_0_6b_v3": "ASR multilingue veloce con rilevamento automatico della lingua (25 lingue)",
-        "parakeet_unified_en_0_6b": "ASR solo inglese con precisione all'avanguardia (5,91% WER medio)",
-        "nemotron_speech_streaming_en_0_6b": "ASR streaming in inglese di NVIDIA Nemotron",
-        "nemotron_3_5_asr_streaming_0_6b": "ASR multilingue in streaming di NVIDIA Nemotron con rilevamento automatico della lingua (15 lingue)",
-        "orukeet": "Parakeet adattato per il riconoscimento vocale multilingue"
-      },
-      "whisper": {
-        "tiny": "Il più veloce, qualità inferiore",
-        "base": "Buon equilibrio",
-        "small": "Qualità migliore, più lento",
-        "medium": "Alta qualità",
-        "large": "Migliore qualità, il più lento",
-        "turbo": "Veloce con buona qualità"
-      },
-      "transcription": {
-        "openai_gpt_transcribe": "Trascrizione più recente e accurata",
-        "openai_gpt_4o_mini_transcribe": "Trascrizione rapida e accurata",
-        "openai_gpt_4o_transcribe": "Trascrizione più accurata",
-        "openai_whisper_1": "Modello Whisper originale",
-        "groq_whisper_large_v3_turbo": "Velocità 216x in tempo reale",
-        "groq_whisper_large_v3": "Modello Large v3, veloce e preciso",
-        "mistral_voxtral_mini_latest": "Trascrizione multilingue veloce",
-        "gemini_3_5_transcribe": "Riconoscimento vocale Gemini di Google",
-        "gemini_3_5_transcribe_live": "Riconoscimento vocale in streaming in tempo reale",
-        "corti_transcribe": "Trascrizione medica di livello clinico",
-        "xai_grok_stt": "Riconoscimento vocale ad alta precisione di xAI",
-        "tinfoil_voxtral": "Trascrizione verificabilmente privata",
-        "deepgram_nova_3": "Il modello in tempo reale più accurato di Deepgram",
-        "assemblyai_universal_streaming_english": "Trascrizioni in tempo reale immutabili, inglese",
-        "assemblyai_universal_streaming_multilingual": "Trascrizioni in tempo reale immutabili, multilingue",
-        "assemblyai_universal_3_5_pro": "Massima precisione in tempo reale, 18 lingue",
-        "mistral_voxtral_mini_transcribe_3_0": "Voxtral 3: veloce, preciso, oltre 50 lingue, 0,0035 $/min",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral 3: il più preciso, oltre 50 lingue, 0,004 $/min"
-      },
       "cloud": {
         "openai_gpt_5_2": "Modello di ragionamento potente",
         "openai_gpt_5_mini": "Veloce ed efficiente nei costi",
@@ -1101,10 +1063,6 @@
         "liquidai_lfm2_2_6b_q4_k_m": "LFM2 bilanciato per una pulizia di qualità superiore",
         "liquidai_lfm2_5_350m_q8_0": "Modello ultraleggero per una pulizia rapida della dettatura",
         "liquidai_lfm2_5_230m_q8_0": "Modello minuscolo, pulizia istantanea su hardware modesto"
-      },
-      "diarization": {
-        "segmentation": "Rilevamento dei confini del parlato per l'identificazione dei parlanti",
-        "embedding_en": "Impronta vocale per l'identificazione dei parlanti"
       }
     },
     "errors": {
@@ -1211,7 +1169,6 @@
     "wordsReady_other": "{{count}} parole pronte",
     "import": "Importa",
     "yourDictionary": "Il tuo dizionario",
-    "promptLimitNotice": "Il tuo dizionario contiene {{chars}} caratteri. I modelli Groq e Whisper ne leggono solo le ultime centinaia di caratteri, quindi lì conviene un elenco più corto. Gli altri modelli ricevono l'elenco completo.",
     "exportDictionary": "Esporta dizionario",
     "exportFailed": "Esportazione non riuscita",
     "editWord": "Modifica {{word}}",
