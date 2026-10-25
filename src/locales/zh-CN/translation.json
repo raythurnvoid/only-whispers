@@ -242,6 +242,8 @@
       "showInFolderWindows": "在资源管理器中显示",
       "showInFolderLinux": "在文件管理器中显示",
       "retryTranscription": "重新转录",
+      "playAudio": "播放音频",
+      "stopAudio": "停止音频",
       "retrySuccess": "转录已更新",
       "retryError": "重新转录失败",
       "audioNotFound": "音频文件未找到或已过期",

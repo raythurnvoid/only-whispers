@@ -227,6 +227,8 @@
       "showInFolderWindows": "Im Explorer anzeigen",
       "showInFolderLinux": "Im Dateimanager anzeigen",
       "retryTranscription": "Erneut transkribieren",
+      "playAudio": "Audio abspielen",
+      "stopAudio": "Audio stoppen",
       "retrySuccess": "Transkription aktualisiert",
       "retryError": "Erneute Transkription fehlgeschlagen",
       "audioNotFound": "Audiodatei nicht gefunden oder abgelaufen",

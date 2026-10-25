@@ -140,6 +140,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("save-transcription-audio", id, audioBuffer, metadata),
   mergeAudioSegments: (segments) => ipcRenderer.invoke("merge-audio-segments", segments),
   showAudioInFolder: (id) => ipcRenderer.invoke("show-audio-in-folder", id),
+  getTranscriptionAudio: (id) => ipcRenderer.invoke("get-transcription-audio", id),
   syncRetentionSettings: (settings) => ipcRenderer.send("retention-settings-changed", settings),
   retryTranscription: (id, settings) => ipcRenderer.invoke("retry-transcription", id, settings),
   updateTranscriptionText: (id, text, rawText) =>

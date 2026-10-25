@@ -242,6 +242,8 @@
       "showInFolderWindows": "Mostra in Esplora file",
       "showInFolderLinux": "Mostra nel gestore file",
       "retryTranscription": "Ritrascrivi",
+      "playAudio": "Riproduci audio",
+      "stopAudio": "Ferma audio",
       "retrySuccess": "Trascrizione aggiornata",
       "retryError": "Ritrascrizione non riuscita",
       "audioNotFound": "File audio non trovato o scaduto",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./button";
 import { Tooltip } from "./tooltip";
@@ -19,6 +19,8 @@ import {
   ArchiveRestore,
   MoreVertical,
   Pencil,
+  Play,
+  Square,
 } from "../icons";
 import TranscriptTextEditor from "./TranscriptTextEditor";
 import { updateTranscription } from "../../stores/transcriptionStore";
@@ -73,6 +75,8 @@ export default function TranscriptionItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const playerRef = useRef<{ audio: HTMLAudioElement; url: string } | null>(null);
 
   const timestampSource = item.timestamp.endsWith("Z") ? item.timestamp : `${item.timestamp}Z`;
   const timestampDate = new Date(timestampSource);
@@ -92,6 +96,33 @@ export default function TranscriptionItem({
       setIsRetrying(false);
     }
   };
+
+  const stopAudio = () => {
+    const player = playerRef.current;
+    if (!player) return;
+    playerRef.current = null;
+    player.audio.pause();
+    URL.revokeObjectURL(player.url);
+    setIsPlaying(false);
+  };
+
+  const toggleAudio = async () => {
+    if (playerRef.current) {
+      stopAudio();
+      return;
+    }
+    const result = await window.electronAPI.getTranscriptionAudio(item.id);
+    if (!result.success) return;
+    const url = URL.createObjectURL(new Blob([result.buffer], { type: "audio/webm" }));
+    const audio = new Audio(url);
+    playerRef.current = { audio, url };
+    audio.onended = stopAudio;
+    setIsPlaying(true);
+    await audio.play().catch(stopAudio);
+  };
+
+  // Stop playback when the row goes away.
+  useEffect(() => stopAudio, []);
 
   // The raw transcript stays as it was heard; only the shown text changes.
   const handleSaveEdit = async (text: string) => {
@@ -205,6 +236,25 @@ export default function TranscriptionItem({
               )}
               {isDiscarded ? t("controlPanel.history.discarded.recover") : retryLabel}
             </Button>
+          )}
+          {hasAudio && (
+            <Tooltip
+              content={t(
+                isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
+              )}
+            >
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={toggleAudio}
+                aria-label={t(
+                  isPlaying ? "controlPanel.history.stopAudio" : "controlPanel.history.playAudio"
+                )}
+                className={ACTION_BUTTON_CLASS}
+              >
+                {isPlaying ? <Square size={13} /> : <Play size={13} />}
+              </Button>
+            </Tooltip>
           )}
           {(isTranscribed || hasKeptText) && (
             <Tooltip content={t("controlPanel.history.copyText")}>

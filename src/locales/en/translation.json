@@ -227,6 +227,8 @@
       "showInFolderWindows": "Show in Explorer",
       "showInFolderLinux": "Show in File Manager",
       "retryTranscription": "Re-transcribe",
+      "playAudio": "Play audio",
+      "stopAudio": "Stop audio",
       "retrySuccess": "Transcription updated",
       "retryError": "Failed to re-transcribe",
       "audioNotFound": "Audio file not found or expired",

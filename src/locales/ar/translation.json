@@ -521,6 +521,8 @@
       "showInFolderWindows": "إظهار في مستكشف الملفات",
       "showInFolderLinux": "إظهار في مدير الملفات",
       "retryTranscription": "إعادة التفريغ",
+      "playAudio": "تشغيل الصوت",
+      "stopAudio": "إيقاف الصوت",
       "retrySuccess": "تم تحديث التفريغ",
       "retryError": "فشلت إعادة التفريغ",
       "audioNotFound": "الملف الصوتي غير موجود أو انتهت صلاحيته",

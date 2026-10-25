@@ -717,6 +717,16 @@ class IPCHandlers {
       return { success: true };
     });
 
+    ipcMain.handle("get-transcription-audio", async (event, id) => {
+      const buffer = this.audioStorageManager.getAudioBuffer(id);
+      if (!buffer) return { success: false };
+      // Slice to a real ArrayBuffer, like merge-audio-segments above.
+      return {
+        success: true,
+        buffer: buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
+      };
+    });
+
     ipcMain.on(
       "retention-settings-changed",
       createRetentionSettingsHandler({

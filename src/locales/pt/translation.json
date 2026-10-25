@@ -236,6 +236,8 @@
       "showInFolderWindows": "Mostrar no Explorador",
       "showInFolderLinux": "Mostrar no gerenciador de arquivos",
       "retryTranscription": "Retranscrever",
+      "playAudio": "Reproduzir áudio",
+      "stopAudio": "Parar áudio",
       "retrySuccess": "Transcrição atualizada",
       "retryError": "Falha ao retranscrever",
       "audioNotFound": "Arquivo de áudio não encontrado ou expirado",

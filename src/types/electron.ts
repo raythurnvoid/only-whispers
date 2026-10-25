@@ -611,6 +611,9 @@ declare global {
         | { success: false; error: string }
       >;
       showAudioInFolder: (id: number) => Promise<{ success: boolean }>;
+      getTranscriptionAudio: (
+        id: number
+      ) => Promise<{ success: true; buffer: ArrayBuffer } | { success: false }>;
       syncRetentionSettings?: (settings: {
         audioRetentionDays: number;
         transcriptRetentionDays: number;
