@@ -23,10 +23,11 @@ on:
 permissions:
   contents: read
 
-# A new push to the same branch or PR stops the older run.
+# A new push to the same branch or PR stops the older run. Every commit on
+# main is still checked.
 concurrency:
   group: test-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
   test:
@@ -37,6 +38,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
+      # Windows runners check out with CRLF; some tests read sources and
+      # look for "\n", as on a dev machine.
+      - name: Keep LF line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
@@ -48,13 +55,12 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      # AT-SPI2 for linux-text-monitor; X11, Xtst, Xext and Xvfb for the
-      # linux-fast-paste tests, which skip themselves without them.
+      # AT-SPI2 for linux-text-monitor; X11, Xtst and Xext for linux-fast-paste.
       - name: Install Linux build tools
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libatspi2.0-dev libglib2.0-dev libx11-dev libxtst-dev libxext-dev xvfb
+          sudo apt-get install -y pkg-config libatspi2.0-dev libglib2.0-dev libx11-dev libxtst-dev libxext-dev
 
       - name: Setup MSVC environment
         if: runner.os == 'Windows'
@@ -63,13 +69,21 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Compiles the helpers from this commit's sources, so a source that does
-      # not build fails here.
+      # Install builds better-sqlite3 for Electron. The tests run on plain
+      # Node, so build it again for Node, or every database test skips.
+      - name: Build better-sqlite3 for Node
+        run: pnpm rebuild better-sqlite3
+
+      # Compiles the helpers from this commit's sources. In CI a source that
+      # does not build fails here instead of falling back to a download.
       - name: Build the native helpers
         run: pnpm run compile:native
 
+      # REQUIRE_DB_TESTS turns a skipped database test into a failure.
       - name: Test
         run: pnpm test
+        env:
+          REQUIRE_DB_TESTS: "1"
 
   checks:
     runs-on: ubuntu-latest

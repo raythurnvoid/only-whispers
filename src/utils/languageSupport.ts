@@ -32,4 +32,3 @@ function buildGenericInstruction(langCode: string): string {
   const template = registry._genericTemplate || "";
   return template.replace("{{code}}", langCode);
 }
-
