@@ -161,6 +161,13 @@ async function main() {
     return;
   }
 
+  // In CI a failed compile is a broken source; a download would hide it.
+  if (process.env.CI) {
+    console.error("[windows-text-monitor] Compilation failed; refusing a prebuilt fallback in CI.");
+    process.exitCode = 1;
+    return;
+  }
+
   const downloaded = await tryDownload();
   if (downloaded) {
     return;

@@ -200,7 +200,8 @@ if (result.status !== 0) {
   console.warn(
     "[linux-fast-paste] Failed to compile Linux fast-paste binary. Install libx11-dev and libxtst-dev to enable native paste. Falling back to system tools."
   );
-  process.exit(0);
+  // In CI a failed compile is a broken source, not a missing tool.
+  process.exit(process.env.CI ? 1 : 0);
 }
 
 try {

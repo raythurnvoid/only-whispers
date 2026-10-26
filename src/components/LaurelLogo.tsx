@@ -30,7 +30,9 @@ export default function LaurelLogo() {
         viewBox={`0 0 ${W} 60`}
         aria-hidden="true"
         className="absolute inset-0 h-full w-full text-(--laurel)"
-        style={{ maskImage: "linear-gradient(#000 24%, transparent 40%, transparent 60%, #000 76%)" }}
+        style={{
+          maskImage: "linear-gradient(#000 24%, transparent 40%, transparent 60%, #000 76%)",
+        }}
       >
         <LaurelBranch branch={BRANCH} stemWidth={1.1} berryRadius={1.05} />
         <LaurelBranch branch={BRANCH} stemWidth={1.1} berryRadius={1.05} mirrorAt={W} />
