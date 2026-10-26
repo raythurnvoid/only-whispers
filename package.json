@@ -1,6 +1,6 @@
 {
   "name": "only-whispers",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Hold the Key, speak, and get clean text in any app. Mistral Voxtral speech-to-text with ChatGPT Luna cleanup.",
   "main": "main.js",
   "private": true,
