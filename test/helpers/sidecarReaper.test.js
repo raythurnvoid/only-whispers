@@ -72,7 +72,10 @@ async function waitUntilDead(pid, timeoutMs = 2000) {
 
 test("kills a responsive stale sidecar and clears its entry", posixOnly, async (t) => {
   createUserDataDir(t);
-  const child = await spawnFakeSidecar(t, { scriptName: "llama-server-fake.js", ignoreSigterm: false });
+  const child = await spawnFakeSidecar(t, {
+    scriptName: "llama-server-fake.js",
+    ignoreSigterm: false,
+  });
   sidecarPidFile.write("llama", child.pid);
 
   await reapStaleSidecars(GRACES);
@@ -83,7 +86,10 @@ test("kills a responsive stale sidecar and clears its entry", posixOnly, async (
 
 test("escalates to SIGKILL when a stale sidecar ignores SIGTERM", posixOnly, async (t) => {
   createUserDataDir(t);
-  const child = await spawnFakeSidecar(t, { scriptName: "llama-server-stuck.js", ignoreSigterm: true });
+  const child = await spawnFakeSidecar(t, {
+    scriptName: "llama-server-stuck.js",
+    ignoreSigterm: true,
+  });
   sidecarPidFile.write("llama", child.pid);
 
   await reapStaleSidecars(GRACES);
@@ -105,7 +111,10 @@ test("does not kill a reused PID that is no longer the sidecar binary", posixOnl
 
 test("waitForExit distinguishes a live process from a dead one", async (t) => {
   createUserDataDir(t);
-  const child = await spawnFakeSidecar(t, { scriptName: "llama-server-wait.js", ignoreSigterm: false });
+  const child = await spawnFakeSidecar(t, {
+    scriptName: "llama-server-wait.js",
+    ignoreSigterm: false,
+  });
 
   assert.equal(await waitForExit(child.pid, 400), false);
 
@@ -115,7 +124,10 @@ test("waitForExit distinguishes a live process from a dead one", async (t) => {
 
 test("clears entries for processes that already exited", async (t) => {
   createUserDataDir(t);
-  const child = await spawnFakeSidecar(t, { scriptName: "llama-server-gone.js", ignoreSigterm: false });
+  const child = await spawnFakeSidecar(t, {
+    scriptName: "llama-server-gone.js",
+    ignoreSigterm: false,
+  });
   sidecarPidFile.write("llama", child.pid);
   process.kill(child.pid, "SIGKILL");
   assert.equal(await waitUntilDead(child.pid), true);

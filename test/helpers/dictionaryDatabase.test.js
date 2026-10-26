@@ -88,10 +88,17 @@ test("startup reconcile preserves DB words that a stale renderer cache omitted (
   assert.deepEqual(db.getDictionary(), ["only-whispers", "Alice", "Bob", "Imported Term"]);
 });
 
+// A row as it was once uploaded to the cloud (sync is gone, but such rows remain).
+function markSynced(db, word, cloudId) {
+  db.db
+    .prepare("UPDATE custom_dictionary SET sync_status = 'synced', cloud_id = ? WHERE word = ?")
+    .run(cloudId, word);
+}
+
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 // The reporter's scenario: a bulk import writing straight to the table, with no
-// knowledge of the sync columns. Those rows still have to be uploadable (#1295).
+// knowledge of the sync columns (#1295).
 test("rows inserted outside the app get a client_dict_id from the schema", (t) => {
   const db = createDb(t);
   if (!db) return;
@@ -101,11 +108,8 @@ test("rows inserted outside the app get a client_dict_id from the schema", (t) =
 
   const row = db.db.prepare("SELECT * FROM custom_dictionary WHERE word = 'Contact Name'").get();
   assert.match(row.client_dict_id, UUID_V4);
-
-  const pending = db.getPendingDictionary().find((r) => r.word === "Contact Name");
-  assert.ok(pending, "externally inserted row should be uploadable");
-  assert.equal(pending.cloud_id, null);
-  assert.equal(pending.sync_status, "pending");
+  assert.equal(row.cloud_id, null);
+  assert.equal(row.sync_status, "pending");
 });
 
 test("externally inserted rows get distinct client_dict_ids", (t) => {
@@ -135,85 +139,12 @@ test("an explicitly supplied client_dict_id is preserved", (t) => {
   assert.equal(row.client_dict_id, "supplied-id");
 });
 
-test("cloud pull upserts remotes without deleting local-only pending rows", (t) => {
-  const db = createDb(t);
-  if (!db) return;
-
-  db.setDictionary(["only-whispers", "Alice"]);
-  const alice = db.getPendingDictionary().find((row) => row.word === "Alice");
-
-  db.upsertDictionaryFromCloud({
-    id: "cloud-remote-1",
-    client_dict_id: "client-remote-1",
-    word: "Carol",
-    source: "manual",
-    created_at: "2026-07-22T10:00:00.000Z",
-    updated_at: "2026-07-22T10:00:00.000Z",
-  });
-
-  assert.deepEqual(db.getDictionary().sort(), ["Alice", "Carol", "only-whispers"].sort());
-  const aliceAfter = db.db.prepare("SELECT * FROM custom_dictionary WHERE id = ?").get(alice.id);
-  assert.equal(aliceAfter.sync_status, "pending");
-  assert.equal(aliceAfter.cloud_id, null);
-});
-
-test("repeated cloud upsert does not duplicate words", (t) => {
-  const db = createDb(t);
-  if (!db) return;
-
-  db.setDictionary(["only-whispers"]);
-  const payload = {
-    id: "cloud-1",
-    client_dict_id: "client-1",
-    word: "Delta",
-    source: "manual",
-    created_at: "2026-07-22T10:00:00.000Z",
-    updated_at: "2026-07-22T10:00:00.000Z",
-  };
-
-  db.upsertDictionaryFromCloud(payload);
-  db.upsertDictionaryFromCloud({
-    ...payload,
-    updated_at: "2026-07-22T11:00:00.000Z",
-  });
-
-  const deltas = db.db
-    .prepare("SELECT COUNT(*) AS count FROM custom_dictionary WHERE lower(word) = 'delta'")
-    .get();
-  assert.equal(deltas.count, 1);
-  assert.deepEqual(db.getDictionary().sort(), ["Delta", "only-whispers"].sort());
-});
-
-test("default only-whispers row is neither removed nor duplicated by cloud upsert", (t) => {
-  const db = createDb(t);
-  if (!db) return;
-
-  db.setDictionary(["only-whispers", "Alice"]);
-  db.upsertDictionaryFromCloud({
-    id: "cloud-ow",
-    client_dict_id: "client-ow",
-    word: "only-whispers",
-    source: "manual",
-    created_at: "2026-07-22T10:00:00.000Z",
-    updated_at: "2026-07-22T12:00:00.000Z",
-  });
-
-  const onlyWhispersRows = db.db
-    .prepare("SELECT * FROM custom_dictionary WHERE lower(word) = 'only-whispers'")
-    .all();
-  assert.equal(onlyWhispersRows.length, 1);
-  assert.equal(onlyWhispersRows[0].cloud_id, "cloud-ow");
-  assert.ok(db.getDictionary().includes("Alice"));
-});
-
 test("intentional removal tombstones synced rows and hard-deletes unsynced ones", (t) => {
   const db = createDb(t);
   if (!db) return;
 
   db.setDictionary(["only-whispers", "Temp", "Synced"]);
-  const pending = db.getPendingDictionary();
-  const synced = pending.find((row) => row.word === "Synced");
-  db.markDictionaryEntrySynced(synced.id, "cloud-synced");
+  markSynced(db, "Synced", "cloud-synced");
 
   db.setDictionary(["only-whispers"]);
   assert.deepEqual(db.getDictionary(), ["only-whispers"]);
@@ -260,8 +191,7 @@ test("removing words hard-deletes unsynced rows and tombstones synced ones", (t)
   if (!db) return;
 
   db.setDictionary(["only-whispers", "Temp", "Synced"]);
-  const synced = db.getPendingDictionary().find((row) => row.word === "Synced");
-  db.markDictionaryEntrySynced(synced.id, "cloud-synced");
+  markSynced(db, "Synced", "cloud-synced");
 
   const result = db.applyDictionaryChanges({ remove: ["Temp", "Synced"] });
   assert.equal(result.removed, 2);
@@ -282,8 +212,7 @@ test("adding a tombstoned word restores it instead of duplicating", (t) => {
   if (!db) return;
 
   db.setDictionary(["only-whispers", "Synced"]);
-  const synced = db.getPendingDictionary().find((row) => row.word === "Synced");
-  db.markDictionaryEntrySynced(synced.id, "cloud-synced");
+  markSynced(db, "Synced", "cloud-synced");
   db.applyDictionaryChanges({ remove: ["Synced"] });
 
   db.applyDictionaryChanges({ add: ["Synced"] });
@@ -375,8 +304,7 @@ test("an empty delta touches nothing", (t) => {
   if (!db) return;
 
   db.setDictionary(["only-whispers", "Alice"]);
-  const synced = db.getPendingDictionary().find((row) => row.word === "Alice");
-  db.markDictionaryEntrySynced(synced.id, "cloud-alice");
+  markSynced(db, "Alice", "cloud-alice");
 
   const result = db.applyDictionaryChanges({});
   assert.deepEqual(result, { success: true, added: 0, removed: 0 });
