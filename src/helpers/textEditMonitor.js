@@ -315,7 +315,11 @@ class TextEditMonitor extends EventEmitter {
   // the dormant-Chromium signature, where accessibility cannot inspect the
   // focused field at all. The default timeout reuses SELECTED_TEXT_TIMEOUT_MS
   // because a dormant tree's verdict only arrives after the same retry ladder.
-  async isFocusedEditable(target, timeoutMs = SELECTED_TEXT_TIMEOUT_MS) {
+  async isFocusedEditable(
+    target,
+    timeoutMs = SELECTED_TEXT_TIMEOUT_MS,
+    { allowSelection = false } = {}
+  ) {
     const resolved = this.resolveBinary();
     if (!resolved) return "not_editable";
 
@@ -331,6 +335,8 @@ class TextEditMonitor extends EventEmitter {
       args = [...resolved.args, "--probe-editable", String(target.pid)];
     } else {
       args = [...resolved.args, "--probe-editable"];
+      // Windows only; an older binary ignores it and refuses a selection.
+      if (allowSelection) args.push("--allow-selection");
     }
 
     // The verdict is the first output line. A stale binary that predates the

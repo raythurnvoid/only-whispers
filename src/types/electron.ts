@@ -323,7 +323,7 @@ declare global {
         | {
             success: true;
             pasted: boolean;
-            reason?: "modifiers-held" | "wl-copy-missing" | "wl-copy-failed";
+            reason?: "modifiers-held" | "wl-copy-missing" | "wl-copy-failed" | "no-text-field";
           }
         | {
             success: false;

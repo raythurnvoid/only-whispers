@@ -175,16 +175,17 @@ class SelectionManager {
     return null;
   }
 
-  // The Windows foreground window captured at record start, for the paste path
-  // to restore before Ctrl+V lands (#859). Waits out an in-flight probe for the
-  // same reason captureSelectedText does: the stop-press probe can still be
-  // running when fast transcription reaches the paste. Carries the window's
-  // identity so the paste can judge whether restoring it makes sense.
-  async getWinTarget() {
-    while (this._captureTargetPromise) {
-      await this._captureTargetPromise;
-    }
-    return this.lastTarget?.kind === "win-hwnd" ? this.lastTarget : null;
+  // Windows dictation pastes into what has focus at paste time, not the window
+  // from record start: the user may have moved to another field meanwhile.
+  // A terminal takes the paste (its UIA element is not a text field); anything
+  // else must be a writable text field, which may hold a selection to replace.
+  async isWinFocusWritable() {
+    if (!this.textEditMonitor?.resolveBinary?.()) return true; // no probe: paste as before
+    const [target, verdict] = await Promise.all([
+      this._probeTarget(),
+      this.textEditMonitor.isFocusedEditable(null, undefined, { allowSelection: true }),
+    ]);
+    return verdict === "editable" || target?.isTerminal === true;
   }
 
   // The dictation target as the Tone & Style classifier reads it: the app's

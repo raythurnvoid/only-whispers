@@ -2,7 +2,6 @@ const { ipcMain, app, shell, BrowserWindow, systemPreferences, net } = require("
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-const { isRestorablePasteTarget } = require("./windowsPasteTarget");
 const crypto = require("crypto");
 const debugLogger = require("./debugLogger");
 const { broadcastToWindows } = require("./windowBroadcast");
@@ -876,32 +875,22 @@ class IPCHandlers {
       // of ms — too slow for the paste hot path.
       const textToPaste = applySmartSpacing(text);
 
-      // Windows: restore the foreground window captured at record start so the
-      // paste lands in the field the user was dictating into, not wherever focus
-      // drifted during transcription (#859). macOS handles this via
-      // activateTargetPid above; Linux re-detects the target inside pasteLinux.
-      const winTarget =
-        process.platform === "win32"
-          ? ((await this.selectionManager?.getWinTarget?.()) ?? null)
-          : null;
-      const targetWindow =
-        winTarget &&
-        isRestorablePasteTarget({
-          target: winTarget,
-          ownExeName: path.basename(process.execPath),
-          ownWindowHandles: BrowserWindow.getAllWindows()
-            .filter((win) => !win.isDestroyed())
-            .map((win) => win.getNativeWindowHandle()),
-        })
-          ? winTarget.id
-          : null;
+      // Windows: paste only into the text field that has focus now. With no
+      // text field in focus the text is not pasted; it stays in the history.
+      if (
+        process.platform === "win32" &&
+        this.selectionManager &&
+        !(await this.selectionManager.isWinFocusWritable())
+      ) {
+        debugLogger.info("No text field in focus, paste skipped", {}, "clipboard");
+        return { success: true, pasted: false, reason: "no-text-field" };
+      }
 
       let pasteResult;
       try {
         pasteResult = await this.clipboardManager.pasteText(textToPaste, {
           ...options,
           webContents: event.sender,
-          targetWindow,
           silentAccessibilityCheck: true,
         });
       } catch (error) {

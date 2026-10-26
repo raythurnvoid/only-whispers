@@ -784,6 +784,10 @@ export const useAudioRecording = (toast, options = {}) => {
                 },
                 generation
               );
+            } else if (pasteOutcome.reason === "no-text-field" && keepTranscriptionInClipboard) {
+              // Nothing to paste into (Windows); the text is in the history, and
+              // on the clipboard when the user keeps transcripts there.
+              await keepInClipboard("no-text-field");
             }
             return pasteOutcome.pasted;
           };

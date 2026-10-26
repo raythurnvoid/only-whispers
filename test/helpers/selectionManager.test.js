@@ -824,10 +824,9 @@ test("older AT-SPI timeouts cannot cool down a newer successful probe", async (t
   assert.deepEqual(await next, { kind: "atspi-pid", id: "42" });
 });
 
-// The Windows paste path restores the window captured at record start (#859).
-// getWinTarget hands the paste that HWND exactly as --detect-only printed
+// The caret paste restores the captured HWND exactly as --detect-only printed
 // it ("TARGET %p", hex) so the binary's base-16 --restore-window parse round-trips.
-test("getWinTarget returns the hex HWND a win32 probe captured (#859)", async () => {
+test("a win32 probe captures the hex HWND (#859)", async () => {
   const spawnCalls = [];
   const SpawningSelectionManager = loadSelectionManager({
     spawn: (command, args) => {
@@ -857,7 +856,7 @@ test("getWinTarget returns the hex HWND a win32 probe captured (#859)", async ()
   assert.deepEqual(spawnCalls, [
     { command: "/tmp/windows-fast-paste.exe", args: ["--detect-only"] },
   ]);
-  assert.equal((await manager.getWinTarget())?.id, "00001A2B");
+  assert.equal(manager.lastTarget?.id, "00001A2B");
 });
 
 test("the app context of a win32 target carries its exe, class and window title", async () => {
@@ -985,37 +984,44 @@ test("an AT-SPI target is named from its pid and titled from its window", async 
   );
 });
 
-// captureTarget() nulls lastTarget while its probe runs; a paste racing the
-// stop-press probe must wait for the answer instead of restoring nothing.
-test("getWinTarget waits for an in-flight probe before answering", async () => {
+// Windows dictation pastes only into what has focus at paste time.
+function focusManager({ verdict, isTerminal = false, binary = "/tmp/windows-text-monitor.exe" }) {
+  const probes = [];
   const manager = new SelectionManager({
     clipboardManager: {},
-    textEditMonitor: {},
+    textEditMonitor: {
+      resolveBinary: () => (binary ? { command: binary, args: [] } : null),
+      isFocusedEditable: async (...args) => {
+        probes.push(args);
+        return verdict;
+      },
+    },
     platform: "win32",
     now: () => 1000,
   });
-  let resolveProbe;
-  manager._probeTarget = () => new Promise((resolve) => (resolveProbe = resolve));
+  manager._probeTarget = async () => ({ kind: "win-hwnd", id: "0000F00D", isTerminal });
+  return { manager, probes };
+}
 
-  const probe = manager.captureTarget();
-  const pending = manager.getWinTarget();
-  resolveProbe({ kind: "win-hwnd", id: "0000F00D" });
-  await probe;
-
-  assert.equal((await pending)?.id, "0000F00D");
+test("a focused text field takes the paste, even with selected text", async () => {
+  const { manager, probes } = focusManager({ verdict: "editable" });
+  assert.equal(await manager.isWinFocusWritable(), true);
+  assert.deepEqual(probes, [[null, undefined, { allowSelection: true }]]);
 });
 
-test("getWinTarget is null without a capture or with a non-Windows target", async () => {
-  const manager = new SelectionManager({
-    clipboardManager: {},
-    textEditMonitor: {},
-    platform: "linux",
-    now: () => 1000,
-  });
-  assert.equal(await manager.getWinTarget(), null);
+test("no text field in focus means no paste", async () => {
+  assert.equal(await focusManager({ verdict: "not_editable" }).manager.isWinFocusWritable(), false);
+});
 
-  manager.lastTarget = { kind: "x11-window", id: "7" };
-  assert.equal(await manager.getWinTarget(), null);
+test("a focused terminal takes the paste although it is not a text field", async () => {
+  const { manager } = focusManager({ verdict: "not_editable", isTerminal: true });
+  assert.equal(await manager.isWinFocusWritable(), true);
+});
+
+test("without the probe binary the paste goes ahead as before", async () => {
+  const { manager, probes } = focusManager({ verdict: "not_editable", binary: null });
+  assert.equal(await manager.isWinFocusWritable(), true);
+  assert.equal(probes.length, 0);
 });
 
 test("caret delivery pins the captured Windows HWND into the paste helper", async () => {

@@ -190,6 +190,28 @@ test("isFocusedEditable fails closed on a pre-probe Linux binary", posixOnly, as
   }
 });
 
+// Dictation asks Windows whether the focus is a text field, selection or not.
+test("isFocusedEditable passes --allow-selection to the Windows probe", async () => {
+  const m = new TextEditMonitor();
+  m.resolveBinary = () => ({
+    command: process.execPath,
+    args: [
+      "-e",
+      "console.log(process.argv.slice(1).join(' ') === '--probe-editable --allow-selection' ? 'EDITABLE' : 'NOT_EDITABLE')",
+      // Keeps node from reading the probe flags as its own options.
+      "--",
+    ],
+  });
+  const original = Object.getOwnPropertyDescriptor(process, "platform");
+  Object.defineProperty(process, "platform", { value: "win32", configurable: true });
+  try {
+    assert.equal(await m.isFocusedEditable(null, undefined, { allowSelection: true }), "editable");
+    assert.equal(await m.isFocusedEditable(null), "not_editable");
+  } finally {
+    Object.defineProperty(process, "platform", original);
+  }
+});
+
 // The bare window as the focused element is the dormant-Chromium signature —
 // the selection state is unreadable, not empty, so the caller must fall to the
 // synthetic-copy read instead of treating it as "no selection".
