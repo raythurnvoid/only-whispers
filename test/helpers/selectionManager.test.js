@@ -984,43 +984,111 @@ test("an AT-SPI target is named from its pid and titled from its window", async 
   );
 });
 
-// Windows dictation pastes only into what has focus at paste time.
-function focusManager({ verdict, isTerminal = false, binary = "/tmp/windows-text-monitor.exe" }) {
+// Dictation pastes only into what has focus at paste time.
+function focusManager({
+  platform = "win32",
+  verdict,
+  isTerminal = false,
+  binary = "/tmp/text-monitor",
+  terminalPid = false,
+  linuxTarget = { kind: "hyprland-window", id: "0x1", windowClass: "gedit", pid: 42 },
+}) {
   const probes = [];
   const manager = new SelectionManager({
-    clipboardManager: {},
+    clipboardManager: { isLinuxTerminalWindowClass: (windowClass) => windowClass === "kitty" },
     textEditMonitor: {
       resolveBinary: () => (binary ? { command: binary, args: [] } : null),
-      isFocusedEditable: async (...args) => {
+      _readFrontmostPid: async () => 42,
+      isFocusedEditable: (...args) => {
         probes.push(args);
-        return verdict;
+        return verdict === "slow" ? new Promise(() => {}) : Promise.resolve(verdict);
       },
     },
-    platform: "win32",
+    platform,
     now: () => 1000,
   });
   manager._probeTarget = async () => ({ kind: "win-hwnd", id: "0000F00D", isTerminal });
+  manager._getLinuxTarget = async () => linuxTarget;
+  manager._isTerminalPid = async () => terminalPid;
   return { manager, probes };
 }
 
 test("a focused text field takes the paste, even with selected text", async () => {
   const { manager, probes } = focusManager({ verdict: "editable" });
-  assert.equal(await manager.isWinFocusWritable(), true);
+  assert.equal(await manager.isFocusWritable(), true);
   assert.deepEqual(probes, [[null, undefined, { allowSelection: true }]]);
 });
 
 test("no text field in focus means no paste", async () => {
-  assert.equal(await focusManager({ verdict: "not_editable" }).manager.isWinFocusWritable(), false);
+  assert.equal(await focusManager({ verdict: "not_editable" }).manager.isFocusWritable(), false);
+});
+
+test("Windows refuses a focus it cannot see", async () => {
+  assert.equal(await focusManager({ verdict: "unknown" }).manager.isFocusWritable(), false);
 });
 
 test("a focused terminal takes the paste although it is not a text field", async () => {
   const { manager } = focusManager({ verdict: "not_editable", isTerminal: true });
-  assert.equal(await manager.isWinFocusWritable(), true);
+  assert.equal(await manager.isFocusWritable(), true);
 });
 
 test("without the probe binary the paste goes ahead as before", async () => {
   const { manager, probes } = focusManager({ verdict: "not_editable", binary: null });
-  assert.equal(await manager.isWinFocusWritable(), true);
+  assert.equal(await manager.isFocusWritable(), true);
+  assert.equal(probes.length, 0);
+});
+
+test("macOS probes the frontmost app, not the one from record start", async () => {
+  const { manager, probes } = focusManager({ platform: "darwin", verdict: "not_editable" });
+  assert.equal(await manager.isFocusWritable(), false);
+  assert.deepEqual(probes, [[{ kind: "mac-pid", pid: 42 }, undefined, { allowSelection: true }]]);
+});
+
+test("macOS and Linux paste when accessibility cannot see the focus", async () => {
+  for (const platform of ["darwin", "linux"]) {
+    const { manager } = focusManager({ platform, verdict: "unknown" });
+    assert.equal(await manager.isFocusWritable(), true, platform);
+  }
+});
+
+test("a slow probe counts as unknown, so the paste is not held up", async () => {
+  const { manager } = focusManager({ platform: "darwin", verdict: "slow" });
+  const startedAt = Date.now();
+  assert.equal(await manager.isFocusWritable(), true);
+  assert.ok(Date.now() - startedAt < 1500);
+});
+
+test("a macOS terminal takes the paste although it is not a text field", async () => {
+  const { manager } = focusManager({
+    platform: "darwin",
+    verdict: "not_editable",
+    terminalPid: true,
+  });
+  assert.equal(await manager.isFocusWritable(), true);
+});
+
+test("Linux probes the focused window's process and refuses a non-text focus", async () => {
+  const { manager, probes } = focusManager({ platform: "linux", verdict: "not_editable" });
+  assert.equal(await manager.isFocusWritable(), false);
+  assert.equal(probes[0][0].pid, 42);
+});
+
+test("a Linux terminal window takes the paste although it is not a text field", async () => {
+  const { manager } = focusManager({
+    platform: "linux",
+    verdict: "not_editable",
+    linuxTarget: { kind: "hyprland-window", id: "0x1", windowClass: "kitty", pid: 42 },
+  });
+  assert.equal(await manager.isFocusWritable(), true);
+});
+
+test("Linux pastes as before when the focused window can't be read", async () => {
+  const { manager, probes } = focusManager({
+    platform: "linux",
+    verdict: "not_editable",
+    linuxTarget: null,
+  });
+  assert.equal(await manager.isFocusWritable(), true);
   assert.equal(probes.length, 0);
 });
 

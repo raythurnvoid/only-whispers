@@ -42,12 +42,13 @@ func elementRole(_ element: AXUIElement) -> String? {
     return roleValue as? String
 }
 
-func isEditableTextElement(_ element: AXUIElement) -> Bool {
+func isEditableTextElement(_ element: AXUIElement, allowSelection: Bool = false) -> Bool {
     // A live selection means an editable verdict would let generated text
     // paste over the user's highlighted text (--editable-target mode probes
     // an element whose selection state the caller could not read itself).
+    // Dictation pastes over a selection on purpose, so it allows one.
     var selectedTextValue: AnyObject?
-    if AXUIElementCopyAttributeValue(
+    if !allowSelection, AXUIElementCopyAttributeValue(
         element,
         kAXSelectedTextAttribute as CFString,
         &selectedTextValue
@@ -117,13 +118,15 @@ func observerCallback(
 
 // Usage: macos-text-monitor <pid>
 //        macos-text-monitor --selected-text <pid>
-//        macos-text-monitor --editable-target <pid>
+//        macos-text-monitor --editable-target <pid> [--allow-selection]
 //        macos-text-monitor --window-bounds <pid>
 //        macos-text-monitor --app-context <pid>
 let selectionReadMode = CommandLine.arguments.count >= 3 &&
     CommandLine.arguments[1] == "--selected-text"
 let editableTargetMode = CommandLine.arguments.count >= 3 &&
     CommandLine.arguments[1] == "--editable-target"
+let allowSelection = editableTargetMode && CommandLine.arguments.count >= 4 &&
+    CommandLine.arguments[3] == "--allow-selection"
 let windowBoundsMode = CommandLine.arguments.count >= 3 &&
     CommandLine.arguments[1] == "--window-bounds"
 let appContextMode = CommandLine.arguments.count >= 3 &&
@@ -271,7 +274,7 @@ if editableTargetMode {
         writeOutput("UNKNOWN")
         exit(0)
     }
-    if isEditableTextElement(element) {
+    if isEditableTextElement(element, allowSelection: allowSelection) {
         writeOutput("EDITABLE")
     } else {
         writeOutput(elementRole(element) == "AXWindow" ? "UNKNOWN" : "NOT_EDITABLE")

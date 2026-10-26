@@ -156,6 +156,21 @@ test("paste-text tells the renderer why a paste was held back", async () => {
   assert.deepEqual(result, { success: true, pasted: false, reason: "modifiers-held" });
 });
 
+test("paste-text skips the paste when no text field has focus now", async (t) => {
+  t.after(() => {
+    target.selectionManager = null;
+  });
+  target.windowManager = {};
+  target.selectionManager = { isFocusWritable: async () => false };
+  target.clipboardManager = {
+    pasteText: async () => assert.fail("must not paste without a text field in focus"),
+  };
+
+  const result = await handlers.get("paste-text")({ sender: { id: 1 } }, "kept in history");
+
+  assert.deepEqual(result, { success: true, pasted: false, reason: "no-text-field" });
+});
+
 test("paste-text does not schedule AutoLearn monitoring after a clipboard-only fallback", async (t) => {
   const originalSetTimeout = global.setTimeout;
   t.after(() => {
@@ -171,7 +186,6 @@ test("paste-text does not schedule AutoLearn monitoring after a clipboard-only f
   target._autoLearnEnabled = true;
   target.textEditMonitor = {
     lastTargetPid: 42,
-    activateTargetPid: async () => true,
     startMonitoring: (...args) => monitored.push(args),
   };
   target.windowManager = {};
@@ -201,7 +215,6 @@ test("paste-text serializes only a copied Accessibility denial and skips AutoLea
   };
   target._autoLearnEnabled = true;
   target.textEditMonitor = {
-    activateTargetPid: async () => true,
     startMonitoring: () => assert.fail("must not monitor denial"),
   };
   target.windowManager = {};

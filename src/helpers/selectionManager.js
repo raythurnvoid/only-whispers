@@ -13,6 +13,7 @@ const CLIPBOARD_POLL_MS = 20;
 const ATSPI_TARGET_TIMEOUT_MS = 2000;
 const TARGET_CAPTURE_FRESHNESS_MS = 250;
 const ATSPI_COOLDOWN_MS = 2000;
+const FOCUS_CHECK_WAIT_MS = 800;
 
 // Editors that copy the whole current line when Ctrl+C (⌘C on macOS) lands with
 // an empty selection (VS Code's editor.emptySelectionClipboard, Scintilla,
@@ -175,17 +176,48 @@ class SelectionManager {
     return null;
   }
 
-  // Windows dictation pastes into what has focus at paste time, not the window
-  // from record start: the user may have moved to another field meanwhile.
-  // A terminal takes the paste (its UIA element is not a text field); anything
-  // else must be a writable text field, which may hold a selection to replace.
-  async isWinFocusWritable() {
+  // Dictation pastes into what has focus at paste time, not the window from
+  // record start: the user may have moved to another field meanwhile.
+  // A terminal takes the paste (accessibility does not call it a text field);
+  // anything else must be a writable text field, which may hold a selection to
+  // replace. Windows refuses what it cannot confirm. macOS and Linux refuse only
+  // a confirmed non-text focus, since their accessibility often cannot see the
+  // field at all (a dormant Chromium tree, an app without AT-SPI).
+  async isFocusWritable() {
     if (!this.textEditMonitor?.resolveBinary?.()) return true; // no probe: paste as before
-    const [target, verdict] = await Promise.all([
-      this._probeTarget(),
-      this.textEditMonitor.isFocusedEditable(null, undefined, { allowSelection: true }),
+    if (this.platform === "win32") {
+      const [target, verdict] = await Promise.all([
+        this._probeTarget(),
+        this.textEditMonitor.isFocusedEditable(null, undefined, { allowSelection: true }),
+      ]);
+      return verdict === "editable" || target?.isTerminal === true;
+    }
+    // A dormant Chromium tree answers only after its retry ladder, a stuck
+    // AT-SPI peer after its timeout; a slow answer counts as unknown so it
+    // never holds up the paste.
+    return Promise.race([
+      this._isFocusWritableByAccessibility(),
+      new Promise((resolve) => setTimeout(() => resolve(true), FOCUS_CHECK_WAIT_MS)),
     ]);
-    return verdict === "editable" || target?.isTerminal === true;
+  }
+
+  async _isFocusWritableByAccessibility() {
+    const target =
+      this.platform === "darwin"
+        ? { kind: "mac-pid", pid: await this.textEditMonitor._readFrontmostPid?.() }
+        : await this._getLinuxTarget();
+    const pid =
+      target?.kind === "mac-pid" ? target.pid : target && (await this._linuxTargetPid(target));
+    if (!pid) return true;
+    const verdict = await this.textEditMonitor.isFocusedEditable({ ...target, pid }, undefined, {
+      allowSelection: true,
+    });
+    if (verdict !== "not_editable") return true;
+    return (
+      this._isTerminalTarget(target) ||
+      this.clipboardManager.isLinuxTerminalWindowClass?.(target.windowClass) === true ||
+      (await this._isTerminalPid(pid))
+    );
   }
 
   // The dictation target as the Tone & Style classifier reads it: the app's

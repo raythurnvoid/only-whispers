@@ -848,14 +848,9 @@ class IPCHandlers {
       const mainWindow = this.windowManager?.mainWindow;
       const targetPid = this.textEditMonitor?.lastTargetPid || null;
 
-      // Activating the target by PID is more reliable than hide()'s implicit
-      // focus hand-off for Chromium apps like Claude desktop and Brave (#668).
-      let activated = false;
-      if (process.platform === "darwin" && this.textEditMonitor) {
-        activated = await this.textEditMonitor.activateTargetPid();
-      }
-
-      if (!activated && mainWindow && !mainWindow.isDestroyed() && mainWindow.isFocused()) {
+      // The app from record start is not brought back to the front: the paste
+      // goes to what has focus now (checked below).
+      if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isFocused()) {
         if (process.platform === "darwin") {
           mainWindow.hide();
           await new Promise((resolve) => setTimeout(resolve, 120));
@@ -875,13 +870,9 @@ class IPCHandlers {
       // of ms — too slow for the paste hot path.
       const textToPaste = applySmartSpacing(text);
 
-      // Windows: paste only into the text field that has focus now. With no
-      // text field in focus the text is not pasted; it stays in the history.
-      if (
-        process.platform === "win32" &&
-        this.selectionManager &&
-        !(await this.selectionManager.isWinFocusWritable())
-      ) {
+      // Paste only into the text field that has focus now. With no text field
+      // in focus the text is not pasted; it stays in the history.
+      if (this.selectionManager && !(await this.selectionManager.isFocusWritable())) {
         debugLogger.info("No text field in focus, paste skipped", {}, "clipboard");
         return { success: true, pasted: false, reason: "no-text-field" };
       }

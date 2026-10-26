@@ -11,7 +11,8 @@
  *   CHANGED:<text>        - Text field value after a change
  *   CHANGED_B64:<base64>  - Text field value after a change (multiline)
  *   EDITABLE              - Focused element in the active window of <pid> is
- *                           writable with no live selection (--probe-editable <pid>)
+ *                           writable with no live selection (--probe-editable <pid>;
+ *                           add --allow-selection to accept a selection too)
  *   NOT_EDITABLE          - Focused element is not safely writable
  *   NO_ELEMENT            - Could not get focused element (with --probe-editable,
  *                           also a missing or invalid pid, or no accessible app for it)
@@ -211,6 +212,10 @@ int main(int argc, char **argv) {
             target_pid = (gint)parsed;
         }
     }
+    /* Dictation pastes over a selection on purpose, so it asks only whether
+     * the focus is a writable text field. */
+    int allow_selection = probe_editable && argc >= 4 &&
+        strcmp(argv[3], "--allow-selection") == 0;
     if (probe_editable && !target_pid) {
         printf("NO_ELEMENT\n");
         fflush(stdout);
@@ -304,7 +309,7 @@ int main(int argc, char **argv) {
          * paste over the user's highlighted text. This is the authoritative
          * check: the caller's clipboard-based capture cannot see a selection
          * whose text already matches the clipboard. */
-        if (editable) {
+        if (editable && !allow_selection) {
             /* A selection that cannot be read could be live, so it is not
              * editable. That includes a Text interface that cannot be read:
              * libatspi returns none when its GetInterfaces call fails. */

@@ -3,21 +3,14 @@ const assert = require("node:assert/strict");
 
 const TextEditMonitor = require("../../src/helpers/textEditMonitor");
 
-test("activateTargetPid resolves false when no target PID was captured", async () => {
+test("activatePid resolves false without a PID or for an unmapped PID", async () => {
   const m = new TextEditMonitor();
-  m.lastTargetPid = null;
-  assert.equal(await m.activateTargetPid(), false);
-});
-
-test("activateTargetPid resolves false for an unmapped PID", async () => {
-  const m = new TextEditMonitor();
+  assert.equal(await m.activatePid(null), false);
   // Non-darwin short-circuits; darwin can't make a non-existent PID frontmost,
   // so the confirm poll times out. Both resolve quickly to false rather than
   // reporting a target that was never frontmost as active.
-  m.lastTargetPid = 99999999;
   const start = Date.now();
-  const result = await m.activateTargetPid();
-  assert.equal(result, false);
+  assert.equal(await m.activatePid(99999999), false);
   assert.ok(Date.now() - start < 3000);
 });
 
@@ -181,32 +174,43 @@ test("isFocusedEditable fails closed on a pre-probe Linux binary", posixOnly, as
   assert.equal(await withLinuxPlatform(() => m.isFocusedEditable(LINUX_TARGET)), "not_editable");
   assert.ok(Date.now() - startedAt < 900, "must resolve on the first output line");
 
-  for (const line of ["NO_ELEMENT", "NO_VALUE"]) {
+  // NO_ELEMENT means accessibility can't see the field: unknown, never editable.
+  for (const [line, verdict] of [
+    ["NO_ELEMENT", "unknown"],
+    ["NO_VALUE", "not_editable"],
+  ]) {
     const exiting = linuxProbe(`echo ${line}; exit 1`);
-    assert.equal(
-      await withLinuxPlatform(() => exiting.isFocusedEditable(LINUX_TARGET)),
-      "not_editable"
-    );
+    assert.equal(await withLinuxPlatform(() => exiting.isFocusedEditable(LINUX_TARGET)), verdict);
   }
 });
 
-// Dictation asks Windows whether the focus is a text field, selection or not.
-test("isFocusedEditable passes --allow-selection to the Windows probe", async () => {
-  const m = new TextEditMonitor();
-  m.resolveBinary = () => ({
-    command: process.execPath,
-    args: [
-      "-e",
-      "console.log(process.argv.slice(1).join(' ') === '--probe-editable --allow-selection' ? 'EDITABLE' : 'NOT_EDITABLE')",
-      // Keeps node from reading the probe flags as its own options.
-      "--",
-    ],
-  });
+// Dictation asks whether the focus is a text field, selection or not.
+test("isFocusedEditable passes --allow-selection to every platform's probe", async () => {
   const original = Object.getOwnPropertyDescriptor(process, "platform");
-  Object.defineProperty(process, "platform", { value: "win32", configurable: true });
   try {
-    assert.equal(await m.isFocusedEditable(null, undefined, { allowSelection: true }), "editable");
-    assert.equal(await m.isFocusedEditable(null), "not_editable");
+    for (const [platform, target, expectedArgs] of [
+      ["win32", null, "--probe-editable --allow-selection"],
+      ["darwin", { kind: "mac-pid", pid: 42 }, "--editable-target 42 --allow-selection"],
+      ["linux", LINUX_TARGET, "--probe-editable 4242 --allow-selection"],
+    ]) {
+      const m = new TextEditMonitor();
+      m.resolveBinary = () => ({
+        command: process.execPath,
+        args: [
+          "-e",
+          `console.log(process.argv.slice(1).join(' ') === '${expectedArgs}' ? 'EDITABLE' : 'NOT_EDITABLE')`,
+          // Keeps node from reading the probe flags as its own options.
+          "--",
+        ],
+      });
+      Object.defineProperty(process, "platform", { value: platform, configurable: true });
+      assert.equal(
+        await m.isFocusedEditable(target, undefined, { allowSelection: true }),
+        "editable",
+        platform
+      );
+      assert.equal(await m.isFocusedEditable(target), "not_editable", platform);
+    }
   } finally {
     Object.defineProperty(process, "platform", original);
   }

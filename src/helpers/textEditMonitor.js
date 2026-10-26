@@ -181,19 +181,13 @@ class TextEditMonitor extends EventEmitter {
   }
 
   /**
-   * macOS: make the captured target app frontmost before pasting, so the global
-   * Cmd+V lands in its focused field (#668). Resolves true once the target is
-   * confirmed frontmost. If it is already frontmost we do nothing: re-activating
-   * an already-active Chromium app (e.g. Claude Desktop) drops its field's first
-   * responder — the focus loss this fixes — and skipping also avoids a needless
-   * activation round-trip. Otherwise we activate and poll until the OS reports the
-   * target frontmost, the macOS analogue of Linux's `xdotool windowactivate --sync`.
+   * macOS: make the app frontmost before a selection edit lands (#668).
+   * Resolves true once it is confirmed frontmost. If it is already frontmost we
+   * do nothing: re-activating an already-active Chromium app (e.g. Claude
+   * Desktop) drops its field's first responder, and skipping also avoids a
+   * needless activation round-trip. Otherwise we activate and poll until the OS
+   * reports it frontmost, the macOS analogue of `xdotool windowactivate --sync`.
    */
-  async activateTargetPid() {
-    if (process.platform !== "darwin" || !this.lastTargetPid) return false;
-    return this.activatePid(this.lastTargetPid);
-  }
-
   async activatePid(pid) {
     if (process.platform !== "darwin" || !pid) return false;
     if ((await this._readFrontmostPid()) === pid) return true;
@@ -311,9 +305,10 @@ class TextEditMonitor extends EventEmitter {
     );
   }
 
-  // Resolves "editable" | "not_editable" | "unknown". "unknown" is macOS-only:
-  // the dormant-Chromium signature, where accessibility cannot inspect the
-  // focused field at all. The default timeout reuses SELECTED_TEXT_TIMEOUT_MS
+  // Resolves "editable" | "not_editable" | "unknown". "unknown" means
+  // accessibility cannot see the focused field at all: the macOS
+  // dormant-Chromium signature, or NO_ELEMENT (a Linux app without AT-SPI, or a
+  // failed Windows UIA read). The default timeout reuses SELECTED_TEXT_TIMEOUT_MS
   // because a dormant tree's verdict only arrives after the same retry ladder.
   async isFocusedEditable(
     target,
@@ -335,9 +330,9 @@ class TextEditMonitor extends EventEmitter {
       args = [...resolved.args, "--probe-editable", String(target.pid)];
     } else {
       args = [...resolved.args, "--probe-editable"];
-      // Windows only; an older binary ignores it and refuses a selection.
-      if (allowSelection) args.push("--allow-selection");
     }
+    // An older binary ignores it and refuses a selection.
+    if (allowSelection) args.push("--allow-selection");
 
     // The verdict is the first output line. A stale binary that predates the
     // probe flag falls into monitor mode instead: it blocks reading stdin,
@@ -345,7 +340,11 @@ class TextEditMonitor extends EventEmitter {
     // resolving on that first line keeps the stale case a fast "not editable"
     // rather than a hang until the timeout.
     const toVerdict = (line) =>
-      line === "EDITABLE" ? "editable" : line === "UNKNOWN" ? "unknown" : "not_editable";
+      line === "EDITABLE"
+        ? "editable"
+        : line === "UNKNOWN" || line === "NO_ELEMENT"
+          ? "unknown"
+          : "not_editable";
     return new Promise((resolve) => {
       const child = spawn(resolved.command, args, { stdio: ["pipe", "pipe", "ignore"] });
       let buffered = "";
