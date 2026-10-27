@@ -16,6 +16,10 @@ const SLOT_CONFIG = {
     path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-voice-agent/",
     name: "only-whispers Voice Assistant",
   },
+  pasteLast: {
+    path: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/only-whispers-paste-last/",
+    name: "only-whispers Paste Last Transcript",
+  },
 };
 
 const KEYBINDING_SCHEMA = "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding";
@@ -170,6 +174,7 @@ class GnomeShortcutManager {
     this.bus = null;
     this.dictationCallback = null;
     this.voiceAgentCallback = null;
+    this.pasteLastCallback = null;
     this.globalShortcutsPortal = new GnomeGlobalShortcutsPortal();
     // Track which slots have been registered in gsettings
     this.registeredSlots = new Set();
@@ -191,6 +196,10 @@ class GnomeShortcutManager {
   setVoiceAgentCallback(callback) {
     this.voiceAgentCallback = callback;
     debugLogger.log("[GnomeShortcut] Voice agent callback registered");
+  }
+
+  setPasteLastCallback(callback) {
+    this.pasteLastCallback = callback;
   }
 
   // Older builds persisted a gsettings keybinding for the removed chat-agent
@@ -250,6 +259,11 @@ class GnomeShortcutManager {
               this.voiceAgentCallback();
             }
           },
+          PasteLast: () => {
+            if (this.pasteLastCallback) {
+              this.pasteLastCallback();
+            }
+          },
         },
         DBUS_OBJECT_PATH,
         {
@@ -257,6 +271,7 @@ class GnomeShortcutManager {
           methods: {
             Toggle: ["", ""],
             ToggleVoiceAgent: ["", ""],
+            PasteLast: ["", ""],
           },
         }
       );
@@ -345,6 +360,7 @@ class GnomeShortcutManager {
     const SLOT_DBUS_METHOD = {
       dictation: "Toggle",
       voiceAgent: "ToggleVoiceAgent",
+      pasteLast: "PasteLast",
     };
     const dbusMethod = SLOT_DBUS_METHOD[slotName] || "Toggle";
     const command = `dbus-send --session --type=method_call --dest=${DBUS_SERVICE_NAME} ${DBUS_OBJECT_PATH} ${DBUS_INTERFACE}.${dbusMethod}`;

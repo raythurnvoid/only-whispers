@@ -619,6 +619,15 @@
           "rebuildNote": "Exécutez sudo nixos-rebuild switch, puis déconnectez-vous et reconnectez-vous pour que le changement de groupe et la règle /dev/uinput prennent effet. Remplacez <you> par votre nom d'utilisateur."
         },
         "wlCopyDesc": "Outil de presse-papiers dans lequel les applications Wayland lisent le texte collé sur ce bureau"
+      },
+      "pasting": {
+        "title": "Collage",
+        "copyUnpasted": "Copier dans le presse-papiers si le collage est impossible",
+        "copyUnpastedDescription": "Si aucun champ de texte n'a le focus à la fin d'une dictée, le texte va dans le presse-papiers. Il est toujours enregistré dans votre historique."
+      },
+      "pasteLastHotkey": {
+        "title": "Raccourci pour coller la dernière transcription",
+        "description": "Colle votre dernière transcription dans le champ de texte actif. Utile si vous désactivez la copie dans le presse-papiers."
       }
     },
     "permissions": {

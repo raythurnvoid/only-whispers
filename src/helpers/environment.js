@@ -19,6 +19,7 @@ const PERSISTED_KEYS = [
   ...SECRET_KEYS,
   "DICTATION_KEY",
   "VOICE_AGENT_KEY",
+  "PASTE_LAST_KEY",
   "ACTIVATION_MODE",
   "FLOATING_ICON_AUTO_HIDE",
   "PANEL_START_POSITION",
@@ -247,6 +248,16 @@ class EnvironmentManager {
 
   saveVoiceAgentKey(key) {
     const result = this._saveKey("VOICE_AGENT_KEY", key);
+    this.saveAllKeysToEnvFile().catch(() => {});
+    return result;
+  }
+
+  getPasteLastKey() {
+    return this._getKey("PASTE_LAST_KEY");
+  }
+
+  savePasteLastKey(key) {
+    const result = this._saveKey("PASTE_LAST_KEY", key);
     this.saveAllKeysToEnvFile().catch(() => {});
     return result;
   }

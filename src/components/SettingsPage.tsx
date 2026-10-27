@@ -171,6 +171,10 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     setFloatingIconAutoHide,
     muteAppsOnDictation,
     setMuteAppsOnDictation,
+    copyUnpastedToClipboard,
+    setCopyUnpastedToClipboard,
+    pasteLastKey,
+    setPasteLastKey,
   } = useSettings();
 
   const { t } = useTranslation();
@@ -219,11 +223,42 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     showAlert: showAlertDialog,
   });
 
-  // The voice assistant hotkey is hidden and never registered, so there is no
-  // other slot to conflict with.
+  // The voice assistant hotkey is hidden and never registered, so only the
+  // paste-last hotkey can conflict.
   const validateDictationHotkey = useCallback(
-    (hotkey: string) => validateHotkeyForSlot(hotkey, {}, t),
-    [t]
+    (hotkey: string) =>
+      validateHotkeyForSlot(
+        hotkey,
+        { "settingsPage.general.pasteLastHotkey.title": pasteLastKey },
+        t
+      ),
+    [pasteLastKey, t]
+  );
+
+  const validatePasteLastHotkey = useCallback(
+    (hotkey: string) =>
+      validateHotkeyForSlot(hotkey, { "settingsPage.general.hotkey.title": dictationKey }, t),
+    [dictationKey, t]
+  );
+
+  const [isPasteLastCommitting, setIsPasteLastCommitting] = useState(false);
+  const commitPasteLastHotkey = useCallback(
+    async (key: string) => {
+      setIsPasteLastCommitting(true);
+      try {
+        const result = await setPasteLastKey(key);
+        if (!result.success) {
+          showAlertDialog({
+            title: t("hooks.hotkeyRegistration.titles.notRegistered"),
+            description: result.message || t("hooks.hotkeyRegistration.errors.failedToRegister"),
+          });
+        }
+        return result.success;
+      } finally {
+        setIsPasteLastCommitting(false);
+      }
+    },
+    [setPasteLastKey, showAlertDialog, t]
   );
 
   const {
@@ -313,6 +348,24 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                     <Toggle
                       checked={!floatingIconAutoHide}
                       onChange={(value) => setFloatingIconAutoHide(!value)}
+                    />
+                  </SettingsRow>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+
+            {/* Pasting */}
+            <div>
+              <SectionHeader title={t("settingsPage.general.pasting.title")} />
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <SettingsRow
+                    label={t("settingsPage.general.pasting.copyUnpasted")}
+                    description={t("settingsPage.general.pasting.copyUnpastedDescription")}
+                  >
+                    <Toggle
+                      checked={copyUnpastedToClipboard}
+                      onChange={setCopyUnpastedToClipboard}
                     />
                   </SettingsRow>
                 </SettingsPanelRow>
@@ -939,6 +992,26 @@ EOF`,
                       )}
                   </SettingsPanelRow>
                 )}
+              </SettingsPanel>
+            </div>
+
+            {/* Paste Last Transcript Hotkey */}
+            <div>
+              <SectionHeader
+                title={t("settingsPage.general.pasteLastHotkey.title")}
+                description={t("settingsPage.general.pasteLastHotkey.description")}
+              />
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <HotkeyListInput
+                    value={pasteLastKey}
+                    onChange={(list) => commitPasteLastHotkey(list)}
+                    onClear={() => commitPasteLastHotkey("")}
+                    validate={validatePasteLastHotkey}
+                    disabled={isPasteLastCommitting}
+                    maxHotkeys={isUsingNativeShortcut ? 1 : undefined}
+                  />
+                </SettingsPanelRow>
               </SettingsPanel>
             </div>
           </div>

@@ -640,7 +640,8 @@ export const useAudioRecording = (toast, options = {}) => {
           }
 
           const isStreaming = result.source?.includes("streaming");
-          const { autoPasteEnabled, keepTranscriptionInClipboard } = getSettings();
+          const { autoPasteEnabled, keepTranscriptionInClipboard, copyUnpastedToClipboard } =
+            getSettings();
 
           const persistencePromise = audioManagerRef.current
             .saveTranscription(result.text, result.rawText ?? result.text, {
@@ -784,9 +785,12 @@ export const useAudioRecording = (toast, options = {}) => {
                 },
                 generation
               );
-            } else if (pasteOutcome.reason === "no-text-field" && keepTranscriptionInClipboard) {
-              // Nothing to paste into (Windows); the text is in the history, and
-              // on the clipboard when the user keeps transcripts there.
+            } else if (
+              pasteOutcome.reason === "no-text-field" &&
+              (copyUnpastedToClipboard || keepTranscriptionInClipboard)
+            ) {
+              // Nothing to paste into; the text is in the history, and on the
+              // clipboard unless the user turned that off.
               await keepInClipboard("no-text-field");
             }
             return pasteOutcome.pasted;
@@ -924,6 +928,19 @@ export const useAudioRecording = (toast, options = {}) => {
       onToggle?.();
     });
 
+    // The paste-last hotkey: the newest transcript in the history goes to the
+    // text field that has focus now. Ignored while a dictation runs.
+    const disposePasteLast = window.electronAPI.onPasteLastTranscript?.(async () => {
+      if (!audioManagerRef.current) return;
+      if (!canStartDictation(audioManagerRef.current.getState())) return;
+      const rows = await window.electronAPI.getTranscriptions(20);
+      const last = rows?.find((row) => row.status === "completed" && row.text?.trim());
+      if (!last) return;
+      await audioManagerRef.current.safePaste(last.text, {
+        restoreClipboard: !getSettings().keepTranscriptionInClipboard,
+      });
+    });
+
     const disposeStart = window.electronAPI.onStartDictation?.(() => {
       handleStart();
       onToggle?.();
@@ -969,6 +986,7 @@ export const useAudioRecording = (toast, options = {}) => {
       reportLifecycle("idle");
       disposeToggle?.();
       disposeVoiceAgentToggle?.();
+      disposePasteLast?.();
       disposeStart?.();
       disposePrepare?.();
       disposeCancelPreparation?.();

@@ -63,6 +63,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   captureDictationAppCategory: () => ipcRenderer.invoke("capture-dictation-app-category"),
   onToggleDictation: registerListener("toggle-dictation", (callback) => () => callback()),
   onToggleVoiceAgent: registerListener("toggle-voice-agent", (callback) => () => callback()),
+  onPasteLastTranscript: registerListener("paste-last-transcript", (callback) => () => callback()),
   onOpenAssistantPanel: registerListener("open-assistant-panel", (callback) => () => callback()),
   onStartDictation: registerListener("start-dictation", (callback) => () => callback()),
   onStopDictation: registerListener("stop-dictation", (callback) => () => callback()),
@@ -402,6 +403,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Agent mode
   updateVoiceAgentHotkey: (hotkey) => ipcRenderer.invoke("update-voice-agent-hotkey", hotkey),
   getVoiceAgentKey: () => ipcRenderer.invoke("get-voice-agent-key"),
+  updatePasteLastHotkey: (hotkey) => ipcRenderer.invoke("update-paste-last-hotkey", hotkey),
+  getPasteLastKey: () => ipcRenderer.invoke("get-paste-last-key"),
   onPreviewText: registerListener("preview-text", (callback) => (_event, text) => callback(text)),
   onPreviewAppend: registerListener(
     "preview-append",

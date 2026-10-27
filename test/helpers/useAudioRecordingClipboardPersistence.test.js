@@ -26,6 +26,9 @@ export default class FakeAudioManager {
   saveTranscription(...args) {
     return globalThis.__saveClipboardPersistenceTranscription(...args);
   }
+  safePaste(...args) {
+    return globalThis.__clipboardPersistencePaste(...args);
+  }
   shouldUseStreaming() {
     return false;
   }
@@ -66,6 +69,8 @@ async function mountCompletionHarness(
     writeClipboard = async () => ({ success: true }),
     replaceSelectedText = async () => ({ success: true }),
     saveTranscription = async () => true,
+    safePaste = async () => ({ pasted: true }),
+    transcriptions = [],
   }
 ) {
   let root = null;
@@ -94,12 +99,19 @@ async function mountCompletionHarness(
 
   const bridgeWrites = [];
   const saves = [];
+  const pastes = [];
+  let pasteLastListener = null;
   const noopDispose = () => () => {};
   installBrowserGlobals(t, {
     window: {
       electronAPI: {
         onToggleDictation: noopDispose,
         onToggleVoiceAgent: noopDispose,
+        onPasteLastTranscript: (callback) => {
+          pasteLastListener = callback;
+          return NOOP;
+        },
+        getTranscriptions: async () => transcriptions,
         onStartDictation: noopDispose,
         onPrepareDictation: noopDispose,
         onCancelDictationPreparation: noopDispose,
@@ -133,6 +145,10 @@ async function mountCompletionHarness(
     saves.push(args);
     return saveTranscription(...args);
   };
+  globalThis.__clipboardPersistencePaste = async (...args) => {
+    pastes.push(args);
+    return safePaste(...args);
+  };
 
   const vite = await createRendererServer(t, {
     cachePrefix: "only-whispers-audio-recording-clipboard-persistence-",
@@ -165,6 +181,12 @@ async function mountCompletionHarness(
     },
     logs: globalThis.__clipboardPersistenceLogs,
     navigatorWrites,
+    pasteLast: async () => {
+      await React.act(async () => {
+        await pasteLastListener();
+      });
+    },
+    pastes,
     saves,
   };
 }
@@ -342,4 +364,74 @@ test("the occurrence timestamp rides along on the persistence call", async (t) =
       },
     ],
   ]);
+});
+
+test("a dictation with no text field to paste into goes to the clipboard by default", async (t) => {
+  const harness = await mountCompletionHarness(t, {
+    settings: {
+      autoPasteEnabled: true,
+      keepTranscriptionInClipboard: false,
+      copyUnpastedToClipboard: true,
+    },
+    safePaste: async () => ({ pasted: false, reason: "no-text-field" }),
+  });
+
+  await harness.complete({
+    success: true,
+    text: "Text with nowhere to go",
+    rawText: "Raw text with nowhere to go",
+    clientTranscriptionId: "client-no-text-field",
+    source: "openai",
+  });
+
+  assert.equal(harness.pastes.length, 1);
+  assert.deepEqual(harness.bridgeWrites, ["Text with nowhere to go"]);
+});
+
+test("with the clipboard copy off, an unpasted dictation stays only in the history", async (t) => {
+  const harness = await mountCompletionHarness(t, {
+    settings: {
+      autoPasteEnabled: true,
+      keepTranscriptionInClipboard: false,
+      copyUnpastedToClipboard: false,
+    },
+    safePaste: async () => ({ pasted: false, reason: "no-text-field" }),
+  });
+
+  await harness.complete({
+    success: true,
+    text: "Text kept in history",
+    rawText: "Raw text kept in history",
+    clientTranscriptionId: "client-history-only",
+    source: "openai",
+  });
+
+  assert.equal(harness.pastes.length, 1);
+  assert.deepEqual(harness.bridgeWrites, []);
+  assert.equal(harness.saves.length, 1);
+});
+
+test("the paste-last hotkey pastes the newest completed transcript", async (t) => {
+  const harness = await mountCompletionHarness(t, {
+    settings: { keepTranscriptionInClipboard: false },
+    transcriptions: [
+      { status: "failed", text: "" },
+      { status: "completed", text: "Newest finished text" },
+      { status: "completed", text: "Older text" },
+    ],
+  });
+
+  await harness.pasteLast();
+
+  assert.deepEqual(harness.pastes, [["Newest finished text", { restoreClipboard: true }]]);
+});
+
+test("the paste-last hotkey does nothing without a finished transcript", async (t) => {
+  const harness = await mountCompletionHarness(t, {
+    transcriptions: [{ status: "failed", text: "" }],
+  });
+
+  await harness.pasteLast();
+
+  assert.deepEqual(harness.pastes, []);
 });

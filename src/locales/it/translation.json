@@ -619,6 +619,15 @@
           "rebuildNote": "Esegui sudo nixos-rebuild switch, poi disconnettiti e riconnettiti affinché la modifica al gruppo e la regola /dev/uinput abbiano effetto. Sostituisci <you> con il tuo nome utente."
         },
         "wlCopyDesc": "Strumento degli appunti da cui le app Wayland leggono il testo incollato su questo desktop"
+      },
+      "pasting": {
+        "title": "Incolla",
+        "copyUnpasted": "Copia negli appunti quando non si può incollare",
+        "copyUnpastedDescription": "Se nessun campo di testo ha il focus alla fine di una dettatura, il testo va negli appunti. Viene sempre salvato nella cronologia."
+      },
+      "pasteLastHotkey": {
+        "title": "Scorciatoia per incollare l'ultima trascrizione",
+        "description": "Incolla l'ultima trascrizione nel campo di testo attivo. Utile se disattivi la copia negli appunti."
       }
     },
     "permissions": {

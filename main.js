@@ -501,6 +501,30 @@ async function startApp() {
   // The voice assistant is hidden in this release, so a hotkey saved by an older
   // build is not registered: it would open a panel the user can't turn off.
 
+  // Optional hotkey that pastes the newest transcript into the focus.
+  const isPasteLastPress = createHotkeyRepeatGate();
+  const pasteLastHotkeyCallback = () => {
+    if (!isPasteLastPress()) return;
+    windowManager.sendPasteLastTranscript();
+  };
+  windowManager._pasteLastHotkeyCallback = pasteLastHotkeyCallback;
+  const savedPasteLastKey = environmentManager.getPasteLastKey() || "";
+  if (savedPasteLastKey) {
+    const result = await hotkeyManager.registerSlot(
+      "pasteLast",
+      savedPasteLastKey,
+      pasteLastHotkeyCallback
+    );
+    if (!result.success) {
+      debugLogger.warn(
+        "Failed to restore paste last hotkey",
+        { hotkey: savedPasteLastKey },
+        "hotkey"
+      );
+    }
+    hotkeyManager.notifyRestoreFailures(savedPasteLastKey, result);
+  }
+
   // Phase 2: Initialize remaining managers after windows are visible
   initializeDeferredManagers();
   if (process.platform === "darwin") {
@@ -585,7 +609,11 @@ async function startApp() {
       if (voiceAgentUsesGlobe) {
         windowManager.sendToggleVoiceAgent();
       }
-      if (!voiceAgentUsesGlobe && !dictationUsesGlobe) {
+      const pasteLastUsesGlobe = hotkeyManager.getSlotHotkeys("pasteLast").some(isGlobeLikeHotkey);
+      if (pasteLastUsesGlobe) {
+        windowManager.sendPasteLastTranscript();
+      }
+      if (!voiceAgentUsesGlobe && !pasteLastUsesGlobe && !dictationUsesGlobe) {
         debugLogger?.debug("[Globe] Ignored — hotkey is not GLOBE", { currentHotkey });
       }
     });
@@ -663,6 +691,9 @@ async function startApp() {
       if (hotkeyManager.slotHasHotkey("voiceAgent", modifier)) {
         windowManager.sendToggleVoiceAgent();
       }
+      if (hotkeyManager.slotHasHotkey("pasteLast", modifier)) {
+        windowManager.sendPasteLastTranscript();
+      }
 
       if (!hotkeyManager.slotHasHotkey("dictation", modifier)) return;
       if (!isLiveWindow(windowManager.mainWindow)) return;
@@ -728,7 +759,7 @@ async function startApp() {
       }
     });
 
-    const MAC_NATIVE_HOTKEY_SLOTS = ["dictation", "voiceAgent"];
+    const MAC_NATIVE_HOTKEY_SLOTS = ["dictation", "voiceAgent", "pasteLast"];
     const syncMacNativeHotkeyConfiguration = () => {
       globeKeyManager.setConfiguration(
         hotkeyManager.getMacNativeListenerConfig(MAC_NATIVE_HOTKEY_SLOTS)
@@ -747,6 +778,9 @@ async function startApp() {
 
       if (hotkeyManager.slotHasHotkey("voiceAgent", button)) {
         windowManager.sendToggleVoiceAgent();
+      }
+      if (hotkeyManager.slotHasHotkey("pasteLast", button)) {
+        windowManager.sendPasteLastTranscript();
       }
 
       if (!hotkeyManager.slotHasHotkey("dictation", button)) return;
@@ -885,6 +919,9 @@ async function startApp() {
       }
       if (hotkeyManager.slotHasHotkey("voiceAgent", key)) {
         windowManager.sendToggleVoiceAgent();
+      }
+      if (hotkeyManager.slotHasHotkey("pasteLast", key)) {
+        windowManager.sendPasteLastTranscript();
       }
     };
 
