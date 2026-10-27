@@ -619,6 +619,15 @@
           "rebuildNote": "執行 sudo nixos-rebuild switch，然後登出並重新登入，使群組變更與 /dev/uinput 規則生效。將 <you> 替換為你的使用者名稱。"
         },
         "wlCopyDesc": "此桌面上 Wayland 應用程式讀取貼上文字所用的剪貼簿工具"
+      },
+      "pasting": {
+        "title": "貼上",
+        "copyUnpasted": "無法貼上時複製到剪貼簿",
+        "copyUnpastedDescription": "聽寫結束時如果沒有文字欄位取得焦點，文字會放到剪貼簿。它一律會儲存在歷史記錄中。"
+      },
+      "pasteLastHotkey": {
+        "title": "貼上最近轉錄的快捷鍵",
+        "description": "將最近一次轉錄貼到目前取得焦點的文字欄位。關閉複製到剪貼簿時很實用。"
       }
     },
     "permissions": {

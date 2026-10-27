@@ -34,6 +34,8 @@ export interface HotkeySettings {
    * dictationKey, e.g. primary-only on GNOME/KDE/Hyprland). Display-only. */
   activeDictationKey: string | null;
   voiceAgentKey: string;
+  /** Optional hotkey that pastes the newest transcript; empty when unset. */
+  pasteLastKey: string;
   activationMode: "tap" | "push";
 }
 
@@ -194,6 +196,7 @@ function useSettingsInternal() {
     mistralApiKey: store.mistralApiKey,
     dictationKey: store.dictationKey,
     voiceAgentKey: store.voiceAgentKey,
+    pasteLastKey: store.pasteLastKey,
     theme: store.theme,
     setUiLanguage: store.setUiLanguage,
     setPreferredLanguage: store.setPreferredLanguage,
@@ -214,6 +217,7 @@ function useSettingsInternal() {
     setMistralApiKey: store.setMistralApiKey,
     setDictationKey: store.setDictationKey,
     setVoiceAgentKey: store.setVoiceAgentKey,
+    setPasteLastKey: store.setPasteLastKey,
     onboardingUseCases: store.onboardingUseCases,
     onboardingUseCaseNote: store.onboardingUseCaseNote,
     spokenLanguages: store.spokenLanguages,
@@ -243,6 +247,8 @@ function useSettingsInternal() {
     setShowTranscriptionPreview: store.setShowTranscriptionPreview,
     autoPasteEnabled: store.autoPasteEnabled,
     keepTranscriptionInClipboard: store.keepTranscriptionInClipboard,
+    copyUnpastedToClipboard: store.copyUnpastedToClipboard,
+    setCopyUnpastedToClipboard: store.setCopyUnpastedToClipboard,
     cloudBackupEnabled: store.cloudBackupEnabled,
     insightsSyncEnabled: store.insightsSyncEnabled,
     telemetryEnabled: store.telemetryEnabled,

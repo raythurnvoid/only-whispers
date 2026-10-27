@@ -87,7 +87,8 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **clipboard.js**: Cross-platform clipboard operations
   - macOS: AppleScript-based paste with accessibility permission check
   - Windows: native windows-fast-paste, then PowerShell SendKeys (nircmd.exe is used only if present; builds no longer ship it, since it is closed source)
-  - All platforms: a dictation pastes into what has focus at paste time, never the window or app from record start (macOS no longer re-activates it). Before pasting, `selectionManager.isFocusWritable()` asks the text monitor (`--probe-editable`/`--editable-target` with `--allow-selection`, since a selection in the field is fine) whether the focus is a writable text field, and checks whether it is a terminal. Neither → no paste (`reason: "no-text-field"`): the text stays in the history, and on the clipboard only when the user keeps transcripts there
+  - All platforms: a dictation pastes into what has focus at paste time, never the window or app from record start (macOS no longer re-activates it). Before pasting, `selectionManager.isFocusWritable()` asks the text monitor (`--probe-editable`/`--editable-target` with `--allow-selection`, since a selection in the field is fine) whether the focus is a writable text field, and checks whether it is a terminal. Neither → no paste (`reason: "no-text-field"`): the text stays in the history and goes to the clipboard, unless Settings → General → Pasting turns that off (`copyUnpastedToClipboard`, default on)
+    - The optional paste-last hotkey (`pasteLast` slot, Settings → Hotkeys, no default) pastes the newest completed history item into the focus through the same `paste-text` check: main sends `paste-last-transcript` to the pill window, and `useAudioRecording` reads the history and calls `safePaste`. It is ignored while a dictation runs
     - Windows (`--detect-only` for the terminal check) refuses a focus it can't confirm
     - macOS (frontmost app) and Linux (`_getLinuxTarget()` and its pid) refuse only a confirmed `NOT_EDITABLE`: an `UNKNOWN` or `NO_ELEMENT` answer (a dormant Chromium tree, an app without AT-SPI) or one slower than 800 ms still pastes. Not yet tested on a real Mac or Linux desktop
   - Linux: compositor-aware Wayland paste (Hyprland sendshortcut, wlroots wtype, GNOME/KDE portal keysyms) with native uinput/XTest and system-tool fallbacks. KDE's portal paste sends Shift+Insert to every window but Warp, which binds paste to Ctrl+Shift+V only: KWin resolves keysyms in the active layout only, so a Ctrl+V on a non-Latin layout arrives as Ctrl alone (#2055). The app runs on XWayland, which the compositor won't let read a native Wayland app's clipboard while a Wayland window is focused, so `_saveClipboard` falls back to `wl-paste --type text` when Electron reads nothing; otherwise the restore would wipe the user's clipboard. On KDE it also takes wl-paste's UTF-8 plain text whenever it differs from Electron's, since KWin can leave a stale X11 owner in place after a Wayland app copies, so a rich or image restore first writes the original's text (empty for an image) to Wayland, or the app's own transcript or selection sentinel left there would read as newer. A Wayland-only copy with no plain text (a screenshot copied in Spectacle) isn't saved, so a dictation replaces it with X11's older text
@@ -112,7 +113,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **dragManager.js**: Window dragging functionality
 - **environment.js**: Environment variable and OpenAI API management
 - **hotkeyManager.js**: Global hotkey registration and management
-  - Named hotkey slots: `dictation` and `voiceAgent` (voice assistant, hidden: not registered at startup)
+  - Named hotkey slots: `dictation`, `pasteLast` (paste the newest transcript; `PASTE_LAST_KEY`, GNOME/Hyprland D-Bus method `PasteLast`) and `voiceAgent` (voice assistant, hidden: not registered at startup)
   - Handles platform-specific defaults (GLOBE on macOS, Control+Super on Windows/Linux)
   - Auto-fallback to F8/F9 if default hotkey is unavailable
   - Notifies renderer via IPC when hotkey registration fails
@@ -271,6 +272,8 @@ Settings stored in localStorage with these keys:
 - `agentName`: User's custom agent name (hidden assistant)
 - `cleanupModel`, `cleanupProvider`: The cleanup model and provider (only `gpt-6-luna` on `openai` exists). Older `reasoningModel`/`reasoningProvider` keys are migrated to these once
 - `dictationKey`: Custom dictation hotkey
+- `pasteLastKey`: The paste-last hotkey (empty when unset; main holds the registered one in `PASTE_LAST_KEY`)
+- `copyUnpastedToClipboard`: Put a dictation on the clipboard when no text field has focus (default on)
 - `onboardingCompleted`: First-run setup completion flag
 - `customDictionary`: JSON array of words/phrases for improved transcription accuracy
 - `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`). Hidden: there is no UI to change them in this release

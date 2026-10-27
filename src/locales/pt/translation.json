@@ -613,6 +613,15 @@
           "rebuildNote": "Execute sudo nixos-rebuild switch, depois termine a sessão e volte a entrar para que a alteração de grupo e a regra /dev/uinput entrem em vigor. Substitua <you> pelo seu nome de utilizador."
         },
         "wlCopyDesc": "Ferramenta de área de transferência da qual os apps Wayland leem o texto colado nesta área de trabalho"
+      },
+      "pasting": {
+        "title": "Colagem",
+        "copyUnpasted": "Copiar para a área de transferência quando não for possível colar",
+        "copyUnpastedDescription": "Se nenhum campo de texto estiver em foco no fim de um ditado, o texto vai para a área de transferência. Ele sempre fica salvo no seu histórico."
+      },
+      "pasteLastHotkey": {
+        "title": "Atalho para colar a última transcrição",
+        "description": "Cola sua última transcrição no campo de texto em foco. Útil se você desativar a cópia para a área de transferência."
       }
     },
     "permissions": {

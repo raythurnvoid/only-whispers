@@ -12,6 +12,7 @@ const DBUS_NAME_REQUEST_TIMEOUT_MS = 5000;
 const SLOT_TOGGLE_METHOD = {
   dictation: "Toggle",
   voiceAgent: "ToggleVoiceAgent",
+  pasteLast: "PasteLast",
 };
 
 // Map Electron modifier names to Hyprland modifier names

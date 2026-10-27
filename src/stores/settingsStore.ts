@@ -128,6 +128,7 @@ const BOOLEAN_SETTINGS = new Set([
   "startMinimized",
   "autoPasteEnabled",
   "keepTranscriptionInClipboard",
+  "copyUnpastedToClipboard",
   "dataRetentionEnabled",
   "saveDiscardedTranscriptions",
   "showTranscriptionPreview",
@@ -365,6 +366,7 @@ export interface SettingsState
   showTranscriptionPreview: boolean;
   autoPasteEnabled: boolean;
   keepTranscriptionInClipboard: boolean;
+  copyUnpastedToClipboard: boolean;
 
   cleanupMode: InferenceMode;
   cleanupRemoteUrl: string;
@@ -432,6 +434,7 @@ export interface SettingsState
 
   setDictationKey: (key: string) => void;
   setVoiceAgentKey: (key: string) => Promise<HotkeyRegistrationResult>;
+  setPasteLastKey: (key: string) => Promise<HotkeyRegistrationResult>;
   setActivationMode: (mode: "tap" | "push") => void;
   setMicrophoneSelectionMode: (mode: MicrophoneSelectionMode) => void;
   setSelectedMicDevice: (deviceId: string, label: string) => void;
@@ -440,6 +443,7 @@ export interface SettingsState
   setTheme: (value: "light" | "dark" | "auto") => void;
   setFloatingIconAutoHide: (enabled: boolean) => void;
   setMuteAppsOnDictation: (value: boolean) => void;
+  setCopyUnpastedToClipboard: (value: boolean) => void;
   setPanelStartPosition: (position: "bottom-right" | "center" | "bottom-left") => void;
   setShowTranscriptionPreview: (value: boolean) => void;
 
@@ -474,7 +478,7 @@ function createBooleanSetter(key: string) {
 // being persisted. Rolls back to the previous key if registration fails.
 // Resolves to false on failure so optimistic UIs (HotkeyListInput) can revert.
 function createRegisteredHotkeySetter(
-  key: "voiceAgentKey",
+  key: "voiceAgentKey" | "pasteLastKey",
   label: string,
   getRegisterFn: () => ((hotkey: string) => Promise<HotkeyRegistrationResult>) | undefined,
   fallbackSave?: (hotkey: string) => void
@@ -651,6 +655,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   dictationKey: readString("dictationKey", ""),
   activeDictationKey: null,
   voiceAgentKey: readString("voiceAgentKey", ""),
+  pasteLastKey: readString("pasteLastKey", ""),
   onboardingUseCases: readStringArray("onboardingUseCases", []),
   onboardingUseCaseNote: readString("onboardingUseCaseNote", ""),
   spokenLanguages: readStringArray("spokenLanguages", []),
@@ -694,6 +699,8 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   showTranscriptionPreview: readBoolean("showTranscriptionPreview", false),
   autoPasteEnabled: readBoolean("autoPasteEnabled", true),
   keepTranscriptionInClipboard: readBoolean("keepTranscriptionInClipboard", false),
+  // A dictation with no text field to paste into goes to the clipboard.
+  copyUnpastedToClipboard: readBoolean("copyUnpastedToClipboard", true),
 
   cleanupMode: "providers" as InferenceMode,
   cleanupRemoteUrl: readString("cleanupRemoteUrl", ""),
@@ -884,6 +891,11 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     "voice agent hotkey",
     () => window.electronAPI?.updateVoiceAgentHotkey
   ),
+  setPasteLastKey: createRegisteredHotkeySetter(
+    "pasteLastKey",
+    "paste last hotkey",
+    () => window.electronAPI?.updatePasteLastHotkey
+  ),
 
   setActivationMode: (mode: "tap" | "push") => {
     if (isBrowser) localStorage.setItem("activationMode", mode);
@@ -929,6 +941,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     }
   },
   setMuteAppsOnDictation: createBooleanSetter("muteAppsOnDictation"),
+  setCopyUnpastedToClipboard: createBooleanSetter("copyUnpastedToClipboard"),
   setPanelStartPosition: (position: "bottom-right" | "center" | "bottom-left") => {
     if (get().panelStartPosition === position) return;
     if (isBrowser) localStorage.setItem("panelStartPosition", position);
@@ -1199,6 +1212,20 @@ export async function initializeSettings(): Promise<void> {
     } catch (err) {
       logger.warn(
         "Failed to sync voice agent hotkey on startup",
+        { error: (err as Error).message },
+        "settings"
+      );
+    }
+
+    // Main holds the registered paste-last hotkey, including a cleared one.
+    try {
+      const envKey = await window.electronAPI.getPasteLastKey?.();
+      if (typeof envKey === "string" && envKey !== state.pasteLastKey) {
+        createStringSetter("pasteLastKey")(envKey);
+      }
+    } catch (err) {
+      logger.warn(
+        "Failed to sync paste last hotkey on startup",
         { error: (err as Error).message },
         "settings"
       );

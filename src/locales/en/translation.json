@@ -619,6 +619,15 @@
           "rebuildNote": "Run sudo nixos-rebuild switch, then log out and back in so the group change and the /dev/uinput rule take effect. Replace <you> with your username."
         },
         "wlCopyDesc": "Clipboard tool that Wayland apps read pasted text from on this desktop"
+      },
+      "pasting": {
+        "title": "Pasting",
+        "copyUnpasted": "Copy to clipboard when it can't paste",
+        "copyUnpastedDescription": "When no text field has focus at the end of a dictation, the text goes to the clipboard. It is always saved in your history."
+      },
+      "pasteLastHotkey": {
+        "title": "Paste Last Transcript Hotkey",
+        "description": "Pastes your latest transcript into the text field that has focus. Useful if you turn off copying to the clipboard."
       }
     },
     "permissions": {

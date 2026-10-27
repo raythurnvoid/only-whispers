@@ -1110,6 +1110,13 @@ class WindowManager {
     this._sendDictationToggle("toggle-voice-agent", "assistant");
   }
 
+  // The pill window pastes the newest history item into the focus.
+  sendPasteLastTranscript() {
+    if (!this._isOnboardingInputAllowed() || this.hotkeyManager.isInListeningMode()) return;
+    if (!this.mainWindow || this.mainWindow.isDestroyed()) return;
+    this.mainWindow.webContents.send("paste-last-transcript");
+  }
+
   // The tray's Ask assistant. Only the renderer can open the panel, and only it
   // knows the policy and recording state the pill menu gates the item on, so it
   // decides: nothing is shown or created here, and an accepted command surfaces

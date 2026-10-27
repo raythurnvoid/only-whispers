@@ -619,6 +619,15 @@
           "rebuildNote": "Ejecuta sudo nixos-rebuild switch, luego cierra sesión y vuelve a abrirla para que el cambio de grupo y la regla de /dev/uinput surtan efecto. Sustituye <you> por tu nombre de usuario."
         },
         "wlCopyDesc": "Herramienta de portapapeles de la que las apps de Wayland leen el texto pegado en este escritorio"
+      },
+      "pasting": {
+        "title": "Pegado",
+        "copyUnpasted": "Copiar al portapapeles cuando no se puede pegar",
+        "copyUnpastedDescription": "Si ningún campo de texto tiene el foco al terminar un dictado, el texto va al portapapeles. Siempre se guarda en tu historial."
+      },
+      "pasteLastHotkey": {
+        "title": "Atajo para pegar la última transcripción",
+        "description": "Pega tu última transcripción en el campo de texto que tiene el foco. Útil si desactivas la copia al portapapeles."
       }
     },
     "permissions": {

@@ -619,6 +619,15 @@
           "rebuildNote": "Führen Sie sudo nixos-rebuild switch aus, dann ab- und wieder anmelden, damit die Gruppenänderung und die /dev/uinput-Regel wirksam werden. Ersetzen Sie <you> durch Ihren Benutzernamen."
         },
         "wlCopyDesc": "Zwischenablage-Tool, aus dem Wayland-Apps auf diesem Desktop eingefügten Text lesen"
+      },
+      "pasting": {
+        "title": "Einfügen",
+        "copyUnpasted": "In die Zwischenablage kopieren, wenn Einfügen nicht geht",
+        "copyUnpastedDescription": "Hat am Ende eines Diktats kein Textfeld den Fokus, kommt der Text in die Zwischenablage. Er wird immer in deinem Verlauf gespeichert."
+      },
+      "pasteLastHotkey": {
+        "title": "Tastenkürzel: letzte Transkription einfügen",
+        "description": "Fügt deine letzte Transkription in das Textfeld mit dem Fokus ein. Nützlich, wenn du das Kopieren in die Zwischenablage ausschaltest."
       }
     },
     "permissions": {

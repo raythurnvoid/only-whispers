@@ -395,6 +395,7 @@ declare global {
       captureDictationAppCategory?: () => Promise<ToneAppCategory>;
       onToggleDictation: (callback: () => void) => () => void;
       onToggleVoiceAgent?: (callback: () => void) => () => void;
+      onPasteLastTranscript?: (callback: () => void) => () => void;
       onOpenAssistantPanel?: (callback: () => void) => () => void;
       onStartDictation?: (callback: () => void) => () => void;
       onStopDictation?: (callback: () => void) => () => void;
@@ -779,6 +780,8 @@ declare global {
       // Agent Mode
       updateVoiceAgentHotkey?: (hotkey: string) => Promise<{ success: boolean; message?: string }>;
       getVoiceAgentKey?: () => Promise<string>;
+      updatePasteLastHotkey?: (hotkey: string) => Promise<{ success: boolean; message?: string }>;
+      getPasteLastKey?: () => Promise<string>;
       createAgentConversation?: (title: string) => Promise<{
         id: number;
         title: string;
