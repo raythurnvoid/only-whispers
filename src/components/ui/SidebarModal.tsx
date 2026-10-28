@@ -150,8 +150,10 @@ export default function SidebarModal<T extends string>({
                   <span className="sr-only">{notice.description}</span>
                 </InfoBox>
               )}
-              <DialogPrimitive.Close className="rounded-md p-1.5 opacity-40 ring-offset-background transition-[opacity,background-color] hover:opacity-100 bg-transparent hover:bg-muted dark:hover:bg-surface-raised outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-1">
-                <X className="h-3.5 w-3.5 text-muted-foreground" />
+              {/* Content scrolls under the button, so it has its own surface: pz-shell matches
+                  the shell's fixed marble, and the border keeps it visible over cards. */}
+              <DialogPrimitive.Close className="pz-shell rounded-md border border-border p-1.25 text-muted-foreground shadow-sm ring-offset-background transition-colors hover:text-foreground hover:border-foreground/30 outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-1">
+                <X className="h-3.5 w-3.5" />
                 <span className="sr-only">{t("common.close")}</span>
               </DialogPrimitive.Close>
             </div>
