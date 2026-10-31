@@ -40,15 +40,26 @@ for (const e of entries) {
 // One dictation = from "Streaming stop timing" to its "Paste timing".
 const rows = [];
 let row = null;
+let stopAt = 0;
 for (const e of entries) {
   const m = e.meta;
-  if (e.message === "Streaming stop timing")
+  if (e.message === "Streaming stop timing") {
     row = { time: e.time.slice(11, 19), seconds: m.durationSeconds, stopMs: m.totalStopMs };
+    stopAt = Date.parse(e.time);
+  }
   if (!row) continue;
   if (e.message === "CHATGPT_PLAN_SOCKET") Object.assign(row, { lunaMs: m.socketMs, warm: m.warm });
-  if (e.message === "ChatGPT socket failed, using HTTP")
-    Object.assign(row, { socketFailedMs: m.socketMs });
+  // Builds up to 0.1.6 log the socket failure as CHATGPT_PLAN_SOCKET_FALLBACK, without socketMs:
+  // then take the time since "Streaming stop timing".
+  if (
+    e.message === "ChatGPT socket failed, using HTTP" ||
+    e.message === "CHATGPT_PLAN_SOCKET_FALLBACK"
+  )
+    row.socketFailedMs = m.socketMs ?? Date.parse(e.time) - stopAt;
   if (e.message === "CHATGPT_PLAN_SUCCESS") row.cleanupMs = m.processingTimeMs;
+  // The error code only, such as subscription_sharing_usage_limit_exceeded.
+  if (e.message === "CHATGPT_PLAN_FAILED")
+    row.cleanupFailed = String(m.error).match(/error:?\s*(\S+)/)?.[1] ?? "yes";
   if (e.message === "Streaming total processing") row.toPasteMs = m.totalProcessingMs;
   if (e.message === "Paste steps timing")
     Object.assign(row, { focusCheckMs: m.focusCheckMs, pasteHelperMs: m.pasteHelperMs });

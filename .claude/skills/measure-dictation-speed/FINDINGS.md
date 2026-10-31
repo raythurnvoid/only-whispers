@@ -74,7 +74,14 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - Once it starts, Luna is fast. Output speed is not the problem.
 - The socket runs one request at a time. A wrong early request on it would block the real one.
 - Not verified: `response.cancel` is documented for the Realtime API, not the Responses socket. The docs may allow parallel `stream_id` lanes on one socket.
-- Prefill (send the first part with `generate: false`, then the rest): not measured yet. `scripts/luna-prefill.cjs` is ready; it needs a fresh ChatGPT token.
+- Prefill (send the first part with `generate: false`, then the rest): not measured yet. `scripts/luna-prefill.cjs` is ready; it needs a fresh ChatGPT token and plan usage left.
+- The plan has a usage limit (error `subscription_sharing_usage_limit_exceeded`). On 2026-10-31 all 5 real dictations hit it: the socket failed after about 0.6 s, the app then tried HTTP for another 1.3–2 s, which fails the same way, and pasted the raw text. Release to paste took 3.0–4.0 s. Don't run Luna tests while the limit is reached; they fail and may use quota.
+
+## Real dictations (installed app 0.1.6, debug log, 2026-10-31, 5 dictations, cleanup failing on the usage limit)
+
+- Release → Mistral final (`stopMs`): 0.7–1.8 s (old delay 1200).
+- Release → paste (`toPasteMs`): 3.0–4.0 s, mostly the failed socket + HTTP tries.
+- Paste (`pasteMs`): 174–201 ms. The split (`Paste steps timing`) is not in 0.1.6.
 
 ## Ideas the user rejected
 
@@ -84,6 +91,6 @@ Lag rule: after release, send once the time is at least local speech end + delay
 ## Open questions
 
 - Prefill: does it cut Luna's time to first token?
-- Paste: how long do the focus check and the paste helper take? (`Paste steps timing`, needs real dictations in debug mode.)
+- Paste: how the 174–201 ms splits into the focus check and the paste helper (`Paste steps timing`, needs a build after 0.1.6 in debug mode).
 - Socket fallback: how often does it fail and fall back to HTTP? (Warning `ChatGPT socket failed, using HTTP` in `errors.log`.)
 - Does `context_bias` change the accuracy of the lower delays?
