@@ -8,10 +8,11 @@ const MISTRAL_REALTIME_MODEL = "voxtral-mini-transcribe-realtime-3";
 const CONNECT_TIMEOUT_MS = 10000;
 // transcription.done came 0.4-0.8 s after input_audio.end in tests.
 const FINAL_TIMEOUT_MS = 4000;
-// On real mic audio 480 ms misheard the first words; 1200 ms got them right
-// with the same final latency. The app shows no live preview, so slower
-// partials cost nothing.
-const STREAMING_DELAY_MS = 1200;
+// How far Mistral listens ahead before it writes a word. On 30 real recordings
+// 480 ms gave the final text about 260 ms sooner after release than 1200 ms,
+// with 6.1% wrong words instead of 5.8%. Below 400 the errors rise fast and
+// the speed stops improving (.claude/skills/measure-dictation-speed/FINDINGS.md).
+const STREAMING_DELAY_MS = 480;
 const COLD_START_BUFFER_MAX = 10 * 16000 * 2; // 10 seconds of 16 kHz PCM16
 
 class MistralRealtimeStreaming {

@@ -872,10 +872,12 @@ class IPCHandlers {
 
       // Paste only into the text field that has focus now. With no text field
       // in focus the text is not pasted; it stays in the history.
+      const focusCheckStart = Date.now();
       if (this.selectionManager && !(await this.selectionManager.isFocusWritable())) {
         debugLogger.info("No text field in focus, paste skipped", {}, "clipboard");
         return { success: true, pasted: false, reason: "no-text-field" };
       }
+      const pasteStart = Date.now();
 
       let pasteResult;
       try {
@@ -884,6 +886,12 @@ class IPCHandlers {
           webContents: event.sender,
           silentAccessibilityCheck: true,
         });
+        // The split of the renderer's "Paste timing".
+        debugLogger.info(
+          "Paste steps timing",
+          { focusCheckMs: pasteStart - focusCheckStart, pasteHelperMs: Date.now() - pasteStart },
+          "performance"
+        );
       } catch (error) {
         if (error?.code !== "ACCESSIBILITY_PERMISSION_REQUIRED" || error.clipboardCopied !== true) {
           throw error;

@@ -22,6 +22,8 @@ Add to your `.env` file and restart:
 ONLY_WHISPERS_LOG_LEVEL=debug
 ```
 
+The app rewrites this file when you change a hotkey or an API key, and that removes the line. Add it again after such a change, or use Option 1.
+
 **Env file locations:**
 
 - macOS: `~/Library/Application Support/only-whispers/.env`

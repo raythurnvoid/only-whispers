@@ -345,7 +345,7 @@ The app can open OS-level settings for microphone permissions, sound input selec
 
 ### 10. Debug Mode
 
-Enable with `--log-level=debug` or `ONLY_WHISPERS_LOG_LEVEL=debug` (can be set in `.env`):
+Enable with `--log-level=debug` or `ONLY_WHISPERS_LOG_LEVEL=debug` (can be set in `.env`, but the app rewrites `userData/.env` on a hotkey or key change and drops the line; in dev mode set it in the shell before `pnpm dev`):
 
 - Logs saved to platform-specific app data directory
 - Comprehensive logging of audio pipeline
@@ -591,6 +591,13 @@ UI icons come from `src/components/icons/` (vendored Nucleo core outline compone
 - [ ] No errors in the Logs view
 
 Hidden features (the voice assistant, Tone & Style) are not in this list. Test them when they come back.
+
+### Speed and Accuracy Work
+
+- For any work on how fast or how accurate a dictation is (Mistral delay, Luna cleanup, early send, paste), use the `measure-dictation-speed` skill (`.claude/skills/measure-dictation-speed/`). Read its `FINDINGS.md` first: it has every result measured so far and the ideas already ruled out.
+- Measure before and after a change, on the user's real recordings (`userData/audio/`), and report medians with the number of runs.
+- Keep the skill current: when you measure or learn something new, update `FINDINGS.md` and `SKILL.md` in the same task. Commit them with `git add -f` (`.gitignore` keeps `.claude/` local).
+- Never commit the user's recordings or transcripts, and never refresh the ChatGPT token from a script (the app would be signed out).
 
 ### Common Issues and Solutions
 

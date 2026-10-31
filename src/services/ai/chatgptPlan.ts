@@ -81,20 +81,25 @@ async function streamPlanResponse(
   // The WebSocket was opened while the user spoke, so it skips the connect.
   // HTTP below is the fallback. The socket wait is capped so a hung socket
   // does not use up the whole timeout before HTTP starts.
+  const socketStart = Date.now();
   const viaSocket = await window.electronAPI.chatgptSocketResponse?.(
     body,
     Math.min(timeoutSeconds * 1000, SOCKET_TIMEOUT_MS)
   );
+  const socketMs = Date.now() - socketStart;
   if (isRequestCancelled(config.requestId)) throw requestCancelledError();
   if (viaSocket?.success && viaSocket.text.trim()) {
-    logger.logReasoning("CHATGPT_PLAN_SOCKET", { model, warm: viaSocket.warm });
+    logger.logReasoning("CHATGPT_PLAN_SOCKET", { model, warm: viaSocket.warm, socketMs });
     return viaSocket.text.trim();
   }
   if (viaSocket) {
-    logger.logReasoning("CHATGPT_PLAN_SOCKET_FALLBACK", {
-      model,
-      error: "error" in viaSocket ? viaSocket.error : "no text",
-    });
+    // A warning, so it is kept in errors.log at any log level: it tells how
+    // often the socket fails and how long the user waited before HTTP.
+    logger.warn(
+      "ChatGPT socket failed, using HTTP",
+      { model, error: "error" in viaSocket ? viaSocket.error : "no text", socketMs },
+      "reasoning"
+    );
   }
 
   const controller = new AbortController();
