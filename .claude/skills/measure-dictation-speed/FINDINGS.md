@@ -71,10 +71,14 @@ Lag rule: after release, send once the time is at least local speech end + delay
 
 ## Luna (ChatGPT plan, Responses API)
 
-- Once it starts, Luna is fast. Output speed is not the problem.
+- Luna is now the biggest part of the wait. For a 60-word transcript on a warm socket (16 runs, 2026-10-31): first token after a median of 978 ms, whole answer after 1933 ms.
 - The socket runs one request at a time. A wrong early request on it would block the real one.
 - Not verified: `response.cancel` is documented for the Realtime API, not the Responses socket. The docs may allow parallel `stream_id` lanes on one socket.
-- Prefill (send the first part with `generate: false`, then the rest): not measured yet. `scripts/luna-prefill.cjs` is ready; it needs a fresh ChatGPT token and plan usage left.
+- Prefill works (`luna-prefill.cjs`, 16 rounds, 2026-10-31). Send the first ~35 words as a user message with `generate: false`, then the rest as a second user message with `previous_response_id`:
+  - Luna kept the first part every time (16/16), and the cleaned text was the same as with one request.
+  - First token: median 826 ms vs 978 ms (about 150 ms sooner, sooner in 13/16 rounds). Whole answer: 1770 ms vs 1933 ms.
+  - The `generate: false` call itself took 240–640 ms. It must end before the final request is sent, since the socket runs one at a time, so send it while the user speaks or while Mistral catches up.
+  - Not tested: a larger prefix (most of the text, as in a real dictation), or several prefill calls as the text grows.
 - The plan has a usage limit (error `subscription_sharing_usage_limit_exceeded`). On 2026-10-31 all 5 real dictations hit it: the socket failed after about 0.6 s, the app then tried HTTP for another 1.3–2 s, which fails the same way, and pasted the raw text. Release to paste took 3.0–4.0 s. Don't run Luna tests while the limit is reached; they fail and may use quota.
 
 ## Real dictations (installed app 0.1.6, debug log, 2026-10-31, 5 dictations, cleanup failing on the usage limit)
@@ -90,7 +94,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
 
 ## Open questions
 
-- Prefill: does it cut Luna's time to first token?
+- Prefill: how much does it save when the prefix is most of the text, sent at release?
 - Paste: how the 174–201 ms splits into the focus check and the paste helper (`Paste steps timing`, needs a build after 0.1.6 in debug mode).
 - Socket fallback: how often does it fail and fall back to HTTP? (Warning `ChatGPT socket failed, using HTTP` in `errors.log`.)
 - Does `context_bias` change the accuracy of the lower delays?
