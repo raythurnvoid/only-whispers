@@ -67,13 +67,17 @@ Lag rule: after release, send once the time is at least local speech end + delay
 | 480   | 400 | 51/60      | 67%                 | 194 ms                    |
 
 - The hit rate depends on server speed: at 1200 with M=0 it fell from 83% to 52% between two passes. Use M=400 to stay safely above 50%.
-- Not built yet. Plan: early request over HTTP so the warm socket stays free for the final text (the socket runs one request at a time, `chatgptResponsesSocket.js`).
+- Not built yet. Transport (2026-11-01, `luna-transport.cjs`): the early request needs a second socket, see Luna below. HTTP and `response.cancel` are ruled out.
 
 ## Luna (ChatGPT plan, Responses API)
 
 - Luna is now the biggest part of the wait. For a 60-word transcript on a warm socket (16 runs, 2026-10-31): first token after a median of 978 ms, whole answer after 1933 ms.
 - The socket runs one request at a time. A wrong early request on it would block the real one.
-- Not verified: `response.cancel` is documented for the Realtime API, not the Responses socket. The docs may allow parallel `stream_id` lanes on one socket.
+- Ways to send a second request (`luna-transport.cjs`, 2026-11-01, one run, about 3 tries each):
+  - `response.cancel` does nothing on the Responses socket: the response ran to the end (52 deltas, `response.completed`). So a wrong early request on the main socket would block the real one.
+  - A second socket works in parallel: with both busy at once, first token 566–946 ms and whole answer 1342–1835 ms on each, about the same as one warm socket alone (616–845 ms / 1356–1385 ms).
+  - HTTP is much slower: first token 1558–2575 ms (new connection or reused), whole answer 2718–4407 ms.
+  - A new socket's first request is slower (first token 1083 ms), so a second socket must be warmed up too.
 - Prefill works (`luna-prefill.cjs`, 16 rounds, 2026-10-31). Send the first ~35 words as a user message with `generate: false`, then the rest as a second user message with `previous_response_id`:
   - Luna kept the first part every time (16/16), and the cleaned text was the same as with one request.
   - First token: median 826 ms vs 978 ms (about 150 ms sooner, sooner in 13/16 rounds). Whole answer: 1770 ms vs 1933 ms.
@@ -88,6 +92,11 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - Release → paste (`toPasteMs`): 3.0–4.0 s, mostly the failed socket + HTTP tries.
 - Paste (`pasteMs`): 174–201 ms. The split (`Paste steps timing`) is not in 0.1.6.
 
+## Real dictations (installed app 0.1.7, delay 480, prefill, debug log, 2026-11-01)
+
+- 1 dictation, the first after launch, so no warm socket and no prefill (both need an earlier cleanup in the same app session): `stopMs` 596, `lunaMs` 1341, release → paste 1949 ms.
+- Paste 466 ms: focus check 341 ms, paste helper 123 ms. One sample only; if the focus check stays this slow, it is the next thing to look at.
+
 ## Known issues to fix later
 
 - On a usage-limit (`subscription_sharing_usage_limit_exceeded`) or sign-in error, the socket fails and `chatgptPlan.ts` still tries HTTP, which fails the same way. That adds 1.3–2 s before the raw text is pasted. The user called this an exception, to handle later.
@@ -100,6 +109,6 @@ Lag rule: after release, send once the time is at least local speech end + delay
 ## Open questions
 
 - Prefill: how much does it save when the prefix is most of the text, sent at release?
-- Paste: how the 174–201 ms splits into the focus check and the paste helper (`Paste steps timing`, needs a build after 0.1.6 in debug mode).
+- Paste: is the focus check always about 340 ms (one 0.1.7 sample so far)?
 - Socket fallback: how often does it fail and fall back to HTTP? (Warning `ChatGPT socket failed, using HTTP` in `errors.log`.)
 - Does `context_bias` change the accuracy of the lower delays?
