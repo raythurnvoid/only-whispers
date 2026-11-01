@@ -23,6 +23,9 @@ html.palazzo body {
   --laurel: #5e7a36;
   /* The microphone in the app mark (BrandMarkIcon). */
   --mark-mic: #7a4f27;
+  /* Lines carved in stone: the groove, then its lit lower edge. */
+  --carve: #e6d9c3;
+  --carve-edge: rgb(255 255 255 / 0.8);
   --marble: url("../assets/palazzo/marble-light.webp");
   /* Floating widgets (pill, toasts) sit over other apps, so they get one soft shadow. */
   --shadow-float: 0 4px 12px -4px rgb(30 20 10 / 0.35), 0 1px 2px rgb(30 20 10 / 0.18);
@@ -99,6 +102,8 @@ html.palazzo.dark body {
   --ornament: #6e573f;
   --laurel: #8fae5c;
   --mark-mic: #f1e6d3;
+  --carve: #0a0705;
+  --carve-edge: rgb(241 230 211 / 0.07);
   --marble: url("../assets/palazzo/marble-dark.webp");
   --shadow-float: 0 4px 14px -4px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.5);
 }
@@ -282,6 +287,32 @@ html.palazzo [data-slot="button"]:not([data-variant="link"]) {
     flex: 1;
     height: 1px;
     background: var(--line);
+  }
+
+  /* A short hairline on each side of a centered title, with a small diamond
+     at its outer end (start for the first rule, end for the last). */
+  .pz-title-rule {
+    position: relative;
+    width: 36px;
+    height: 1px;
+    flex: none;
+    background: var(--ornament);
+  }
+
+  .pz-title-rule::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    inset-inline-start: -3px;
+    width: 5px;
+    height: 5px;
+    background: var(--ornament);
+    transform: rotate(45deg);
+  }
+
+  .pz-title-rule:last-child::after {
+    inset-inline-start: auto;
+    inset-inline-end: -3px;
   }
 
   /* Ledger time: "11:27" over a small "PM". */

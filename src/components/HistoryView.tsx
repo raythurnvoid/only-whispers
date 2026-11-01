@@ -7,10 +7,8 @@ import { PAGE_CONTENT_WIDTH_CLASS } from "./ui/pageWidth";
 import { Loader2, Sparkles, X, Trash2, Archive, Upload, Plus } from "./icons";
 import TranscriptionItem from "./ui/TranscriptionItem";
 import TranscriptTextEditor from "./ui/TranscriptTextEditor";
-import ThemedEmptyIllustration from "./ui/ThemedEmptyIllustration";
+import HistoryEmptyIllustration from "./HistoryEmptyIllustration";
 import DictationHotkeyHint from "./ui/DictationHotkeyHint";
-import historyEmptyLight from "../assets/empty-states/home-history-light.svg";
-import historyEmptyDark from "../assets/empty-states/home-history-dark.svg";
 import type { TranscriptionItem as TranscriptionItemType } from "../types/electron";
 import { formatDateGroup } from "../utils/dateFormatting";
 import { useSettingsStore } from "../stores/settingsStore";
@@ -194,16 +192,14 @@ export default function HistoryView({
             </div>
           ) : history.length === 0 ? (
             <div className="flex min-h-72 flex-col items-center px-4 pt-6 text-center">
-              <ThemedEmptyIllustration
-                light={historyEmptyLight}
-                dark={historyEmptyDark}
-                width={560}
-                height={102}
-                className="[mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]"
-              />
-              <h2 className="mt-6 text-lg font-semibold text-foreground">
-                {t("controlPanel.history.empty")}
-              </h2>
+              <HistoryEmptyIllustration />
+              <div className="mt-5 flex items-center gap-3">
+                <span className="pz-title-rule" />
+                <h2 className="text-lg font-semibold text-foreground">
+                  {t("controlPanel.history.empty")}
+                </h2>
+                <span className="pz-title-rule" />
+              </div>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 {t("controlPanel.history.emptyDescription")}
               </p>
