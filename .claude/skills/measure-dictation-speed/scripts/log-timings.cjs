@@ -53,7 +53,15 @@ for (const e of entries) {
   }
   if (!row) continue;
   if (e.message === "CHATGPT_PLAN_SOCKET")
-    Object.assign(row, { lunaMs: m.socketMs, warm: m.warm, prefilled: m.prefilled, early: m.early });
+    Object.assign(row, {
+      lunaMs: m.socketMs,
+      warm: m.warm,
+      prefilled: m.prefilled,
+      early: m.early,
+      prefillWaitMs: m.prefillWaitMs,
+      prefillMs: m.prefillMs,
+      restChars: m.restChars,
+    });
   // Builds up to 0.1.6 log the socket failure as CHATGPT_PLAN_SOCKET_FALLBACK, without socketMs:
   // then take the time since "Streaming stop timing".
   if (

@@ -1,13 +1,17 @@
 // Replays real recordings through the app's own cleanup sockets (src/helpers/chatgptResponsesSocket.js),
-// twice per file, one run after the other (the first one swaps each file):
-//   early: prefill + early cleanup, as the app does now
-//   base:  prefill only, as the app did before the early cleanup
-// Never run both at once: parallel requests slow Luna down, which the app never does.
-// Audio goes to Mistral at real-time speed (50 ms chunks, delay 480), and the early cleanup uses the
-// app's rule (speech end + 880 ms, then 150 ms with no new words). Prints one JSON line per file with
-// the time from release to the cleaned text.
+// once per setup ("mode") per file, one run after the other. The order of the modes turns by one on
+// every file. Never run modes at once: parallel requests slow Luna down, which the app never does.
+//   base:          prefill at release only (the app today without the early cleanup)
+//   early:         base + early cleanup (speech end + 880 ms, then 150 ms with no new words)
+//   rolling:       base + a prefill while speaking each time the text grew by ROLLING_STEP words
+//   rolling-skip:  rolling, but no prefill at release when a rolling prefill was sent
+//   rolling-early: rolling + early cleanup
+// Audio goes to Mistral at real-time speed (50 ms chunks, delay 480). Prints one JSON line per run
+// with the time from release to the cleaned text. `changed: false` means the mode did the same as
+// base on that file (the control group). Analyze with analyze-replay.cjs.
 // Needs a fresh ChatGPT token: if it expired, dictate once in the app (never refresh here).
-// Run from a folder outside the repo. Usage: node early-cleanup-replay.cjs <wav folder> [maxSeconds=30]
+// Run from a folder outside the repo.
+// Usage: node cleanup-replay.cjs <wav folder> [maxSeconds=30] [modes=base,early]
 const fs = require("fs");
 const path = require("path");
 const Module = require("module");
@@ -16,18 +20,21 @@ const WebSocket = fromRepo("ws");
 const prompts = require(path.join(REPO, "src/locales/en/prompts.json"));
 
 checkWorkDir();
-const [folder, maxArg = "30"] = process.argv.slice(2);
+const [folder, maxArg = "30", modesArg = "base,early"] = process.argv.slice(2);
+const modes = modesArg.split(",");
 const auth = chatgpt();
 if (auth.expires - Date.now() < 60000) {
   console.error("ChatGPT token expired. Dictate once in the app, then run again.");
   process.exit(1);
 }
 
-// The app's values (audioManager.js, mistralRealtimeStreaming.js).
+// The app's values (audioManager.js, mistralRealtimeStreaming.js). Change them here when the app changes.
 const DELAY_MS = 480;
 const AFTER_SPEECH_MS = 480 + 400;
 const QUIET_MS = 150;
 const SPEECH_LEVEL = 300;
+// Not in the app yet: the planned rolling prefill.
+const ROLLING_STEP = Number(process.env.ROLLING_STEP || 15);
 // Same text as wrapCleanupTranscript and cleanupTranscriptStart (src/config/prompts/index.ts).
 const wrap = (text) => `<transcript>\n${text}\n</transcript>\n\nOutput only the cleaned transcript.`;
 const transcriptStart = (text) => `<transcript>\n${text}`;
@@ -39,6 +46,12 @@ const body = (text) => ({
   service_tier: "priority",
   reasoning: { effort: "none" },
 });
+// The live text without its last word, which may still be cut in half (as the app's prefill).
+const prefillText = (text) => {
+  const live = text.trimStart();
+  return live.slice(0, live.lastIndexOf(" ") + 1);
+};
+const wordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
 // One copy of the app's socket module, with the token read (not refreshed) from the app's store.
 const socketPath = path.join(REPO, "src/helpers/chatgptResponsesSocket.js");
@@ -64,7 +77,9 @@ const loadPcm = (file) => {
   return buf.subarray(buf.indexOf("data") + 8);
 };
 
-async function replay(file, copy, useEarly) {
+async function replay(file, copy, mode) {
+  const useEarly = mode.endsWith("early");
+  const rolling = mode.startsWith("rolling");
   const pcm = loadPcm(file);
   copy.warmup(); // dictation start
   const ws = new WebSocket(
@@ -73,6 +88,21 @@ async function replay(file, copy, useEarly) {
   );
   let text = "";
   let textAt = 0;
+  // Rolling prefill: one at a time, each with the whole text so far.
+  let rollingPrefills = 0;
+  let rollingWords = 0;
+  let rollingInFlight = false;
+  let released = false;
+  const rollPrefill = () => {
+    const start = prefillText(text);
+    if (released || rollingInFlight || wordCount(start) - rollingWords < ROLLING_STEP) return;
+    rollingInFlight = true;
+    rollingWords = wordCount(start);
+    rollingPrefills += 1;
+    copy.prefillTranscript(transcriptStart(start)).finally(() => {
+      rollingInFlight = false;
+    });
+  };
   const done = new Promise((resolve, reject) => {
     ws.on("message", (data) => {
       const e = JSON.parse(data.toString());
@@ -80,6 +110,7 @@ async function replay(file, copy, useEarly) {
       if (e.type === "transcription.text.delta") {
         text += e.text || "";
         textAt = performance.now();
+        if (rolling) rollPrefill();
       }
       if (e.type === "transcription.done") {
         resolve({ at: performance.now(), text: (e.text ?? text).trim() });
@@ -111,7 +142,9 @@ async function replay(file, copy, useEarly) {
     const wait = t0 + (n + 1) * 50 - performance.now();
     if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
     const chunk = pcm.subarray(i, i + 1600);
-    const samples = new Int16Array(chunk.buffer.slice(chunk.byteOffset, chunk.byteOffset + chunk.length));
+    const samples = new Int16Array(
+      chunk.buffer.slice(chunk.byteOffset, chunk.byteOffset + chunk.length)
+    );
     for (let start = 0; start < samples.length; start += 400) {
       const part = samples.subarray(start, start + 400);
       let sum = 0;
@@ -121,11 +154,12 @@ async function replay(file, copy, useEarly) {
     ws.send(JSON.stringify({ type: "input_audio.append", audio: chunk.toString("base64") }));
   }
   const releaseAt = performance.now();
+  released = true;
   ws.send(JSON.stringify({ type: "input_audio.end" }));
 
-  const live = text.trimStart();
-  const prefill = live.slice(0, live.lastIndexOf(" ") + 1);
-  if (prefill) copy.prefillTranscript(transcriptStart(prefill));
+  const start = prefillText(text);
+  const skipReleasePrefill = mode === "rolling-skip" && rollingPrefills > 0;
+  if (start && !skipReleasePrefill) copy.prefillTranscript(transcriptStart(start));
 
   let earlySentAt = null;
   let timer = null;
@@ -152,14 +186,19 @@ async function replay(file, copy, useEarly) {
   ws.close();
   const result = await copy.createResponse(body(wrap(final.text)), 15000);
   return {
-    mode: useEarly ? "early" : "base",
+    mode,
     file: path.basename(file),
     seconds: +(pcm.length / 32000).toFixed(1),
-    words: final.text.split(/\s+/).length,
+    words: wordCount(final.text),
+    changed: mode !== "base" && (earlySentAt !== null || rollingPrefills > 0),
     stopMs: Math.round(final.at - releaseAt),
     earlySentMs: earlySentAt === null ? null : Math.round(earlySentAt - releaseAt),
     early: result.early,
+    rollingPrefills,
     prefilled: result.prefilled,
+    prefillWaitMs: result.prefillWaitMs,
+    prefillMs: result.prefillMs,
+    restChars: result.restChars,
     cleanedMs: Math.round(performance.now() - releaseAt),
   };
 }
@@ -174,11 +213,12 @@ async function replay(file, copy, useEarly) {
     .map((f) => path.join(folder, f))
     .filter((f) => fs.statSync(f).size / 32000 <= Number(maxArg));
   for (const [index, file] of files.entries()) {
-    for (const useEarly of index % 2 ? [false, true] : [true, false]) {
+    const turn = index % modes.length;
+    for (const mode of [...modes.slice(turn), ...modes.slice(0, turn)]) {
       try {
-        console.log(JSON.stringify(await replay(file, copy, useEarly)));
+        console.log(JSON.stringify(await replay(file, copy, mode)));
       } catch (error) {
-        console.log(JSON.stringify({ file: path.basename(file), error: error.message }));
+        console.log(JSON.stringify({ mode, file: path.basename(file), error: error.message }));
       }
     }
   }

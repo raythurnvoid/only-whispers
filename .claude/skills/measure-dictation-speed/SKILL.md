@@ -77,21 +77,31 @@ vp env exec node $S/analyze-live.cjs results-1.jsonl results-2.jsonl
 
 This is the closest test to a real dictation without a mic, and it needs no help from the user. Use it to judge any change to the path after key release, and use it when the user asks you to test without them. The lab numbers in sections 2 and 3 are estimates: the lab predicted the early cleanup would save about 190 ms, and this replay found no gain, because the delay change and the prefill had already moved the baseline. So check every idea here before you keep it, and again after an earlier change lands.
 
-How it works (`scripts/early-cleanup-replay.cjs`, copy it for a new idea):
+How it works (`scripts/cleanup-replay.cjs`; add a new idea as a new mode):
+
+```bash
+# from the scratch folder; modes run one after the other on every file
+vp env exec node $S/cleanup-replay.cjs audio-real 30 base,rolling,rolling-skip,rolling-early > results.jsonl
+vp env exec node $S/analyze-replay.cjs results.jsonl
+```
+
+- Modes: `base` (prefill at release only), `early` (+ early cleanup), `rolling` (+ a prefill while speaking every `ROLLING_STEP` words, env, default 15), `rolling-skip` (rolling, no prefill at release when a rolling one was sent), `rolling-early`.
 
 - It loads the app's real module (`src/helpers/chatgptResponsesSocket.js`) with `Module._load` stubs: `./chatgptAuth` returns the token read from the app's store (never refreshed), `./debugLogger` does nothing. Deleting the module from `require.cache` gives a fresh copy.
 - It streams a real recording to Mistral at real-time speed: a 50 ms chunk is sent once its audio has been heard (`t0 + (n + 1) * 50`), like the app's worklet. The file's end is the key release, and the real silence before it is kept.
-- It calls the module in the app's order: `warmup()` at dictation start, `prefillTranscript()` at release, the variant's extra step (here `sendEarly()` by the app's rule), then `createResponse()` when Mistral's final text comes. It measures release → cleaned text.
-- Code that lives in the renderer (the early-cleanup rule, the prefill text) is copied into the script with the same constants. When you change those in `audioManager.js`, change them here too.
+- It calls the module in the app's order: `warmup()` at dictation start, `prefillTranscript()` at release, the mode's extra steps (`sendEarly()`, rolling `prefillTranscript()` calls), then `createResponse()` when Mistral's final text comes. It measures release → cleaned text.
+- Code that lives in the renderer (the early-cleanup rule, the prefill text, the rolling rule) is copied into the script with the same constants. When you change those in `audioManager.js`, change them here too. A mode can try a rule before the app has it (the rolling prefill did).
+- Each run reports `changed` (the mode did something different from base on that file), the prefill wait (`prefillWaitMs`, how long the cleanup waited for the prefill), `prefillMs` and `restChars` (how much text Luna still had to read).
 
 Rules learned on 2026-11-01:
 
-- Run each file twice, once with the change and once without, one run after the other, and swap which goes first on every file. Never run the two at once: parallel requests slow Luna down (in the first try a miss came out 600 ms slower), which the app never does.
-- Keep a control group: pairs where the change did nothing (here `early: "none"`). Their difference is the noise between two runs, about 100 ms. A gain smaller than that is not a gain.
+- Run each file once per mode, one run after the other, and turn the order of the modes on every file (the script does both). Never run the two at once: parallel requests slow Luna down (in the first try a miss came out 600 ms slower), which the app never does.
+- Keep a control group: pairs where the mode did nothing (`changed: false`; `analyze-replay.cjs` prints them as "did nothing (noise)"). Their difference is the noise between two runs, about 100 ms. A gain smaller than that is not a gain.
 - Do one cleanup before the first file, so later runs have a prompt to warm and prefill, like every dictation but the first after launch.
-- The token lasts 60 minutes after the user's last dictation. Check `common.cjs` first; a pair of 15 s recordings takes about 35 s. 21 files of up to 30 s took about 12 minutes. If it is short, ask the user to dictate once.
+- The token lasts 60 minutes after the user's last dictation. Check `common.cjs` first; a pair of 15 s recordings takes about 35 s. 21 files of up to 30 s took about 12 minutes for 2 modes, so about 6 minutes per mode. If it is short, ask the user to dictate once.
 - A network error (`ENOTFOUND api.mistral.ai`) must fail one file, not the run.
-- Start it in the background and wait for it. Then run `analyze-replay.cjs <results.jsonl>`: it pairs the runs by file and prints the median difference per case, with the control group.
+- Start it in the background and wait for it. Then run `analyze-replay.cjs <results.jsonl>`: it pairs every mode with base by file and prints the median difference, with the control group.
+- Do not run it while the user dictates: both would send Luna requests at the same time and slow each other down.
 - It leaves out the paste, the focus check, the dictionary and the mic warm-up. Check those in the app's logs (section 1).
 
 ## Testing app code changes

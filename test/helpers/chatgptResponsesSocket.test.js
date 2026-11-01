@@ -89,6 +89,10 @@ test("the cleanup after a prefill sends only the rest of the transcript", async 
   assert.deepEqual(inputText(cleanup), ["world</transcript>"]);
   assert.equal(cleanup.instructions, "Clean up the transcript.");
   assert.equal(result.prefilled, true);
+  // Logged, to see how much an earlier prefill could save.
+  assert.equal(result.restChars, "world</transcript>".length);
+  assert.equal(typeof result.prefillMs, "number");
+  assert.equal(typeof result.prefillWaitMs, "number");
 });
 
 test("a final transcript that does not start with the prefill is sent whole", async () => {

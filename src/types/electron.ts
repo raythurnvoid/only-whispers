@@ -677,6 +677,10 @@ declare global {
             warm: boolean;
             prefilled: boolean;
             early: "none" | "hit" | "miss" | "failed";
+            // Not set on an early hit; the prefill fields only when the prefill was used.
+            prefillWaitMs?: number;
+            prefillMs?: number;
+            restChars?: number;
           }
         | { success: false; error: string }
       >;

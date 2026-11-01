@@ -28,7 +28,7 @@ const spare = newLane();
 let lastPrompt = null; // model, instructions, reasoning and tier of the last cleanup
 let warming = null;
 let spareWarming = null;
-let prefill = null; // { key, id, text } from the generate:false prefill
+let prefill = null; // { key, id, text, ms } from the generate:false prefill
 let prefilling = null;
 let early = null; // { key, userText, result } from the early cleanup
 // Counts dictations, so a prefill that ends after the next dictation started is dropped.
@@ -187,6 +187,7 @@ function prefillTranscript(text) {
 
 async function runPrefill(text) {
   const current = dictation;
+  const startedAt = Date.now();
   await warming;
   if (!lastPrompt || !text) return { success: false };
   const prompt = lastPrompt;
@@ -197,7 +198,9 @@ async function runPrefill(text) {
       { ...prompt, store: false, input: [userMessage(text)], generate: false },
       PREFILL_TIMEOUT_MS
     );
-    if (current === dictation) prefill = { key: promptKey(prompt), id: result.id, text };
+    if (current === dictation) {
+      prefill = { key: promptKey(prompt), id: result.id, text, ms: Date.now() - startedAt };
+    }
     return { success: true };
   } catch (error) {
     debugLogger.debug("ChatGPT socket prefill failed", { error: error.message });
@@ -261,12 +264,16 @@ async function createResponse(body, timeoutMs) {
   }
 
   // A warmup or prefill still in flight would leave an id that is no longer the latest response.
+  // The wait is logged: it is what a prefill sent earlier could save.
+  const waitStart = Date.now();
   await warming;
   await prefilling;
+  const prefillWaitMs = Date.now() - waitStart;
   // The warm or prefilled response is reused only when the prompt is the same.
   // Instructions are not carried over by previous_response_id, so they are sent again.
   let request = body;
   let prefilled = false;
+  const prefillMs = prefill?.ms;
   if (prefill?.key === key && userText.startsWith(prefill.text)) {
     request = {
       ...body,
@@ -286,6 +293,10 @@ async function createResponse(body, timeoutMs) {
     warm: !!request.previous_response_id,
     prefilled,
     early: earlyResult,
+    prefillWaitMs,
+    prefillMs: prefilled ? prefillMs : undefined,
+    // How much of the transcript Luna still had to read.
+    restChars: prefilled ? request.input[0].content[0].text.length : undefined,
   };
 }
 
