@@ -24,6 +24,10 @@ html.palazzo body {
   --accent-deep-hover: #a04e0a;
   --accent-deep-press: #8f4508;
   --accent-wash-deep: #f3d3ab;
+  /* The same for destructive buttons: --danger is too pale in dark. */
+  --danger-deep: #9e2f26;
+  --danger-deep-hover: #8a271f;
+  --danger-deep-press: #76201a;
   /* The darker bottom edge of a button, and the shadow inside a pressed one. */
   --button-lip: rgb(60 30 0 / 0.22);
   --button-press: rgb(60 30 0 / 0.28);
@@ -153,10 +157,16 @@ html.palazzo [data-slot="button"]:not([data-variant="link"]) {
   text-transform: uppercase;
 }
 
-/* Primary and outline buttons: a darker bottom edge at rest, a warm look on
-   hover, pressed in (inner shadow, 1px down) while held. Unlayered, so these
-   beat the variants' Tailwind utilities (glass gradient, brightness, scale). */
-html.palazzo [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]) {
+/* Primary, outline and destructive buttons: a darker bottom edge at rest, a
+   warm look on hover, pressed in (inner shadow, 1px down) while held. Unlayered,
+   so these beat the variants' Tailwind utilities (glass gradient, brightness,
+   scale). */
+html.palazzo
+  [data-slot="button"]:is(
+    [data-variant="default"],
+    [data-variant="outline"],
+    [data-variant="destructive"]
+  ) {
   filter: none;
   scale: none;
   transition:
@@ -168,7 +178,11 @@ html.palazzo [data-slot="button"]:is([data-variant="default"], [data-variant="ou
 }
 
 html.palazzo
-  [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]):focus-visible {
+  [data-slot="button"]:is(
+    [data-variant="default"],
+    [data-variant="outline"],
+    [data-variant="destructive"]
+  ):focus-visible {
   outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
@@ -190,6 +204,31 @@ html.palazzo [data-slot="button"][data-variant="default"]:active {
   background: var(--accent-deep-press);
   box-shadow: inset 0 2px 3px var(--button-press);
   transform: translateY(1px);
+}
+
+html.palazzo [data-slot="button"][data-variant="destructive"] {
+  background: var(--danger-deep);
+  /* The fill shows through, so the button reads as one block like the primary. */
+  border-color: transparent;
+  color: #fff;
+  box-shadow: inset 0 -2px 0 var(--button-lip);
+}
+
+html.palazzo [data-slot="button"][data-variant="destructive"]:hover {
+  background: var(--danger-deep-hover);
+  box-shadow:
+    inset 0 -2px 0 var(--button-lip),
+    0 4px 12px -4px color-mix(in oklab, var(--danger-deep) 90%, transparent);
+}
+
+html.palazzo [data-slot="button"][data-variant="destructive"]:active {
+  background: var(--danger-deep-press);
+  box-shadow: inset 0 2px 3px var(--button-press);
+  transform: translateY(1px);
+}
+
+html.palazzo [data-slot="button"][data-variant="destructive"]:focus-visible {
+  outline-color: var(--danger);
 }
 
 /* Hover matches the active sidebar item: the accent wash, and an accent icon. */
@@ -228,7 +267,12 @@ html.palazzo [data-slot="button"][data-variant="outline"]:active svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.palazzo [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]):active,
+  html.palazzo
+    [data-slot="button"]:is(
+      [data-variant="default"],
+      [data-variant="outline"],
+      [data-variant="destructive"]
+    ):active,
   html.palazzo [data-slot="button"][data-variant="outline"]:hover svg {
     transform: none;
   }
