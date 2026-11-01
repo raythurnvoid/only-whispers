@@ -206,7 +206,7 @@ These features are still in the code, but their UI is hidden in this release. Th
   - Per-scope LLM config: scopes are defined in `src/config/inferenceScopes.ts` (`dictationCleanup`, `dictationAgent`, `dictationAgentVision`, `chatIntelligence`)
   - `selectResolvedLLMConfig(state, scope)` in `settingsStore.ts` resolves provider/model per scope with fallback chains
 - **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). There is no fallback model: on a failure the raw transcript is pasted with the cleanup-failed toast
-  - The sockets live in the main process (`chatgptResponsesSocket.js`), opened and warmed at dictation start. At key release `audioManager.js` prefills the main socket with the words Mistral has so far, and once Mistral's text is likely complete it sends an early cleanup on a second socket; the cleanup uses that answer only for exactly the same transcript. Timings and results: the `measure-dictation-speed` skill
+  - The sockets live in the main process (`chatgptResponsesSocket.js`), opened and warmed at dictation start. At key release `audioManager.js` prefills the sockets with the words Mistral has so far. While the user speaks, the 3 spare sockets also read the text every 15 words, and once Mistral's text may be complete (even before release, and again when it changes) a cleanup guess goes to a free spare; the cleanup uses a guess only for exactly the same transcript. Timings and results: the `measure-dictation-speed` skill
 
 ### Speech-to-Text (Mistral)
 

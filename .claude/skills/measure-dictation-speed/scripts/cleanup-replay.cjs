@@ -1,17 +1,18 @@
 // Replays real recordings through the app's own cleanup sockets (src/helpers/chatgptResponsesSocket.js),
 // once per setup ("mode") per file, one run after the other. The order of the modes turns by one on
 // every file. Never run modes at once: parallel requests slow Luna down, which the app never does.
-//   base:          prefill at release only (the app today without the early cleanup)
-//   early:         base + early cleanup (speech end + 880 ms, then 150 ms with no new words)
-//   rolling:       base + a prefill while speaking each time the text grew by ROLLING_STEP words
-//   rolling-skip:  rolling, but no prefill at release when a rolling prefill was sent
-//   rolling-early: rolling + early cleanup
+//   base:        prefill at release only, no cleanup guesses
+//   guess:       the app since 0.1.11: base + cleanup guesses on the spare sockets, from the start
+//                of the recording (speech end + 880 ms, then 150 ms with no new words, again each
+//                time the text changed) + a rolling prefill of the spares every ROLLING_STEP words
+//   guess-fast:  guess, but speech end + 630 ms (more guesses, sooner)
+// The modes from before 0.1.11 (early, rolling...) need the socket module of that time (git log).
 // Audio goes to Mistral at real-time speed (50 ms chunks, delay 480). Prints one JSON line per run
 // with the time from release to the cleaned text. `changed: false` means the mode did the same as
 // base on that file (the control group). Analyze with analyze-replay.cjs.
 // Needs a fresh ChatGPT token: if it expired, dictate once in the app (never refresh here).
 // Run from a folder outside the repo.
-// Usage: node cleanup-replay.cjs <wav folder> [maxSeconds=30] [modes=base,early]
+// Usage: node cleanup-replay.cjs <wav folder> [maxSeconds=30] [modes=base,guess]
 const fs = require("fs");
 const path = require("path");
 const Module = require("module");
@@ -20,7 +21,7 @@ const WebSocket = fromRepo("ws");
 const prompts = require(path.join(REPO, "src/locales/en/prompts.json"));
 
 checkWorkDir();
-const [folder, maxArg = "30", modesArg = "base,early"] = process.argv.slice(2);
+const [folder, maxArg = "30", modesArg = "base,guess"] = process.argv.slice(2);
 const modes = modesArg.split(",");
 const auth = chatgpt();
 if (auth.expires - Date.now() < 60000) {
@@ -30,10 +31,9 @@ if (auth.expires - Date.now() < 60000) {
 
 // The app's values (audioManager.js, mistralRealtimeStreaming.js). Change them here when the app changes.
 const DELAY_MS = 480;
-const AFTER_SPEECH_MS = 480 + 400;
+const AFTER_SPEECH_MS = { guess: 480 + 400, "guess-fast": 480 + 150 };
 const QUIET_MS = 150;
 const SPEECH_LEVEL = 300;
-// Not in the app yet: the planned rolling prefill.
 const ROLLING_STEP = Number(process.env.ROLLING_STEP || 15);
 // Same text as wrapCleanupTranscript and cleanupTranscriptStart (src/config/prompts/index.ts).
 const wrap = (text) => `<transcript>\n${text}\n</transcript>\n\nOutput only the cleaned transcript.`;
@@ -78,8 +78,7 @@ const loadPcm = (file) => {
 };
 
 async function replay(file, copy, mode) {
-  const useEarly = mode.endsWith("early");
-  const rolling = mode.startsWith("rolling");
+  const afterSpeech = AFTER_SPEECH_MS[mode]; // undefined: no guesses, no rolling prefill
   const pcm = loadPcm(file);
   copy.warmup(); // dictation start
   const ws = new WebSocket(
@@ -88,20 +87,36 @@ async function replay(file, copy, mode) {
   );
   let text = "";
   let textAt = 0;
-  // Rolling prefill: one at a time, each with the whole text so far.
+  let speechEndAt = 0;
+  let released = false;
+  let finished = false;
+  // Rolling prefill (audioManager.js _rollCleanupPrefill): one at a time, the whole text so far.
   let rollingPrefills = 0;
   let rollingWords = 0;
   let rollingInFlight = false;
-  let released = false;
   const rollPrefill = () => {
     const start = prefillText(text);
-    if (released || rollingInFlight || wordCount(start) - rollingWords < ROLLING_STEP) return;
+    if (!afterSpeech || released || rollingInFlight) return;
+    if (wordCount(start) - rollingWords < ROLLING_STEP) return;
     rollingInFlight = true;
     rollingWords = wordCount(start);
     rollingPrefills += 1;
-    copy.prefillTranscript(transcriptStart(start)).finally(() => {
+    copy.prefillTranscript(transcriptStart(start), { rolling: true }).finally(() => {
       rollingInFlight = false;
     });
+  };
+  // Cleanup guesses (audioManager.js _sendCleanupGuess), checked every 50 ms.
+  const guessTimes = [];
+  let lastGuess = "";
+  const tryGuess = () => {
+    const now = performance.now();
+    if (!afterSpeech || finished || !speechEndAt) return;
+    if (now < speechEndAt + afterSpeech || now < textAt + QUIET_MS) return;
+    const live = text.trim();
+    if (!live || live === lastGuess) return;
+    lastGuess = live;
+    guessTimes.push(now);
+    copy.sendEarly(wrap(live));
   };
   const done = new Promise((resolve, reject) => {
     ws.on("message", (data) => {
@@ -110,7 +125,7 @@ async function replay(file, copy, mode) {
       if (e.type === "transcription.text.delta") {
         text += e.text || "";
         textAt = performance.now();
-        if (rolling) rollPrefill();
+        rollPrefill();
       }
       if (e.type === "transcription.done") {
         resolve({ at: performance.now(), text: (e.text ?? text).trim() });
@@ -137,7 +152,7 @@ async function replay(file, copy, mode) {
 
   // Like the app, a 50 ms chunk is sent once its audio has been heard.
   const t0 = performance.now();
-  let speechEndAt = 0;
+  const loop = setInterval(tryGuess, 50);
   for (let i = 0, n = 0; i < pcm.length; i += 1600, n++) {
     const wait = t0 + (n + 1) * 50 - performance.now();
     if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
@@ -158,31 +173,11 @@ async function replay(file, copy, mode) {
   ws.send(JSON.stringify({ type: "input_audio.end" }));
 
   const start = prefillText(text);
-  const skipReleasePrefill = mode === "rolling-skip" && rollingPrefills > 0;
-  if (start && !skipReleasePrefill) copy.prefillTranscript(transcriptStart(start));
-
-  let earlySentAt = null;
-  let timer = null;
-  let finished = false;
-  if (useEarly && speechEndAt) {
-    const sendAfter = speechEndAt + AFTER_SPEECH_MS;
-    const trySend = () => {
-      if (finished) return;
-      const wait = Math.max(sendAfter, textAt + QUIET_MS) - performance.now();
-      if (wait > 0) {
-        timer = setTimeout(trySend, wait);
-        return;
-      }
-      if (!text.trim()) return;
-      earlySentAt = performance.now();
-      copy.sendEarly(wrap(text.trim()));
-    };
-    trySend();
-  }
+  if (start) copy.prefillTranscript(transcriptStart(start));
 
   const final = await done;
   finished = true;
-  clearTimeout(timer);
+  clearInterval(loop);
   ws.close();
   const result = await copy.createResponse(body(wrap(final.text)), 15000);
   return {
@@ -190,11 +185,13 @@ async function replay(file, copy, mode) {
     file: path.basename(file),
     seconds: +(pcm.length / 32000).toFixed(1),
     words: wordCount(final.text),
-    changed: mode !== "base" && (earlySentAt !== null || rollingPrefills > 0),
+    changed: mode !== "base" && guessTimes.length > 0,
     stopMs: Math.round(final.at - releaseAt),
-    earlySentMs: earlySentAt === null ? null : Math.round(earlySentAt - releaseAt),
+    // When the guesses went out, in ms after release (negative: before).
+    guessMs: guessTimes.map((at) => Math.round(at - releaseAt)),
     early: result.early,
     rollingPrefills,
+    firstTokenMs: result.firstTokenMs,
     prefilled: result.prefilled,
     prefillWaitMs: result.prefillWaitMs,
     prefillMs: result.prefillMs,

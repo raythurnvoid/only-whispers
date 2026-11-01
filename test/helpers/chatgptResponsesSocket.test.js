@@ -69,8 +69,8 @@ async function afterFirstCleanup() {
   const socket = loadSocket();
   await socket.createResponse(cleanupBody("<transcript>\nfirst one</transcript>"), 1000);
   await socket.warmup();
-  const [main, spare] = FakeSocket.instances;
-  return { socket, main, spare };
+  const [main, spare, spare2, spare3] = FakeSocket.instances;
+  return { socket, main, spare, spare2, spare3 };
 }
 
 test("the cleanup after a prefill sends only the rest of the transcript", async () => {
@@ -93,6 +93,7 @@ test("the cleanup after a prefill sends only the rest of the transcript", async 
   assert.equal(result.restChars, "world</transcript>".length);
   assert.equal(typeof result.prefillMs, "number");
   assert.equal(typeof result.prefillWaitMs, "number");
+  assert.equal(typeof result.firstTokenMs, "number");
 });
 
 test("a final transcript that does not start with the prefill is sent whole", async () => {
@@ -150,4 +151,49 @@ test("an early cleanup of another transcript is not used", async () => {
   assert.equal(result.early, "miss");
   assert.equal(result.text, "Hi from socket 0.");
   assert.deepEqual(inputText(main.sent.at(-1)), ["<transcript>\nhello there world</transcript>"]);
+});
+
+test("a guess continues its spare socket's prefill, so it sends only the rest", async () => {
+  const { socket, spare } = await afterFirstCleanup();
+  const text = "<transcript>\nhello there world</transcript>";
+
+  await socket.prefillTranscript("<transcript>\nhello there ");
+  socket.sendEarly(text);
+  const result = await socket.createResponse(cleanupBody(text), 1000);
+
+  const [prefill, guess] = spare.sent.slice(-2);
+  assert.equal(prefill.generate, false);
+  assert.equal(guess.previous_response_id, prefill.id);
+  assert.deepEqual(inputText(guess), ["world</transcript>"]);
+  assert.equal(result.early, "hit");
+  assert.equal(result.prefilled, true);
+});
+
+test("a rolling prefill skips the main socket", async () => {
+  const { socket, main, spare, spare2, spare3 } = await afterFirstCleanup();
+  const mainSent = main.sent.length;
+
+  await socket.prefillTranscript("<transcript>\nhello there ", { rolling: true });
+
+  assert.equal(main.sent.length, mainSent);
+  for (const lane of [spare, spare2, spare3]) {
+    assert.deepEqual(inputText(lane.sent.at(-1)), ["<transcript>\nhello there "]);
+  }
+});
+
+test("each guess takes a free spare socket, and the one with the final text is used", async () => {
+  const { socket } = await afterFirstCleanup();
+  const final = "<transcript>\nhello there world</transcript>";
+
+  socket.sendEarly("<transcript>\nhello there</transcript>");
+  socket.sendEarly(final);
+  socket.sendEarly("<transcript>\nhello there world again</transcript>");
+  // Every spare socket is busy.
+  const fourth = await socket.sendEarly("<transcript>\nmore</transcript>");
+  const result = await socket.createResponse(cleanupBody(final), 1000);
+
+  assert.equal(fourth.success, false);
+  assert.equal(result.early, "hit");
+  assert.equal(result.guesses, 3);
+  assert.equal(result.text, "Hi from socket 2.");
 });

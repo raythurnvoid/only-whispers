@@ -121,6 +121,22 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - Early cleanup: sent 17 times, 11 hits (65%), 6 misses. **Hits are not faster**: from the early send to the answer took a median of about 2370 ms (1360–3840), against about 1560 ms for a prefilled cleanup, because the spare socket reads the whole text with no prefill. The early send is only 50–600 ms ahead of Mistral, so this eats the head start. The longest dictations (23–41 s) took 2.2–3.8 s on a hit.
 - Release → paste: about 2.5 s with a hit and about 2.5 s with the prefill (similar lengths: median 9.5 s and 10.3 s). Same result as the replay: no gain.
 
+## Cleanup guesses on prefilled spare sockets (built 2026-11-01, released in 0.1.11)
+
+- The user's idea: Luna is cheap, so keep several prefilled sockets and guess the end of the sentence, even before key release.
+- Built: 3 spare sockets. While the user speaks, the spares read the text every 15 words (rolling prefill, skipping the main socket, whose prefill at release already ends before Mistral does). A 50 ms loop from the start of the recording sends a guess to a free spare once speech end + 880 ms passed and no new words came for 150 ms, and again each time the text changed. A guess continues its spare's prefill, so Luna reads only the last words. The cleanup uses the first guess with exactly its text.
+- Replay (`cleanup-replay.cjs`, 21 recordings ≤ 30 s, each once per mode, order turning, 2026-11-01):
+
+| Mode                     | Release → cleaned vs base | Hits | Guesses (median) | Before release |
+| ------------------------ | ------------------------- | ---- | ---------------- | -------------- |
+| `guess` (+880 ms)        | **−414 ms** (all 21)      | 14   | 2                | 1              |
+| `guess-fast` (+630 ms)   | −320 ms                   | 19   | 3                | 2              |
+| control (did nothing, 3) | +6 ms                     |      |                  |                |
+
+- On a hit (`guess`), Luna's answer came 1568 ms after Mistral's final text, against 2026 ms in base: the guess went out a median 417 ms after release, about 380 ms before Mistral's final text, and read only the last words. The 4 misses had their last guess before release (the user spoke on); they used the main socket like base.
+- `guess-fast` hits more often, but saves less. Kept +880 ms.
+- **Luna's first token is most of its time**: in this replay, 1.38–1.48 s from request to first token (median), even with only ~70 characters left to read, and about 0.3 s more to write the answer. So the earlier guess from the 0.1.10 logs ("mostly writing") was wrong. `firstTokenMs` is now in the app log (0.1.11) to check it on real dictations.
+
 ## Known issues to fix later
 
 - On a usage-limit (`subscription_sharing_usage_limit_exceeded`) or sign-in error, the socket fails and `chatgptPlan.ts` still tries HTTP, which fails the same way. That adds 1.3–2 s before the raw text is pasted. The user called this an exception, to handle later.
@@ -133,9 +149,9 @@ Lag rule: after release, send once the time is at least local speech end + delay
 ## Open questions
 
 - Prefill: how much does it save when the prefix is most of the text, sent at release?
-- Early cleanup: the replay and 25 real dictations in 0.1.10 found no gain (see Early send and Real dictations 0.1.10). Remove it, or improve it? Waiting for the user.
-- Rolling prefill: the 0.1.10 logs show the prefill at release already ends before Mistral (wait 0 in 11 of 12), so it would save almost nothing. Not built.
-- Next: Luna's own time (about 1.5 s after the cleanup starts). Log the first token time in the app to see how much is waiting and how much is writing.
+- Early cleanup: the replay and 25 real dictations in 0.1.10 found no gain (see Early send and Real dictations 0.1.10), because the spare socket had no prefill. Replaced by cleanup guesses on prefilled spares in 0.1.11.
+- Rolling prefill: the 0.1.10 logs show the prefill at release already ends before Mistral (wait 0 in 11 of 12), so on the main socket it would save almost nothing. It is useful on the spare sockets, where guesses go out before or right after release (see Cleanup guesses).
+- Next: check the guesses on real dictations (0.1.11 logs: `early`, `guessesSent`, `earlySentMs`, `firstTokenMs`). Then Luna's first token (about 1.4 s): is it the server, the prompt length, or `service_tier`?
 - Next idea: a rolling prefill (send the text to Luna in parts with `generate: false` while the user speaks), so at release only the last words are left. It would help every dictation, not only a right guess. Not tested yet: test it with the replay (SKILL.md section 4).
   - Plan (2026-11-01): while the user speaks, each time the live text grew by about 15 words and no prefill is running, prefill the whole text so far again (it replaces the last one, so the cleanup still has the two tested parts: prefill + rest). In the renderer only (`audioManager.js`, the `onPartial` listener), through the existing `chatgptSocketPrefill`. At release: test sending the prefill as today (`rolling`) or skipping it after a rolling one (`rolling-skip`). Test first with `cleanup-replay.cjs` (modes `rolling`, `rolling-skip`, `rolling-early`).
   - Step 0, built on 2026-11-01 (released in 0.1.10): `CHATGPT_PLAN_SOCKET` logs `prefillWaitMs` (how long the cleanup waited for the warmup and the prefill), `prefillMs` and `restChars` (text left after the prefill). The wait is the most a prefill sent earlier can save at release; `log-timings.cjs` shows all three.

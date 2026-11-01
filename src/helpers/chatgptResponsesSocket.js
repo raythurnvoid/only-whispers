@@ -14,23 +14,25 @@ const PREFILL_TIMEOUT_MS = 2000;
 const EARLY_TIMEOUT_MS = 10000;
 const IDLE_CLOSE_MS = 5 * 60 * 1000;
 
-// A socket runs one request at a time. The early cleanup gets its own socket, so
-// a wrong guess never blocks the real request: response.cancel does nothing here.
+// A socket runs one request at a time. Cleanup guesses (sendEarly) run on spare
+// sockets, so a wrong guess never blocks the real request: response.cancel does
+// nothing here. Each spare runs one guess at a time, so up to SPARE_LANES at once.
+const SPARE_LANES = 3;
 const newLane = () => ({
   socket: null, // { ws, token, opened: Promise<void> }
   queue: Promise.resolve(),
   warm: null, // { key, id } from the generate:false warmup
+  warming: null,
+  prefill: null, // { key, id, text, ms } from the generate:false prefill
+  prefilling: null,
+  guessing: false, // a cleanup guess runs on it (spare lanes only)
   idleTimer: null,
 });
 const main = newLane();
-const spare = newLane();
+const spares = Array.from({ length: SPARE_LANES }, newLane);
 
 let lastPrompt = null; // model, instructions, reasoning and tier of the last cleanup
-let warming = null;
-let spareWarming = null;
-let prefill = null; // { key, id, text, ms } from the generate:false prefill
-let prefilling = null;
-let early = null; // { key, userText, result } from the early cleanup
+let guesses = []; // { key, userText, result } from this dictation's cleanup guesses
 // Counts dictations, so a prefill that ends after the next dictation started is dropped.
 let dictation = 0;
 
@@ -101,6 +103,7 @@ function send(lane, body, timeoutMs) {
     const ws = current.ws;
     return new Promise((resolve, reject) => {
       let text = "";
+      let firstTokenMs;
       const finish = (error, result) => {
         clearTimeout(timer);
         ws.off("message", onMessage);
@@ -121,9 +124,15 @@ function send(lane, body, timeoutMs) {
         } catch {
           return;
         }
-        if (event.type === "response.output_text.delta") text += event.delta || "";
+        if (event.type === "response.output_text.delta") {
+          // Logged: the time before the first token is Luna reading, the rest is writing.
+          firstTokenMs ??= Date.now() - sentAt;
+          text += event.delta || "";
+        }
         // With store:false the completed event has no text, so the deltas are the reply.
-        if (event.type === "response.completed") finish(null, { id: event.response?.id, text });
+        if (event.type === "response.completed") {
+          finish(null, { id: event.response?.id, text, firstTokenMs });
+        }
         if (["response.failed", "response.incomplete", "error"].includes(event.type)) {
           const error = event.response?.error ?? event.error ?? {};
           finish(
@@ -135,6 +144,7 @@ function send(lane, body, timeoutMs) {
       };
       ws.on("message", onMessage);
       ws.on("close", onClose);
+      const sentAt = Date.now();
       ws.send(JSON.stringify({ type: "response.create", ...body }));
     });
   };
@@ -146,11 +156,12 @@ function send(lane, body, timeoutMs) {
 // Called at dictation start. Without a cleanup in this app session it only opens the sockets.
 function warmup() {
   dictation += 1;
-  prefill = null;
-  early = null;
-  spareWarming = runWarmup(spare);
-  warming = runWarmup(main);
-  return warming;
+  guesses = [];
+  for (const lane of [main, ...spares]) {
+    lane.prefill = null;
+    lane.warming = runWarmup(lane);
+  }
+  return main.warming;
 }
 
 async function runWarmup(lane) {
@@ -176,30 +187,37 @@ async function runWarmup(lane) {
   }
 }
 
-// Called at key release with the start of the user message (the words Mistral
-// has so far). Luna reads it with generate:false while Mistral finishes, so the
-// cleanup request sends only the rest: its first token came about 150 ms sooner
-// in tests. It replaces the warmup, since only the latest response can be continued.
-function prefillTranscript(text) {
-  prefilling = runPrefill(text);
-  return prefilling;
+// Called with the start of the user message (the words Mistral has so far): at
+// key release, and while the user speaks (`rolling`). Luna reads it with
+// generate:false, so a cleanup or a guess then sends only the rest. It replaces
+// the warmup, since only the latest response can be continued. Rolling prefills
+// skip the main socket: its prefill at release already ends before Mistral does.
+function prefillTranscript(text, { rolling = false } = {}) {
+  const lanes = spares.filter((lane) => !lane.guessing);
+  if (!rolling) lanes.unshift(main);
+  return Promise.all(
+    lanes.map((lane) => {
+      lane.prefilling = runPrefill(lane, text);
+      return lane.prefilling;
+    })
+  ).then((results) => results[0] ?? { success: false });
 }
 
-async function runPrefill(text) {
+async function runPrefill(lane, text) {
   const current = dictation;
   const startedAt = Date.now();
-  await warming;
+  await lane.warming;
   if (!lastPrompt || !text) return { success: false };
   const prompt = lastPrompt;
-  main.warm = null;
+  lane.warm = null;
   try {
     const result = await send(
-      main,
+      lane,
       { ...prompt, store: false, input: [userMessage(text)], generate: false },
       PREFILL_TIMEOUT_MS
     );
     if (current === dictation) {
-      prefill = { key: promptKey(prompt), id: result.id, text, ms: Date.now() - startedAt };
+      lane.prefill = { key: promptKey(prompt), id: result.id, text, ms: Date.now() - startedAt };
     }
     return { success: true };
   } catch (error) {
@@ -208,24 +226,52 @@ async function runPrefill(text) {
   }
 }
 
-// Called after key release when the live text is likely complete (the lag rule in
-// audioManager.js). Luna cleans it on the spare socket while Mistral finishes. The
-// cleanup uses this answer only if its user message is exactly the same.
+// Continues the lane's prefill when the user message starts with its text, so
+// only the rest is sent, or else its warmup. Either is used once.
+// Instructions are not carried over by previous_response_id, so they are sent again.
+function continueLane(lane, body, key, userText) {
+  const { prefill, warm } = lane;
+  lane.prefill = null;
+  lane.warm = null;
+  if (prefill?.key === key && userText.startsWith(prefill.text)) {
+    const rest = userMessage(userText.slice(prefill.text.length));
+    return {
+      request: { ...body, previous_response_id: prefill.id, input: [rest] },
+      prefilled: true,
+      prefillMs: prefill.ms,
+    };
+  }
+  if (warm?.key === key) {
+    return { request: { ...body, previous_response_id: warm.id }, prefilled: false };
+  }
+  return { request: body, prefilled: false };
+}
+
+// A cleanup guess: called when the live text may be complete (the lag rule in
+// audioManager.js), before or after key release, and again when the text changes.
+// Luna cleans it on a free spare socket while Mistral finishes. The cleanup uses
+// a guess only if its user message is exactly the same.
 function sendEarly(userText) {
   if (!lastPrompt || !userText) return Promise.resolve({ success: false });
+  const lane = spares.find((spare) => !spare.guessing);
+  if (!lane) {
+    debugLogger.debug("ChatGPT socket early cleanup skipped: every spare socket is busy");
+    return Promise.resolve({ success: false, error: "No free socket" });
+  }
+  lane.guessing = true;
   const prompt = lastPrompt;
   const key = promptKey(prompt);
-  const result = Promise.resolve(spareWarming).then(async () => {
-    const previous = spare.warm?.key === key ? spare.warm.id : undefined;
-    spare.warm = null;
-    const reply = await send(
-      spare,
-      { ...prompt, store: false, input: [userMessage(userText)], previous_response_id: previous },
-      EARLY_TIMEOUT_MS
-    );
-    return { ...reply, warm: !!previous };
+  const result = (async () => {
+    await lane.warming;
+    await lane.prefilling;
+    const body = { ...prompt, store: false, input: [userMessage(userText)] };
+    const { request, prefilled } = continueLane(lane, body, key, userText);
+    const reply = await send(lane, request, EARLY_TIMEOUT_MS);
+    return { ...reply, warm: !!request.previous_response_id, prefilled };
+  })().finally(() => {
+    lane.guessing = false;
   });
-  early = { key, userText, result };
+  guesses.push({ key, userText, result });
   return result.then(
     () => ({ success: true }),
     (error) => {
@@ -247,17 +293,25 @@ async function createResponse(body, timeoutMs) {
   const content = body.input?.length === 1 ? body.input[0].content : null;
   const userText = content?.length === 1 && content[0].type === "input_text" ? content[0].text : "";
 
-  // "hit": the early cleanup had this exact transcript, "miss": it did not.
-  const guess = early;
-  early = null;
-  let earlyResult = "none";
-  if (guess) earlyResult = guess.key === key && guess.userText === userText ? "hit" : "miss";
-  if (earlyResult === "hit") {
+  // "hit": a guess had this exact transcript (the first such guess is the furthest
+  // along), "miss": none did.
+  const sent = guesses;
+  guesses = [];
+  const guess = sent.find((item) => item.key === key && item.userText === userText);
+  let earlyResult = sent.length ? "miss" : "none";
+  if (guess) {
     try {
       const result = await guess.result;
       if (result.text.trim()) {
         lastPrompt = prompt;
-        return { text: result.text, warm: result.warm, prefilled: false, early: earlyResult };
+        return {
+          text: result.text,
+          warm: result.warm,
+          prefilled: result.prefilled,
+          early: "hit",
+          guesses: sent.length,
+          firstTokenMs: result.firstTokenMs,
+        };
       }
     } catch {}
     earlyResult = "failed";
@@ -266,26 +320,11 @@ async function createResponse(body, timeoutMs) {
   // A warmup or prefill still in flight would leave an id that is no longer the latest response.
   // The wait is logged: it is what a prefill sent earlier could save.
   const waitStart = Date.now();
-  await warming;
-  await prefilling;
+  await main.warming;
+  await main.prefilling;
   const prefillWaitMs = Date.now() - waitStart;
   // The warm or prefilled response is reused only when the prompt is the same.
-  // Instructions are not carried over by previous_response_id, so they are sent again.
-  let request = body;
-  let prefilled = false;
-  const prefillMs = prefill?.ms;
-  if (prefill?.key === key && userText.startsWith(prefill.text)) {
-    request = {
-      ...body,
-      previous_response_id: prefill.id,
-      input: [userMessage(userText.slice(prefill.text.length))],
-    };
-    prefilled = true;
-  } else if (main.warm?.key === key) {
-    request = { ...body, previous_response_id: main.warm.id };
-  }
-  main.warm = null;
-  prefill = null;
+  const { request, prefilled, prefillMs } = continueLane(main, body, key, userText);
   lastPrompt = prompt;
   const result = await send(main, request, timeoutMs);
   return {
@@ -293,10 +332,12 @@ async function createResponse(body, timeoutMs) {
     warm: !!request.previous_response_id,
     prefilled,
     early: earlyResult,
+    guesses: sent.length,
     prefillWaitMs,
-    prefillMs: prefilled ? prefillMs : undefined,
+    prefillMs,
     // How much of the transcript Luna still had to read.
     restChars: prefilled ? request.input[0].content[0].text.length : undefined,
+    firstTokenMs: result.firstTokenMs,
   };
 }
 

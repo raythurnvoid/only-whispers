@@ -665,7 +665,10 @@ declare global {
       chatgptStatus: () => Promise<{ signedIn: boolean; email: string }>;
       getChatGPTAccessToken: () => Promise<string>;
       chatgptSocketWarmup?: () => Promise<{ success: boolean; error?: string }>;
-      chatgptSocketPrefill?: (text: string) => Promise<{ success: boolean; error?: string }>;
+      chatgptSocketPrefill?: (
+        text: string,
+        options?: { rolling?: boolean }
+      ) => Promise<{ success: boolean; error?: string }>;
       chatgptSocketEarly?: (text: string) => Promise<{ success: boolean; error?: string }>;
       chatgptSocketResponse?: (
         body: Record<string, unknown>,
@@ -677,10 +680,13 @@ declare global {
             warm: boolean;
             prefilled: boolean;
             early: "none" | "hit" | "miss" | "failed";
+            // How many cleanup guesses were sent for this dictation.
+            guesses: number;
             // Not set on an early hit; the prefill fields only when the prefill was used.
             prefillWaitMs?: number;
             prefillMs?: number;
             restChars?: number;
+            firstTokenMs?: number;
           }
         | { success: false; error: string }
       >;

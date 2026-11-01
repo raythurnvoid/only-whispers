@@ -247,15 +247,25 @@ const isValidApiKey = (key, provider = "openai") => {
 const STREAMING_FINAL_QUIET_MS = 250;
 const STREAMING_FINAL_CEILING_MS = 2000;
 
-// Early cleanup: Mistral's text trails the voice by its delay (480 ms in
+// Cleanup guess: Mistral's text trails the voice by its delay (480 ms in
 // mistralRealtimeStreaming.js). So 400 ms after that, once no new words came
-// for 150 ms, the live text is likely complete and goes to Luna before Mistral
-// is done. On 30 real recordings it was complete in 2 of 3 sends and saved
-// about 190 ms per dictation (.claude/skills/measure-dictation-speed/FINDINGS.md).
+// for 150 ms, the live text may be complete and goes to Luna before Mistral is
+// done, even before key release. A wrong guess costs only a spare socket, so a
+// new guess goes out each time the text changes. Results:
+// .claude/skills/measure-dictation-speed/FINDINGS.md.
 const EARLY_CLEANUP_AFTER_SPEECH_MS = 480 + 400;
 const EARLY_CLEANUP_QUIET_MS = 150;
 // Mean absolute 16-bit sample level that counts as speech, as in those tests.
 const EARLY_CLEANUP_SPEECH_LEVEL = 300;
+// Rolling prefill: the spare sockets read the text again each time it grew by
+// this many words, so a guess sends only the last words.
+const ROLLING_PREFILL_WORDS = 15;
+
+// The live text without its last word, which may still be cut in half.
+const textBeforeLastWord = (text) => {
+  const live = text.trimStart();
+  return live.slice(0, live.lastIndexOf(" ") + 1);
+};
 
 // Finalize sends input_audio.end and returns the final text. Any stream
 // failure keeps recording and sends the full capture to batch Voxtral.
@@ -419,6 +429,7 @@ class AudioManager {
     this._streamingSpeechGateState = null;
     this._streamingSpeechEndAt = null;
     this._streamingTextAt = 0;
+    this._cleanupGuess = null; // { text, prefillWords, prefilling, releasedAt } while Luna may guess
     this.warmupFailureStreak = 0;
     this.lastAudioBlob = null;
     this.lastAudioMetadata = null;
@@ -2958,6 +2969,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         this._streamingTextAt = performance.now();
         this.streamingTextBump?.();
         this.onPartialTranscript?.(text);
+        this._rollCleanupPrefill();
       });
 
       const finalCleanup = provider.onFinal((text) => {
@@ -2969,6 +2981,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         this.streamingPartialText = "";
         this._streamingTextAt = performance.now();
         this.streamingTextBump?.();
+        this._rollCleanupPrefill();
         const newSegment = text.slice(prevLen);
         if (newSegment) {
           this.onStreamingCommit?.(newSegment);
@@ -3009,6 +3022,16 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       });
 
       this.streamingCleanupFns = [partialCleanup, finalCleanup, errorCleanup, sessionEndCleanup];
+      // Cleanup guesses and rolling prefills, only when Luna on the plan cleans up.
+      const cleanupSettings = getSettings();
+      this._cleanupGuess =
+        cleanupSettings.useCleanupModel &&
+        cleanupSettings.cleanupProvider === "openai" &&
+        !this.voiceAgentRequested
+          ? { text: "", prefillWords: 0, prefilling: false, releasedAt: null }
+          : null;
+      const guessTimer = setInterval(() => this._sendCleanupGuess(), 50);
+      this.streamingCleanupFns.push(() => clearInterval(guessTimer));
       if (startWasCancelled()) {
         // Cancelled while the mic was opening: never flip to recording.
         await this.cleanupStreaming();
@@ -3302,6 +3325,49 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     }
   }
 
+  // Rolling prefill: while the user speaks, the spare sockets read the text so
+  // far each time it grew by ROLLING_PREFILL_WORDS, one prefill at a time.
+  _rollCleanupPrefill() {
+    const guess = this._cleanupGuess;
+    // After release, the prefill at release takes over.
+    if (!guess || guess.prefilling || guess.releasedAt !== null) return;
+    const text = textBeforeLastWord(this.streamingFinalText || this.streamingPartialText || "");
+    const words = text.split(/\s+/).filter(Boolean).length;
+    if (words - guess.prefillWords < ROLLING_PREFILL_WORDS) return;
+    guess.prefillWords = words;
+    guess.prefilling = true;
+    logger.debug("Rolling prefill sent", { words }, "streaming");
+    const done = () => {
+      guess.prefilling = false;
+    };
+    Promise.resolve(
+      window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(text), { rolling: true })
+    ).then(done, done);
+  }
+
+  // Cleanup guess (see EARLY_CLEANUP_AFTER_SPEECH_MS). Runs every 50 ms from the
+  // start of the recording until the final text is here.
+  _sendCleanupGuess() {
+    const guess = this._cleanupGuess;
+    const now = performance.now();
+    if (!guess || !this._streamingSpeechEndAt) return;
+    if (now < this._streamingSpeechEndAt + EARLY_CLEANUP_AFTER_SPEECH_MS) return;
+    if (now < this._streamingTextAt + EARLY_CLEANUP_QUIET_MS) return;
+    const text = (this.streamingFinalText || this.streamingPartialText || "").trim();
+    if (!text || text === guess.text) return;
+    guess.text = text;
+    logger.debug(
+      "Early cleanup sent",
+      {
+        // null: before key release.
+        afterReleaseMs: guess.releasedAt === null ? null : Math.round(now - guess.releasedAt),
+        afterSpeechMs: Math.round(now - this._streamingSpeechEndAt),
+      },
+      "streaming"
+    );
+    window.electronAPI?.chatgptSocketEarly?.(wrapCleanupTranscript(text));
+  }
+
   async _finalizeStreamingRecording(sessionId, delivery = {}) {
     if (
       sessionId !== null &&
@@ -3355,41 +3421,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     let finalText = this.streamingFinalText || "";
 
     // Luna reads the words Mistral has so far while Mistral finishes, so the
-    // cleanup request sends only the rest (chatgptResponsesSocket.js). The last
-    // word is left out, since it may still be cut in half.
-    const liveText = (this.streamingFinalText || this.streamingPartialText || "").trimStart();
-    const prefillText = liveText.slice(0, liveText.lastIndexOf(" ") + 1);
-    const prefillSettings = getSettings();
-    const cleanupOnPlan =
-      prefillSettings.useCleanupModel &&
-      prefillSettings.cleanupProvider === "openai" &&
-      !this.voiceAgentRequested;
-    if (prefillText && cleanupOnPlan) {
-      window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(prefillText));
-    }
-    // Early cleanup (see EARLY_CLEANUP_AFTER_SPEECH_MS), sent once. The cleanup
-    // uses its answer only when the final transcript is the same text.
-    let earlyCleanupTimer = null;
-    if (cleanupOnPlan && this._streamingSpeechEndAt) {
-      const sendAfter = this._streamingSpeechEndAt + EARLY_CLEANUP_AFTER_SPEECH_MS;
-      const sendEarlyCleanup = () => {
-        if (wasCancelled()) return;
-        const wait =
-          Math.max(sendAfter, this._streamingTextAt + EARLY_CLEANUP_QUIET_MS) - performance.now();
-        if (wait > 0) {
-          earlyCleanupTimer = setTimeout(sendEarlyCleanup, wait);
-          return;
-        }
-        const text = (this.streamingFinalText || this.streamingPartialText || "").trim();
-        if (!text) return;
-        logger.debug(
-          "Early cleanup sent",
-          { afterReleaseMs: Math.round(performance.now() - t0) },
-          "streaming"
-        );
-        window.electronAPI?.chatgptSocketEarly?.(wrapCleanupTranscript(text));
-      };
-      sendEarlyCleanup();
+    // cleanup request sends only the rest (chatgptResponsesSocket.js).
+    const prefillText = textBeforeLastWord(
+      this.streamingFinalText || this.streamingPartialText || ""
+    );
+    if (this._cleanupGuess) {
+      this._cleanupGuess.releasedAt = t0;
+      if (prefillText) {
+        window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(prefillText));
+      }
     }
 
     const provider = this.getStreamingProvider(providerName);
@@ -3499,8 +3539,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       provider.finalize?.();
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
-    // The final text is here, so an early cleanup not sent yet would gain nothing.
-    clearTimeout(earlyCleanupTimer);
+    // The final text is here, so a guess sent now would gain nothing.
+    this._cleanupGuess = null;
     // A failed live stream has only part of the words: drop them, and the
     // full recording goes to batch below.
     if (provider.failsOverToBatch && (!finalAcknowledged || this._streamingFailoverReason)) {

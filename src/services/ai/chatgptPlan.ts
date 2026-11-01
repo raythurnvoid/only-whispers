@@ -94,6 +94,8 @@ async function streamPlanResponse(
       warm: viaSocket.warm,
       prefilled: viaSocket.prefilled,
       early: viaSocket.early,
+      guesses: viaSocket.guesses,
+      firstTokenMs: viaSocket.firstTokenMs,
       prefillWaitMs: viaSocket.prefillWaitMs,
       prefillMs: viaSocket.prefillMs,
       restChars: viaSocket.restChars,

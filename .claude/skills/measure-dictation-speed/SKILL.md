@@ -39,8 +39,10 @@ Gotchas:
 | ------------------------------- | --------------------------------------------- | ------------------------------------------------ |
 | `stopMs`                        | `Streaming stop timing` (`totalStopMs`)       | key release → Mistral's final text               |
 | `lunaMs`, `warm`                | `CHATGPT_PLAN_SOCKET`                         | Luna on the socket, and whether it was warm      |
-| `prefilled`, `early`            | `CHATGPT_PLAN_SOCKET`                         | prefill used; early cleanup `hit`/`miss`/`failed`/`none` |
-| `earlySentMs`                   | `Early cleanup sent` (`afterReleaseMs`)       | key release → early cleanup sent                 |
+| `prefilled`, `early`            | `CHATGPT_PLAN_SOCKET`                         | prefill used; early cleanup `hit`/`miss`/`failed`/`none` (on a hit, `prefilled` is the guess's) |
+| `firstTokenMs`                  | `CHATGPT_PLAN_SOCKET` (0.1.11+)               | request sent → Luna's first token (before: reading, after: writing) |
+| `guessesSent`, `rollingPrefills` | `Early cleanup sent`, `Rolling prefill sent` (0.1.11+) | guesses and rolling prefills in the dictation |
+| `earlySentMs`                   | `Early cleanup sent` (`afterReleaseMs`)       | key release → last guess sent (`before`: before release) |
 | `cleanupMs`                     | `CHATGPT_PLAN_SUCCESS`                        | whole cleanup call                               |
 | `socketFailedMs`                | `ChatGPT socket failed, using HTTP` (warning) | the socket failed after this long, then HTTP ran |
 | `toPasteMs`                     | `Streaming total processing`                  | key release → just before paste                  |
@@ -83,15 +85,15 @@ How it works (`scripts/cleanup-replay.cjs`; add a new idea as a new mode):
 
 ```bash
 # from the scratch folder; modes run one after the other on every file
-vp env exec node $S/cleanup-replay.cjs audio-real 30 base,rolling,rolling-skip,rolling-early > results.jsonl
+vp env exec node $S/cleanup-replay.cjs audio-real 30 base,guess,guess-fast > results.jsonl
 vp env exec node $S/analyze-replay.cjs results.jsonl
 ```
 
-- Modes: `base` (prefill at release only), `early` (+ early cleanup), `rolling` (+ a prefill while speaking every `ROLLING_STEP` words, env, default 15), `rolling-skip` (rolling, no prefill at release when a rolling one was sent), `rolling-early`.
+- Modes: `base` (prefill at release only), `guess` (the app since 0.1.11: cleanup guesses on the spare sockets from the start of the recording, plus a rolling prefill of the spares every `ROLLING_STEP` words, env, default 15), `guess-fast` (guesses at speech end + 630 ms instead of 880). The older modes (`early`, `rolling`, `rolling-skip`, `rolling-early`) need the socket module from before 0.1.11: check out that version of the script and the module together.
 
 - It loads the app's real module (`src/helpers/chatgptResponsesSocket.js`) with `Module._load` stubs: `./chatgptAuth` returns the token read from the app's store (never refreshed), `./debugLogger` does nothing. Deleting the module from `require.cache` gives a fresh copy.
 - It streams a real recording to Mistral at real-time speed: a 50 ms chunk is sent once its audio has been heard (`t0 + (n + 1) * 50`), like the app's worklet. The file's end is the key release, and the real silence before it is kept.
-- It calls the module in the app's order: `warmup()` at dictation start, `prefillTranscript()` at release, the mode's extra steps (`sendEarly()`, rolling `prefillTranscript()` calls), then `createResponse()` when Mistral's final text comes. It measures release → cleaned text.
+- It calls the module in the app's order: `warmup()` at dictation start, the mode's steps while speaking (rolling `prefillTranscript(text, { rolling: true })`, `sendEarly()` guesses from a 50 ms loop), `prefillTranscript()` at release, then `createResponse()` when Mistral's final text comes. It measures release → cleaned text, and logs each guess's time (`guessMs`, negative = before release) and `firstTokenMs`.
 - Code that lives in the renderer (the early-cleanup rule, the prefill text, the rolling rule) is copied into the script with the same constants. When you change those in `audioManager.js`, change them here too. A mode can try a rule before the app has it (the rolling prefill did).
 - Each run reports `changed` (the mode did something different from base on that file), the prefill wait (`prefillWaitMs`, how long the cleanup waited for the prefill), `prefillMs` and `restChars` (how much text Luna still had to read).
 
@@ -108,7 +110,7 @@ Rules learned on 2026-11-01:
 
 ## Testing app code changes
 
-- Prove each test by breaking the code on purpose, watching the test fail, then restoring it. The early-cleanup tests (`test/helpers/audioManagerEarlyCleanup.test.js`, `test/helpers/chatgptResponsesSocket.test.js`) were checked this way: removing the trim, the timer clear or the exact-text check each failed a test.
+- Prove each test by breaking the code on purpose, watching the test fail, then restoring it. The early-cleanup tests (`test/helpers/audioManagerEarlyCleanup.test.js`, `test/helpers/chatgptResponsesSocket.test.js`) were checked this way: removing the trim, the timer clear or the exact-text check each failed a test. In 0.1.11 the same for: the guess loop stopping when the final text comes, one rolling prefill at a time, rolling prefills skipping the main socket, and a guess continuing its spare's prefill.
 - `_finalizeStreamingRecording` clears the live text right after `provider.stop()`, before Luna starts. A test of a timer that must not fire late has to make `stop` slow, not the cleanup.
 - `chatgptResponsesSocket.test.js` leaves idle timers running, so run it with `--test-force-exit` (as `pnpm test` does) or it hangs.
 
@@ -116,5 +118,5 @@ Rules learned on 2026-11-01:
 
 - Mistral live session: `src/helpers/mistralRealtimeStreaming.js` (`STREAMING_DELAY_MS`, `language: "en"`, `context_bias`).
 - Stop path and timing logs: `src/helpers/audioManager.js` (`Streaming stop timing`, `_finalizeStreamingRecording`, `Streaming total processing`).
-- Luna sockets: `src/helpers/chatgptResponsesSocket.js` (warmup, prefill, early cleanup on the spare socket, `createResponse`). The renderer calls them from `audioManager.js` (prefill and early cleanup in `_finalizeStreamingRecording`) and `chatgptPlan.ts` (the cleanup request).
+- Luna sockets: `src/helpers/chatgptResponsesSocket.js` (warmup, prefill, cleanup guesses on 3 spare sockets, `createResponse`). The renderer calls them from `audioManager.js` (`_rollCleanupPrefill` and `_sendCleanupGuess` while recording, the prefill at release in `_finalizeStreamingRecording`) and `chatgptPlan.ts` (the cleanup request).
 - Paste: the `paste-text` handler in `src/helpers/ipcHandlers.js` (`Paste steps timing`) and `src/hooks/useAudioRecording.js` (`Paste timing`).

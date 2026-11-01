@@ -15,6 +15,7 @@ const median = (values) => {
 };
 // Results from before the "changed" field: the early cleanup was the only change.
 const changed = (row) => row.changed ?? row.earlySentMs != null;
+const beforeRelease = (row) => (row.guessMs ?? []).filter((ms) => ms < 0).length;
 
 const byFile = {};
 for (const row of rows) (byFile[row.file] ??= {})[row.mode] = row;
@@ -40,7 +41,8 @@ for (const mode of modes) {
   const row = (key) => median(pairs.map((pair) => pair[mode][key]));
   console.log(
     `  ${mode}: prefill wait ${row("prefillWaitMs")} ms, rest ${row("restChars")} chars,` +
-      ` rolling prefills ${row("rollingPrefills")}`
+      ` rolling prefills ${row("rollingPrefills")}, guesses ${median(pairs.map((p) => p[mode].guessMs?.length))}` +
+      ` (before release ${median(pairs.map((p) => beforeRelease(p[mode])))}), first token ${row("firstTokenMs")} ms`
   );
 }
 
