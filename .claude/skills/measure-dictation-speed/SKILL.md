@@ -1,6 +1,6 @@
 ---
 name: measure-dictation-speed
-description: Measure and improve how fast a dictation reaches the text field (Mistral speech-to-text, Luna cleanup, paste) and how accurate it is. Use when the user asks why dictation is slow, wants to speed it up, wants to test a speed or accuracy change (streaming delay, early send to Luna, prefill, paste), or asks to read the timing in the app's logs. Holds the test scripts and FINDINGS.md, the results measured so far.
+description: Measure and improve how fast a dictation reaches the text field (Mistral speech-to-text, Luna cleanup, paste) and how accurate it is. Use when the user asks why dictation is slow, wants to speed it up, wants to test a speed or accuracy change (streaming delay, early send to Luna, prefill, paste), asks you to test dictation without them (replay their recordings through the app's code), or asks to read the timing in the app's logs. Holds the test scripts and FINDINGS.md, the results measured so far.
 ---
 
 # Measure dictation speed
@@ -10,6 +10,7 @@ Read `FINDINGS.md` first. It has every result measured so far and the ideas alre
 ## Rules
 
 - Measure before you change code, and measure again after. Report the median, the p90 and the number of runs.
+- Judge a speed change with the replay (section 4), not only with a lab estimate.
 - Prefer the user's real recordings to synthetic audio. Synthetic (TTS) audio has clean silence and gave hit rates that real speech did not reach.
 - Run the scripts from the personal task folder (`only-whispers-+personal/+ai/<task>-<date>/`), never from the repo. They write results and converted audio to the current folder and refuse to run inside the repo.
 - The recordings and their transcripts are the user's private speech. Never commit, paste or quote them in the repo, a commit, a PR or an issue. In chat, quote only the few words needed.
@@ -69,12 +70,39 @@ vp env exec node $S/analyze-live.cjs results-1.jsonl results-2.jsonl
 ## 3. Luna
 
 - `luna-prefill.cjs [rounds]` compares today's request with a prefill (first part sent with `generate: false`, then the rest). It needs a fresh ChatGPT token.
-- `early-cleanup-replay.cjs <wav folder> [maxSeconds]` replays recordings through the app's own `chatgptResponsesSocket.js` (Mistral at real-time speed, then prefill and cleanup), once with and once without the early cleanup. Run from the scratch folder; it needs a fresh token, and 21 files take about 12 minutes, so check the token's minutes left first.
 - `luna-transport.cjs` checks the ways a second (early) request can go: `response.cancel`, a second socket while the first is busy, and HTTP. It also needs a fresh token.
 - The app's socket code is `src/helpers/chatgptResponsesSocket.js`; the request body is built in `src/services/ai/chatgptPlan.ts`. Keep a test's body the same as the app's (`instructions`, `store: false`, `service_tier: "priority"`, `reasoning: { effort: "none" }`).
+
+## 4. Replay through the app's own code (the main test for a speed change)
+
+This is the closest test to a real dictation without a mic, and it needs no help from the user. Use it to judge any change to the path after key release, and use it when the user asks you to test without them. The lab numbers in sections 2 and 3 are estimates: the lab predicted the early cleanup would save about 190 ms, and this replay found no gain, because the delay change and the prefill had already moved the baseline. So check every idea here before you keep it, and again after an earlier change lands.
+
+How it works (`scripts/early-cleanup-replay.cjs`, copy it for a new idea):
+
+- It loads the app's real module (`src/helpers/chatgptResponsesSocket.js`) with `Module._load` stubs: `./chatgptAuth` returns the token read from the app's store (never refreshed), `./debugLogger` does nothing. Deleting the module from `require.cache` gives a fresh copy.
+- It streams a real recording to Mistral at real-time speed: a 50 ms chunk is sent once its audio has been heard (`t0 + (n + 1) * 50`), like the app's worklet. The file's end is the key release, and the real silence before it is kept.
+- It calls the module in the app's order: `warmup()` at dictation start, `prefillTranscript()` at release, the variant's extra step (here `sendEarly()` by the app's rule), then `createResponse()` when Mistral's final text comes. It measures release → cleaned text.
+- Code that lives in the renderer (the early-cleanup rule, the prefill text) is copied into the script with the same constants. When you change those in `audioManager.js`, change them here too.
+
+Rules learned on 2026-11-01:
+
+- Run each file twice, once with the change and once without, one run after the other, and swap which goes first on every file. Never run the two at once: parallel requests slow Luna down (in the first try a miss came out 600 ms slower), which the app never does.
+- Keep a control group: pairs where the change did nothing (here `early: "none"`). Their difference is the noise between two runs, about 100 ms. A gain smaller than that is not a gain.
+- Do one cleanup before the first file, so later runs have a prompt to warm and prefill, like every dictation but the first after launch.
+- The token lasts 60 minutes after the user's last dictation. Check `common.cjs` first; a pair of 15 s recordings takes about 35 s. 21 files of up to 30 s took about 12 minutes. If it is short, ask the user to dictate once.
+- A network error (`ENOTFOUND api.mistral.ai`) must fail one file, not the run.
+- Start it in the background and wait for it. Then run `analyze-replay.cjs <results.jsonl>`: it pairs the runs by file and prints the median difference per case, with the control group.
+- It leaves out the paste, the focus check, the dictionary and the mic warm-up. Check those in the app's logs (section 1).
+
+## Testing app code changes
+
+- Prove each test by breaking the code on purpose, watching the test fail, then restoring it. The early-cleanup tests (`test/helpers/audioManagerEarlyCleanup.test.js`, `test/helpers/chatgptResponsesSocket.test.js`) were checked this way: removing the trim, the timer clear or the exact-text check each failed a test.
+- `_finalizeStreamingRecording` clears the live text right after `provider.stop()`, before Luna starts. A test of a timer that must not fire late has to make `stop` slow, not the cleanup.
+- `chatgptResponsesSocket.test.js` leaves idle timers running, so run it with `--test-force-exit` (as `pnpm test` does) or it hangs.
 
 ## Where the code is
 
 - Mistral live session: `src/helpers/mistralRealtimeStreaming.js` (`STREAMING_DELAY_MS`, `language: "en"`, `context_bias`).
 - Stop path and timing logs: `src/helpers/audioManager.js` (`Streaming stop timing`, `_finalizeStreamingRecording`, `Streaming total processing`).
+- Luna sockets: `src/helpers/chatgptResponsesSocket.js` (warmup, prefill, early cleanup on the spare socket, `createResponse`). The renderer calls them from `audioManager.js` (prefill and early cleanup in `_finalizeStreamingRecording`) and `chatgptPlan.ts` (the cleanup request).
 - Paste: the `paste-text` handler in `src/helpers/ipcHandlers.js` (`Paste steps timing`) and `src/hooks/useAudioRecording.js` (`Paste timing`).

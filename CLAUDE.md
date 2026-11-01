@@ -597,6 +597,7 @@ Hidden features (the voice assistant, Tone & Style) are not in this list. Test t
 
 - For any work on how fast or how accurate a dictation is (Mistral delay, Luna cleanup, early send, paste), use the `measure-dictation-speed` skill (`.claude/skills/measure-dictation-speed/`). Read its `FINDINGS.md` first: it has every result measured so far and the ideas already ruled out.
 - Measure before and after a change, on the user's real recordings (`userData/audio/`), and report medians with the number of runs.
+- The main test for a change after key release is the skill's replay (section 4 of `SKILL.md`): it streams the user's recordings to Mistral at real-time speed through the app's own socket code, with and without the change, one run after the other. It needs no mic and no help from the user, only a ChatGPT token less than an hour old.
 - Keep the skill current: when you measure or learn something new, update `FINDINGS.md` and `SKILL.md` in the same task. Commit them with `git add -f` (`.gitignore` keeps `.claude/` local).
 - Never commit the user's recordings or transcripts, and never refresh the ChatGPT token from a script (the app would be signed out).
 
