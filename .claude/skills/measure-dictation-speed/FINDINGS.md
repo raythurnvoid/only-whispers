@@ -126,6 +126,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - Prefill: how much does it save when the prefix is most of the text, sent at release?
 - Early cleanup: the replay found no gain (see Early send). Remove it, or improve it? Waiting for the user.
 - Next idea: a rolling prefill (send the text to Luna in parts with `generate: false` while the user speaks), so at release only the last words are left. It would help every dictation, not only a right guess. Not tested yet: test it with the replay (SKILL.md section 4).
+  - The user (2026-11-01): more requests on the plan are fine. A `generate: false` request adds no output tokens, so the number of requests is not a reason to reject an idea.
 - Paste: why is the first focus check slower (341 ms vs 98–181 ms)?
 - Socket fallback: how often does it fail and fall back to HTTP? (Warning `ChatGPT socket failed, using HTTP` in `errors.log`.)
 - Does `context_bias` change the accuracy of the lower delays?
