@@ -112,6 +112,15 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - `lunaMs`: 1341 (cold), 1006 (warm), 2771 (82 s, prefilled), 1466 (10 s, prefilled). Release → paste: 1949, 1589, 3510, 2095 ms.
 - Paste 181–466 ms: focus check 98–341 ms (the first dictation is the slowest), paste helper 82–123 ms.
 
+## Real dictations (installed app 0.1.10, prefill + early cleanup, debug log, 2026-11-01, 25 dictations of 2–41 s)
+
+- Mistral `stopMs`: median about 620 ms (431–1906; one batch fallback after a realtime timeout).
+- Prefill (12 cleanups used it): `prefillWaitMs` was 0 in 11 of 12. The prefill (median about 290 ms) had ended before Mistral did. Once it was 927 ms: a 2.5 s dictation whose prefill took 1415 ms. `restChars` 64–85, and 51 of them are the closing `</transcript>` text, so Luna had only the last word or two left to read.
+  - **So a rolling prefill has almost nothing left to save**: at most the rare slow prefill (1 in 12 here).
+- Luna with the prefill (`lunaMs`, from the cleanup request to the full answer): median about 1560 ms (1280–2594). This is now most of the wait, and the reading is already done, so it is mostly Luna writing the answer.
+- Early cleanup: sent 17 times, 11 hits (65%), 6 misses. **Hits are not faster**: from the early send to the answer took a median of about 2370 ms (1360–3840), against about 1560 ms for a prefilled cleanup, because the spare socket reads the whole text with no prefill. The early send is only 50–600 ms ahead of Mistral, so this eats the head start. The longest dictations (23–41 s) took 2.2–3.8 s on a hit.
+- Release → paste: about 2.5 s with a hit and about 2.5 s with the prefill (similar lengths: median 9.5 s and 10.3 s). Same result as the replay: no gain.
+
 ## Known issues to fix later
 
 - On a usage-limit (`subscription_sharing_usage_limit_exceeded`) or sign-in error, the socket fails and `chatgptPlan.ts` still tries HTTP, which fails the same way. That adds 1.3–2 s before the raw text is pasted. The user called this an exception, to handle later.
@@ -124,7 +133,9 @@ Lag rule: after release, send once the time is at least local speech end + delay
 ## Open questions
 
 - Prefill: how much does it save when the prefix is most of the text, sent at release?
-- Early cleanup: the replay found no gain (see Early send). Remove it, or improve it? Waiting for the user.
+- Early cleanup: the replay and 25 real dictations in 0.1.10 found no gain (see Early send and Real dictations 0.1.10). Remove it, or improve it? Waiting for the user.
+- Rolling prefill: the 0.1.10 logs show the prefill at release already ends before Mistral (wait 0 in 11 of 12), so it would save almost nothing. Not built.
+- Next: Luna's own time (about 1.5 s after the cleanup starts). Log the first token time in the app to see how much is waiting and how much is writing.
 - Next idea: a rolling prefill (send the text to Luna in parts with `generate: false` while the user speaks), so at release only the last words are left. It would help every dictation, not only a right guess. Not tested yet: test it with the replay (SKILL.md section 4).
   - Plan (2026-11-01): while the user speaks, each time the live text grew by about 15 words and no prefill is running, prefill the whole text so far again (it replaces the last one, so the cleanup still has the two tested parts: prefill + rest). In the renderer only (`audioManager.js`, the `onPartial` listener), through the existing `chatgptSocketPrefill`. At release: test sending the prefill as today (`rolling`) or skipping it after a rolling one (`rolling-skip`). Test first with `cleanup-replay.cjs` (modes `rolling`, `rolling-skip`, `rolling-early`).
   - Step 0, built on 2026-11-01 (released in 0.1.10): `CHATGPT_PLAN_SOCKET` logs `prefillWaitMs` (how long the cleanup waited for the warmup and the prefill), `prefillMs` and `restChars` (text left after the prefill). The wait is the most a prefill sent earlier can save at release; `log-timings.cjs` shows all three.
