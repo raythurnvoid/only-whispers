@@ -18,6 +18,15 @@ html.palazzo body {
   --danger: #9e2f26;
   --danger-wash: #f8ebe3;
   --on-accent: #fffaf3;
+  /* Button states (rules below). White text is too faint on --accent, so primary
+     buttons use a deeper orange, the same in both themes. */
+  --accent-deep: #b5590c;
+  --accent-deep-hover: #a04e0a;
+  --accent-deep-press: #8f4508;
+  --accent-wash-deep: #f3d3ab;
+  /* The darker bottom edge of a button, and the shadow inside a pressed one. */
+  --button-lip: rgb(60 30 0 / 0.22);
+  --button-press: rgb(60 30 0 / 0.28);
   /* Ornament masks are painted in this color. */
   --ornament: #c4aa80;
   --laurel: #5e7a36;
@@ -99,6 +108,9 @@ html.palazzo.dark body {
   --danger: #e0705f;
   --danger-wash: #34201a;
   --on-accent: #1c150f;
+  --accent-wash-deep: #45291a;
+  --button-lip: rgb(0 0 0 / 0.28);
+  --button-press: rgb(0 0 0 / 0.35);
   --ornament: #6e573f;
   --laurel: #8fae5c;
   --mark-mic: #f1e6d3;
@@ -139,6 +151,87 @@ html.palazzo [data-slot="button"]:not([data-variant="link"]) {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+/* Primary and outline buttons: a darker bottom edge at rest, a warm look on
+   hover, pressed in (inner shadow, 1px down) while held. Unlayered, so these
+   beat the variants' Tailwind utilities (glass gradient, brightness, scale). */
+html.palazzo [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]) {
+  filter: none;
+  scale: none;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s,
+    color 0.15s,
+    transform 0.08s;
+}
+
+html.palazzo
+  [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]):focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+html.palazzo [data-slot="button"][data-variant="default"] {
+  background: var(--accent-deep);
+  color: #fff;
+  box-shadow: inset 0 -2px 0 var(--button-lip);
+}
+
+html.palazzo [data-slot="button"][data-variant="default"]:hover {
+  background: var(--accent-deep-hover);
+  box-shadow:
+    inset 0 -2px 0 var(--button-lip),
+    0 4px 12px -4px color-mix(in oklab, var(--accent-deep) 90%, transparent);
+}
+
+html.palazzo [data-slot="button"][data-variant="default"]:active {
+  background: var(--accent-deep-press);
+  box-shadow: inset 0 2px 3px var(--button-press);
+  transform: translateY(1px);
+}
+
+/* Hover matches the active sidebar item: the accent wash, and an accent icon. */
+html.palazzo [data-slot="button"][data-variant="outline"] {
+  background: var(--stone-3);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  box-shadow: inset 0 -1px 0 var(--button-lip);
+}
+
+html.palazzo [data-slot="button"][data-variant="outline"] svg {
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+
+html.palazzo [data-slot="button"][data-variant="outline"]:hover {
+  background: var(--accent-wash);
+  border-color: color-mix(in oklab, var(--accent) 60%, var(--line));
+}
+
+html.palazzo [data-slot="button"][data-variant="outline"]:hover svg {
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+html.palazzo [data-slot="button"][data-variant="outline"]:active {
+  background: var(--accent-wash-deep);
+  border-color: color-mix(in oklab, var(--accent) 75%, var(--line));
+  box-shadow: inset 0 2px 3px var(--button-press);
+  transform: translateY(1px);
+}
+
+html.palazzo [data-slot="button"][data-variant="outline"]:active svg {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.palazzo [data-slot="button"]:is([data-variant="default"], [data-variant="outline"]):active,
+  html.palazzo [data-slot="button"][data-variant="outline"]:hover svg {
+    transform: none;
+  }
 }
 
 /* Theme pieces. In the components layer, so Tailwind utilities on the same
