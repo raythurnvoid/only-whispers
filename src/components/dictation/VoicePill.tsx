@@ -47,10 +47,11 @@ interface VoicePillProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"
 }
 
 // Mini waveform for the dictation status pill. "Voxtral is listening" is
-// short, so the live wave gets more bars to fill the space after it; the
-// longer processing label leaves room for the 7-bar ripple only.
+// short, so the live wave gets more bars to fill the space after it. The
+// ripple has as many: the longer processing labels leave less room, and the
+// centered row is cut evenly on both sides, so it fills the space either way.
 const DICTATION_LISTENING_BAR_COUNT = 15;
-const DICTATION_RIPPLE_BAR_COUNT = 7;
+const DICTATION_RIPPLE_BAR_COUNT = DICTATION_LISTENING_BAR_COUNT;
 const DICTATION_WAVE_MAX_PX = 14;
 
 // Sized from WAVEFORM_BAR_COUNT so a bar-count change can never silently
@@ -213,7 +214,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
                 <span
                   key={index}
                   className="dictation-pill-ripple-bar h-2.5 w-0.5 rounded-full bg-current"
-                  style={{ animationDelay: `${index * 90}ms` }}
+                  style={{ animationDelay: `${index * 70}ms` }}
                 />
               ))}
             </span>
