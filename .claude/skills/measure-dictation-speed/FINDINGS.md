@@ -73,6 +73,12 @@ Lag rule: after release, send once the time is at least local speech end + delay
   - `chatgptResponsesSocket.js` cleans it on a second ("spare") socket, warmed up at dictation start like the main one. The cleanup request uses that answer only when its user message is exactly the same; otherwise it runs on the main socket as before (with the prefill).
   - Log: "Early cleanup sent" (`afterReleaseMs`), and `early` in `CHATGPT_PLAN_SOCKET`: `hit`, `miss`, `failed` (the early request failed, so the main socket ran) or `none`. `log-timings.cjs` shows both.
   - Not sent on the first dictation after launch (no prompt to reuse yet), or when the final text comes first.
+- Replay test (2026-11-01, `early-cleanup-replay.cjs`, the app's own socket code, 13 recordings ≤ 30 s, each run once with and once without early cleanup, one run at a time): **no gain**.
+  - Early answer used (6): median +43 ms (slower). Wrong text (1): −554 ms. Not sent, so both runs did the same (6): −117 ms, which is the noise between two runs.
+  - Why: Mistral now ends only 410–470 ms after release (delay 480), and the early cleanup went out at a median 371 ms, so it is only 40–100 ms ahead. And Luna on the spare socket gets the whole text with no prefill (1306 ms after sending), while the main socket only gets the rest after its prefill.
+  - The lab estimate (about 190 ms saved) assumed Mistral ends 600–700 ms after release and did not count the prefill, which came later.
+  - Running two copies at once (the first try) made both slower: parallel requests slow Luna down. Run the copies one after the other.
+  - The run stopped on a network error (`ENOTFOUND api.mistral.ai`) after 13 of 21 files; the script now skips such a file instead.
 
 ## Luna (ChatGPT plan, Responses API)
 

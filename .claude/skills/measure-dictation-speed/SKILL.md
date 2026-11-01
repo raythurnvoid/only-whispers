@@ -69,6 +69,7 @@ vp env exec node $S/analyze-live.cjs results-1.jsonl results-2.jsonl
 ## 3. Luna
 
 - `luna-prefill.cjs [rounds]` compares today's request with a prefill (first part sent with `generate: false`, then the rest). It needs a fresh ChatGPT token.
+- `early-cleanup-replay.cjs <wav folder> [maxSeconds]` replays recordings through the app's own `chatgptResponsesSocket.js` (Mistral at real-time speed, then prefill and cleanup), once with and once without the early cleanup. Run from the scratch folder; it needs a fresh token, and 21 files take about 12 minutes, so check the token's minutes left first.
 - `luna-transport.cjs` checks the ways a second (early) request can go: `response.cancel`, a second socket while the first is busy, and HTTP. It also needs a fresh token.
 - The app's socket code is `src/helpers/chatgptResponsesSocket.js`; the request body is built in `src/services/ai/chatgptPlan.ts`. Keep a test's body the same as the app's (`instructions`, `store: false`, `service_tier: "priority"`, `reasoning: { effort: "none" }`).
 
