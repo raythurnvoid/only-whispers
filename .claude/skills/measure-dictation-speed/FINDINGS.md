@@ -79,6 +79,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
   - First token: median 826 ms vs 978 ms (about 150 ms sooner, sooner in 13/16 rounds). Whole answer: 1770 ms vs 1933 ms.
   - The `generate: false` call itself took 240–640 ms. It must end before the final request is sent, since the socket runs one at a time, so send it while the user speaks or while Mistral catches up.
   - Not tested: a larger prefix (most of the text, as in a real dictation), or several prefill calls as the text grows.
+- Built (2026-10-31, not yet live-checked): at key release `stopStreamingRecording` sends the words Mistral has so far, minus the last word (it may be cut in half), through `chatgptSocketPrefill`. `chatgptResponsesSocket.js` sends it with the last cleanup prompt and `generate: false`. If the final user message starts with that text, the cleanup sends only the rest, continuing the prefill. Otherwise it sends the whole message. The log line `CHATGPT_PLAN_SOCKET` has `prefilled: true` when it was used.
 - The plan has a usage limit (error `subscription_sharing_usage_limit_exceeded`). On 2026-10-31 all 5 real dictations hit it: the socket failed after about 0.6 s, the app then tried HTTP for another 1.3–2 s, which fails the same way, and pasted the raw text. Release to paste took 3.0–4.0 s. Don't run Luna tests while the limit is reached; they fail and may use quota.
 
 ## Real dictations (installed app 0.1.6, debug log, 2026-10-31, 5 dictations, cleanup failing on the usage limit)
@@ -86,6 +87,10 @@ Lag rule: after release, send once the time is at least local speech end + delay
 - Release → Mistral final (`stopMs`): 0.7–1.8 s (old delay 1200).
 - Release → paste (`toPasteMs`): 3.0–4.0 s, mostly the failed socket + HTTP tries.
 - Paste (`pasteMs`): 174–201 ms. The split (`Paste steps timing`) is not in 0.1.6.
+
+## Known issues to fix later
+
+- On a usage-limit (`subscription_sharing_usage_limit_exceeded`) or sign-in error, the socket fails and `chatgptPlan.ts` still tries HTTP, which fails the same way. That adds 1.3–2 s before the raw text is pasted. The user called this an exception, to handle later.
 
 ## Ideas the user rejected
 

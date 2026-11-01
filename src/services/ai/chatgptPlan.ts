@@ -89,7 +89,12 @@ async function streamPlanResponse(
   const socketMs = Date.now() - socketStart;
   if (isRequestCancelled(config.requestId)) throw requestCancelledError();
   if (viaSocket?.success && viaSocket.text.trim()) {
-    logger.logReasoning("CHATGPT_PLAN_SOCKET", { model, warm: viaSocket.warm, socketMs });
+    logger.logReasoning("CHATGPT_PLAN_SOCKET", {
+      model,
+      warm: viaSocket.warm,
+      prefilled: viaSocket.prefilled,
+      socketMs,
+    });
     return viaSocket.text.trim();
   }
   if (viaSocket) {

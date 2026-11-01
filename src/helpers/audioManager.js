@@ -52,7 +52,11 @@ import {
   resolveDictationAgentVisionInference,
 } from "./dictationAgentInference";
 import { providerSupportsImages } from "../services/ai/inferenceProviders";
-import { resolvePrompt, appendScreenContextSuffix } from "../config/prompts";
+import {
+  resolvePrompt,
+  appendScreenContextSuffix,
+  cleanupTranscriptStart,
+} from "../config/prompts";
 import { resolveDictationToneStyle } from "../config/toneStyle";
 import { selectionEditToneSentence } from "../config/prompts/toneStyle";
 import { evaluateFinishedRecording, withSalvageWarning } from "./recordingValidation";
@@ -3321,6 +3325,21 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     const t0 = performance.now();
     let finalText = this.streamingFinalText || "";
+
+    // Luna reads the words Mistral has so far while Mistral finishes, so the
+    // cleanup request sends only the rest (chatgptResponsesSocket.js). The last
+    // word is left out, since it may still be cut in half.
+    const liveText = (this.streamingFinalText || this.streamingPartialText || "").trimStart();
+    const prefillText = liveText.slice(0, liveText.lastIndexOf(" ") + 1);
+    const prefillSettings = getSettings();
+    if (
+      prefillText &&
+      prefillSettings.useCleanupModel &&
+      prefillSettings.cleanupProvider === "openai" &&
+      !this.voiceAgentRequested
+    ) {
+      window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(prefillText));
+    }
 
     const provider = this.getStreamingProvider(providerName);
     let acknowledgedFinal = null;

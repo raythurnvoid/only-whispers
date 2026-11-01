@@ -18,6 +18,7 @@ export {
   appendScreenContextSuffix,
   appendPlainTextResponseSuffix,
   wrapCleanupTranscript,
+  cleanupTranscriptStart,
 } from "./prompts/index";
 export { PROMPT_KINDS, PROMPT_KIND_LIST, type PromptKind } from "./prompts/registry";
 export { detectAgentName } from "./agentDetection";

@@ -665,11 +665,13 @@ declare global {
       chatgptStatus: () => Promise<{ signedIn: boolean; email: string }>;
       getChatGPTAccessToken: () => Promise<string>;
       chatgptSocketWarmup?: () => Promise<{ success: boolean; error?: string }>;
+      chatgptSocketPrefill?: (text: string) => Promise<{ success: boolean; error?: string }>;
       chatgptSocketResponse?: (
         body: Record<string, unknown>,
         timeoutMs: number
       ) => Promise<
-        { success: true; text: string; warm: boolean } | { success: false; error: string }
+        | { success: true; text: string; warm: boolean; prefilled: boolean }
+        | { success: false; error: string }
       >;
 
       // xAI API key management

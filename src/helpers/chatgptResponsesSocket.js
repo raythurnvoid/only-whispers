@@ -9,6 +9,8 @@ const chatgptAuth = require("./chatgptAuth");
 // runs in the main process. Any failure makes the renderer use HTTP instead.
 const RESPONSES_URL = "wss://api.openai.com/v1/responses";
 const OPEN_TIMEOUT_MS = 5000;
+// The cleanup request waits for the prefill, which took 240-640 ms in tests.
+const PREFILL_TIMEOUT_MS = 2000;
 const IDLE_CLOSE_MS = 5 * 60 * 1000;
 
 let socket = null; // { ws, token, opened: Promise<void> }
@@ -16,9 +18,12 @@ let queue = Promise.resolve();
 let lastPrompt = null; // model, instructions, reasoning and tier of the last cleanup
 let warm = null; // { key, id } from the generate:false warmup
 let warming = null;
+let prefill = null; // { key, id, text } from the generate:false prefill
+let prefilling = null;
 let idleTimer = null;
 
 const promptKey = (prompt) => JSON.stringify(prompt);
+const userMessage = (text) => ({ role: "user", content: [{ type: "input_text", text }] });
 
 function openSocket(token) {
   if (socket?.token === token && socket.ws.readyState <= WebSocket.OPEN) return socket;
@@ -131,6 +136,7 @@ function warmup() {
 }
 
 async function runWarmup() {
+  prefill = null;
   try {
     if (!lastPrompt) {
       const token = await chatgptAuth.getAccessToken();
@@ -152,26 +158,66 @@ async function runWarmup() {
   }
 }
 
+// Called at key release with the start of the user message (the words Mistral
+// has so far). Luna reads it with generate:false while Mistral finishes, so the
+// cleanup request sends only the rest: its first token came about 150 ms sooner
+// in tests. It replaces the warmup, since only the latest response can be continued.
+function prefillTranscript(text) {
+  prefilling = runPrefill(text);
+  return prefilling;
+}
+
+async function runPrefill(text) {
+  await warming;
+  if (!lastPrompt || !text) return { success: false };
+  const prompt = lastPrompt;
+  warm = null;
+  try {
+    const result = await send(
+      { ...prompt, store: false, input: [userMessage(text)], generate: false },
+      PREFILL_TIMEOUT_MS
+    );
+    prefill = { key: promptKey(prompt), id: result.id, text };
+    return { success: true };
+  } catch (error) {
+    debugLogger.debug("ChatGPT socket prefill failed", { error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
 // body is the HTTP request body without `stream`.
 async function createResponse(body, timeoutMs) {
-  // A warmup still in flight would leave a warm id that is no longer the latest response.
+  // A warmup or prefill still in flight would leave an id that is no longer the latest response.
   await warming;
+  await prefilling;
   const prompt = {
     model: body.model,
     instructions: body.instructions,
     reasoning: body.reasoning,
     service_tier: body.service_tier,
   };
-  // The warm response is reused only when the prompt is the same. Instructions
-  // are not carried over by previous_response_id, so they are sent again.
-  const previous = warm?.key === promptKey(prompt) ? warm.id : undefined;
+  const key = promptKey(prompt);
+  const content = body.input?.length === 1 ? body.input[0].content : null;
+  const userText = content?.length === 1 && content[0].type === "input_text" ? content[0].text : "";
+  // The warm or prefilled response is reused only when the prompt is the same.
+  // Instructions are not carried over by previous_response_id, so they are sent again.
+  let request = body;
+  let prefilled = false;
+  if (prefill?.key === key && userText.startsWith(prefill.text)) {
+    request = {
+      ...body,
+      previous_response_id: prefill.id,
+      input: [userMessage(userText.slice(prefill.text.length))],
+    };
+    prefilled = true;
+  } else if (warm?.key === key) {
+    request = { ...body, previous_response_id: warm.id };
+  }
   warm = null;
+  prefill = null;
   lastPrompt = prompt;
-  const result = await send(
-    previous ? { ...body, previous_response_id: previous } : body,
-    timeoutMs
-  );
-  return { text: result.text, warm: !!previous };
+  const result = await send(request, timeoutMs);
+  return { text: result.text, warm: !!request.previous_response_id, prefilled };
 }
 
-module.exports = { warmup, createResponse };
+module.exports = { warmup, prefillTranscript, createResponse };

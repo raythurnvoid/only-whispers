@@ -33,7 +33,12 @@ export function getDefaultPromptText(kind: PromptKind, uiLanguage?: string): str
 // transcript, where models weight instructions most. Mirrors api/reason.ts
 // on the original server.
 export function wrapCleanupTranscript(text: string): string {
-  return `<transcript>\n${text}\n</transcript>\n\nOutput only the cleaned transcript.`;
+  return `${cleanupTranscriptStart(text)}\n</transcript>\n\nOutput only the cleaned transcript.`;
+}
+
+// The start of wrapCleanupTranscript's text, sent early as the socket prefill.
+export function cleanupTranscriptStart(text: string): string {
+  return `<transcript>\n${text}`;
 }
 
 // Appended to the dictation-agent prompt only when a screenshot is attached.

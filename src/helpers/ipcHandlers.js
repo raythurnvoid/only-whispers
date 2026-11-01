@@ -502,6 +502,9 @@ class IPCHandlers {
     ipcMain.handle("chatgpt-status", () => chatgptAuth.status());
     ipcMain.handle("chatgpt-access-token", () => chatgptAuth.getAccessToken());
     ipcMain.handle("chatgpt-socket-warmup", () => chatgptResponsesSocket.warmup());
+    ipcMain.handle("chatgpt-socket-prefill", (_event, text) =>
+      chatgptResponsesSocket.prefillTranscript(text)
+    );
     ipcMain.handle("chatgpt-socket-response", (_event, body, timeoutMs) =>
       chatgptResponsesSocket
         .createResponse(body, timeoutMs)

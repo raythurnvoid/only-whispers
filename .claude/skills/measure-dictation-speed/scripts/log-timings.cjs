@@ -48,7 +48,8 @@ for (const e of entries) {
     stopAt = Date.parse(e.time);
   }
   if (!row) continue;
-  if (e.message === "CHATGPT_PLAN_SOCKET") Object.assign(row, { lunaMs: m.socketMs, warm: m.warm });
+  if (e.message === "CHATGPT_PLAN_SOCKET")
+    Object.assign(row, { lunaMs: m.socketMs, warm: m.warm, prefilled: m.prefilled });
   // Builds up to 0.1.6 log the socket failure as CHATGPT_PLAN_SOCKET_FALLBACK, without socketMs:
   // then take the time since "Streaming stop timing".
   if (
