@@ -78,6 +78,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
   - Why: Mistral now ends only 410–470 ms after release (delay 480), and the early cleanup went out at a median 371 ms, so it is only 40–100 ms ahead. And Luna on the spare socket gets the whole text with no prefill (1306 ms after sending), while the main socket only gets the rest after its prefill.
   - The lab estimate (about 190 ms saved) assumed Mistral ends 600–700 ms after release and did not count the prefill, which came later.
   - Running two copies at once (the first try) made both slower: parallel requests slow Luna down. Run the copies one after the other.
+  - Real dictations agree (dev mode with the early cleanup, debug log, 2026-11-01, 10 dictations of 4–35 s): sent in 4, used in 2 (`hit`), wrong text in 1, and in the first it did nothing (no prompt yet, though "Early cleanup sent" was still logged). In the other 6 Mistral's final text came first (`stopMs` 401–509). Release → paste with a hit: 1693 and 1776 ms; with the prefill only: 1701–1928 ms on similar lengths. Mistral was slow once (`stopMs` 1364), and that one was a miss.
   - The run stopped on a network error (`ENOTFOUND api.mistral.ai`) after 13 of 21 files; the script now skips such a file instead.
 
 ## Luna (ChatGPT plan, Responses API)
