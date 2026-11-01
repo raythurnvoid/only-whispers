@@ -505,6 +505,9 @@ class IPCHandlers {
     ipcMain.handle("chatgpt-socket-prefill", (_event, text) =>
       chatgptResponsesSocket.prefillTranscript(text)
     );
+    ipcMain.handle("chatgpt-socket-early", (_event, text) =>
+      chatgptResponsesSocket.sendEarly(text)
+    );
     ipcMain.handle("chatgpt-socket-response", (_event, body, timeoutMs) =>
       chatgptResponsesSocket
         .createResponse(body, timeoutMs)

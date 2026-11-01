@@ -666,11 +666,18 @@ declare global {
       getChatGPTAccessToken: () => Promise<string>;
       chatgptSocketWarmup?: () => Promise<{ success: boolean; error?: string }>;
       chatgptSocketPrefill?: (text: string) => Promise<{ success: boolean; error?: string }>;
+      chatgptSocketEarly?: (text: string) => Promise<{ success: boolean; error?: string }>;
       chatgptSocketResponse?: (
         body: Record<string, unknown>,
         timeoutMs: number
       ) => Promise<
-        | { success: true; text: string; warm: boolean; prefilled: boolean }
+        | {
+            success: true;
+            text: string;
+            warm: boolean;
+            prefilled: boolean;
+            early: "none" | "hit" | "miss" | "failed";
+          }
         | { success: false; error: string }
       >;
 

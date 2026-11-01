@@ -11,23 +11,37 @@ const RESPONSES_URL = "wss://api.openai.com/v1/responses";
 const OPEN_TIMEOUT_MS = 5000;
 // The cleanup request waits for the prefill, which took 240-640 ms in tests.
 const PREFILL_TIMEOUT_MS = 2000;
+const EARLY_TIMEOUT_MS = 10000;
 const IDLE_CLOSE_MS = 5 * 60 * 1000;
 
-let socket = null; // { ws, token, opened: Promise<void> }
-let queue = Promise.resolve();
+// A socket runs one request at a time. The early cleanup gets its own socket, so
+// a wrong guess never blocks the real request: response.cancel does nothing here.
+const newLane = () => ({
+  socket: null, // { ws, token, opened: Promise<void> }
+  queue: Promise.resolve(),
+  warm: null, // { key, id } from the generate:false warmup
+  idleTimer: null,
+});
+const main = newLane();
+const spare = newLane();
+
 let lastPrompt = null; // model, instructions, reasoning and tier of the last cleanup
-let warm = null; // { key, id } from the generate:false warmup
 let warming = null;
+let spareWarming = null;
 let prefill = null; // { key, id, text } from the generate:false prefill
 let prefilling = null;
-let idleTimer = null;
+let early = null; // { key, userText, result } from the early cleanup
+// Counts dictations, so a prefill that ends after the next dictation started is dropped.
+let dictation = 0;
 
 const promptKey = (prompt) => JSON.stringify(prompt);
 const userMessage = (text) => ({ role: "user", content: [{ type: "input_text", text }] });
 
-function openSocket(token) {
-  if (socket?.token === token && socket.ws.readyState <= WebSocket.OPEN) return socket;
-  closeSocket();
+function openSocket(lane, token) {
+  if (lane.socket?.token === token && lane.socket.ws.readyState <= WebSocket.OPEN) {
+    return lane.socket;
+  }
+  closeSocket(lane);
   const ws = new WebSocket(RESPONSES_URL, { headers: { Authorization: `Bearer ${token}` } });
   const opened = new Promise((resolve, reject) => {
     const timer = setTimeout(
@@ -48,42 +62,42 @@ function openSocket(token) {
     });
   });
   opened.catch(() => {
-    if (socket?.ws === ws) closeSocket();
+    if (lane.socket?.ws === ws) closeSocket(lane);
   });
   ws.on("error", () => {});
   ws.on("close", () => {
-    if (socket?.ws === ws) {
-      socket = null;
-      warm = null;
+    if (lane.socket?.ws === ws) {
+      lane.socket = null;
+      lane.warm = null;
     }
   });
-  socket = { ws, token, opened };
-  return socket;
+  lane.socket = { ws, token, opened };
+  return lane.socket;
 }
 
-function closeSocket() {
-  if (!socket) return;
+function closeSocket(lane) {
+  if (!lane.socket) return;
   try {
-    socket.ws.close();
+    lane.socket.ws.close();
   } catch {}
-  socket = null;
-  warm = null;
+  lane.socket = null;
+  lane.warm = null;
 }
 
-function touchIdleTimer() {
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(closeSocket, IDLE_CLOSE_MS);
+function touchIdleTimer(lane) {
+  clearTimeout(lane.idleTimer);
+  lane.idleTimer = setTimeout(() => closeSocket(lane), IDLE_CLOSE_MS);
 }
 
 // Sends one response.create and collects its text deltas. Requests run one at
 // a time, so every event on the socket belongs to the current request.
-function send(body, timeoutMs) {
+function send(lane, body, timeoutMs) {
   const run = async () => {
     const token = await chatgptAuth.getAccessToken();
     if (!token) throw new Error("Not signed in with ChatGPT");
-    const current = openSocket(token);
+    const current = openSocket(lane, token);
     await current.opened;
-    touchIdleTimer();
+    touchIdleTimer(lane);
     const ws = current.ws;
     return new Promise((resolve, reject) => {
       let text = "";
@@ -96,7 +110,7 @@ function send(body, timeoutMs) {
       };
       const timer = setTimeout(() => {
         // A late reply would mix into the next request, so drop the socket.
-        if (socket?.ws === ws) closeSocket();
+        if (lane.socket?.ws === ws) closeSocket(lane);
         finish(new Error("ChatGPT socket response timeout"));
       }, timeoutMs);
       const onClose = () => finish(new Error("ChatGPT socket closed"));
@@ -124,33 +138,37 @@ function send(body, timeoutMs) {
       ws.send(JSON.stringify({ type: "response.create", ...body }));
     });
   };
-  const result = queue.then(run, run);
-  queue = result.catch(() => {});
+  const result = lane.queue.then(run, run);
+  lane.queue = result.catch(() => {});
   return result;
 }
 
-// Called at dictation start. Without a cleanup in this app session it only opens the socket.
+// Called at dictation start. Without a cleanup in this app session it only opens the sockets.
 function warmup() {
-  warming = runWarmup();
+  dictation += 1;
+  prefill = null;
+  early = null;
+  spareWarming = runWarmup(spare);
+  warming = runWarmup(main);
   return warming;
 }
 
-async function runWarmup() {
-  prefill = null;
+async function runWarmup(lane) {
   try {
     if (!lastPrompt) {
       const token = await chatgptAuth.getAccessToken();
       if (!token) return { success: false };
-      await openSocket(token).opened;
-      touchIdleTimer();
+      await openSocket(lane, token).opened;
+      touchIdleTimer(lane);
       return { success: true };
     }
     const prompt = lastPrompt;
     const result = await send(
+      lane,
       { ...prompt, store: false, input: [], generate: false },
       OPEN_TIMEOUT_MS
     );
-    warm = { key: promptKey(prompt), id: result.id };
+    lane.warm = { key: promptKey(prompt), id: result.id };
     return { success: true };
   } catch (error) {
     debugLogger.debug("ChatGPT socket warmup failed", { error: error.message });
@@ -168,16 +186,18 @@ function prefillTranscript(text) {
 }
 
 async function runPrefill(text) {
+  const current = dictation;
   await warming;
   if (!lastPrompt || !text) return { success: false };
   const prompt = lastPrompt;
-  warm = null;
+  main.warm = null;
   try {
     const result = await send(
+      main,
       { ...prompt, store: false, input: [userMessage(text)], generate: false },
       PREFILL_TIMEOUT_MS
     );
-    prefill = { key: promptKey(prompt), id: result.id, text };
+    if (current === dictation) prefill = { key: promptKey(prompt), id: result.id, text };
     return { success: true };
   } catch (error) {
     debugLogger.debug("ChatGPT socket prefill failed", { error: error.message });
@@ -185,11 +205,35 @@ async function runPrefill(text) {
   }
 }
 
+// Called after key release when the live text is likely complete (the lag rule in
+// audioManager.js). Luna cleans it on the spare socket while Mistral finishes. The
+// cleanup uses this answer only if its user message is exactly the same.
+function sendEarly(userText) {
+  if (!lastPrompt || !userText) return Promise.resolve({ success: false });
+  const prompt = lastPrompt;
+  const key = promptKey(prompt);
+  const result = Promise.resolve(spareWarming).then(async () => {
+    const previous = spare.warm?.key === key ? spare.warm.id : undefined;
+    spare.warm = null;
+    const reply = await send(
+      spare,
+      { ...prompt, store: false, input: [userMessage(userText)], previous_response_id: previous },
+      EARLY_TIMEOUT_MS
+    );
+    return { ...reply, warm: !!previous };
+  });
+  early = { key, userText, result };
+  return result.then(
+    () => ({ success: true }),
+    (error) => {
+      debugLogger.debug("ChatGPT socket early cleanup failed", { error: error.message });
+      return { success: false, error: error.message };
+    }
+  );
+}
+
 // body is the HTTP request body without `stream`.
 async function createResponse(body, timeoutMs) {
-  // A warmup or prefill still in flight would leave an id that is no longer the latest response.
-  await warming;
-  await prefilling;
   const prompt = {
     model: body.model,
     instructions: body.instructions,
@@ -199,6 +243,26 @@ async function createResponse(body, timeoutMs) {
   const key = promptKey(prompt);
   const content = body.input?.length === 1 ? body.input[0].content : null;
   const userText = content?.length === 1 && content[0].type === "input_text" ? content[0].text : "";
+
+  // "hit": the early cleanup had this exact transcript, "miss": it did not.
+  const guess = early;
+  early = null;
+  let earlyResult = "none";
+  if (guess) earlyResult = guess.key === key && guess.userText === userText ? "hit" : "miss";
+  if (earlyResult === "hit") {
+    try {
+      const result = await guess.result;
+      if (result.text.trim()) {
+        lastPrompt = prompt;
+        return { text: result.text, warm: result.warm, prefilled: false, early: earlyResult };
+      }
+    } catch {}
+    earlyResult = "failed";
+  }
+
+  // A warmup or prefill still in flight would leave an id that is no longer the latest response.
+  await warming;
+  await prefilling;
   // The warm or prefilled response is reused only when the prompt is the same.
   // Instructions are not carried over by previous_response_id, so they are sent again.
   let request = body;
@@ -210,14 +274,19 @@ async function createResponse(body, timeoutMs) {
       input: [userMessage(userText.slice(prefill.text.length))],
     };
     prefilled = true;
-  } else if (warm?.key === key) {
-    request = { ...body, previous_response_id: warm.id };
+  } else if (main.warm?.key === key) {
+    request = { ...body, previous_response_id: main.warm.id };
   }
-  warm = null;
+  main.warm = null;
   prefill = null;
   lastPrompt = prompt;
-  const result = await send(request, timeoutMs);
-  return { text: result.text, warm: !!request.previous_response_id, prefilled };
+  const result = await send(main, request, timeoutMs);
+  return {
+    text: result.text,
+    warm: !!request.previous_response_id,
+    prefilled,
+    early: earlyResult,
+  };
 }
 
-module.exports = { warmup, prefillTranscript, createResponse };
+module.exports = { warmup, prefillTranscript, sendEarly, createResponse };

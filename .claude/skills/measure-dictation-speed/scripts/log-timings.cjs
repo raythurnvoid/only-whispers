@@ -41,15 +41,19 @@ for (const e of entries) {
 const rows = [];
 let row = null;
 let stopAt = 0;
+// Logged before "Streaming stop timing", so it is kept for the next row.
+let earlySentMs;
 for (const e of entries) {
   const m = e.meta;
+  if (e.message === "Early cleanup sent") earlySentMs = m.afterReleaseMs;
   if (e.message === "Streaming stop timing") {
-    row = { time: e.time.slice(11, 19), seconds: m.durationSeconds, stopMs: m.totalStopMs };
+    row = { time: e.time.slice(11, 19), seconds: m.durationSeconds, stopMs: m.totalStopMs, earlySentMs };
+    earlySentMs = undefined;
     stopAt = Date.parse(e.time);
   }
   if (!row) continue;
   if (e.message === "CHATGPT_PLAN_SOCKET")
-    Object.assign(row, { lunaMs: m.socketMs, warm: m.warm, prefilled: m.prefilled });
+    Object.assign(row, { lunaMs: m.socketMs, warm: m.warm, prefilled: m.prefilled, early: m.early });
   // Builds up to 0.1.6 log the socket failure as CHATGPT_PLAN_SOCKET_FALLBACK, without socketMs:
   // then take the time since "Streaming stop timing".
   if (

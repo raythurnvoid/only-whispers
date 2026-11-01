@@ -10,23 +10,31 @@ test.afterEach(() => {
 });
 
 // A socket that answers every response.create with a completed response "resp_<n>".
+// Its answer names the socket, so a test can tell which socket answered.
 class FakeSocket extends EventEmitter {
   static OPEN = 1;
+  static instances = [];
+  static count = 0;
   constructor() {
     super();
     this.readyState = FakeSocket.OPEN;
-    FakeSocket.sent = [];
+    this.index = FakeSocket.instances.push(this) - 1;
+    this.sent = [];
     setImmediate(() => this.emit("open"));
   }
   send(json) {
     const body = JSON.parse(json);
-    FakeSocket.sent.push(body);
-    const id = `resp_${FakeSocket.sent.length}`;
+    body.id = `resp_${++FakeSocket.count}`;
+    this.sent.push(body);
     setImmediate(() => {
       if (body.generate !== false) {
-        this.emit("message", JSON.stringify({ type: "response.output_text.delta", delta: "Hi." }));
+        const delta = `Hi from socket ${this.index}.`;
+        this.emit("message", JSON.stringify({ type: "response.output_text.delta", delta }));
       }
-      this.emit("message", JSON.stringify({ type: "response.completed", response: { id } }));
+      this.emit(
+        "message",
+        JSON.stringify({ type: "response.completed", response: { id: body.id } })
+      );
     });
   }
   close() {}
@@ -35,6 +43,7 @@ class FakeSocket extends EventEmitter {
 // Loads a fresh socket module with ws, the auth and the logger stubbed.
 function loadSocket() {
   delete require.cache[modulePath];
+  FakeSocket.instances = [];
   Module._load = function loadWithMocks(request, parent, isMain) {
     if (parent?.filename !== modulePath) return originalLoad.call(this, request, parent, isMain);
     if (request === "ws") return FakeSocket;
@@ -55,10 +64,17 @@ const cleanupBody = (text) => ({
 });
 const inputText = (body) => body.input.map((item) => item.content[0].text);
 
-test("the cleanup after a prefill sends only the rest of the transcript", async () => {
+// One cleanup, so the next dictation has a prompt to warm, prefill and send early with.
+async function afterFirstCleanup() {
   const socket = loadSocket();
   await socket.createResponse(cleanupBody("<transcript>\nfirst one</transcript>"), 1000);
   await socket.warmup();
+  const [main, spare] = FakeSocket.instances;
+  return { socket, main, spare };
+}
+
+test("the cleanup after a prefill sends only the rest of the transcript", async () => {
+  const { socket, main } = await afterFirstCleanup();
 
   await socket.prefillTranscript("<transcript>\nhello there ");
   const result = await socket.createResponse(
@@ -66,19 +82,17 @@ test("the cleanup after a prefill sends only the rest of the transcript", async 
     1000
   );
 
-  const [prefill, cleanup] = FakeSocket.sent.slice(-2);
+  const [prefill, cleanup] = main.sent.slice(-2);
   assert.equal(prefill.generate, false);
   assert.deepEqual(inputText(prefill), ["<transcript>\nhello there "]);
-  assert.equal(cleanup.previous_response_id, `resp_${FakeSocket.sent.length - 1}`);
+  assert.equal(cleanup.previous_response_id, prefill.id);
   assert.deepEqual(inputText(cleanup), ["world</transcript>"]);
   assert.equal(cleanup.instructions, "Clean up the transcript.");
   assert.equal(result.prefilled, true);
 });
 
 test("a final transcript that does not start with the prefill is sent whole", async () => {
-  const socket = loadSocket();
-  await socket.createResponse(cleanupBody("<transcript>\nfirst one</transcript>"), 1000);
-  await socket.warmup();
+  const { socket, main } = await afterFirstCleanup();
 
   await socket.prefillTranscript("<transcript>\nhello there ");
   const result = await socket.createResponse(
@@ -86,7 +100,7 @@ test("a final transcript that does not start with the prefill is sent whole", as
     1000
   );
 
-  const cleanup = FakeSocket.sent.at(-1);
+  const cleanup = main.sent.at(-1);
   // The prefill replaced the warmup, so nothing is continued.
   assert.equal(cleanup.previous_response_id, undefined);
   assert.deepEqual(inputText(cleanup), ["<transcript>\nhello, there world</transcript>"]);
@@ -100,5 +114,36 @@ test("no prefill is sent before the first cleanup of the app session", async () 
   const result = await socket.prefillTranscript("<transcript>\nhello ");
 
   assert.equal(result.success, false);
-  assert.equal(FakeSocket.sent.length, 0);
+  assert.equal(FakeSocket.instances.flatMap((ws) => ws.sent).length, 0);
+});
+
+test("an early cleanup of the same transcript is used, on the spare socket", async () => {
+  const { socket, main, spare } = await afterFirstCleanup();
+  const text = "<transcript>\nhello there world</transcript>";
+  const mainSent = main.sent.length;
+
+  socket.sendEarly(text);
+  const result = await socket.createResponse(cleanupBody(text), 1000);
+
+  assert.equal(result.early, "hit");
+  assert.equal(result.text, "Hi from socket 1.");
+  const early = spare.sent.at(-1);
+  assert.deepEqual(inputText(early), [text]);
+  // It continues the spare socket's warmup.
+  assert.equal(early.previous_response_id, spare.sent.at(-2).id);
+  assert.equal(main.sent.length, mainSent);
+});
+
+test("an early cleanup of another transcript is not used", async () => {
+  const { socket, main } = await afterFirstCleanup();
+
+  socket.sendEarly("<transcript>\nhello there</transcript>");
+  const result = await socket.createResponse(
+    cleanupBody("<transcript>\nhello there world</transcript>"),
+    1000
+  );
+
+  assert.equal(result.early, "miss");
+  assert.equal(result.text, "Hi from socket 0.");
+  assert.deepEqual(inputText(main.sent.at(-1)), ["<transcript>\nhello there world</transcript>"]);
 });

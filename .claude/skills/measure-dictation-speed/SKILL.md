@@ -36,6 +36,8 @@ Gotchas:
 | ------------------------------- | --------------------------------------------- | ------------------------------------------------ |
 | `stopMs`                        | `Streaming stop timing` (`totalStopMs`)       | key release → Mistral's final text               |
 | `lunaMs`, `warm`                | `CHATGPT_PLAN_SOCKET`                         | Luna on the socket, and whether it was warm      |
+| `prefilled`, `early`            | `CHATGPT_PLAN_SOCKET`                         | prefill used; early cleanup `hit`/`miss`/`failed`/`none` |
+| `earlySentMs`                   | `Early cleanup sent` (`afterReleaseMs`)       | key release → early cleanup sent                 |
 | `cleanupMs`                     | `CHATGPT_PLAN_SUCCESS`                        | whole cleanup call                               |
 | `socketFailedMs`                | `ChatGPT socket failed, using HTTP` (warning) | the socket failed after this long, then HTTP ran |
 | `toPasteMs`                     | `Streaming total processing`                  | key release → just before paste                  |

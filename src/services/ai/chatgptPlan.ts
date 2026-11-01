@@ -93,6 +93,7 @@ async function streamPlanResponse(
       model,
       warm: viaSocket.warm,
       prefilled: viaSocket.prefilled,
+      early: viaSocket.early,
       socketMs,
     });
     return viaSocket.text.trim();

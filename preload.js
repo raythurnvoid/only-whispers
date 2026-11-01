@@ -187,6 +187,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getChatGPTAccessToken: () => ipcRenderer.invoke("chatgpt-access-token"),
   chatgptSocketWarmup: () => ipcRenderer.invoke("chatgpt-socket-warmup"),
   chatgptSocketPrefill: (text) => ipcRenderer.invoke("chatgpt-socket-prefill", text),
+  chatgptSocketEarly: (text) => ipcRenderer.invoke("chatgpt-socket-early", text),
   chatgptSocketResponse: (body, timeoutMs) =>
     ipcRenderer.invoke("chatgpt-socket-response", body, timeoutMs),
 

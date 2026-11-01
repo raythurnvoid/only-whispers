@@ -56,6 +56,7 @@ import {
   resolvePrompt,
   appendScreenContextSuffix,
   cleanupTranscriptStart,
+  wrapCleanupTranscript,
 } from "../config/prompts";
 import { resolveDictationToneStyle } from "../config/toneStyle";
 import { selectionEditToneSentence } from "../config/prompts/toneStyle";
@@ -246,6 +247,16 @@ const isValidApiKey = (key, provider = "openai") => {
 const STREAMING_FINAL_QUIET_MS = 250;
 const STREAMING_FINAL_CEILING_MS = 2000;
 
+// Early cleanup: Mistral's text trails the voice by its delay (480 ms in
+// mistralRealtimeStreaming.js). So 400 ms after that, once no new words came
+// for 150 ms, the live text is likely complete and goes to Luna before Mistral
+// is done. On 30 real recordings it was complete in 2 of 3 sends and saved
+// about 190 ms per dictation (.claude/skills/measure-dictation-speed/FINDINGS.md).
+const EARLY_CLEANUP_AFTER_SPEECH_MS = 480 + 400;
+const EARLY_CLEANUP_QUIET_MS = 150;
+// Mean absolute 16-bit sample level that counts as speech, as in those tests.
+const EARLY_CLEANUP_SPEECH_LEVEL = 300;
+
 // Finalize sends input_audio.end and returns the final text. Any stream
 // failure keeps recording and sends the full capture to batch Voxtral.
 const STREAMING_PROVIDERS = {
@@ -406,6 +417,8 @@ class AudioManager {
     this.streamingFallbackReason = null;
     this._streamingFailoverReason = null;
     this._streamingSpeechGateState = null;
+    this._streamingSpeechEndAt = null;
+    this._streamingTextAt = 0;
     this.warmupFailureStreak = 0;
     this.lastAudioBlob = null;
     this.lastAudioMetadata = null;
@@ -2825,6 +2838,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       this.streamingFallbackReason = null;
       this._streamingFailoverReason = null;
       this._streamingSpeechGateState = createLocalSpeechGateState();
+      this._streamingSpeechEndAt = null;
       this._activeStreamingSessionId = sessionId;
       providerName = this.getStreamingProviderName();
       this._activeStreamingProviderName = providerName;
@@ -2910,6 +2924,18 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         // Measured from the first chunk: a recording that fails over later
         // still has its opening words in the gate.
         recordPcm16SpeechWindow(this._streamingSpeechGateState, event.data);
+        // The end of the last 25 ms with speech, for the early cleanup. A chunk
+        // is 50 ms of audio that ended about now.
+        const samples = new Int16Array(event.data);
+        for (let start = 0; start < samples.length; start += 400) {
+          const part = samples.subarray(start, start + 400);
+          let sum = 0;
+          for (const sample of part) sum += Math.abs(sample);
+          if (sum / part.length > EARLY_CLEANUP_SPEECH_LEVEL) {
+            this._streamingSpeechEndAt =
+              performance.now() - (samples.length - start - part.length) / 16;
+          }
+        }
         if (this._streamingFailoverReason) return;
         provider.send(event.data);
       };
@@ -2929,6 +2955,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       const partialCleanup = provider.onPartial((text) => {
         if (!ownsSession()) return;
         this.streamingPartialText = text;
+        this._streamingTextAt = performance.now();
         this.streamingTextBump?.();
         this.onPartialTranscript?.(text);
       });
@@ -2940,6 +2967,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         const prevLen = this.streamingFinalText.length;
         this.streamingFinalText = text;
         this.streamingPartialText = "";
+        this._streamingTextAt = performance.now();
         this.streamingTextBump?.();
         const newSegment = text.slice(prevLen);
         if (newSegment) {
@@ -3332,13 +3360,36 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const liveText = (this.streamingFinalText || this.streamingPartialText || "").trimStart();
     const prefillText = liveText.slice(0, liveText.lastIndexOf(" ") + 1);
     const prefillSettings = getSettings();
-    if (
-      prefillText &&
+    const cleanupOnPlan =
       prefillSettings.useCleanupModel &&
       prefillSettings.cleanupProvider === "openai" &&
-      !this.voiceAgentRequested
-    ) {
+      !this.voiceAgentRequested;
+    if (prefillText && cleanupOnPlan) {
       window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(prefillText));
+    }
+    // Early cleanup (see EARLY_CLEANUP_AFTER_SPEECH_MS), sent once. The cleanup
+    // uses its answer only when the final transcript is the same text.
+    let earlyCleanupTimer = null;
+    if (cleanupOnPlan && this._streamingSpeechEndAt) {
+      const sendAfter = this._streamingSpeechEndAt + EARLY_CLEANUP_AFTER_SPEECH_MS;
+      const sendEarlyCleanup = () => {
+        if (wasCancelled()) return;
+        const wait =
+          Math.max(sendAfter, this._streamingTextAt + EARLY_CLEANUP_QUIET_MS) - performance.now();
+        if (wait > 0) {
+          earlyCleanupTimer = setTimeout(sendEarlyCleanup, wait);
+          return;
+        }
+        const text = (this.streamingFinalText || this.streamingPartialText || "").trim();
+        if (!text) return;
+        logger.debug(
+          "Early cleanup sent",
+          { afterReleaseMs: Math.round(performance.now() - t0) },
+          "streaming"
+        );
+        window.electronAPI?.chatgptSocketEarly?.(wrapCleanupTranscript(text));
+      };
+      sendEarlyCleanup();
     }
 
     const provider = this.getStreamingProvider(providerName);
@@ -3448,6 +3499,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       provider.finalize?.();
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
+    // The final text is here, so an early cleanup not sent yet would gain nothing.
+    clearTimeout(earlyCleanupTimer);
     // A failed live stream has only part of the words: drop them, and the
     // full recording goes to batch below.
     if (provider.failsOverToBatch && (!finalAcknowledged || this._streamingFailoverReason)) {

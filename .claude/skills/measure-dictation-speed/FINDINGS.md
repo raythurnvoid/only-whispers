@@ -67,7 +67,12 @@ Lag rule: after release, send once the time is at least local speech end + delay
 | 480   | 400 | 51/60      | 67%                 | 194 ms                    |
 
 - The hit rate depends on server speed: at 1200 with M=0 it fell from 83% to 52% between two passes. Use M=400 to stay safely above 50%.
-- Not built yet. Transport (2026-11-01, `luna-transport.cjs`): the early request needs a second socket, see Luna below. HTTP and `response.cancel` are ruled out.
+- Transport (2026-11-01, `luna-transport.cjs`): the early request needs a second socket, see Luna below. HTTP and `response.cancel` are ruled out. The user is fine with Luna running twice on a miss (it is cheap).
+- Built (2026-11-01, not yet live-checked), with delay 480, M=400, Q=150:
+  - `audioManager.js` keeps the end of the last 25 ms of mic audio above level 300, and the time of the last new words. After release it sends the live text once, through `chatgptSocketEarly`.
+  - `chatgptResponsesSocket.js` cleans it on a second ("spare") socket, warmed up at dictation start like the main one. The cleanup request uses that answer only when its user message is exactly the same; otherwise it runs on the main socket as before (with the prefill).
+  - Log: "Early cleanup sent" (`afterReleaseMs`), and `early` in `CHATGPT_PLAN_SOCKET`: `hit`, `miss`, `failed` (the early request failed, so the main socket ran) or `none`. `log-timings.cjs` shows both.
+  - Not sent on the first dictation after launch (no prompt to reuse yet), or when the final text comes first.
 
 ## Luna (ChatGPT plan, Responses API)
 
@@ -83,7 +88,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
   - First token: median 826 ms vs 978 ms (about 150 ms sooner, sooner in 13/16 rounds). Whole answer: 1770 ms vs 1933 ms.
   - The `generate: false` call itself took 240–640 ms. It must end before the final request is sent, since the socket runs one at a time, so send it while the user speaks or while Mistral catches up.
   - Not tested: a larger prefix (most of the text, as in a real dictation), or several prefill calls as the text grows.
-- Built (2026-10-31, not yet live-checked): at key release `stopStreamingRecording` sends the words Mistral has so far, minus the last word (it may be cut in half), through `chatgptSocketPrefill`. `chatgptResponsesSocket.js` sends it with the last cleanup prompt and `generate: false`. If the final user message starts with that text, the cleanup sends only the rest, continuing the prefill. Otherwise it sends the whole message. The log line `CHATGPT_PLAN_SOCKET` has `prefilled: true` when it was used.
+- Built (2026-10-31, live-checked in 0.1.7 on 2026-11-01): at key release `stopStreamingRecording` sends the words Mistral has so far, minus the last word (it may be cut in half), through `chatgptSocketPrefill`. `chatgptResponsesSocket.js` sends it with the last cleanup prompt and `generate: false`. If the final user message starts with that text, the cleanup sends only the rest, continuing the prefill. Otherwise it sends the whole message. The log line `CHATGPT_PLAN_SOCKET` has `prefilled: true` when it was used.
 - The plan has a usage limit (error `subscription_sharing_usage_limit_exceeded`). On 2026-10-31 all 5 real dictations hit it: the socket failed after about 0.6 s, the app then tried HTTP for another 1.3–2 s, which fails the same way, and pasted the raw text. Release to paste took 3.0–4.0 s. Don't run Luna tests while the limit is reached; they fail and may use quota.
 
 ## Real dictations (installed app 0.1.6, debug log, 2026-10-31, 5 dictations, cleanup failing on the usage limit)
@@ -94,8 +99,11 @@ Lag rule: after release, send once the time is at least local speech end + delay
 
 ## Real dictations (installed app 0.1.7, delay 480, prefill, debug log, 2026-11-01)
 
-- 1 dictation, the first after launch, so no warm socket and no prefill (both need an earlier cleanup in the same app session): `stopMs` 596, `lunaMs` 1341, release → paste 1949 ms.
-- Paste 466 ms: focus check 341 ms, paste helper 123 ms. One sample only; if the focus check stays this slow, it is the next thing to look at.
+- 4 dictations (2, 1.4, 82 and 10 s long). The first after launch has no warm socket and no prefill (both need an earlier cleanup in the same app session).
+- Mistral `stopMs`: 581–736 ms (was 0.7–1.8 s at delay 1200).
+- Prefill works live: used on the 82 s and 10 s dictations (`prefilled: true`), not on the 1.4 s one. No socket failure.
+- `lunaMs`: 1341 (cold), 1006 (warm), 2771 (82 s, prefilled), 1466 (10 s, prefilled). Release → paste: 1949, 1589, 3510, 2095 ms.
+- Paste 181–466 ms: focus check 98–341 ms (the first dictation is the slowest), paste helper 82–123 ms.
 
 ## Known issues to fix later
 
@@ -109,6 +117,7 @@ Lag rule: after release, send once the time is at least local speech end + delay
 ## Open questions
 
 - Prefill: how much does it save when the prefix is most of the text, sent at release?
-- Paste: is the focus check always about 340 ms (one 0.1.7 sample so far)?
+- Early cleanup: the real hit rate and saving (`early` in the log). The lab said 67% hits and about 190 ms saved per dictation.
+- Paste: why is the first focus check slower (341 ms vs 98–181 ms)?
 - Socket fallback: how often does it fail and fall back to HTTP? (Warning `ChatGPT socket failed, using HTTP` in `errors.log`.)
 - Does `context_bias` change the accuracy of the lower delays?
