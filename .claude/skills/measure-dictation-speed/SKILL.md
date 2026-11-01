@@ -31,6 +31,8 @@ Gotchas:
 
 - Agent shells (Claude Code) set `ELECTRON_RUN_AS_NODE=1`. The installed app then runs as plain Node and exits at once with code 9. Clear it first: PowerShell `Remove-Item Env:ELECTRON_RUN_AS_NODE`, then `Start-Process "$env:LOCALAPPDATA\Programs\only-whispers\only-whispers.exe" -ArgumentList "--log-level=debug"`. (`run-electron.js` clears it for `pnpm dev`.)
 - Dev mode keeps its data in `only-whispers-development` (`main.js`, `configureChannelUserDataPath`): no keys, no ChatGPT login, no recordings, and its logs are there too (pass that log path to `log-timings.cjs`). Set `ONLY_WHISPERS_CHANNEL=production` in the shell to use the installed app's data instead. The scripts read the installed app's folder (`only-whispers`).
+- An update (auto-update on quit, or another session installing a release) restarts the app without `--log-level=debug`, and its dictations then leave no timing lines. Check the flags first: PowerShell `Get-CimInstance Win32_Process -Filter "Name='only-whispers.exe'" | Select-Object -First 1 -ExpandProperty CommandLine`.
+- Other sessions may release from this repo too. Before a release, read `git log` and `gh release list`, and bump from the version in `package.json`, not from memory.
 - The installed app runs the released code. Log lines added since the last release (for example `Paste steps timing`) appear only in dev mode.
 
 | Column                          | Log line                                      | Meaning                                          |
