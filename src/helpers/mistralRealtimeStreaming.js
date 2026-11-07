@@ -12,7 +12,9 @@ const FINAL_TIMEOUT_MS = 4000;
 // 480 ms gave the final text about 260 ms sooner after release than 1200 ms,
 // with 6.1% wrong words instead of 5.8%. Below 400 the errors rise fast and
 // the speed stops improving (.claude/skills/measure-dictation-speed/FINDINGS.md).
-const STREAMING_DELAY_MS = 480;
+// In daily use 480 gave bad text too often, so it is 720 now. The model works
+// in 80 ms steps, so keep this a multiple of 80.
+const STREAMING_DELAY_MS = 720;
 const COLD_START_BUFFER_MAX = 10 * 16000 * 2; // 10 seconds of 16 kHz PCM16
 
 class MistralRealtimeStreaming {

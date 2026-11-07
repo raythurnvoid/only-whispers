@@ -40,6 +40,7 @@ Today the user waits about 1.0 s for Mistral, then Luna, then the paste.
 - Mistral rejects a delay of 0; 80 is accepted.
 - Speed stops improving below about 240: Mistral needs about 0.5 s to finish after release whatever the delay.
 - Errors rise fast below 400 (6.3% → 6.9% → 8.3% → 10.8%).
+- Raised to 720 on 2026-11-07 (not measured): in daily use the user got bad text too often at 480. The model works in 80 ms steps (Voxtral Realtime paper, arXiv 2602.11298), so use multiples of 80. Expect about 80–100 ms more wait after release than 480 (from the 480/800/1200 rows above).
 - Sweet spot: 400–480. Chosen: 480, set in `mistralRealtimeStreaming.js` on 2026-10-31. 480 vs 400 speed (50 ms) is inside the day-to-day noise of about 100 ms; the accuracy gap (91 vs 94 wrong words) is real, since Mistral is deterministic.
 - 320 had one 3.4 s outlier, so its median is noise.
 - The 1200 and 480 accuracy matched the morning runs (28/30 and 30/30 same finals). Next time, run only 1200 as the speed baseline next to the new delays, and reuse old results for accuracy.
