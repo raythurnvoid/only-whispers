@@ -708,6 +708,9 @@ declare global {
       getMistralKey: () => Promise<string | null>;
       saveMistralKey: (key: string) => Promise<void>;
       cancelBatchDictation: (requestId: string) => Promise<void>;
+      onBatchDictationProvider: (
+        callback: (requestId: string, provider: "mistral" | "parakeet") => void
+      ) => () => void;
       proxyMistralTranscription: (data: {
         requestId?: string;
         audioBuffer: ArrayBuffer;
@@ -799,6 +802,7 @@ declare global {
 
       getLocalModelStatus: () => Promise<LocalModelStatus>;
       downloadLocalModel: () => Promise<LocalModelStatus>;
+      warmLocalModel: () => Promise<boolean>;
 
       // BYOK audio file transcription
       transcribeAudioFileByok?: (options: { filePath: string; model: string }) => Promise<{

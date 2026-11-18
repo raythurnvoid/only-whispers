@@ -345,6 +345,7 @@ class AudioManager {
     });
 
     this._onApiKeyChanged = () => {
+      this.mistralRetryAt = 0;
       // Replace a socket warmed with the previous key now rather than at the next
       // start. A key save in Settings is no reason to open the mic.
       if (!this.isRecording && !this.isProcessing && this.shouldUseStreaming()) {
@@ -572,6 +573,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
   setCallbacks({
     onStateChange,
+    onSpeechProvider,
     onError,
     // Optional: the agent overlay has no dictation toast surface.
     onNoAudio = undefined,
@@ -580,6 +582,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     onStreamingCommit,
   }) {
     this.onStateChange = onStateChange;
+    this.onSpeechProvider = onSpeechProvider;
     this.onError = onError;
     this.onNoAudio = onNoAudio;
     this.onTranscriptionComplete = onTranscriptionComplete;
@@ -1146,6 +1149,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       this.createBatchRecorder(micStream, preRoll);
       preparedAdopted = true;
       this.isRecording = true;
+      this.warmLocalRecording();
       this.onStateChange?.({
         isRecording: true,
         isProcessing: false,
@@ -1358,6 +1362,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       {
         durationSeconds,
         analyticsOccurredAt,
+        preferLocal: true,
         ...(salvagedRecording ? { salvagedRecording: true } : {}),
       },
       processingPipeline
@@ -2302,11 +2307,17 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         surface: "transcription",
       });
     let result;
+    const unsubscribe = window.electronAPI?.onBatchDictationProvider?.((id, provider) => {
+      if (id === requestId && id === this.batchRequestId && !wasCancelled()) {
+        this.onSpeechProvider?.(provider);
+      }
+    });
     try {
       result = await call(proxyPayload);
     } catch (err) {
       throw classifyProxyFailure(err);
     } finally {
+      unsubscribe?.();
       if (this.batchRequestId === requestId) this.batchRequestId = null;
     }
     if (result?.error) {
@@ -2606,7 +2617,22 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   shouldUseStreaming() {
-    return hasMistralKey(getSettings().mistralApiKey);
+    return hasMistralKey(getSettings().mistralApiKey) && !(this.mistralRetryAt > Date.now());
+  }
+
+  warmLocalRecording() {
+    const startedAt = this.recordingStartTime;
+    this.onSpeechProvider?.(null);
+    void window.electronAPI
+      ?.warmLocalModel?.()
+      .then((ready) => {
+        if (ready && this.isRecording && this.recordingStartTime === startedAt) {
+          this.onSpeechProvider?.("parakeet");
+        }
+      })
+      .catch((error) =>
+        logger.warn("Local model warmup failed", { error: error.message }, "audio")
+      );
   }
 
   async warmupStreamingConnection({ warmMic = true } = {}) {
@@ -2618,6 +2644,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     try {
       const providerName = this.getStreamingProviderName();
       const provider = STREAMING_PROVIDERS[providerName];
+      const mistralKey = getSettings().mistralApiKey;
       const [, wsResult] = await Promise.all([
         this.cacheMicrophoneDeviceId(),
         provider.warmup(
@@ -2628,6 +2655,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         ),
       ]);
 
+      if (wsResult.retryAt && mistralKey === getSettings().mistralApiKey) {
+        this.mistralRetryAt = wsResult.retryAt;
+      }
       if (wsResult.success) {
         // Pre-load AudioWorklet module so first recording is faster
         try {
@@ -2784,7 +2814,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   classifyStreamingStartResult(res) {
     if (res.success) return res;
     if (res.code === "NO_API") return { needsFallback: true };
-    // A live stream that cannot start keeps this capture for the batch upload.
+    // Keep the full recording for batch transcription if the stream cannot start.
     this.streamingFallbackReason = "session_unavailable";
     logger.warn("Live stream unavailable, using batch", { error: res.error }, "streaming");
     return { needsFallback: true };
@@ -2929,7 +2959,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       this.streamingTextDebounce = null;
 
       const partialCleanup = provider.onPartial((text) => {
-        if (!ownsSession()) return;
+        if (!ownsSession() || this._streamingFailoverReason) return;
         this.streamingPartialText = text;
         this._streamingTextAt = performance.now();
         this.streamingTextBump?.();
@@ -2938,7 +2968,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       });
 
       const finalCleanup = provider.onFinal((text) => {
-        if (!ownsSession()) return;
+        if (!ownsSession() || this._streamingFailoverReason) return;
         // text = accumulated final text from streaming provider.
         // Extract just the new segment (delta from previous accumulated final).
         const prevLen = this.streamingFinalText.length;
@@ -2954,12 +2984,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       });
 
       const errorCleanup = provider.onError((error) => {
-        if (!ownsSession()) return;
+        if (!ownsSession() || startWasCancelled()) return;
         logger.error("Streaming provider error", { error }, "streaming");
         // The fallback recorder has the whole capture, so keep recording and
-        // let stop upload it to batch rather than cutting the user off.
+        // transcribe it when the user stops speaking.
         if (failsOver) {
-          this._streamingFailoverReason ??= "stream_no_final";
+          if (!this._streamingFailoverReason) {
+            this._streamingFailoverReason = "stream_no_final";
+            this.warmLocalRecording();
+          }
           return;
         }
         this.onError?.({
@@ -2979,7 +3012,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       });
 
       const sessionEndCleanup = provider.onSessionEnd((data) => {
-        if (!ownsSession()) return;
+        if (!ownsSession() || this._streamingFailoverReason) return;
         logger.debug("Streaming session ended", data, "streaming");
         if (data.text) {
           this.streamingFinalText = data.text;
@@ -3016,7 +3049,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         language: this.getEffectiveSttLanguage(getSettings()),
         keyterms: this.getKeyterms(),
       });
-      const result = this.classifyStreamingStartResult(await provider.start(sessionOptions));
+      const mistralKey = getSettings().mistralApiKey;
+      const startResult = await provider.start(sessionOptions);
+      if (startResult.retryAt && mistralKey === getSettings().mistralApiKey) {
+        this.mistralRetryAt = startResult.retryAt;
+      }
+      const result = this.classifyStreamingStartResult(startResult);
       const tWs = performance.now();
       this._settleStreamingStart();
       if (startWasCancelled()) return false;
@@ -3027,8 +3065,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       if (result.needsFallback && this.streamingFallbackReason && this.streamingFallbackRecorder) {
         this._streamingFailoverReason = this.streamingFallbackReason;
         this.streamingFallbackReason = null;
+        this.warmLocalRecording();
         logger.info(
-          "Live stream unavailable, recording for the batch upload",
+          "Live stream unavailable, keeping the recording for batch transcription",
           { reason: this._streamingFailoverReason },
           "streaming"
         );
@@ -3049,6 +3088,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         return this.startRecording();
       }
 
+      if (ownsSession() && !this._streamingFailoverReason) this.onSpeechProvider?.("mistral");
       logger.info(
         "Streaming start timing",
         {
@@ -3386,7 +3426,6 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     if (wasCancelled()) return abandonFinalization();
 
     const t0 = performance.now();
-    let finalText = this.streamingFinalText || "";
 
     // Luna reads the words Mistral has so far while Mistral finishes, so the
     // cleanup request sends only the rest (chatgptResponsesSocket.js).
@@ -3429,10 +3468,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         this.streamingProcessor = null;
       }
       if (wasCancelled()) return abandonFinalization();
-      acknowledgedFinal ||= provider.finalize().catch((error) => ({
-        success: false,
-        error: error.message,
-      }));
+      if (!this._streamingFailoverReason) {
+        acknowledgedFinal ||= provider.finalize().catch((error) => ({
+          success: false,
+          error: error.message,
+        }));
+      }
     } else if (this.streamingProcessor) {
       try {
         this.streamingProcessor.port.postMessage("stop");
@@ -3492,13 +3533,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     // 3. Finalize tells the provider to process any buffered audio and send final results.
     //    Wait for the transcript to settle before disconnecting.
     if (provider.finalizeAcknowledged) {
-      const result = await (acknowledgedFinal || provider.finalize());
-      finalAcknowledged = result?.success === true;
-      if (finalAcknowledged && typeof result.text === "string") {
-        this.streamingFinalText = result.text;
-      }
-      if (!result?.success) {
-        logger.warn("Streaming finalization failed", { error: result?.error }, "streaming");
+      if (!this._streamingFailoverReason) {
+        const result = await (acknowledgedFinal || provider.finalize());
+        finalAcknowledged = result?.success === true;
+        if (finalAcknowledged && typeof result.text === "string") {
+          this.streamingFinalText = result.text;
+        }
+        if (!finalAcknowledged) {
+          logger.warn("Streaming finalization failed", { error: result?.error }, "streaming");
+        }
       }
     } else if (provider.awaitsFinalTranscript) {
       provider.finalize?.();
@@ -3512,6 +3555,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     // A failed live stream has only part of the words: drop them, and the
     // full recording goes to batch below.
     if (provider.failsOverToBatch && (!finalAcknowledged || this._streamingFailoverReason)) {
+      if (!this._streamingFailoverReason && !wasCancelled()) this.onSpeechProvider?.(null);
       this._streamingFailoverReason ??= "stream_no_final";
       this.streamingFinalText = "";
       this.streamingPartialText = "";
@@ -3525,21 +3569,14 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     });
     const tTerminate = performance.now();
 
-    finalText =
-      (provider.preferStopTranscript && stopResult?.text) || this.streamingFinalText || "";
-
-    if (!finalText && this.streamingPartialText) {
-      finalText = this.streamingPartialText;
-      logger.debug("Using partial text as fallback", { textLength: finalText.length }, "streaming");
-    }
-
-    if (!finalText && stopResult?.text) {
-      finalText = stopResult.text;
-      logger.debug(
-        "Using disconnect result text as fallback",
-        { textLength: finalText.length },
-        "streaming"
-      );
+    let finalText = "";
+    if (!this._streamingFailoverReason) {
+      finalText =
+        (provider.preferStopTranscript && stopResult?.text) ||
+        this.streamingFinalText ||
+        this.streamingPartialText ||
+        stopResult?.text ||
+        "";
     }
 
     this.cleanupStreamingListeners(sessionId);
@@ -3661,13 +3698,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     // If streaming produced no text, fall back to batch.
     const failoverReason = this._streamingFailoverReason;
-    // No stream will transcribe a failed-over recording, so it uploads at any
-    // length, unless it was the silence the batch speech gate skips.
+    // After failover, transcribe any length of recording unless it was silent.
     const failoverSilent =
       Boolean(failoverReason) &&
       getLocalSpeechGateDecision(this._streamingSpeechGateState).reason === "silence";
     if (failoverSilent) {
-      logger.info("Speech gate skipped the failed-over upload", { failoverReason }, "streaming");
+      logger.info("Speech gate skipped the silent recording", { failoverReason }, "streaming");
     }
     // A failed-over recording has no other transcript, so a failure to
     // transcribe it ends as a batch recording's would. A stream that produced
@@ -3932,6 +3968,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       // Ignore errors during cleanup (page may be unloading)
     }
     this.onStateChange = null;
+    this.onSpeechProvider = null;
     this.onError = null;
     this.onTranscriptionComplete = null;
     this.onPartialTranscript = null;

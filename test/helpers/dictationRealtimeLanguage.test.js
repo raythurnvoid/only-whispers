@@ -129,6 +129,22 @@ function scenario(t) {
 
 const dictation = (overrides) => ({ language: "de", keyterms: ["Voxtral"], ...overrides });
 
+test("a rate-limited warmup skips more connections until Mistral's retry time", async (t) => {
+  const s = scenario(t);
+  const retryAt = Date.now() + 60_000;
+  const connect = t.mock.method(FakeRealtimeStreaming.prototype, "connect");
+  connect.mock.mockImplementationOnce(async () => {
+    throw Object.assign(new Error("Rate limited"), { retryAt });
+  });
+  const failed = await s.invoke("dictation-realtime-warmup", dictation());
+  assert.equal(failed.retryAt, retryAt);
+  assert.deepEqual(await s.invoke("dictation-realtime-start", dictation()), failed);
+  assert.equal(connect.mock.callCount(), 1);
+  t.mock.method(Date, "now", () => retryAt);
+  assert.equal((await s.invoke("dictation-realtime-start", dictation())).success, true);
+  assert.equal(connect.mock.callCount(), 2);
+});
+
 test("a cold start passes the key, model, language and word list to the Mistral session", async (t) => {
   const s = scenario(t);
   assert.deepEqual(await s.invoke("dictation-realtime-start", dictation()), { success: true });

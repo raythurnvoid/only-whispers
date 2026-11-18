@@ -23,7 +23,6 @@ import { VoiceModePanelCore } from "./components/dictation/VoiceModePanelCore";
 import { PillTooltip } from "./components/dictation/PillTooltip";
 import { PillCommandMenu } from "./components/dictation/PillCommandMenu";
 import { createMainWindowResizeCoordinator } from "./utils/mainWindowResizeCoordinator";
-import { hasMistralKey } from "./helpers/transcriptionRoute";
 import {
   ASSISTANT_FOOTER_TRANSITION_TIMING,
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
@@ -73,7 +72,6 @@ export default function App() {
   const floatingIconAutoHide = useSettingsStore((s) => s.floatingIconAutoHide);
   const panelStartPosition = useSettingsStore((s) => s.panelStartPosition);
   const activationMode = useSettingsStore((s) => s.activationMode);
-  const mistralEnabled = useSettingsStore((s) => hasMistralKey(s.mistralApiKey));
   const [pushLocked, setPushLocked] = useState(false);
   const prevAutoHideRef = useRef(floatingIconAutoHide);
   const [voiceHorizontalDirection, setVoiceHorizontalDirection] = useState(() =>
@@ -208,7 +206,7 @@ export default function App() {
   const {
     isRecording,
     isProcessing,
-    isStreaming,
+    speechProvider,
     isAssistantVoice,
     isPreparing,
     isStopping,
@@ -511,8 +509,6 @@ export default function App() {
     if (activeDictationPhase) setHeldDictationPhase(activeDictationPhase);
   }, [activeDictationPhase]);
   const dictationPhase = activeDictationPhase ?? (autoHideIdle ? heldDictationPhase : null);
-  // After release a cloud request can fall back to Parakeet before the renderer knows.
-  const onVoxtral = dictationPhase === "listening" && isStreaming;
   const dictationStatus = !dictationPhase
     ? null
     : dictationPhase === "processing" && isCleaningUp
@@ -524,8 +520,13 @@ export default function App() {
         }
       : {
           phase: dictationPhase,
-          provider: onVoxtral ? "mistral" : "dictation",
-          model: onVoxtral ? "Voxtral Mini 3" : mistralEnabled ? "Only Whispers" : "Parakeet",
+          provider: speechProvider === "mistral" ? "mistral" : "dictation",
+          model:
+            speechProvider === "mistral"
+              ? "Voxtral"
+              : speechProvider === "parakeet"
+                ? "Parakeet"
+                : "Only Whispers",
           activity: t(
             dictationPhase === "processing" ? "app.mic.isTranscribing" : "app.mic.isListening"
           ),

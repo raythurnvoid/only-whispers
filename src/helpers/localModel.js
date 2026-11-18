@@ -181,6 +181,49 @@ class LocalSpeechModel {
     }
   }
 
+  getWorker(directory) {
+    if (this.worker) return this.worker;
+    const unpack = (file) => file.replace(/app\.asar([/\\])/, "app.asar.unpacked$1");
+    const platform = process.platform === "win32" ? "win" : process.platform;
+    const libs = unpack(
+      path.dirname(require.resolve(`sherpa-onnx-${platform}-${process.arch}/package.json`))
+    );
+    const libPath = process.platform === "darwin" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
+    const worker = fork(unpack(path.join(__dirname, "parakeetWorker.js")), [directory], {
+      execArgv: [],
+      env: {
+        ...process.env,
+        ELECTRON_RUN_AS_NODE: "1",
+        [libPath]: [libs, process.env[libPath]].filter(Boolean).join(path.delimiter),
+      },
+      stdio: ["ignore", "ignore", "inherit", "ipc"],
+    });
+    const clearWorker = () => {
+      if (this.worker === worker) this.worker = null;
+    };
+    worker.once("exit", clearWorker);
+    worker.once("error", clearWorker);
+    worker.unref();
+    worker.channel?.unref();
+    this.workerDirectory = directory;
+    this.worker = worker;
+    return worker;
+  }
+
+  warm() {
+    // The child loads its weights while the mic records. The first clip can
+    // reach the same worker as soon as the key is released.
+    const result = this.queue.then(async () => {
+      const installed = await this.installedModel();
+      if (!installed) return false;
+      await this.retireWorker(installed.directory);
+      this.getWorker(installed.directory);
+      return true;
+    });
+    this.queue = result.catch(() => {});
+    return result;
+  }
+
   transcribe(audio, { signal } = {}) {
     const result = this.queue.then(() => this.run(audio, signal));
     this.queue = result.catch(() => {});
@@ -201,33 +244,7 @@ class LocalSpeechModel {
     try {
       if (temp) await fs.promises.writeFile(temp, audio, { mode: 0o600 });
       signal?.throwIfAborted();
-      if (!this.worker) {
-        const unpack = (file) => file.replace(/app\.asar([/\\])/, "app.asar.unpacked$1");
-        const platform = process.platform === "win32" ? "win" : process.platform;
-        const libs = unpack(
-          path.dirname(require.resolve(`sherpa-onnx-${platform}-${process.arch}/package.json`))
-        );
-        const libPath = process.platform === "darwin" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
-        const worker = fork(
-          unpack(path.join(__dirname, "parakeetWorker.js")),
-          [installed.directory],
-          {
-            execArgv: [],
-            env: {
-              ...process.env,
-              ELECTRON_RUN_AS_NODE: "1",
-              [libPath]: [libs, process.env[libPath]].filter(Boolean).join(path.delimiter),
-            },
-            stdio: ["ignore", "ignore", "inherit", "ipc"],
-          }
-        );
-        worker.once("exit", () => {
-          if (this.worker === worker) this.worker = null;
-        });
-        this.workerDirectory = installed.directory;
-        this.worker = worker;
-      }
-      const worker = this.worker;
+      const worker = this.getWorker(installed.directory);
       const text = await new Promise((resolve, reject) => {
         worker.ref();
         worker.channel.ref();
@@ -280,6 +297,7 @@ module.exports = {
   LocalSpeechModel,
   getLocalModelStatus: () => getModel().getStatus(),
   canTranscribeLocalAudio: async () => !!(await getModel().installedModel()),
+  warmLocalModel: () => getModel().warm(),
   downloadLocalModel: () => getModel().install(),
   transcribeLocalAudio: (audio, options) => getModel().transcribe(audio, options),
 };

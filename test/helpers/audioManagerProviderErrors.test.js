@@ -25,6 +25,59 @@ async function loadManager(t, settings, window = {}) {
 
 const recording = () => new Blob(["recording"], { type: "audio/webm" });
 
+test("a rate-limited warmup uses local speech until retry time and applies only to its own key", async (t) => {
+  const retryAt = Date.now() + 60000;
+  const manager = await loadManager(
+    t,
+    { mistralApiKey: "old-key" },
+    {
+      dictationRealtimeWarmup: async () => ({ success: false, retryAt }),
+    }
+  );
+  manager.cacheMicrophoneDeviceId = async () => {};
+  await manager.warmupStreamingConnection();
+  assert.equal(manager.shouldUseStreaming(), false);
+
+  t.mock.method(Date, "now", () => retryAt);
+  assert.equal(manager.shouldUseStreaming(), true);
+  manager.cacheMicrophoneDeviceId = async () => {
+    globalThis.__providerErrorsSettings.mistralApiKey = "new-key";
+  };
+  manager.mistralRetryAt = 0;
+  await manager.warmupStreamingConnection();
+  assert.equal(manager.mistralRetryAt, 0);
+});
+
+test("batch dictation reports only the current request's active provider", async (t) => {
+  const updates = [];
+  let cancelled = false;
+  let listener;
+  const manager = await loadManager(
+    t,
+    {},
+    {
+      onBatchDictationProvider: (callback) => {
+        listener = callback;
+        return () => {
+          listener = null;
+        };
+      },
+      proxyMistralTranscription: async ({ requestId }) => {
+        listener("stale-request", "parakeet");
+        listener(requestId, "mistral");
+        listener(requestId, "parakeet");
+        cancelled = true;
+        listener(requestId, "mistral");
+        return { text: "hello", source: "parakeet", model: "parakeet" };
+      },
+    }
+  );
+  manager.onSpeechProvider = (provider) => updates.push(provider);
+  await manager.processWithOpenAIAPI(recording(), {}, () => cancelled);
+  assert.deepEqual(updates, ["mistral", "parakeet"]);
+  assert.equal(listener, null);
+});
+
 async function rejection(promise) {
   try {
     await promise;

@@ -79,9 +79,20 @@ class MistralRealtimeStreaming {
         this.cleanup();
         reject(error);
       };
-      ws.once("unexpected-response", (_req, res) =>
-        fail(new Error(`Mistral realtime refused the connection (HTTP ${res.statusCode})`))
-      );
+      ws.once("unexpected-response", (_req, res) => {
+        const error = new Error(`Mistral realtime refused the connection (HTTP ${res.statusCode})`);
+        if (res.statusCode === 429) {
+          const retryAfter = res.headers["retry-after"];
+          const now = Date.now();
+          const retryAt = /^\d+$/.test(retryAfter)
+            ? now + Number(retryAfter) * 1000
+            : Date.parse(retryAfter);
+          // A workspace can stay out of quota for hours. Probe again in five
+          // minutes when the server gives no usable retry time.
+          error.retryAt = Number.isFinite(retryAt) ? Math.max(now, retryAt) : now + 300_000;
+        }
+        fail(error);
+      });
       ws.on("open", () => ws.send(JSON.stringify({ type: "session.update", session })));
       ws.on("message", (data) => {
         const event = this._parse(data);

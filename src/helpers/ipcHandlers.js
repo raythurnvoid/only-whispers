@@ -97,12 +97,13 @@ async function transcribeRecording(
   configuredModel,
   contextBias = [],
   preferLocal = false,
-  signal
+  signal,
+  onProvider
 ) {
-  const local = async () => ({
-    ...(await localModel.transcribeLocalAudio(audio, { signal })),
-    source: "parakeet",
-  });
+  const local = async () => {
+    onProvider?.("parakeet");
+    return { ...(await localModel.transcribeLocalAudio(audio, { signal })), source: "parakeet" };
+  };
   const { hasMistralKey, resolveMistralModel, MISTRAL_FILE_SIZE_LIMIT } =
     await import("./transcriptionRoute.ts");
   if (!hasMistralKey(apiKey) || (preferLocal && (await localModel.canTranscribeLocalAudio()))) {
@@ -129,6 +130,7 @@ async function transcribeRecording(
     for (const token of contextBias) form.append("context_bias", token);
 
     try {
+      onProvider?.("mistral");
       const response = await net.fetch(MISTRAL_TRANSCRIPTION_URL, {
         method: "POST",
         headers: { "x-api-key": apiKey },
@@ -499,6 +501,7 @@ class IPCHandlers {
     // Counts changes to any key in Settings. A streaming socket keeps the count it
     // was opened under, so a start never reuses one authenticated before a change.
     let credentialGeneration = 0;
+    let realtimeLimit = null;
     const saveSecretKey = (getter, saver, storeKey) => (event, key) => {
       if (typeof key !== "string") throw new TypeError("API key must be a string");
       // Committing an unedited key field saves the same value again.
@@ -506,6 +509,7 @@ class IPCHandlers {
       const result = this.environmentManager[saver](key);
       if (!changed) return result;
       credentialGeneration += 1;
+      realtimeLimit = null;
       // Notify peers by setting name only; leave the editor's pending input alone.
       for (const win of BrowserWindow.getAllWindows()) {
         if (!win.isDestroyed() && win.webContents.id !== event.sender.id) {
@@ -1279,6 +1283,7 @@ class IPCHandlers {
     });
 
     ipcMain.handle("get-local-model-status", () => localModel.getLocalModelStatus());
+    ipcMain.handle("warm-local-model", () => localModel.warmLocalModel());
     ipcMain.handle("download-local-model", () => localModel.downloadLocalModel());
     const pendingDictations = new Map();
     ipcMain.handle("cancel-batch-dictation", (event, requestId) => {
@@ -1298,7 +1303,12 @@ class IPCHandlers {
               model,
               contextBias,
               preferLocal,
-              controller.signal
+              controller.signal,
+              (provider) => {
+                if (requestId && !controller.signal.aborted && !event.sender.isDestroyed()) {
+                  event.sender.send("batch-dictation-provider", requestId, provider);
+                }
+              }
             );
           } finally {
             if (requestId) pendingDictations.delete(requestId);
@@ -1725,6 +1735,8 @@ class IPCHandlers {
       if (this._dictationConnectPromise) {
         await this._dictationConnectPromise.catch(() => {});
       }
+      // A recording can arrive while an idle warmup is receiving a 429.
+      if (realtimeLimit?.retryAt > Date.now()) throw realtimeLimit;
 
       clearDictationIdleTimer();
 
@@ -1745,6 +1757,7 @@ class IPCHandlers {
         // of silently dropping the start of the recording.
         streaming.beginConnecting();
         streaming.connectionKey = dictationConnectionKey(options);
+        const connectingGeneration = credentialGeneration;
         this._dictationStreaming = streaming;
         try {
           const apiKey = this.environmentManager.getMistralKey();
@@ -1761,6 +1774,7 @@ class IPCHandlers {
             keyterms: options.keyterms,
           });
         } catch (err) {
+          if (err.retryAt && connectingGeneration === credentialGeneration) realtimeLimit = err;
           if (this._dictationStreaming === streaming) this._dictationStreaming = null;
           throw err;
         }
@@ -1776,6 +1790,7 @@ class IPCHandlers {
 
     const streamingStartFailure = (err) => {
       const result = toPolicyFailure(err);
+      if (err === realtimeLimit) result.retryAt = err.retryAt;
       if (err.messageKey) result.messageKey = err.messageKey;
       if (err.networkCode) result.networkCode = err.networkCode;
       return result;

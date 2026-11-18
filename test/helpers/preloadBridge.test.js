@@ -93,3 +93,13 @@ test("prepare-dictation forwards the input kind without the Electron event", () 
   assert.deepEqual(received, [{ inputKind: "assistant" }]);
   assert.equal(listeners.has("prepare-dictation"), false);
 });
+
+test("batch provider changes pass only the recording ID and provider to the pill", () => {
+  const { api, listeners } = loadPreloadApi();
+  const received = [];
+  const dispose = api.onBatchDictationProvider((...args) => received.push(args));
+  listeners.get("batch-dictation-provider")({ senderId: 1 }, "recording", "parakeet");
+  dispose();
+  assert.deepEqual(received, [["recording", "parakeet"]]);
+  assert.equal(listeners.has("batch-dictation-provider"), false);
+});
