@@ -22,6 +22,57 @@ test("warm starts the installed recognizer before the first clip and skips a mis
   );
 });
 
+test("live recordings deliver every byte in order and keep file jobs in the same queue", async (t) => {
+  const model = new LocalSpeechModel(os.tmpdir());
+  const calls = [];
+  t.mock.method(model, "run", async (audio) => {
+    if (typeof audio === "string") {
+      calls.push(audio);
+      return { text: "file" };
+    }
+    const chunks = [];
+    for await (const chunk of audio) chunks.push(chunk);
+    calls.push(Buffer.concat(chunks).toString());
+    return { text: "live" };
+  });
+  const live = model.startRecording();
+  const file = model.transcribe("next file");
+  await live.write(Buffer.from("one"));
+  await live.write(Buffer.from("two"));
+  assert.deepEqual(await live.finish(), { text: "live" });
+  assert.deepEqual(await file, { text: "file" });
+  assert.deepEqual(calls, ["onetwo", "next file"]);
+});
+
+test("cancelling a queued recording settles its blocked write and finish before the worker is free", async () => {
+  const model = new LocalSpeechModel(os.tmpdir());
+  let release;
+  model.queue = new Promise((resolve) => {
+    release = resolve;
+  });
+  const live = model.startRecording();
+  const write = live.write(Buffer.alloc(128 * 1024));
+  const result = live.finish();
+  live.cancel();
+  try {
+    await Promise.all([
+      assert.rejects(write, { name: "AbortError" }),
+      assert.rejects(result, { name: "AbortError" }),
+    ]);
+  } finally {
+    release();
+  }
+  await model.queue;
+});
+
+test("live input overflow abandons the recording and allows another queued job", async () => {
+  const model = new LocalSpeechModel(os.tmpdir());
+  const live = model.startRecording();
+  await assert.rejects(live.write(Buffer.alloc(1024 * 1024 + 1)), /input is full/);
+  await assert.rejects(live.finish(), /input is full/);
+  await model.queue;
+});
+
 test("a failed model update keeps the old files and can be retried", async (t) => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "only-whispers-model-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));

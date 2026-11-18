@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { createHash, randomUUID } = require("crypto");
 const { fork } = require("child_process");
+const { PassThrough } = require("stream");
 const { pipeline } = require("stream/promises");
 const { getFFmpegPath } = require("./ffmpegUtils");
 const { getSafeTempDir } = require("./safeTempDir");
@@ -191,6 +192,7 @@ class LocalSpeechModel {
     const libPath = process.platform === "darwin" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
     const worker = fork(unpack(path.join(__dirname, "parakeetWorker.js")), [directory], {
       execArgv: [],
+      serialization: "advanced",
       env: {
         ...process.env,
         ELECTRON_RUN_AS_NODE: "1",
@@ -230,6 +232,48 @@ class LocalSpeechModel {
     return result;
   }
 
+  startRecording() {
+    const input = new PassThrough({ highWaterMark: 64 * 1024 });
+    const controller = new AbortController();
+    // Cancel immediately, even when a file transcription still owns the worker.
+    const result = Promise.race([
+      this.transcribe(input, { signal: controller.signal }),
+      new Promise((_resolve, reject) => input.once("error", reject)),
+    ]);
+    result.catch((error) => input.destroy(error));
+    const cancel = (error) => {
+      controller.abort(error);
+      input.destroy(controller.signal.reason);
+    };
+    return {
+      write(chunk) {
+        if (input.destroyed || input.writableEnded) {
+          return Promise.reject(input.errored || new Error("Local recording has ended."));
+        }
+        // If the worker cannot keep up, use the complete recording kept by the mic.
+        if (input.readableLength + input.writableLength + chunk.length > 1024 * 1024) {
+          const error = new Error("Local recording input is full.");
+          cancel(error);
+          return Promise.reject(error);
+        }
+        return new Promise((resolve, reject) => {
+          // A write waiting for the reader may never get its callback after destroy().
+          input.once("error", reject);
+          input.write(chunk, (error) => {
+            input.off("error", reject);
+            if (error) reject(error);
+            else resolve();
+          });
+        });
+      },
+      finish() {
+        input.end();
+        return result;
+      },
+      cancel: () => cancel(),
+    };
+  }
+
   async run(audio, signal) {
     signal?.throwIfAborted();
     const installed = await this.installedModel();
@@ -237,8 +281,9 @@ class LocalSpeechModel {
     await this.retireWorker(installed.directory);
     const ffmpeg = getFFmpegPath();
     if (!ffmpeg) throw new Error("FFmpeg is missing. Reinstall Only Whispers.");
+    const live = audio instanceof PassThrough;
     const temp =
-      typeof audio === "string"
+      live || typeof audio === "string"
         ? null
         : path.join(getSafeTempDir(), `only-whispers-${randomUUID()}.audio`);
     try {
@@ -248,18 +293,22 @@ class LocalSpeechModel {
       const text = await new Promise((resolve, reject) => {
         worker.ref();
         worker.channel.ref();
+        let settled = false;
+        let written;
         const onMessage = (reply) => {
+          if (reply.written) {
+            written?.();
+            return;
+          }
           cleanup();
           if (reply.error) reject(new Error(reply.error));
           else resolve(reply.text);
         };
         const onExit = () => onError(new Error("The local speech engine stopped."));
-        const onAbort = () => {
-          this.worker = null;
-          worker.kill();
-          onError(signal.reason);
-        };
+        const onAbort = () => onError(signal.reason);
         const cleanup = () => {
+          settled = true;
+          written?.();
           worker.off("message", onMessage);
           worker.off("exit", onExit);
           worker.off("error", onError);
@@ -268,16 +317,37 @@ class LocalSpeechModel {
           worker.unref();
         };
         const onError = (error) => {
+          if (settled) return;
           cleanup();
+          // A broken pipe or a cancelled input may leave FFmpeg waiting for bytes.
+          if (this.worker === worker) {
+            this.worker = null;
+            worker.kill();
+          }
           reject(error);
         };
-        worker.once("message", onMessage);
+        worker.on("message", onMessage);
         worker.once("exit", onExit);
         worker.once("error", onError);
         signal?.addEventListener("abort", onAbort, { once: true });
-        worker.send({ input: temp || audio, ffmpeg }, (error) => {
+        const onSend = (error) => {
           if (error) onError(error);
-        });
+        };
+        worker.send({ input: live ? undefined : temp || audio, ffmpeg, live }, onSend);
+        if (live) {
+          const sendAudio = async () => {
+            for await (const chunk of audio) {
+              if (settled) return;
+              // Only one chunk is in flight until FFmpeg accepts the bytes.
+              await new Promise((accept) => {
+                written = accept;
+                worker.send({ chunk }, onSend);
+              });
+            }
+            if (!settled) worker.send({ finish: true }, onSend);
+          };
+          sendAudio().catch(onError);
+        }
       });
       return { text, model: installed.model, modelRevision: path.basename(installed.directory) };
     } finally {
@@ -298,6 +368,7 @@ module.exports = {
   getLocalModelStatus: () => getModel().getStatus(),
   canTranscribeLocalAudio: async () => !!(await getModel().installedModel()),
   warmLocalModel: () => getModel().warm(),
+  startLocalRecording: () => getModel().startRecording(),
   downloadLocalModel: () => getModel().install(),
   transcribeLocalAudio: (audio, options) => getModel().transcribe(audio, options),
 };

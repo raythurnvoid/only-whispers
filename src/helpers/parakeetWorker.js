@@ -53,7 +53,9 @@ function decode(pcm, isStart, isEnd) {
   return recognizer.getResult(stream).text.trim();
 }
 
-async function transcribe(input, ffmpeg) {
+let liveInput;
+
+async function transcribe(input, ffmpeg, live) {
   const child = spawn(
     ffmpeg,
     [
@@ -63,7 +65,7 @@ async function transcribe(input, ffmpeg) {
       "-protocol_whitelist",
       "file,pipe",
       "-i",
-      input,
+      live ? "pipe:0" : input,
       "-vn",
       "-ac",
       "1",
@@ -73,8 +75,14 @@ async function transcribe(input, ffmpeg) {
       "f32le",
       "pipe:1",
     ],
-    { windowsHide: true, stdio: ["ignore", "pipe", "ignore"] }
+    { windowsHide: true, stdio: [live ? "pipe" : "ignore", "pipe", "ignore"] }
   );
+  if (live) {
+    liveInput = child.stdin;
+    // FFmpeg may reject the container before the next input write finishes.
+    // Its exit status below reports the failure to the recording.
+    liveInput.on("error", () => {});
+  }
   const closed = new Promise((resolve) => {
     child.once("error", (error) => resolve(error.message));
     child.once("close", (code) =>
@@ -100,17 +108,29 @@ async function transcribe(input, ffmpeg) {
     }
     const error = await closed;
     if (error) throw new Error(error);
+    if (live && !liveInput.writableEnded) throw new Error("The live audio stream ended early.");
     words.push(decode(pcm.subarray(0, used), words.length === 0, true));
     return words.filter(Boolean).join(" ");
   } finally {
+    liveInput = null;
     child.kill();
   }
 }
 
 process.on("disconnect", () => process.exit());
-process.on("message", async ({ input, ffmpeg }) => {
+process.on("message", async ({ input, ffmpeg, live, chunk, finish }) => {
+  if (chunk) {
+    liveInput?.write(chunk, (error) => {
+      if (!error) process.send({ written: true });
+    });
+    return;
+  }
+  if (finish) {
+    liveInput?.end();
+    return;
+  }
   try {
-    process.send({ text: await transcribe(input, ffmpeg) });
+    process.send({ text: await transcribe(input, ffmpeg, live) });
   } catch (error) {
     process.send({ error: error.message });
   }
