@@ -4,6 +4,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 const { parseArgs } = require("node:util");
+const { parseDbTimestamp } = require("../src/helpers/dbTimestamp");
 const { LocalSpeechModel } = require("../src/helpers/localModel");
 
 function words(text) {
@@ -113,7 +114,7 @@ async function main() {
       .get(through).total;
     rows = db
       .prepare(
-        `SELECT id, client_transcription_id, stt_raw_text, stt_model, stt_provider,
+        `SELECT id, timestamp, client_transcription_id, stt_raw_text, stt_model, stt_provider,
       stt_app_version, stt_latency_ms, reference_text FROM transcriptions
       WHERE ${where} ORDER BY id DESC LIMIT ?`
       )
@@ -197,8 +198,12 @@ async function main() {
     group.referenceWords += reference.length;
     if (!values.agreement && hasOriginal) group.recordedEdits += wordEdits(reference, saved);
     group.candidateEdits += wordEdits(reference, hypothesis);
-    if (hasOriginal && values["show-mismatches"] && saved.join(" ") !== hypothesis.join(" "))
-      mismatches.push(row.id);
+    if (hasOriginal && values["show-mismatches"] && saved.join(" ") !== hypothesis.join(" ")) {
+      mismatches.push({
+        historyId: row.id,
+        localTime: parseDbTimestamp(row.timestamp)?.toLocaleString() ?? null,
+      });
+    }
     if (hasOriginal && row.stt_latency_ms !== null) group.recordedTimes.push(row.stt_latency_ms);
     if (replayMs !== undefined) group.replayTimes.push(replayMs);
     scored++;
@@ -251,7 +256,7 @@ async function main() {
         missingPrediction,
         replayFailures,
         comparisons,
-        ...(values["show-mismatches"] ? { mismatchingHistoryIds: mismatches } : {}),
+        ...(values["show-mismatches"] ? { mismatches } : {}),
       },
       null,
       2

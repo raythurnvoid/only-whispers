@@ -18,7 +18,7 @@ You can also check for changes before reviewing any words.
 vp env exec node scripts/evaluate-stt.js --agreement --show-mismatches
 ```
 
-This compares raw model outputs for the 30 newest unreviewed recordings with a saved original result. It reports how often they disagree. Both models can make the same mistake. Use the listed history IDs to choose recordings to review. Set `--limit N` to change the sample size. To repeat a sample after more dictations, pass its reported `throughId` with `--through-id N`. Review changes and your normal history retention still affect which clips are available.
+This compares raw model outputs for the 30 newest unreviewed recordings with a saved original result. It reports how often they disagree. Both models can make the same mistake. Find a mismatch in History by its local date and time. The audio filename also ends in its history ID. Set `--limit N` to change the sample size. To repeat a sample after more dictations, pass its reported `throughId` with `--through-id N`. Review changes and your normal history retention still affect which clips are available.
 
 To compare a different model, use `--list-inputs` to print each selected recording's ID and local audio path. Run that model on those files and save its raw results as one JSON object per line. For example, a model result can look like this.
 

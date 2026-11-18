@@ -14,7 +14,8 @@ test("offline comparison scores matching recordings against human words or again
   db.exec(`CREATE TABLE transcriptions (
     id INTEGER PRIMARY KEY, client_transcription_id TEXT, stt_raw_text TEXT, stt_provider TEXT DEFAULT 'parakeet',
     stt_model TEXT DEFAULT 'local@rev', stt_app_version TEXT DEFAULT 'test', stt_latency_ms INTEGER,
-    deleted_at TEXT, status TEXT DEFAULT 'completed', has_audio INTEGER DEFAULT 1, reference_text TEXT
+    deleted_at TEXT, status TEXT DEFAULT 'completed', has_audio INTEGER DEFAULT 1, reference_text TEXT,
+    timestamp TEXT DEFAULT '2026-11-18 08:15:00'
   )`);
   const add = db.prepare(
     "INSERT INTO transcriptions(id, client_transcription_id, stt_raw_text, reference_text, stt_latency_ms) VALUES (?, ?, ?, ?, ?)"
@@ -86,7 +87,9 @@ test("offline comparison scores matching recordings against human words or again
   );
   assert.equal(raw.comparisons[0].disagreementPct, 50);
   assert.equal(raw.comparisons[0].candidateWerPct, undefined);
-  assert.deepEqual(raw.mismatchingHistoryIds, [3]);
+  assert.deepEqual(raw.mismatches, [
+    { historyId: 3, localTime: new Date("2026-11-18T08:15:00Z").toLocaleString() },
+  ]);
   const list = run("--list-inputs", "--through-id", "2", "--limit", "1");
   assert.deepEqual(JSON.parse(list.stdout), {
     id: "b",
