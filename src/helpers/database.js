@@ -342,7 +342,6 @@ class DatabaseManager {
       errorCode = null,
       clientTranscriptionId = randomUUID(),
       analyticsOccurredAt = null,
-      stt = null,
     } = {}
   ) {
     try {
@@ -360,9 +359,8 @@ class DatabaseManager {
       const stmt = this.db.prepare(
         `INSERT INTO transcriptions (
            text, raw_text, status, error_message, error_code,
-           client_transcription_id, timestamp, stt_raw_text, stt_provider,
-           stt_model, stt_latency_ms, stt_app_version
-         ) VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), ?, ?, ?, ?, ?)`
+           client_transcription_id, timestamp
+         ) VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`
       );
       const result = stmt.run(
         text,
@@ -371,12 +369,7 @@ class DatabaseManager {
         errorMessage,
         errorCode,
         clientTranscriptionId,
-        occurredAt,
-        stt?.text ?? null,
-        stt?.provider ?? null,
-        stt?.model ?? null,
-        stt?.latencyMs ?? null,
-        stt ? app.getVersion() : null
+        occurredAt
       );
 
       const fetchStmt = this.db.prepare("SELECT * FROM transcriptions WHERE id = ?");
@@ -485,13 +478,27 @@ class DatabaseManager {
     }
   }
 
-  updateTranscriptionAudio(id, { hasAudio, audioDurationMs, provider, model }) {
+  updateTranscriptionAudio(id, { hasAudio, audioDurationMs, provider, model, stt }) {
     try {
       if (!this.db) throw new Error("Database not initialized");
       const stmt = this.db.prepare(
-        "UPDATE transcriptions SET has_audio = ?, audio_duration_ms = ?, provider = ?, model = ? WHERE id = ?"
+        `UPDATE transcriptions SET has_audio = ?, audio_duration_ms = ?, provider = ?, model = ?,
+           stt_raw_text = COALESCE(stt_raw_text, ?), stt_provider = COALESCE(stt_provider, ?),
+           stt_model = COALESCE(stt_model, ?), stt_latency_ms = COALESCE(stt_latency_ms, ?),
+           stt_app_version = COALESCE(stt_app_version, ?) WHERE id = ? AND deleted_at IS NULL`
       );
-      stmt.run(hasAudio, audioDurationMs, provider, model, id);
+      stmt.run(
+        hasAudio,
+        audioDurationMs,
+        provider,
+        model,
+        stt?.text ?? null,
+        stt?.provider ?? null,
+        stt?.model ?? null,
+        stt?.latencyMs ?? null,
+        stt ? app.getVersion() : null,
+        id
+      );
       return { success: true };
     } catch (error) {
       debugLogger.error("Error updating transcription audio", { error: error.message }, "database");

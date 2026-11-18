@@ -428,6 +428,21 @@ test("a failed live stream skips finalize and uses the full recording even if la
   assert.deepEqual(completions[0].stt, stt);
 });
 
+test("a partial saved segment cannot be compared with the full live transcript", async (t) => {
+  const { AudioManager } = await loadCancelGuardManagerClass(t);
+  const { manager, completions } = createStreamingLeakManager(AudioManager);
+  manager.streamingFinalText = "first and second segment";
+  manager.mergeRecordedSegments = async () => {
+    throw new Error("merge failed");
+  };
+  const partial = new Blob(["first segment"]);
+  manager.getLargestRecordedSegment = () => partial;
+  await manager.stopStreamingRecording();
+  assert.equal(manager.lastAudioBlob, partial);
+  assert.equal(completions[0].rawText, "first and second segment");
+  assert.equal(completions[0].stt, undefined, "the partial recording has no live baseline");
+});
+
 test("a cancelled batch pipeline cannot clear newer streaming finalization", async (t) => {
   const { AudioManager } = await loadCancelGuardManagerClass(t);
   const { manager } = createStreamingLeakManager(AudioManager);

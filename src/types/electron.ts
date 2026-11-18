@@ -463,7 +463,6 @@ declare global {
           errorCode?: TranscriptionErrorCode;
           clientTranscriptionId?: string;
           analyticsOccurredAt?: string;
-          stt?: { text: string; provider: string; model: string; latencyMs: number | null };
         }
       ) => Promise<{ id: number; success: boolean; transcription?: TranscriptionItem }>;
       getTranscriptions: (
@@ -477,7 +476,12 @@ declare global {
       saveTranscriptionAudio: (
         id: number,
         audioBuffer: ArrayBuffer,
-        metadata?: { durationMs?: number; provider?: string; model?: string }
+        metadata?: {
+          durationMs?: number;
+          provider?: string;
+          model?: string;
+          stt?: { text: string; provider: string; model: string; latencyMs: number | null };
+        }
       ) => Promise<{ success: boolean; path?: string }>;
       mergeAudioSegments: (
         segments: Array<{ buffer: ArrayBuffer; mimeType: string }>

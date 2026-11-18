@@ -9,7 +9,12 @@ test("a retry preserves the first speech result and the listener's reference", (
   const db = createDb(t);
   if (!db) return;
   const { id } = db.saveTranscription("The pears.", stt.text, { stt });
-  db.updateTranscriptionAudio(id, audio);
+  assert.equal(
+    db.getTranscriptionById(id).stt_raw_text,
+    null,
+    "an unattached clip has no baseline"
+  );
+  db.updateTranscriptionAudio(id, { ...audio, stt });
   db.setTranscriptionReference(id, "the pairs");
   db.updateTranscriptionText(id, "the bears", "the bears");
   db.updateTranscriptionAudio(id, { ...audio, provider: "mistral", model: "other-model" });
@@ -54,9 +59,9 @@ test("deleting a synced recording or expiring its audio removes its review", (t)
   const db = createDb(t);
   if (!db) return;
   for (const action of ["delete", "expire"]) {
-    const { id } = db.saveTranscription("A pear.", stt.text, { stt });
+    const { id } = db.saveTranscription("A pear.", stt.text);
     assert.equal(db.setTranscriptionReference(id, "a pair"), undefined);
-    db.updateTranscriptionAudio(id, audio);
+    db.updateTranscriptionAudio(id, { ...audio, stt });
     db.setTranscriptionReference(id, "a pair");
     if (action === "delete") {
       db.db.prepare("UPDATE transcriptions SET cloud_id = 'test' WHERE id = ?").run(id);

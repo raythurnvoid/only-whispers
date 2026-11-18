@@ -27,7 +27,7 @@ const recording = () => new Blob(["recording"], { type: "audio/webm" });
 
 test("history pairs the first speech result with its own audio even if the next clip finishes", async (t) => {
   const pending = Promise.withResolvers();
-  let baseline, savedAudio;
+  let rowOptions, savedAudio;
   const manager = await loadManager(
     t,
     { dataRetentionEnabled: true, audioRetentionDays: 7 },
@@ -39,7 +39,7 @@ test("history pairs the first speech result with its own audio even if the next 
         modelRevision: "revision",
       }),
       saveTranscription: (_text, _rawText, options) => {
-        baseline = options.stt;
+        rowOptions = options;
         return pending.promise;
       },
       saveTranscriptionAudio: (id, bytes, metadata) => {
@@ -60,11 +60,13 @@ test("history pairs the first speech result with its own audio even if the next 
   pending.resolve({ id: 8 });
   await saving;
 
+  assert.equal(rowOptions.stt, undefined, "the transcript row must wait for its audio");
+  const baseline = savedAudio[2].stt;
   assert.equal(baseline.text, "spoken words");
   assert.equal(baseline.provider, "parakeet");
   assert.equal(baseline.model, "local@revision");
   assert.ok(baseline.latencyMs >= 100);
-  assert.deepEqual(savedAudio, [8, "recording", { durationMs: 125 }]);
+  assert.deepEqual(savedAudio, [8, "recording", { durationMs: 125, stt: baseline }]);
   assert.equal(await manager.lastAudioBlob.text(), "next clip");
 });
 

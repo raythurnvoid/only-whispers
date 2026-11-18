@@ -588,6 +588,7 @@ class IPCHandlers {
           audioDurationMs: metadata?.durationMs || null,
           provider: metadata?.provider || null,
           model: metadata?.model || null,
+          stt: metadata?.stt,
         });
         const updated = this.databaseManager.getTranscriptionById(id);
         if (updated) broadcastToWindows("transcription-updated", updated);

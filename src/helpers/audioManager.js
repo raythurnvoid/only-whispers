@@ -2426,14 +2426,16 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       const result = await window.electronAPI.saveTranscription(text, rawText, {
         clientTranscriptionId: eventId,
         analyticsOccurredAt: occurredAt.toISOString(),
-        ...(stt && audioBlob && audioRetentionDays > 0 ? { stt } : {}),
       });
 
       // Save audio if we have a captured blob and the transcription was saved successfully
       if (result?.id && audioBlob && audioRetentionDays > 0) {
         try {
           const arrayBuffer = await audioBlob.arrayBuffer();
-          await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, audioMetadata);
+          await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, {
+            ...audioMetadata,
+            ...(stt ? { stt } : {}),
+          });
         } catch (audioErr) {
           // Non-blocking: transcription is saved even if audio save fails
           logger.warn("Failed to save transcription audio", { error: audioErr.message }, "audio");
@@ -3507,6 +3509,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     // Stop fallback recorder before stopping media tracks
     let fallbackBlob = null;
+    let savedAudioIsPartial = false;
     await this.finishStreamingFallbackSegment();
     if (wasCancelled()) return abandonFinalization();
     try {
@@ -3518,6 +3521,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         "streaming"
       );
       fallbackBlob = this.getLargestRecordedSegment(this._streamingFallbackSegments);
+      savedAudioIsPartial = true;
     }
     if (wasCancelled()) return abandonFinalization();
     this.lastAudioBlob = fallbackBlob;
@@ -3789,14 +3793,17 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         success: true,
         text: finalText,
         rawText: batchFallbackResult?.rawText || rawStreamingText || finalText,
+        // A recovered segment can reproduce its batch result, but not a full live transcript.
         stt: usedBatchFallback
           ? batchFallbackResult.stt
-          : {
-              text: rawStreamingText,
-              provider: providerName,
-              model: streamingSttModel,
-              latencyMs: Math.round(tTerminate - stopRequestedAt),
-            },
+          : savedAudioIsPartial
+            ? undefined
+            : {
+                text: rawStreamingText,
+                provider: providerName,
+                model: streamingSttModel,
+                latencyMs: Math.round(tTerminate - stopRequestedAt),
+              },
         source: batchFallbackResult?.source || `${providerName}-streaming`,
         clientTranscriptionId,
         analyticsOccurredAt: resultAnalyticsOccurredAt,
