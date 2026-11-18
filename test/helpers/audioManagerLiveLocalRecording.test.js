@@ -88,6 +88,7 @@ test("a long local recording uses the same pre-roll and chunks for recognition a
   await tick();
   assert.equal(writes.length, 1, "the first write starts before release");
   assert.equal(writes[0][0], 1);
+  advance(-1000); // The clock can move back while the microphone is still open.
   add("last");
   let finished;
   api.finishLocalRecording = async (id) => {

@@ -26,7 +26,8 @@ export function createLiveLocalRecording(chunks, startedAt, api) {
     cancel,
     update(source) {
       // A cancelled MediaRecorder can still emit a last chunk after a new start.
-      if (closed || source !== chunks || Date.now() - startedAt < START_AFTER_MS) return;
+      if (closed || source !== chunks) return;
+      if (nextChunk === 0 && Date.now() - startedAt < START_AFTER_MS) return;
       if (nextChunk === chunks.length) return;
       const audio = new Blob(chunks.slice(nextChunk));
       nextChunk = chunks.length;
