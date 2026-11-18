@@ -270,6 +270,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getLocalModelStatus: () => ipcRenderer.invoke("get-local-model-status"),
   warmLocalModel: () => ipcRenderer.invoke("warm-local-model"),
   downloadLocalModel: () => ipcRenderer.invoke("download-local-model"),
+  writeLocalRecordingChunk: (id, bytes) =>
+    ipcRenderer.invoke("write-local-recording-chunk", id, bytes),
+  finishLocalRecording: (id) => ipcRenderer.invoke("finish-local-recording", id),
+  cancelLocalRecording: (id) => ipcRenderer.invoke("cancel-local-recording", id),
   cancelBatchDictation: (requestId) => ipcRenderer.invoke("cancel-batch-dictation", requestId),
   onBatchDictationProvider: registerListener(
     "batch-dictation-provider",

@@ -1344,6 +1344,100 @@ class IPCHandlers {
     ipcMain.handle("get-local-model-status", () => localModel.getLocalModelStatus());
     ipcMain.handle("warm-local-model", () => localModel.warmLocalModel());
     ipcMain.handle("download-local-model", () => localModel.downloadLocalModel());
+
+    const localRecordingOwners = new WeakMap();
+    const ownerEndEvents = ["destroyed", "render-process-gone", "did-navigate"];
+    const recordingOwner = ({ sender, senderFrame }, id) => {
+      if (
+        sender !== this.windowManager.mainWindow?.webContents ||
+        !senderFrame ||
+        senderFrame !== sender.mainFrame ||
+        typeof id !== "string" ||
+        !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)
+      )
+        return null;
+
+      let owner = localRecordingOwners.get(sender);
+      if (!owner) {
+        // Remember closed IDs for this page so late chunks cannot open a partial recording.
+        owner = { seen: new Set(), active: null };
+        localRecordingOwners.set(sender, owner);
+        const dispose = () => {
+          const job = owner.active;
+          owner.active = null;
+          owner.seen.clear();
+          job?.session.cancel();
+          localRecordingOwners.delete(sender);
+          for (const name of ownerEndEvents) sender.off(name, dispose);
+        };
+        for (const name of ownerEndEvents) sender.once(name, dispose);
+      }
+      return owner;
+    };
+    const cancelLocalRecording = (owner, id) => {
+      const job = owner.active;
+      owner.seen.add(id);
+      if (job?.id === id) {
+        owner.active = null;
+        job.session.cancel();
+      }
+    };
+    ipcMain.handle("write-local-recording-chunk", async (event, id, bytes) => {
+      const owner = recordingOwner(event, id);
+      if (!owner) return false;
+      let job = owner.active;
+      if (
+        !(bytes instanceof ArrayBuffer || bytes instanceof Uint8Array) ||
+        !bytes.byteLength ||
+        bytes.byteLength > 1024 * 1024 ||
+        (job && (job.id !== id || job.pending || job.finishing))
+      ) {
+        cancelLocalRecording(owner, id);
+        return false;
+      }
+      try {
+        if (!job) {
+          if (owner.seen.has(id)) return false;
+          owner.seen.add(id);
+          job = { id, session: localModel.startLocalRecording(), pending: null, finishing: false };
+          owner.active = job;
+        }
+        // The recorder waits for each write. Do not queue extra audio ahead of the worker.
+        job.pending = job.session.write(Buffer.from(bytes));
+        await job.pending;
+        return owner.active === job;
+      } catch {
+        if (owner.active === job) cancelLocalRecording(owner, id);
+        return false;
+      } finally {
+        if (job) job.pending = null;
+      }
+    });
+    ipcMain.handle("finish-local-recording", async (event, id) => {
+      const owner = recordingOwner(event, id);
+      const job = owner?.active;
+      if (!job || job.id !== id || job.finishing) {
+        owner?.seen.add(id);
+        return null;
+      }
+      job.finishing = true;
+      try {
+        await job.pending;
+        if (owner.active !== job) return null;
+        const result = await job.session.finish();
+        return owner.active === job ? { ...result, source: "parakeet" } : null;
+      } catch {
+        if (owner.active === job) cancelLocalRecording(owner, id);
+        return null;
+      } finally {
+        if (owner.active === job) owner.active = null;
+      }
+    });
+    ipcMain.handle("cancel-local-recording", (event, id) => {
+      const owner = recordingOwner(event, id);
+      if (owner) cancelLocalRecording(owner, id);
+    });
+
     const pendingDictations = new Map();
     ipcMain.handle("cancel-batch-dictation", (event, requestId) => {
       const job = pendingDictations.get(requestId);
