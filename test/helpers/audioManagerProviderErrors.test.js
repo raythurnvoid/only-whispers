@@ -25,6 +25,49 @@ async function loadManager(t, settings, window = {}) {
 
 const recording = () => new Blob(["recording"], { type: "audio/webm" });
 
+test("history pairs the first speech result with its own audio even if the next clip finishes", async (t) => {
+  const pending = Promise.withResolvers();
+  let baseline, savedAudio;
+  const manager = await loadManager(
+    t,
+    { dataRetentionEnabled: true, audioRetentionDays: 7 },
+    {
+      proxyMistralTranscription: async () => ({
+        text: "spoken words",
+        source: "parakeet",
+        model: "local",
+        modelRevision: "revision",
+      }),
+      saveTranscription: (_text, _rawText, options) => {
+        baseline = options.stt;
+        return pending.promise;
+      },
+      saveTranscriptionAudio: (id, bytes, metadata) => {
+        savedAudio = [id, new TextDecoder().decode(bytes), metadata];
+      },
+    }
+  );
+  manager.processTranscription = async () => "cleaned words";
+  const clip = recording();
+  manager.lastAudioBlob = clip;
+  manager.lastAudioMetadata = { durationMs: 125 };
+  const result = await manager.processWithOpenAIAPI(clip, {
+    stopRequestedAt: performance.now() - 100,
+  });
+  const saving = manager.saveTranscription(result.text, result.rawText, { stt: result.stt });
+  manager.lastAudioBlob = new Blob(["next clip"]);
+  manager.lastAudioMetadata = { durationMs: 300 };
+  pending.resolve({ id: 8 });
+  await saving;
+
+  assert.equal(baseline.text, "spoken words");
+  assert.equal(baseline.provider, "parakeet");
+  assert.equal(baseline.model, "local@revision");
+  assert.ok(baseline.latencyMs >= 100);
+  assert.deepEqual(savedAudio, [8, "recording", { durationMs: 125 }]);
+  assert.equal(await manager.lastAudioBlob.text(), "next clip");
+});
+
 test("a rate-limited warmup uses local speech until retry time and applies only to its own key", async (t) => {
   const retryAt = Date.now() + 60000;
   const manager = await loadManager(

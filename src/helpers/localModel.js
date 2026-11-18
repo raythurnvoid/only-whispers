@@ -279,7 +279,7 @@ class LocalSpeechModel {
           if (error) onError(error);
         });
       });
-      return { text, model: installed.model };
+      return { text, model: installed.model, modelRevision: path.basename(installed.directory) };
     } finally {
       // On Windows, FFmpeg can hold this file briefly after cancellation kills the worker.
       if (temp) await fs.promises.rm(temp, { force: true, recursive: true, maxRetries: 8 });

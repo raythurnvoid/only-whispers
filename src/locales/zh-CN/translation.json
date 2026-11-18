@@ -217,6 +217,12 @@
       "audioNotFound": "音频文件未找到或已过期",
       "noAiProcessing": "此转录未应用 AI 处理",
       "rawTranscript": "原始转录",
+      "reviewWords": "核对录音原话",
+      "editReview": "编辑已核对的原话",
+      "reviewHint": "请听录音，核对实际说出的词，包括语气词。核对后的文字将用于评估语音识别模型。",
+      "removeReview": "撤销核对",
+      "confirmWords": "确认原话",
+      "confirmSilence": "确认无人说话",
       "discarded": {
         "show": "显示已放弃",
         "hide": "隐藏已放弃",

@@ -194,6 +194,12 @@
       "clearAllSuccess": "تم مسح السجل",
       "clearAllErrorTitle": "تعذر مسح السجل",
       "clearAllErrorDescription": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "reviewWords": "مراجعة الكلمات المنطوقة",
+      "editReview": "تعديل الكلمات التي راجعتها",
+      "reviewHint": "استمع إلى التسجيل. تحقق من الكلمات بما فيها الترددات لاستخدامها في تقييم نماذج النسخ.",
+      "removeReview": "إزالة المراجعة",
+      "confirmWords": "تأكيد الكلمات",
+      "confirmSilence": "تأكيد عدم وجود كلام",
       "discarded": {
         "show": "إظهار المستبعد",
         "hide": "إخفاء المستبعد",

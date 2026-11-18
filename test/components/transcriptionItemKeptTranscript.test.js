@@ -56,6 +56,19 @@ const render = (TranscriptionItem, item) =>
     React.createElement(TranscriptionItem, { item, onCopy() {}, onDelete() {} })
   );
 
+test("a review needs a completed recording and keeps reviewed silence distinct from no review", async (t) => {
+  const TranscriptionItem = await loadTranscriptionItem(t);
+  const completed = row({ status: "completed", reference_text: null });
+  assert.match(render(TranscriptionItem, completed), /controlPanel\.history\.reviewWords/);
+  assert.match(
+    render(TranscriptionItem, { ...completed, reference_text: "" }),
+    /controlPanel\.history\.editReview/
+  );
+  for (const ineligible of [row(), { ...completed, has_audio: 0 }]) {
+    assert.doesNotMatch(render(TranscriptionItem, ineligible), /controlPanel\.history\.reviewWords/);
+  }
+});
+
 test("a failed row renders its kept transcript and names the failed edit", async (t) => {
   const TranscriptionItem = await loadTranscriptionItem(t);
 

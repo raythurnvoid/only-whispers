@@ -43,6 +43,8 @@ Your words stay yours.
 - When cleanup is enabled, ChatGPT receives the transcript.
 - Your history stays on your computer.
 
+You can review a recording in History and use it to compare speech models on the same audio. [Run a local comparison](scripts/evaluate-stt.md)
+
 ## Code signing policy
 
 Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).

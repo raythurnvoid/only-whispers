@@ -15,6 +15,7 @@ function installElectronStub() {
         app: {
           getPath: () => userDataDir,
           getAppPath: () => process.cwd(),
+          getVersion: () => "0.0.0-test",
           isReady: () => false,
         },
       };

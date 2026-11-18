@@ -19,6 +19,7 @@ import {
   ArchiveRestore,
   MoreVertical,
   Pencil,
+  ListChecks,
   Play,
   Square,
 } from "../icons";
@@ -74,7 +75,7 @@ export default function TranscriptionItem({
   const { t, i18n } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [editor, setEditor] = useState<"text" | "reference" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const playerRef = useRef<{ audio: HTMLAudioElement; url: string } | null>(null);
 
@@ -135,7 +136,15 @@ export default function TranscriptionItem({
     const result = await window.electronAPI.updateTranscriptionText(item.id, text, item.raw_text);
     if (!result?.success || !result.transcription) return false;
     updateTranscription(result.transcription);
-    setIsEditing(false);
+    setEditor(null);
+    return true;
+  };
+
+  const saveReference = async (text: string | null) => {
+    const result = await window.electronAPI.setTranscriptionReference(item.id, text);
+    if (!result?.success || !result.transcription) return false;
+    updateTranscription(result.transcription);
+    setEditor(null);
     return true;
   };
 
@@ -219,6 +228,7 @@ export default function TranscriptionItem({
           // Actions surface on hover, keyboard focus, or while the menu is open; failed and
           // discarded rows keep them visible because recovery is the point of the row.
           isTranscribed &&
+            editor !== "reference" &&
             "opacity-0 group-hover/row:opacity-100 has-[:focus-visible]:opacity-100 has-[[data-state=open]]:opacity-100"
         )}
       >
@@ -279,8 +289,8 @@ export default function TranscriptionItem({
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => setIsEditing(true)}
-              disabled={isEditing}
+              onClick={() => setEditor("text")}
+              disabled={editor !== null}
               aria-label={t("controlPanel.history.editItem")}
               className={ACTION_BUTTON_CLASS}
             >
@@ -366,16 +376,38 @@ export default function TranscriptionItem({
                 : t("controlPanel.history.discarded.recording")}
             </span>
           </div>
-        ) : isEditing ? (
+        ) : editor === "reference" ? (
+          <TranscriptTextEditor
+            review
+            initialText={item.reference_text ?? item.stt_raw_text ?? rawText ?? ""}
+            onSave={saveReference}
+            onRemove={item.reference_text != null ? () => saveReference(null) : undefined}
+            onCancel={() => setEditor(null)}
+          />
+        ) : editor === "text" ? (
           <TranscriptTextEditor
             initialText={item.text}
             onSave={handleSaveEdit}
-            onCancel={() => setIsEditing(false)}
+            onCancel={() => setEditor(null)}
           />
         ) : (
           <p dir="auto" className={TRANSCRIPT_TEXT_CLASS}>
             {item.text}
           </p>
+        )}
+        {item.status === "completed" && hasAudio && editor === null && (
+          <button
+            type="button"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
+            onClick={() => setEditor("reference")}
+          >
+            <ListChecks size={13} />
+            {t(
+              item.reference_text != null
+                ? "controlPanel.history.editReview"
+                : "controlPanel.history.reviewWords"
+            )}
+          </button>
         )}
         {hasKeptText && (
           <p dir="auto" className={cn("mt-2", TRANSCRIPT_TEXT_CLASS)}>

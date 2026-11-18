@@ -406,6 +406,7 @@ test("a failed live stream skips finalize and uses the full recording even if la
   const { AudioManager } = await loadCancelGuardManagerClass(t);
   const { manager, completions } = createStreamingLeakManager(AudioManager);
   manager._streamingFailoverReason = "session_unavailable";
+  const stt = { text: "raw", provider: "parakeet", model: "parakeet@revision", latencyMs: 30 };
   const finalize = t.mock.fn(async () => ({ success: true, text: "early fragment" }));
   manager.getStreamingProvider = () => ({
     finalizeAcknowledged: true,
@@ -418,12 +419,13 @@ test("a failed live stream skips finalize and uses the full recording even if la
   });
   manager.processWithOpenAIAPI = async (_audio, options) => {
     assert.equal(options.preferLocal, true);
-    return { text: "full recording", source: "parakeet" };
+    return { text: "full recording", source: "parakeet", stt };
   };
 
   await manager.stopStreamingRecording();
   assert.equal(finalize.mock.callCount(), 0);
   assert.equal(completions[0].text, "full recording");
+  assert.deepEqual(completions[0].stt, stt);
 });
 
 test("a cancelled batch pipeline cannot clear newer streaming finalization", async (t) => {

@@ -217,6 +217,12 @@
       "clearAllSuccess": "Historique effacé",
       "clearAllErrorTitle": "Impossible d'effacer l'historique",
       "clearAllErrorDescription": "Une erreur est survenue. Veuillez réessayer.",
+      "reviewWords": "Vérifier les mots prononcés",
+      "editReview": "Modifier les mots vérifiés",
+      "reviewHint": "Écoutez l’enregistrement. Vérifiez les mots, y compris les hésitations, pour évaluer les modèles de transcription.",
+      "removeReview": "Supprimer la vérification",
+      "confirmWords": "Confirmer les mots",
+      "confirmSilence": "Confirmer l’absence de parole",
       "discarded": {
         "show": "Afficher les abandonnées",
         "hide": "Masquer les abandonnées",

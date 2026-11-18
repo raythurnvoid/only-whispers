@@ -217,6 +217,12 @@
       "clearAllSuccess": "History cleared",
       "clearAllErrorTitle": "Couldn't clear history",
       "clearAllErrorDescription": "Something went wrong. Please try again.",
+      "reviewWords": "Review spoken words",
+      "editReview": "Edit reviewed words",
+      "reviewHint": "Listen to the recording. Check the words, including hesitations, so speech models can be scored against them.",
+      "removeReview": "Remove review",
+      "confirmWords": "Confirm words",
+      "confirmSilence": "Confirm no speech",
       "discarded": {
         "show": "Show discarded",
         "hide": "Hide discarded",

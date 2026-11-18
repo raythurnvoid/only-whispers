@@ -1911,6 +1911,13 @@ class IPCHandlers {
       return { success: true, streamed: false, text: "" };
     });
 
+    ipcMain.handle("set-transcription-reference", (_event, id, text) => {
+      const transcription = this.databaseManager.setTranscriptionReference(id, text);
+      if (!transcription) return { success: false };
+      broadcastToWindows("transcription-updated", transcription);
+      return { success: true, transcription };
+    });
+
     ipcMain.handle("update-transcription-text", async (_event, id, text, rawText) => {
       try {
         this.databaseManager.updateTranscriptionText(id, text, rawText);

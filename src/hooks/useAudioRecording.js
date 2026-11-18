@@ -56,7 +56,7 @@ export const useAudioRecording = (toast, options = {}) => {
   const [partialTranscript, setPartialTranscript] = useState("");
   const audioManagerRef = useRef(null);
   const startLockRef = useRef(false);
-  const stopRequestedDuringStartRef = useRef(false);
+  const stopRequestedDuringStartRef = useRef(null);
   const pushForceStoppedRef = useRef(false);
   const stopLockRef = useRef(false);
   const preparationGenerationRef = useRef(0);
@@ -120,7 +120,7 @@ export const useAudioRecording = (toast, options = {}) => {
       if (startLockRef.current) return false;
       lastStartOptionsRef.current = { voiceAgentRequested };
       startLockRef.current = true;
-      stopRequestedDuringStartRef.current = false;
+      stopRequestedDuringStartRef.current = null;
       pushForceStoppedRef.current = false;
       let recordingStarted = false;
       try {
@@ -202,14 +202,16 @@ export const useAudioRecording = (toast, options = {}) => {
         // A stop that landed while the start was still awaiting the mic open was
         // dropped (isRecording was still false), leaving a runaway recording
         // until the next hotkey press. Honor it now that we started.
-        if (didStart && stopRequestedDuringStartRef.current) {
+        if (didStart && stopRequestedDuringStartRef.current !== null) {
           window.electronAPI?.unregisterCancelHotkey?.();
           // Cue semantics mirror performStopRecording: unconditional for
           // streaming, gated on the stop landing for batch.
           if (audioManagerRef.current.getState().isStreaming) {
             void playStopCue();
-            await audioManagerRef.current.stopStreamingRecording();
-          } else if (audioManagerRef.current.stopRecording()) {
+            await audioManagerRef.current.stopStreamingRecording(
+              stopRequestedDuringStartRef.current
+            );
+          } else if (audioManagerRef.current.stopRecording(stopRequestedDuringStartRef.current)) {
             void playStopCue();
           }
           return didStart;
@@ -234,8 +236,8 @@ export const useAudioRecording = (toast, options = {}) => {
         // A stop that landed mid-start set isStopping expecting the started
         // recording's state change to clear it; if the recording never began,
         // no state change will ever arrive.
-        if (stopRequestedDuringStartRef.current && !recordingStarted) setIsStopping(false);
-        stopRequestedDuringStartRef.current = false;
+        if (stopRequestedDuringStartRef.current !== null && !recordingStarted) setIsStopping(false);
+        stopRequestedDuringStartRef.current = null;
         if (!recordingStarted) {
           setIsPreparing(false);
           setIsAssistantVoice(false);
@@ -255,8 +257,9 @@ export const useAudioRecording = (toast, options = {}) => {
   );
 
   const performStopRecording = useCallback(async () => {
+    const stopRequestedAt = performance.now();
     if (startLockRef.current) {
-      stopRequestedDuringStartRef.current = true;
+      stopRequestedDuringStartRef.current ??= stopRequestedAt;
       setIsPreparing(false);
       setIsStopping(true);
       return true;
@@ -278,10 +281,10 @@ export const useAudioRecording = (toast, options = {}) => {
 
       if (currentState.isStreaming || currentState.isStreamingStartInProgress) {
         void playStopCue();
-        return await audioManagerRef.current.stopStreamingRecording();
+        return await audioManagerRef.current.stopStreamingRecording(stopRequestedAt);
       }
 
-      const didStop = audioManagerRef.current.stopRecording();
+      const didStop = audioManagerRef.current.stopRecording(stopRequestedAt);
 
       if (didStop) {
         void playStopCue();
@@ -647,6 +650,7 @@ export const useAudioRecording = (toast, options = {}) => {
           const persistencePromise = audioManagerRef.current
             .saveTranscription(result.text, result.rawText ?? result.text, {
               clientTranscriptionId: result.clientTranscriptionId,
+              ...(result.stt ? { stt: result.stt } : {}),
               // Spread rather than set: a result with no occurrence timestamp
               // must not gain the key as undefined, matching how audioManager
               // carries this field.

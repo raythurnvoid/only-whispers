@@ -172,6 +172,12 @@
     "history": {
       "couldNotLoadTitle": "No se pudo cargar tu historial",
       "couldNotLoadDescription": "Ocurrió un problema al cargar tus transcripciones. Cierra y abre la app de nuevo.",
+      "reviewWords": "Revisar las palabras grabadas",
+      "editReview": "Editar las palabras revisadas",
+      "reviewHint": "Escucha la grabación. Comprueba las palabras, incluidas las muletillas, para evaluar los modelos de transcripción.",
+      "removeReview": "Quitar revisión",
+      "confirmWords": "Confirmar palabras",
+      "confirmSilence": "Confirmar que no hay voz",
       "discarded": {
         "show": "Mostrar descartadas",
         "hide": "Ocultar descartadas",

@@ -100,6 +100,12 @@ export interface TranscriptionItem {
   id: number;
   text: string;
   raw_text: string | null;
+  stt_raw_text: string | null;
+  stt_provider: string | null;
+  stt_model: string | null;
+  stt_latency_ms: number | null;
+  stt_app_version: string | null;
+  reference_text: string | null;
   timestamp: string;
   created_at: string;
   has_audio: number;
@@ -457,6 +463,7 @@ declare global {
           errorCode?: TranscriptionErrorCode;
           clientTranscriptionId?: string;
           analyticsOccurredAt?: string;
+          stt?: { text: string; provider: string; model: string; latencyMs: number | null };
         }
       ) => Promise<{ id: number; success: boolean; transcription?: TranscriptionItem }>;
       getTranscriptions: (
@@ -503,6 +510,10 @@ declare global {
         text: string,
         rawText: string | null
       ) => Promise<{ success: boolean; transcription?: TranscriptionItem; error?: string }>;
+      setTranscriptionReference: (
+        id: number,
+        text: string | null
+      ) => Promise<{ success: boolean; transcription?: TranscriptionItem }>;
 
       // Dictionary operations
       getDictionary: () => Promise<string[]>;

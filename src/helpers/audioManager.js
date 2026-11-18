@@ -1072,6 +1072,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       }
 
       const startRequestedAt = performance.now();
+      this.stopRequestedAt = null;
       prepared = forceDefaultMic ? null : await this.preparedMicCapture.take();
       const constraints =
         prepared?.constraints ?? (await this.getAudioConstraints(forceDefaultMic));
@@ -1283,6 +1284,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   async _finalizeBatchRecording(finalSegment) {
+    const stopRequestedAt = this.stopRequestedAt ?? performance.now();
     const processingPipeline = this._startProcessingPipeline();
     const wasCancelled = () => this._shouldAbandonProcessingPipeline(processingPipeline);
     this.micRecovery.stop();
@@ -1363,6 +1365,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         durationSeconds,
         analyticsOccurredAt,
         preferLocal: true,
+        stopRequestedAt,
         ...(salvagedRecording ? { salvagedRecording: true } : {}),
       },
       processingPipeline
@@ -1408,7 +1411,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     }
   }
 
-  stopRecording() {
+  stopRecording(requestedAt = performance.now()) {
+    this.stopRequestedAt ??= requestedAt;
     this.micRecovery.stop();
     if (this._rotatingBatchRecorder) {
       this._stopRequestedDuringMicRecovery = true;
@@ -2337,7 +2341,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     if (sendsDictionaryBias && this.isDictionaryEcho(result.text)) {
       throw dictionaryEchoError();
     }
-    timings.transcriptionProcessingDurationMs = Math.round(performance.now() - apiCallStart);
+    const rawTextReadyAt = performance.now();
+    timings.transcriptionProcessingDurationMs = Math.round(rawTextReadyAt - apiCallStart);
     const reasoningStart = performance.now();
     const text = await this.processTranscription(proxyText, provider, wasCancelled);
     timings.reasoningProcessingDurationMs = Math.round(performance.now() - reasoningStart);
@@ -2347,6 +2352,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       success: true,
       text,
       rawText: proxyText,
+      stt: {
+        text: result.text,
+        provider,
+        model: result.modelRevision ? `${result.model}@${result.modelRevision}` : result.model,
+        latencyMs: Math.round(rawTextReadyAt - (metadata.stopRequestedAt ?? apiCallStart)),
+      },
       source,
       model: result.model || model,
       timings,
@@ -2394,7 +2405,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   async saveTranscription(
     text,
     rawText = null,
-    { clientTranscriptionId, analyticsOccurredAt } = {}
+    { clientTranscriptionId, analyticsOccurredAt, stt } = {}
   ) {
     const { dataRetentionEnabled, audioRetentionDays } = getSettings();
     if (!dataRetentionEnabled) {
@@ -2404,31 +2415,29 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       return true;
     }
 
+    // Another recording may finish while the history row is being saved.
+    const audioBlob = this.lastAudioBlob;
+    const audioMetadata = this.lastAudioMetadata;
+    this.lastAudioBlob = null;
+    this.lastAudioMetadata = null;
     const eventId = clientTranscriptionId || crypto.randomUUID();
     const occurredAt = analyticsOccurredAt ? new Date(analyticsOccurredAt) : new Date();
     try {
       const result = await window.electronAPI.saveTranscription(text, rawText, {
         clientTranscriptionId: eventId,
         analyticsOccurredAt: occurredAt.toISOString(),
+        ...(stt && audioBlob && audioRetentionDays > 0 ? { stt } : {}),
       });
 
       // Save audio if we have a captured blob and the transcription was saved successfully
-      if (result?.id && this.lastAudioBlob) {
-        if (audioRetentionDays > 0) {
-          try {
-            const arrayBuffer = await this.lastAudioBlob.arrayBuffer();
-            await window.electronAPI.saveTranscriptionAudio(
-              result.id,
-              arrayBuffer,
-              this.lastAudioMetadata
-            );
-          } catch (audioErr) {
-            // Non-blocking: transcription is saved even if audio save fails
-            logger.warn("Failed to save transcription audio", { error: audioErr.message }, "audio");
-          }
+      if (result?.id && audioBlob && audioRetentionDays > 0) {
+        try {
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, audioMetadata);
+        } catch (audioErr) {
+          // Non-blocking: transcription is saved even if audio save fails
+          logger.warn("Failed to save transcription audio", { error: audioErr.message }, "audio");
         }
-        this.lastAudioBlob = null;
-        this.lastAudioMetadata = null;
       }
 
       return true;
@@ -2451,6 +2460,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       return;
     }
 
+    const audioBlob = this.lastAudioBlob;
+    this.lastAudioBlob = null;
+    this.lastAudioMetadata = null;
     try {
       // Empty when transcription itself failed; otherwise the transcript a later
       // step could not process, kept as both the entry's text and its raw text.
@@ -2469,30 +2481,26 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         }
       );
 
-      if (result?.id && this.lastAudioBlob) {
-        if (audioRetentionDays > 0) {
-          try {
-            const durationMs = metadata?.durationSeconds
-              ? Math.round(metadata.durationSeconds * 1000)
-              : null;
-            const arrayBuffer = await this.lastAudioBlob.arrayBuffer();
-            await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, {
-              durationMs,
-              provider: null,
-              model: null,
-            });
-          } catch (audioErr) {
-            logger.warn(
-              "Failed to save audio for failed transcription",
-              {
-                error: audioErr.message,
-              },
-              "audio"
-            );
-          }
+      if (result?.id && audioBlob && audioRetentionDays > 0) {
+        try {
+          const durationMs = metadata?.durationSeconds
+            ? Math.round(metadata.durationSeconds * 1000)
+            : null;
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, {
+            durationMs,
+            provider: null,
+            model: null,
+          });
+        } catch (audioErr) {
+          logger.warn(
+            "Failed to save audio for failed transcription",
+            {
+              error: audioErr.message,
+            },
+            "audio"
+          );
         }
-        this.lastAudioBlob = null;
-        this.lastAudioMetadata = null;
       }
     } catch (error) {
       logger.error(
@@ -2839,6 +2847,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       }
 
       this.stopRequestedDuringStreamingStart = false;
+      this.stopRequestedAt = null;
       sessionId = (this._streamingSessionGeneration || 0) + 1;
       this._streamingSessionGeneration = sessionId;
       this.streamingFallbackReason = null;
@@ -3211,7 +3220,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     });
   }
 
-  async stopStreamingRecording() {
+  async stopStreamingRecording(requestedAt = performance.now()) {
+    this.stopRequestedAt ??= requestedAt;
     if (this.streamingStartInProgress) {
       this.stopRequestedDuringStreamingStart = true;
       logger.debug("Streaming stop requested while start is in progress", {}, "streaming");
@@ -3377,6 +3387,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   async _finalizeStreamingRecording(sessionId, delivery = {}) {
+    const stopRequestedAt = this.stopRequestedAt ?? performance.now();
     if (
       sessionId !== null &&
       sessionId !== undefined &&
@@ -3509,9 +3520,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       fallbackBlob = this.getLargestRecordedSegment(this._streamingFallbackSegments);
     }
     if (wasCancelled()) return abandonFinalization();
-    if (fallbackBlob) {
-      this.lastAudioBlob = fallbackBlob;
-    }
+    this.lastAudioBlob = fallbackBlob;
     this.streamingFallbackRecorder = null;
     this.streamingFallbackChunks = [];
     this._streamingFallbackSegments = [];
@@ -3737,7 +3746,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       try {
         const batchResult = await this.processWithOpenAIAPI(
           fallbackBlob,
-          { durationSeconds, preferLocal: Boolean(failoverReason) },
+          { durationSeconds, preferLocal: Boolean(failoverReason), stopRequestedAt },
           wasCancelled
         );
         if (wasCancelled()) return true;
@@ -3780,6 +3789,14 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         success: true,
         text: finalText,
         rawText: batchFallbackResult?.rawText || rawStreamingText || finalText,
+        stt: usedBatchFallback
+          ? batchFallbackResult.stt
+          : {
+              text: rawStreamingText,
+              provider: providerName,
+              model: streamingSttModel,
+              latencyMs: Math.round(tTerminate - stopRequestedAt),
+            },
         source: batchFallbackResult?.source || `${providerName}-streaming`,
         clientTranscriptionId,
         analyticsOccurredAt: resultAnalyticsOccurredAt,

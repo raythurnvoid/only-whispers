@@ -217,6 +217,12 @@
       "audioNotFound": "File audio non trovato o scaduto",
       "noAiProcessing": "Nessuna elaborazione IA applicata a questa trascrizione",
       "rawTranscript": "Trascrizione grezza",
+      "reviewWords": "Verifica le parole pronunciate",
+      "editReview": "Modifica le parole verificate",
+      "reviewHint": "Ascolta la registrazione. Verifica le parole, comprese le esitazioni, per valutare i modelli di trascrizione.",
+      "removeReview": "Rimuovi la verifica",
+      "confirmWords": "Conferma le parole",
+      "confirmSilence": "Conferma che nessuno parla",
       "discarded": {
         "show": "Mostra scartate",
         "hide": "Nascondi scartate",

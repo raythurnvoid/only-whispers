@@ -7,6 +7,8 @@ import { useToast } from "./useToast";
 interface TranscriptTextEditorProps {
   initialText?: string;
   placeholder?: string;
+  review?: boolean;
+  onRemove?: () => Promise<boolean>;
   /** Returns false (or throws) when the text could not be saved. */
   onSave: (text: string) => Promise<boolean>;
   onCancel: () => void;
@@ -17,6 +19,8 @@ interface TranscriptTextEditorProps {
 export default function TranscriptTextEditor({
   initialText = "",
   placeholder,
+  review = false,
+  onRemove,
   onSave,
   onCancel,
 }: TranscriptTextEditorProps) {
@@ -25,7 +29,8 @@ export default function TranscriptTextEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(initialText);
   const [isSaving, setIsSaving] = useState(false);
-  const canSave = text.trim() !== "" && text !== initialText && !isSaving;
+  // Unchanged words and confirmed silence are both useful review results.
+  const canSave = !isSaving && (review || (text.trim() !== "" && text !== initialText));
 
   // Start with the caret at the end, ready to keep typing.
   useEffect(() => {
@@ -35,12 +40,12 @@ export default function TranscriptTextEditor({
     textarea.setSelectionRange(textarea.value.length, textarea.value.length);
   }, []);
 
-  const save = async () => {
+  const save = async (remove = false) => {
     if (!canSave) return;
     setIsSaving(true);
     let saved = false;
     try {
-      saved = await onSave(text.trim());
+      saved = remove && onRemove ? await onRemove() : await onSave(text.trim());
     } catch {
       saved = false;
     }
@@ -50,8 +55,12 @@ export default function TranscriptTextEditor({
 
   return (
     <div>
+      {review && (
+        <p className="mb-2 text-xs text-muted-foreground">{t("controlPanel.history.reviewHint")}</p>
+      )}
       <Textarea
         ref={textareaRef}
+        aria-label={review ? t("controlPanel.history.reviewWords") : undefined}
         dir="auto"
         value={text}
         placeholder={placeholder}
@@ -61,7 +70,7 @@ export default function TranscriptTextEditor({
           if (event.key === "Escape") {
             event.preventDefault();
             event.stopPropagation();
-            onCancel();
+            if (!isSaving) onCancel();
           } else if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
             event.preventDefault();
             void save();
@@ -69,12 +78,35 @@ export default function TranscriptTextEditor({
         }}
         className="border-border bg-background text-base text-foreground placeholder:text-muted-foreground hover:border-border focus:border-primary focus:ring-primary/20 dark:border-white/10 dark:bg-surface-1"
       />
-      <div className="mt-2 flex justify-end gap-2">
-        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onCancel}>
+      <div className="mt-2 flex flex-wrap justify-end gap-2">
+        {onRemove && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="me-auto h-7 text-xs"
+            disabled={isSaving}
+            onClick={() => void save(true)}
+          >
+            {t("controlPanel.history.removeReview")}
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs"
+          onClick={onCancel}
+          disabled={isSaving}
+        >
           {t("common.cancel")}
         </Button>
-        <Button size="sm" className="h-7 text-xs" onClick={save} disabled={!canSave}>
-          {t("common.save")}
+        <Button size="sm" className="h-7 text-xs" onClick={() => void save()} disabled={!canSave}>
+          {t(
+            review
+              ? text.trim()
+                ? "controlPanel.history.confirmWords"
+                : "controlPanel.history.confirmSilence"
+              : "common.save"
+          )}
         </Button>
       </div>
     </div>

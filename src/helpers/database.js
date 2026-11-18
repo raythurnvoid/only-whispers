@@ -208,6 +208,36 @@ class DatabaseManager {
         if (!err.message.includes("duplicate column")) throw err;
       }
 
+      // Retries replace raw_text, provider and model. Keep the first live result
+      // separately. Older rows may already have been retried, so leave them unknown.
+      const transcriptionColumns = new Set(
+        this.db.pragma("table_info(transcriptions)").map((column) => column.name)
+      );
+      for (const [name, type] of [
+        ["stt_raw_text", "TEXT"],
+        ["stt_provider", "TEXT"],
+        ["stt_model", "TEXT"],
+        ["stt_latency_ms", "INTEGER"],
+        ["stt_app_version", "TEXT"],
+        ["reference_text", "TEXT"],
+      ]) {
+        if (!transcriptionColumns.has(name)) {
+          this.db.exec(`ALTER TABLE transcriptions ADD COLUMN ${name} ${type}`);
+        }
+      }
+      this.db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_transcriptions_reviewed
+          ON transcriptions(id) WHERE reference_text IS NOT NULL;
+        CREATE TRIGGER IF NOT EXISTS clear_transcription_review
+          AFTER UPDATE OF deleted_at, has_audio ON transcriptions
+          WHEN NEW.deleted_at IS NOT NULL OR (OLD.has_audio = 1 AND NEW.has_audio = 0)
+          BEGIN
+            UPDATE transcriptions SET reference_text = NULL, stt_raw_text = NULL,
+              stt_provider = NULL, stt_model = NULL, stt_latency_ms = NULL,
+              stt_app_version = NULL WHERE id = NEW.id;
+          END;
+      `);
+
       // Sync columns for custom_dictionary
       try {
         this.db.exec("ALTER TABLE custom_dictionary ADD COLUMN client_dict_id TEXT");
@@ -312,6 +342,7 @@ class DatabaseManager {
       errorCode = null,
       clientTranscriptionId = randomUUID(),
       analyticsOccurredAt = null,
+      stt = null,
     } = {}
   ) {
     try {
@@ -329,8 +360,9 @@ class DatabaseManager {
       const stmt = this.db.prepare(
         `INSERT INTO transcriptions (
            text, raw_text, status, error_message, error_code,
-           client_transcription_id, timestamp
-         ) VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`
+           client_transcription_id, timestamp, stt_raw_text, stt_provider,
+           stt_model, stt_latency_ms, stt_app_version
+         ) VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), ?, ?, ?, ?, ?)`
       );
       const result = stmt.run(
         text,
@@ -339,7 +371,12 @@ class DatabaseManager {
         errorMessage,
         errorCode,
         clientTranscriptionId,
-        occurredAt
+        occurredAt,
+        stt?.text ?? null,
+        stt?.provider ?? null,
+        stt?.model ?? null,
+        stt?.latencyMs ?? null,
+        stt ? app.getVersion() : null
       );
 
       const fetchStmt = this.db.prepare("SELECT * FROM transcriptions WHERE id = ?");
@@ -472,6 +509,18 @@ class DatabaseManager {
       debugLogger.error("Error updating transcription text", { error: error.message }, "database");
       throw error;
     }
+  }
+
+  setTranscriptionReference(id, text) {
+    if (typeof text !== "string" && text !== null) throw new TypeError("Expected text or null");
+    // A clip may expire or be deleted while the review is open.
+    return this.db
+      .prepare(
+        `UPDATE transcriptions SET reference_text = ?
+         WHERE id = ? AND deleted_at IS NULL AND has_audio = 1 AND status = 'completed'
+         RETURNING *`
+      )
+      .get(text === null ? null : text.trim(), id);
   }
 
   updateTranscriptionStatus(id, status, errorMessage = null, errorCode = null) {

@@ -127,6 +127,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   retryTranscription: (id, settings) => ipcRenderer.invoke("retry-transcription", id, settings),
   updateTranscriptionText: (id, text, rawText) =>
     ipcRenderer.invoke("update-transcription-text", id, text, rawText),
+  setTranscriptionReference: (id, text) =>
+    ipcRenderer.invoke("set-transcription-reference", id, text),
 
   // Dictionary functions
   getDictionary: () => ipcRenderer.invoke("db-get-dictionary"),

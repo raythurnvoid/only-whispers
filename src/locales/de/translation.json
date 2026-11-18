@@ -217,6 +217,12 @@
       "clearAllSuccess": "Verlauf gelöscht",
       "clearAllErrorTitle": "Verlauf konnte nicht gelöscht werden",
       "clearAllErrorDescription": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "reviewWords": "Gesprochene Wörter prüfen",
+      "editReview": "Geprüfte Wörter bearbeiten",
+      "reviewHint": "Höre dir die Aufnahme an. Prüfe auch Füllwörter, damit die Spracherkennung anhand dieses Texts bewertet werden kann.",
+      "removeReview": "Prüfung entfernen",
+      "confirmWords": "Wörter bestätigen",
+      "confirmSilence": "Bestätigen, dass niemand spricht",
       "discarded": {
         "show": "Verworfene anzeigen",
         "hide": "Verworfene ausblenden",
