@@ -16,6 +16,14 @@ export type ChineseScriptPreference = "simplified" | "traditional" | "as-transcr
 
 export type InferenceMode = "providers" | "local" | "self-hosted" | "enterprise";
 
+export interface LocalModelStatus {
+  state: "missing" | "downloading" | "ready" | "error";
+  name: string;
+  downloadedBytes: number;
+  totalBytes: number;
+  error?: string;
+}
+
 export type TranscriptionStatus = "completed" | "failed" | "pending" | "discarded";
 
 export interface PolicyFailureMetadata {
@@ -85,7 +93,8 @@ export interface IpcErrorFields {
  * rejection, so these handlers resolve with a serialized error instead of throwing.
  */
 export type ProxyTranscriptionResult =
-  { text: string; model?: string; error?: undefined } | (IpcErrorFields & { text?: undefined });
+  | { text: string; source: "mistral" | "parakeet"; model: string; error?: undefined }
+  | (IpcErrorFields & { text?: undefined });
 
 export interface TranscriptionItem {
   id: number;
@@ -703,6 +712,7 @@ declare global {
         model?: string;
         language?: string;
         contextBias?: string[];
+        preferLocal?: boolean;
       }) => Promise<ProxyTranscriptionResult>;
 
       // Corti credential management
@@ -784,6 +794,9 @@ declare global {
           anchor: "bottom-left" | "bottom-right" | "center";
         }) => void
       ) => () => void;
+
+      getLocalModelStatus: () => Promise<LocalModelStatus>;
+      downloadLocalModel: () => Promise<LocalModelStatus>;
 
       // BYOK audio file transcription
       transcribeAudioFileByok?: (options: { filePath: string; model: string }) => Promise<{

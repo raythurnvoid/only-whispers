@@ -25,7 +25,7 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 
 ## Project Overview
 
-only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on Mistral (Voxtral). Cleanup runs only on OpenAI Luna through the user's ChatGPT plan ("Sign in with ChatGPT"); if it fails, the raw transcript is pasted. There are no other AI providers and no local models.
+only-whispers is an Electron desktop dictation app for Windows, macOS and Linux. Hold the hotkey (Ctrl+Win by default on Windows and Linux), speak, and the cleaned-up text is pasted into the focused app. Speech-to-text runs on local Parakeet. Adding a Mistral API key enables live Voxtral transcription. Cleanup uses OpenAI Luna through the user's ChatGPT plan. If cleanup fails, the app pastes the raw transcript.
 
 ### Hidden in this release
 
@@ -43,7 +43,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **Desktop Framework**: Electron 41 with context isolation
 - **Database**: better-sqlite3 for local transcription history
 - **UI Components**: shadcn/ui with Radix primitives
-- **Speech Processing**: Mistral Voxtral API
+- **Speech Processing**: local Parakeet or optional Mistral Voxtral API
 - **Audio Processing**: FFmpeg (bundled via ffmpeg-static)
 - **Node.js**: 24 (pinned in `.nvmrc`, run through Vite Plus)
 
@@ -60,7 +60,7 @@ These features are still in the code, but their UI is hidden in this release. Th
    - Preload Script: Secure bridge between processes
 
 3. **Audio Pipeline**:
-   - MediaRecorder API → Blob → ArrayBuffer → IPC → Mistral speech-to-text → cleanup → paste
+   - MediaRecorder API → Blob → ArrayBuffer → IPC → speech-to-text → cleanup → paste
    - Automatic cleanup of temporary files after processing
 
 ## File Structure and Responsibilities
@@ -96,7 +96,7 @@ These features are still in the code, but their UI is hidden in this release. Th
   - Linux COSMIC: paste reads the focused app from cosmic-comp's `zcosmic_toplevel_info_v1` (`cosmicToplevel.js`, a minimal Wayland wire client, bound at version 1, which still sends app_id and state), never from xdotool, whose XWayland answer goes stale while a native Wayland window has focus. A known terminal is pasted through wtype (Ctrl+Shift+V; Shift+Insert for Konsole); everything else keeps uinput Shift+Insert, since COSMIC gives no PID to spot Electron apps hosting TUIs. Short terminal names (`st`) match whole words only, or every `com.system76.*` app id would read as a terminal
   - Linux: before any paste or selection-copy chord, `linux-fast-paste --capabilities --await-modifier-release <ms>` waits for physically held modifiers to be released (XKB state on X11, `EVIOCGKEY` on Wayland; `unknown` without `/dev/input` access pastes as before). A chord injected into held keys arrives as a different shortcut, and a virtual device cannot release another device's key (#2113). Still held after 1.5 s → not pasted, `reason: "modifiers-held"`, and the renderer shows the dictation-error pill with the transcript on the clipboard; a selection edit blocked the same way reports `code: "modifiers_held"` and gets the same pill (the assistant caret paste reports the same code, for logs only). `ydotoold`'s virtual keyboard is ignored, since an interrupted chord can leave its modifier down, and an unreadable key state is logged once per session. The wait runs before `pasteLinux` detects the target window, and a selection copy that had to wait looks the target up again, since focus can move while a key is held: a fresh capture then runs the command on its own (`focus_moved`), and a revalidated session declines as `target_changed`. Retry on a modifiers-held pill pastes the kept transcript again rather than recording again (the macOS/Windows push force-stop pill keeps its record-again Retry, since neither platform waits for held keys), ignores clicks while its paste is pending, and never dismisses a newer pill. `useAudioRecording` keeps the pill in processing until the paste attempt settles (the audio manager settles before the paste starts), but never reports that to main, which drops dictation hotkeys while processing; a paste held back after the next dictation started leaves the transcript on the clipboard without a pill. The helper measures its wait on `CLOCK_MONOTONIC`, since the JS watchdog kills it at timeout + 1 s
 - **database.js**: SQLite operations for transcription history
-- **transcriptionRoute.ts**: Mistral is the only speech-to-text provider. Picks the Voxtral model (default `voxtral-mini-transcribe-3-0`) and holds Mistral's 25 MB upload limit. Shared by dictation, Retry and Upload
+- **transcriptionRoute.ts**: Holds the cloud model default and upload limit. Dictation, retry and upload share the routing in `ipcHandlers.js`.
 - **mistralRealtimeStreaming.js**: Mistral realtime transcription session; sends the custom dictionary as `context_bias`
 - **chatgptAuth.js**: "Sign in with ChatGPT" (OAuth token sharing). The login is stored encrypted at `userData/secure-keys/CHATGPT_AUTH.enc`
 - **debugLogger.js**: Debug logging system with file output
@@ -175,8 +175,8 @@ These features are still in the code, but their UI is hidden in this release. Th
 
 - **App.jsx**: Dictation pill window with recording states
 - **ControlPanel.tsx**: Main window: Home (history with Retry and Upload), Dictionary, Logs and Settings
-- **AppSetup.tsx**: First-run setup: the Mistral API key and ChatGPT sign-in
-- **SettingsPage.tsx**: Settings interface, with three sections: `general`, `hotkeys` and `llms` ("AI Models": the Mistral key and cleanup)
+- **AppSetup.tsx**: First-run model download and ChatGPT sign-in
+- **SettingsPage.tsx**: Settings interface, with three sections: `general`, `hotkeys` and `llms` ("AI Models": local model status, optional Mistral key and cleanup)
 - **HistoryView.tsx**, **DictionaryView.tsx**, **LogsView.tsx**: Control panel views (**SnippetsView.tsx** is hidden)
 - **ChatGPTSignIn.tsx**: ChatGPT sign-in button and state
 - **dictation/**: The pill (`VoicePill.tsx`), the assistant panel (hidden) and the live transcript panel
@@ -208,11 +208,11 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **ai/chatgptPlan.ts**: Cleanup on the user's ChatGPT plan (Responses API, WebSocket first, then HTTP). There is no fallback model: on a failure the raw transcript is pasted with the cleanup-failed toast
   - The sockets live in the main process (`chatgptResponsesSocket.js`), opened and warmed at dictation start. At key release `audioManager.js` prefills the sockets with the words Mistral has so far. While the user speaks, the 3 spare sockets also read the text every 15 words, and once Mistral's text may be complete (even before release, and again when it changes) a cleanup guess goes to a free spare; the cleanup uses a guess only for exactly the same transcript. Timings and results: the `measure-dictation-speed` skill
 
-### Speech-to-Text (Mistral)
+### Speech-to-text
 
-- Mistral Voxtral is the only speech-to-text provider (`transcriptionRoute.ts`). Any `voxtral-*` model can be set; the default is `voxtral-mini-transcribe-3-0`
-- The key is `MISTRAL_API_KEY`, entered on the setup screen or in Settings, and stored encrypted like the other secrets
-- Upload refuses files over 25 MB (Mistral's limit)
+- Setup downloads one revision of Parakeet. The files and SHA-256 checksums are pinned in `localModel.js`. After setup, the dictation window checks the revision at startup. Settings shows progress and lets the user retry.
+- Without a Mistral key, dictation, history retry and file transcription run locally. The worker uses the CPU and stays warm between recordings.
+- A saved Mistral key enables live transcription. Batch requests use the configured Voxtral model or `voxtral-mini-transcribe-3-0`. If the cloud is unavailable or rate-limited, a ready local model can transcribe the recording. Files over the cloud limit go to Parakeet.
 
 ### Build Scripts (scripts/)
 
@@ -247,7 +247,7 @@ FFmpeg is bundled with the app and doesn't require system installation:
 2. Audio chunks collected in array
 3. User presses hotkey again → Recording stops
 4. Blob created from chunks → Converted to ArrayBuffer
-5. The audio goes to Mistral for speech-to-text
+5. Parakeet or the optional Mistral API transcribes the audio
 6. The text is cleaned up by the cleanup model (see Services), then pasted into the focused app
 
 ### 3. Database Schema
@@ -609,7 +609,7 @@ Hidden features (the voice assistant, Tone & Style) are not in this list. Test t
    - Check audio levels in debug logs
 
 2. **Transcription Fails**:
-   - Check the Mistral API key (setup screen or Settings)
+   - Check the local model in Settings. For live transcription, also check the optional Mistral key
    - Check the network, and the Logs view for the provider error
    - Upload refuses files over 25 MB
 

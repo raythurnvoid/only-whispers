@@ -89,6 +89,8 @@
     "!**/node_modules/**/.github/**"
   ],
   "asarUnpack": [
+    "src/helpers/parakeetWorker.js",
+    "**/node_modules/sherpa-onnx-*/**/*",
     "**/node_modules/ffmpeg-static/**/*",
     "**/node_modules/ps-list/**/*",
     "**/node_modules/better-sqlite3/**/*",

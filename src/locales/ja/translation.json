@@ -505,7 +505,7 @@
         "selfHosted": "セルフホスト"
       },
       "title": "AIモデル",
-      "description": "Mistral が音声をテキストに変換し、ChatGPT プランがテキストを整えます。"
+      "description": "Mistral のキーを追加すると、まず音声が Mistral に送られます。失敗した場合は、この端末で Parakeet が文字起こしを行います。文章の整形には ChatGPT プランを使います。"
     },
     "dictionary": {
       "title": "辞書",
@@ -788,9 +788,16 @@
     "expand": "サイドバーを展開",
     "logs": "ログ"
   },
+  "localSpeech": {
+    "title": "端末内の音声モデル",
+    "description": "一度ダウンロードすれば、この端末で文字起こしできます。更新が必要な場合は Only Whispers が自動で更新します。",
+    "download": "モデルをダウンロード",
+    "downloading": "ダウンロード中 · {{percent}}%",
+    "ready": "オフラインで文字起こしできます"
+  },
   "appSetup": {
-    "description": "キーボードはもう不要。話すだけで、どのアプリにも整った文章が入力されます。\n始めるには 2 つを追加してください。",
-    "mistralKey": "Mistral API キー(音声認識)",
+    "description": "音声モデルをダウンロードし、文章を整えるためにサインインしてください。",
+    "mistralKey": "Mistral API キー（任意）",
     "getMistralKey": "Mistral admin でキーを取得",
     "start": "音声入力を開始"
   },

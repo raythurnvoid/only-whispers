@@ -16,7 +16,6 @@ const {
   PROVIDER_ERROR_CODES,
   isProviderSettingsTarget,
   providerHttpError,
-  providerError,
   asProviderError,
   redactProviderBody,
 } = require("./providerHttpErrors");
@@ -53,8 +52,7 @@ const MISTRAL_TRANSCRIPTION_URL = "https://api.mistral.ai/v1/audio/transcription
 // Debounce delay: wait for user to stop typing before processing corrections
 const AUTO_LEARN_DEBOUNCE_MS = 1500;
 
-const byokSizeCapError = (sizeCapBytes) =>
-  `File too large. Maximum size for bring-your-own-key is ${Math.floor(sizeCapBytes / (1024 * 1024))} MB.`;
+const localModel = require("./localModel");
 
 const { testProviderConnection } = require("./providerConnectionTest");
 const { createConnectionCheckCache } = require("./connectionCheckCache");
@@ -92,60 +90,87 @@ function resolveAllowedAudioPath(filePath) {
   return null;
 }
 
-function buildMultipartBody(fileBuffer, fileName, contentType, fields = {}) {
-  const boundary = `----OnlyWhispers${Date.now()}`;
-  const parts = [];
-
-  parts.push(
-    `--${boundary}\r\n` +
-      `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
-      `Content-Type: ${contentType}\r\n\r\n`
-  );
-  parts.push(fileBuffer);
-  parts.push("\r\n");
-
-  for (const [name, value] of Object.entries(fields)) {
-    if (value != null) {
-      parts.push(
-        `--${boundary}\r\n` +
-          `Content-Disposition: form-data; name="${name}"\r\n\r\n` +
-          `${value}\r\n`
-      );
-    }
+// All batch entry points use the same routing, including retries of saved recordings.
+async function transcribeRecording(
+  audio,
+  apiKey,
+  configuredModel,
+  contextBias = [],
+  preferLocal = false
+) {
+  const local = async () => ({
+    ...(await localModel.transcribeLocalAudio(audio)),
+    source: "parakeet",
+  });
+  const { hasMistralKey, resolveMistralModel, MISTRAL_FILE_SIZE_LIMIT } =
+    await import("./transcriptionRoute.ts");
+  if (!hasMistralKey(apiKey) || (preferLocal && (await localModel.canTranscribeLocalAudio()))) {
+    return local();
   }
 
-  parts.push(`--${boundary}--\r\n`);
-
-  const bodyParts = parts.map((p) => (typeof p === "string" ? Buffer.from(p) : p));
-  return { body: Buffer.concat(bodyParts), boundary };
-}
-
-async function postMultipart(
-  url,
-  body,
-  boundary,
-  headers = {},
-  { signal, session: fetchSession } = {}
-) {
-  const response = await (fetchSession ?? net).fetch(url.toString(), {
-    method: "POST",
-    headers: {
-      "Content-Type": `multipart/form-data; boundary=${boundary}`,
-      ...headers,
-    },
-    body,
-    useSessionCookies: false,
-    signal,
-  });
-  const text = await response.text();
+  const model = resolveMistralModel(configuredModel);
+  const context = { provider: "Mistral", surface: "transcription", model };
+  const upload = typeof audio === "string" ? await prepareProviderUpload(audio) : null;
   try {
-    return { statusCode: response.status, data: JSON.parse(text) };
-  } catch {
-    // Vercel platform errors (413 payload cap, 504 timeout) return non-JSON bodies.
-    throw Object.assign(new Error(`Server error ${response.status}: ${text.slice(0, 120)}`), {
-      code: "SERVER_ERROR",
-      statusCode: response.status,
-    });
+    const size = upload ? (await fs.promises.stat(upload.path)).size : audio.length;
+    if (size > MISTRAL_FILE_SIZE_LIMIT) return await local();
+    const buffer = upload ? await fs.promises.readFile(upload.path) : audio;
+    const form = new FormData();
+    form.append(
+      "file",
+      new Blob([buffer], {
+        type: upload ? providerContentType(upload.path) : "audio/webm",
+      }),
+      upload ? path.basename(upload.path) : "audio.webm"
+    );
+    form.append("model", model);
+    form.append("language", "en");
+    for (const token of contextBias) form.append("context_bias", token);
+
+    try {
+      const response = await net.fetch(MISTRAL_TRANSCRIPTION_URL, {
+        method: "POST",
+        headers: { "x-api-key": apiKey },
+        body: form,
+        useSessionCookies: false,
+      });
+      if (!response.ok) {
+        const body = await response.text();
+        debugLogger.warn("Mistral transcription failed", {
+          status: response.status,
+          body: redactProviderBody(body),
+        });
+        throw providerHttpError({
+          ...context,
+          status: response.status,
+          body,
+          headers: response.headers,
+        });
+      }
+      const { text } = await response.json();
+      return { text, source: "mistral", model };
+    } catch (cause) {
+      const error = asProviderError(cause, context);
+      const codes = PROVIDER_ERROR_CODES;
+      if (
+        [
+          codes.RATE_LIMITED,
+          codes.QUOTA_EXHAUSTED,
+          codes.UNAVAILABLE,
+          codes.TIMEOUT,
+          codes.UNREACHABLE,
+          codes.AUTH_FAILED,
+          codes.ACCESS_DENIED,
+          codes.MODEL_NOT_FOUND,
+        ].includes(error.code) &&
+        (await localModel.canTranscribeLocalAudio())
+      ) {
+        return await local();
+      }
+      throw error;
+    }
+  } finally {
+    upload?.cleanup();
   }
 }
 
@@ -1251,56 +1276,19 @@ class IPCHandlers {
       }
     });
 
+    ipcMain.handle("get-local-model-status", () => localModel.getLocalModelStatus());
+    ipcMain.handle("download-local-model", () => localModel.downloadLocalModel());
     ipcMain.handle(
       "proxy-mistral-transcription",
-      serializeIpcError(async (event, { audioBuffer, model, contextBias }) => {
-        const apiKey = this.environmentManager.getMistralKey();
-        if (!apiKey) {
-          throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, {
-            provider: "Mistral",
-            surface: "transcription",
-          });
-        }
-
-        const transcriptionModel = model || "voxtral-mini-transcribe-3-0";
-        const formData = new FormData();
-        const audioBlob = new Blob([Buffer.from(audioBuffer)], { type: "audio/webm" });
-        formData.append("file", audioBlob, "audio.webm");
-        formData.append("model", transcriptionModel);
-        // English only, whatever the settings say: auto detection sometimes heard French.
-        formData.append("language", "en");
-        if (contextBias && contextBias.length > 0) {
-          for (const token of contextBias) {
-            formData.append("context_bias", token);
-          }
-        }
-
-        const response = await proxyFetch(MISTRAL_TRANSCRIPTION_URL, {
-          method: "POST",
-          headers: {
-            "x-api-key": apiKey,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          debugLogger.warn("Mistral transcription failed", {
-            status: response.status,
-            body: redactProviderBody(errorText),
-          });
-          throw providerHttpError({
-            provider: "Mistral",
-            model: transcriptionModel,
-            status: response.status,
-            body: errorText,
-            headers: response.headers,
-            surface: "transcription",
-          });
-        }
-
-        return await response.json();
-      })
+      serializeIpcError((_event, { audioBuffer, model, contextBias, preferLocal }) =>
+        transcribeRecording(
+          Buffer.from(audioBuffer),
+          this.environmentManager.getMistralKey(),
+          model,
+          contextBias,
+          preferLocal
+        )
+      )
     );
 
     ipcMain.handle("get-dictation-key", async () => {
@@ -1597,57 +1585,15 @@ class IPCHandlers {
       app.quit();
     });
 
-    // Honors system proxy via Electron's net stack. useSessionCookies:false so
-    // Electron doesn't auto-attach jar cookies on top of our explicit headers.
-    const proxyFetch = (url, init = {}) => net.fetch(url, { ...init, useSessionCookies: false });
-
     ipcMain.handle("retry-transcription", async (event, id, settings) => {
       const buffer = this.audioStorageManager.getAudioBuffer(id);
       if (!buffer) return { success: false, error: "Audio file not found" };
-      let providerErrorContext = null;
       try {
-        const { resolveMistralModel } = await import("./transcriptionRoute.ts");
-        // Retry re-sends the stored audio with the model selected now.
-        const model = resolveMistralModel(settings?.cloudTranscriptionModel);
-        providerErrorContext = {
-          provider: "Mistral",
-          selfHosted: false,
-          model,
-          surface: "transcription",
-        };
-        const apiKey = this.environmentManager.getMistralKey();
-        if (!apiKey) {
-          throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, {
-            provider: "Mistral",
-            surface: "transcription",
-          });
-        }
-        const formData = new FormData();
-        formData.append("file", new Blob([buffer], { type: "audio/webm" }), "audio.webm");
-        formData.append("model", model);
-        // English only, like dictation.
-        formData.append("language", "en");
-        const response = await proxyFetch(MISTRAL_TRANSCRIPTION_URL, {
-          method: "POST",
-          headers: { "x-api-key": apiKey },
-          body: formData,
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          debugLogger.warn("Retry transcription provider failed", {
-            provider: "mistral",
-            status: response.status,
-            body: redactProviderBody(errorText),
-          });
-          throw providerHttpError({
-            ...providerErrorContext,
-            status: response.status,
-            body: errorText,
-            headers: response.headers,
-          });
-        }
-        const data = await response.json();
-        const result = { text: data?.text, source: "mistral", model };
+        const result = await transcribeRecording(
+          buffer,
+          this.environmentManager.getMistralKey(),
+          settings?.cloudTranscriptionModel
+        );
 
         if (!result.text) {
           throw Object.assign(new Error("No speech detected in audio"), {
@@ -1673,10 +1619,7 @@ class IPCHandlers {
           });
         }
         return { success: true, transcription: updated };
-      } catch (rawError) {
-        const error = providerErrorContext
-          ? asProviderError(rawError, providerErrorContext)
-          : rawError;
+      } catch (error) {
         debugLogger.error(
           "Retry transcription failed",
           { id, error: error.message, code: error.code },
@@ -1789,7 +1732,8 @@ class IPCHandlers {
         this._dictationStreaming = streaming;
         try {
           const apiKey = this.environmentManager.getMistralKey();
-          if (!apiKey) {
+          const { hasMistralKey } = await import("./transcriptionRoute.ts");
+          if (!hasMistralKey(apiKey)) {
             const err = new Error("No Mistral API key configured. Add your key in Settings.");
             err.code = "NO_API";
             throw err;
@@ -1952,9 +1896,6 @@ class IPCHandlers {
     });
 
     ipcMain.handle("transcribe-audio-file-byok", async (event, { filePath, model }) => {
-      const fs = require("fs");
-      let cleanupUpload = null;
-      let providerErrorContext = null;
       try {
         if (typeof filePath !== "string") {
           return { success: false, error: "Invalid file path" };
@@ -1962,62 +1903,15 @@ class IPCHandlers {
         const sourcePath = resolveAllowedAudioPath(filePath);
         if (!sourcePath) return { success: false, error: "File path not allowed" };
 
-        const { resolveMistralModel, MISTRAL_FILE_SIZE_LIMIT } =
-          await import("./transcriptionRoute.ts");
-        const upload = await prepareProviderUpload(sourcePath);
-        cleanupUpload = upload.cleanup;
-        const realByok = upload.path;
-
-        const mistralModel = resolveMistralModel(model);
-        providerErrorContext = {
-          provider: "Mistral",
-          selfHosted: false,
-          model: mistralModel,
-          surface: "transcription",
-        };
-        if (fs.statSync(realByok).size > MISTRAL_FILE_SIZE_LIMIT) {
-          return { success: false, error: byokSizeCapError(MISTRAL_FILE_SIZE_LIMIT) };
-        }
-        const apiKey = this.environmentManager.getMistralKey();
-        if (!apiKey) {
-          throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, {
-            provider: "Mistral",
-            surface: "transcription",
-          });
-        }
-
-        // English only, like dictation: auto detection sometimes heard French.
-        const { body, boundary } = buildMultipartBody(
-          fs.readFileSync(realByok),
-          path.basename(realByok),
-          providerContentType(realByok),
-          { model: mistralModel, language: "en" }
+        const result = await transcribeRecording(
+          sourcePath,
+          this.environmentManager.getMistralKey(),
+          model
         );
-        // Mistral authenticates with x-api-key, not Bearer.
-        const data = await postMultipart(new URL(MISTRAL_TRANSCRIPTION_URL), body, boundary, {
-          "x-api-key": apiKey,
-        });
-        if (data.statusCode !== 200) {
-          debugLogger.warn("BYOK file transcription failed", {
-            provider: "mistral",
-            status: data.statusCode,
-            body: redactProviderBody(data.data),
-          });
-          throw providerHttpError({
-            ...providerErrorContext,
-            status: data.statusCode,
-            body: data.data,
-          });
-        }
-        return { success: true, text: data.data.text };
-      } catch (rawError) {
-        const error = providerErrorContext
-          ? asProviderError(rawError, providerErrorContext)
-          : rawError;
+        return { success: true, ...result };
+      } catch (error) {
         debugLogger.error("BYOK audio file transcription error", { error: error.message });
         return { success: false, ...ipcErrorFields(error) };
-      } finally {
-        cleanupUpload?.();
       }
     });
 

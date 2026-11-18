@@ -1,11 +1,10 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import ChatGPTSignIn from "./ChatGPTSignIn";
+import LocalSpeechModel from "./settings/LocalSpeechModel";
 import LaurelLogo from "./LaurelLogo";
 import WindowControls from "./WindowControls";
 import { Button } from "./ui/button";
-import { FieldLabel, ProviderCheckField } from "./ui/ProviderCheckField";
-import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
 import type { MicrophoneCheck } from "../hooks/useMicrophoneCheck";
 import { usePalazzoTheme } from "../hooks/usePalazzoTheme";
@@ -18,11 +17,6 @@ const platform = getCachedPlatform();
 const TRANSCRIPTION_MODEL = "voxtral-mini-transcribe-3-0";
 const CLEANUP_MODEL = "gpt-6-luna";
 
-/**
- * First-run setup, in place of upstream onboarding: a Mistral API key for
- * speech-to-text and Sign in with ChatGPT for cleanup. Everything else keeps
- * its default and can be changed later in Settings.
- */
 export default function AppSetup({
   microphone,
   onComplete,
@@ -33,23 +27,10 @@ export default function AppSetup({
   const { t } = useTranslation();
   usePalazzoTheme();
   const store = useSettingsStore();
-  // null until edited, so the saved key fills the field when it loads.
-  const [draftKey, setDraftKey] = useState<string | null>(null);
-  const mistralKey = draftKey ?? store.mistralApiKey;
+  const [modelReady, setModelReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [error, setError] = useState("");
   const [finishing, setFinishing] = useState(false);
-
-  const check = useConnectionAutoCheck({
-    config: {
-      scope: "transcription",
-      provider: "mistral",
-      apiKey: mistralKey,
-      model: TRANSCRIPTION_MODEL,
-    },
-    ready: Boolean(mistralKey.trim()),
-  });
-  const keyUsable = check.phase === "connected" || check.phase === "unverified";
 
   const { registerHotkey } = useHotkeyRegistration({
     onSuccess: (registered) => store.setDictationKey(registered),
@@ -73,7 +54,6 @@ export default function AppSetup({
       // Hold-to-talk, like Wispr Flow, unless the user already picked a mode.
       if (localStorage.getItem("activationMode") === null) store.setActivationMode("push");
 
-      store.setMistralApiKey(mistralKey.trim());
       store.setCloudTranscriptionModel(TRANSCRIPTION_MODEL);
       store.setCloudReasoningForAllScopes({
         cleanupCloudMode: "byok",
@@ -98,8 +78,6 @@ export default function AppSetup({
     }
   };
 
-  // The Palazzo look of the control panel: marble window, moulded titlebar, a stone
-  // panel for the two fields (styles/palazzo.css).
   return (
     <main className="pz-window flex h-screen flex-col">
       {/* The frameless window's titlebar. */}
@@ -120,38 +98,14 @@ export default function AppSetup({
         <div className="mx-auto flex max-w-[26rem] flex-col">
           {/* The same logo as the control panel sidebar and the website. */}
           <LaurelLogo />
-          {/* One paragraph per line of the text, with a small gap between them. */}
-          <div className="flex flex-col gap-1.5 text-balance text-center text-[15px] italic text-muted-foreground">
-            {t("appSetup.description")
-              .split("\n")
-              .map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-          </div>
+          <p className="text-balance text-center text-[15px] italic text-muted-foreground">
+            {t("appSetup.description")}
+          </p>
 
           <div className="pz-panel mt-5 divide-y divide-border">
-            <label className="block px-4 py-4">
-              <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
-              <ProviderCheckField
-                aria-label={t("appSetup.mistralKey")}
-                check={check}
-                invalidOn="credentialsRejected"
-                type="password"
-                value={mistralKey}
-                onChange={(event) => setDraftKey(event.target.value)}
-                placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <a
-                href="https://admin.mistral.ai/organization/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
-              >
-                {t("appSetup.getMistralKey")}
-              </a>
-            </label>
+            <div className="px-4 py-4">
+              <LocalSpeechModel onReadyChange={setModelReady} />
+            </div>
             <div className="px-4 py-4">
               <ChatGPTSignIn onStatusChange={setSignedIn} />
             </div>
@@ -162,7 +116,7 @@ export default function AppSetup({
           <Button
             type="button"
             onClick={finish}
-            disabled={!keyUsable || !signedIn || finishing}
+            disabled={!modelReady || !signedIn || finishing}
             className="mt-5 h-10 w-full"
           >
             {finishing ? t("common.loading") : t("appSetup.start")}

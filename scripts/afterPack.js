@@ -10,8 +10,7 @@
 //    user flags from ~/.config/only-whispers-flags.conf, and falls back to
 //    --no-sandbox where the Chromium sandbox cannot work (AppImage/tar.gz
 //    on distros that restrict unprivileged user namespaces).
-// 3. Fails the build if required binaries (ffmpeg-static, ps-list vendor exe)
-//    are missing from app.asar.unpacked/.
+// 3. Checks the unpacked FFmpeg, Parakeet and Windows process helpers.
 
 const fs = require("fs");
 const path = require("path");
@@ -226,6 +225,18 @@ function verifyUnpackedBinaries(context) {
   const unpackedModulesDir = path.join(unpackedDir, "node_modules");
 
   const isWindows = context.electronPlatformName === "win32";
+  const platform = isWindows ? "win" : context.electronPlatformName;
+  const arch = Arch[context.arch];
+  const architectures = arch === "universal" ? ["arm64", "x64"] : [arch];
+  for (const file of [
+    "src/helpers/parakeetWorker.js",
+    "node_modules/sherpa-onnx-node/sherpa-onnx.js",
+    ...architectures.map((cpu) => `node_modules/sherpa-onnx-${platform}-${cpu}/sherpa-onnx.node`),
+  ]) {
+    if (!fs.existsSync(path.join(unpackedDir, file))) {
+      throw new Error(`afterPack: the local speech engine is missing ${file}`);
+    }
+  }
 
   const ffmpegPath = path.join(
     unpackedModulesDir,

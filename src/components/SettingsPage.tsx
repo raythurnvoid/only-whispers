@@ -7,6 +7,7 @@ import PermissionCard from "./ui/PermissionCard";
 import PasteToolsInfo from "./ui/PasteToolsInfo";
 import NixOsPasteInfo from "./ui/NixOsPasteInfo";
 import ChatGPTSignIn from "./ChatGPTSignIn";
+import LocalSpeechModel from "./settings/LocalSpeechModel";
 import {
   AlertDialog,
   Dialog,
@@ -65,7 +66,6 @@ function SectionHeader({
   );
 }
 
-// Mistral Voxtral is the only speech-to-text service, so its key is all it needs.
 function MistralKeySection() {
   const { t } = useTranslation();
   const mistralApiKey = useSettingsStore((s) => s.mistralApiKey);
@@ -133,8 +133,6 @@ function CleanupSection() {
   );
 }
 
-// 0.1.0 has one AI page: the Mistral key for speech-to-text and the ChatGPT
-// sign-in for cleanup. The assistant tabs are not shown.
 function LlmsSection() {
   const { t } = useTranslation();
 
@@ -144,6 +142,11 @@ function LlmsSection() {
         title={t("settingsPage.aiModels.title")}
         description={t("settingsPage.aiModels.description")}
       />
+      <SettingsPanel>
+        <SettingsPanelRow>
+          <LocalSpeechModel />
+        </SettingsPanelRow>
+      </SettingsPanel>
       <MistralKeySection />
       <CleanupSection />
     </div>

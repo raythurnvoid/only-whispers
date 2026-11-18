@@ -505,7 +505,7 @@
         "selfHosted": "自托管"
       },
       "title": "AI 模型",
-      "description": "Mistral 将你的语音转为文字,你的 ChatGPT 套餐负责整理文字。"
+      "description": "添加 Mistral 密钥后，音频会先发送给 Mistral。如果失败，Parakeet 会在此设备上转写。文字整理由你的 ChatGPT 套餐提供。"
     },
     "dictionary": {
       "title": "词典",
@@ -788,9 +788,16 @@
     "expand": "展开侧边栏",
     "logs": "日志"
   },
+  "localSpeech": {
+    "title": "本地语音模型",
+    "description": "下载一次即可在此设备上转写。Only Whispers 会在需要时更新模型。",
+    "download": "下载模型",
+    "downloading": "正在下载 · {{percent}}%",
+    "ready": "可以离线转写"
+  },
   "appSetup": {
-    "description": "忘掉键盘,开口说话,整洁的文字就会出现在任何应用中。\n添加两项即可开始。",
-    "mistralKey": "Mistral API 密钥(语音转文字)",
+    "description": "下载语音模型并登录，以便整理文字。",
+    "mistralKey": "Mistral API 密钥（可选）",
     "getMistralKey": "在 Mistral admin 获取密钥",
     "start": "开始听写"
   },

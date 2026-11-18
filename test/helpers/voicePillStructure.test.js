@@ -114,6 +114,20 @@ test("the dictation status pill keeps one size from listening to processing", as
   assert.match(processing, /dictation-pill-ripple-bar/);
 });
 
+test("local dictation shows Parakeet with the app's microphone", async () => {
+  const local = await renderPill("thinking", false, "right", {
+    dictationStatus: {
+      phase: "processing",
+      provider: "dictation",
+      model: "Parakeet",
+      activity: "is transcribing",
+    },
+  });
+  assert.match(local, /Parakeet<\/span> <span[^>]*>is transcribing/);
+  assert.match(local, /--mark-mic/);
+  assert.doesNotMatch(local, /Voxtral|#F7D046/);
+});
+
 test("panel thinking contracts to the identity circle instead of freezing a waveform", async () => {
   const footprint = await pillFootprints();
   const panelThinking = await renderPill("thinking", false, "right", {

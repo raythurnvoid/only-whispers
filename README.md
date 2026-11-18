@@ -24,10 +24,13 @@
 
 1. Download the app for your platform from the [website](https://only-whispers.bonobo-senate.com) or the [latest release](https://github.com/raythurnvoid/only-whispers/releases/latest).
 2. On the setup screen:
-   - Paste a **Mistral API key** ([create one here](https://admin.mistral.ai/organization/api-keys), the free plan works).
+   - Download **Parakeet** for speech recognition on your computer.
    - Click **Sign in with ChatGPT**.
 
-The app updates itself.
+The app updates itself. When a release changes the local model, the app downloads the new version.
+For live transcription, you can add a paid Mistral API key in Settings. If Mistral reaches its limit, the app uses Parakeet.
+
+The local model is [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Only Whispers downloads the [8-bit sherpa-onnx conversion](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8).
 
 **macOS** (preview, Apple Silicon only): open the `.dmg` and drag the app to Applications. The app is not checked by Apple, so macOS blocks the first open: go to System Settings → Privacy & Security and click **Open Anyway**. You do this once; updates open normally.
 
@@ -36,7 +39,8 @@ The app updates itself.
 Your words stay yours.
 
 - We never see your voice or your text. There is no account with us.
-- Your voice goes only to the AI services you connect, to turn it into clean text.
+- Parakeet processes audio on your computer. Adding a Mistral key sends audio to Mistral for transcription.
+- ChatGPT receives the transcript for cleanup.
 - Your history stays on your computer.
 
 ## Code signing policy

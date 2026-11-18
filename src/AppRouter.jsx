@@ -19,7 +19,6 @@ const isOnboardingInProgress = () =>
   localStorage.getItem(ONBOARDING_SESSION_KEY) !== null;
 
 const ControlPanel = React.lazy(() => import("./components/ControlPanel.tsx"));
-// Replaces upstream onboarding: only a Mistral key and Sign in with ChatGPT.
 const AppSetup = React.lazy(() => import("./components/AppSetup.tsx"));
 const MicrophoneRequired = React.lazy(() => import("./components/MicrophoneRequired.tsx"));
 
@@ -53,6 +52,8 @@ function MainApp() {
   // window checks the mic at launch and opens the panel when it can't be used.
   useEffect(() => {
     if (!isDictationPanel || localStorage.getItem("onboardingCompleted") !== "true") return;
+    // Older installs have no local model. Later launches check the pinned revision.
+    void window.electronAPI?.downloadLocalModel?.().catch(console.error);
     checkMicrophone().then((state) => {
       if (state !== "ready") window.electronAPI?.showMicrophoneRequired?.();
     });

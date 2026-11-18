@@ -174,37 +174,48 @@ test("retry: an empty answer from Mistral is no speech", async (t) => {
   assert.equal(textUpdates.length, 0);
 });
 
-test("retry: a missing Mistral key is a classified error", async () => {
+test("retry without a key runs locally without sending audio to Mistral", async (t) => {
   fetches.length = 0;
-  const originalGetMistralKey = fakeThis.environmentManager.getMistralKey;
-  fakeThis.environmentManager.getMistralKey = () => "";
-  try {
-    const result = await invoke({});
-    assert.equal(result.success, false);
-    assert.equal(result.code, "API_KEY_MISSING");
-    assert.equal(result.messageKey, "hooks.audioRecording.errorDescriptions.providerKeyMissing");
-    assert.deepEqual(result.messageParams, { provider: "Mistral" });
-    assert.equal(fetches.length, 0, "a missing key must fail before any request is sent");
-  } finally {
-    fakeThis.environmentManager.getMistralKey = originalGetMistralKey;
-  }
+  t.mock.method(fakeThis.environmentManager, "getMistralKey", () => "");
+  const local = require("../../src/helpers/localModel");
+  t.mock.method(local, "transcribeLocalAudio", async (audio) => {
+    assert.deepEqual(audio, Buffer.from([1, 2, 3]));
+    return { text: "local words", model: "parakeet-test" };
+  });
+  const result = await invoke({});
+  assert.equal(result.success, true);
+  assert.deepEqual(textUpdates.at(-1), { id: 7, text: "local words" });
+  assert.equal(fetches.length, 0);
 });
 
-test("proxy-mistral-transcription resolves to a structured error instead of rejecting", async (t) => {
-  const originalFetchResponse = fetchResponse;
+test("a rate-limited dictation transcribes the same audio locally", async (t) => {
+  const original = fetchResponse;
   t.after(() => {
-    fetchResponse = originalFetchResponse;
+    fetchResponse = original;
   });
-  fetchResponse = () => ({
-    ok: false,
-    status: 401,
-    text: async () => "unauthorized",
-    json: async () => ({}),
+  fetchResponse = () => ({ ok: false, status: 429, text: async () => "rate limit" });
+  const local = require("../../src/helpers/localModel");
+  t.mock.method(local, "canTranscribeLocalAudio", async () => true);
+  t.mock.method(local, "transcribeLocalAudio", async (audio) => {
+    assert.deepEqual(audio, Buffer.from([7, 1]));
+    return { text: "saved dictation", model: "parakeet-test" };
   });
+  const result = await handlers.get("proxy-mistral-transcription")(
+    {},
+    { audioBuffer: Uint8Array.of(7, 1) }
+  );
+  assert.deepEqual(result, { text: "saved dictation", source: "parakeet", model: "parakeet-test" });
+});
+
+test("proxy-mistral-transcription resolves to a structured error when the local model is missing", async (t) => {
+  const original = fetchResponse;
+  t.after(() => {
+    fetchResponse = original;
+  });
+  fetchResponse = () => ({ ok: false, status: 401, text: async () => "unauthorized" });
   const fn = handlers.get("proxy-mistral-transcription");
-  assert.ok(fn, "proxy-mistral-transcription must be registered");
-  const result = await fn({ sender: {} }, { audioBuffer: new ArrayBuffer(4) });
-  assert.equal(typeof result.error, "string");
+  const result = await fn({}, { audioBuffer: new ArrayBuffer(4) });
+  assert.equal(result.code, "PROVIDER_AUTH_FAILED");
 });
 
 const uploadTempFile = path.join(os.tmpdir(), "only-whispers-upload-handler-test.webm");
@@ -224,9 +235,9 @@ test("upload: mistral sends x-api-key with a Voxtral model and English", async (
   assert.match(fetches[0].url, /api.mistral.ai/);
   assert.equal(fetches[0].init.headers["x-api-key"], "mk-mistral");
   assert.equal(fetches[0].init.headers.Authorization, undefined);
-  const body = fetches[0].init.body.toString();
-  assert.match(body, /voxtral-mini-transcribe-3-0/);
-  assert.match(body, /name="language"\r\n\r\nen\r\n/);
+  const body = fetches[0].init.body;
+  assert.equal(body.get("model"), "voxtral-mini-transcribe-3-0");
+  assert.equal(body.get("language"), "en");
 });
 
 // Electron's net.fetch rejects with a plain Error whose message is the Chromium
@@ -290,7 +301,7 @@ test("upload: an HTTP failure logs its status and a redacted body", async (t) =>
   const result = await invokeUpload({ model: "voxtral-mini-transcribe-3-0" });
 
   assert.equal(result.code, "PROVIDER_AUTH_FAILED");
-  const failure = warnings.find(({ message }) => message === "BYOK file transcription failed");
+  const failure = warnings.find(({ message }) => message === "Mistral transcription failed");
   assert.ok(failure, "the failure must be logged");
   assert.equal(failure.meta.status, 401);
   assert.match(failure.meta.body, /Incorrect API key provided/);
