@@ -63,6 +63,7 @@ import { selectionEditToneSentence } from "../config/prompts/toneStyle";
 import { evaluateFinishedRecording, withSalvageWarning } from "./recordingValidation";
 import { isEmptyRecording } from "./recordingGuard";
 import { startRecordingSpool, takeInterruptedRecordings } from "./recordingSpool";
+import { createLiveLocalRecording } from "./liveLocalRecording";
 import {
   dictionaryEchoError,
   matchesDictionaryPrompt,
@@ -277,8 +278,8 @@ const STREAMING_PROVIDERS = {
 const MISTRAL_TRANSCRIPTION = {
   displayName: "Mistral",
   ipc: () => window.electronAPI?.proxyMistralTranscription,
-  buildPayload: ({ audioBuffer, model, language, dictionaryPrompt }) => {
-    const payload = { audioBuffer, model, language };
+  buildPayload: ({ model, language, dictionaryPrompt }) => {
+    const payload = { model, language };
     const tokens = (dictionaryPrompt || "")
       .split(",")
       .flatMap((entry) => entry.trim().split(/\s+/))
@@ -1174,6 +1175,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       // A prepared value the recording never adopted still owns a live stream
       // (and possibly a pre-roll recorder); release it before any retry.
       if (prepared && !preparedAdopted) this._disposePrepared(prepared);
+      this.cancelLiveLocalRecording();
       if (isStaleDeviceError(error) && !forceDefaultMic) {
         // Pinned mic is gone (Chromium rotates IDs / device unplugged). Retry once on the default mic. See #900.
         logger.warn("Pinned microphone unavailable, retrying on default mic", {}, "audio");
@@ -1239,6 +1241,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         this._receivedAudioData = true;
         segmentChunks.push(event.data);
         spoolChunk?.(event.data);
+        this.liveLocalRecording?.update(segmentChunks);
       }
     };
 
@@ -1276,16 +1279,20 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     // Taken now, so a cancelled pipeline that settles late can't end the next
     // recording's spool.
     const spool = this._takeRecordingSpool();
+    const local = this.liveLocalRecording ?? null;
+    this.liveLocalRecording = null;
     try {
-      await this._finalizeBatchRecording(finalSegment);
+      await this._finalizeBatchRecording(finalSegment, local);
     } finally {
+      local?.cancel();
       spool?.finish();
     }
   }
 
-  async _finalizeBatchRecording(finalSegment) {
+  async _finalizeBatchRecording(finalSegment, local) {
     const stopRequestedAt = this.stopRequestedAt ?? performance.now();
     const processingPipeline = this._startProcessingPipeline();
+    processingPipeline.localRecording = local;
     const wasCancelled = () => this._shouldAbandonProcessingPipeline(processingPipeline);
     this.micRecovery.stop();
     this.teardownSpeechGate();
@@ -1302,6 +1309,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     const segments = finalSegment ? [...this._batchSegments, finalSegment] : this._batchSegments;
     this._batchSegments = [];
+    if (segments.length > 1) local?.cancel();
     const segmentsCount = segments.filter((segment) => segment?.size > 0).length;
     let audioBlob = null;
     let salvagedRecording = false;
@@ -1374,6 +1382,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   async replaceBatchMic(replacement) {
+    // A second WebM header needs the existing segment merge and full-file decode.
+    this.cancelLiveLocalRecording();
     try {
       const recorder = this.mediaRecorder;
       if (!recorder) throw new Error("Batch recorder is no longer active");
@@ -1529,6 +1539,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   resetDiscardedBatchRecordingState() {
+    this.cancelLiveLocalRecording();
     this._takeRecordingSpool()?.finish();
     this.teardownSpeechGate();
     this._localSpeechGateState = null;
@@ -1667,7 +1678,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     }
 
     try {
-      let result = await this.processWithOpenAIAPI(audioBlob, metadata, wasCancelled);
+      let result = await this.processWithOpenAIAPI(
+        audioBlob,
+        metadata,
+        wasCancelled,
+        pipeline.localRecording
+      );
       const activeModel = result?.model;
 
       if (wasCancelled() || !this.isProcessing) {
@@ -2282,25 +2298,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     return this.getCustomDictionaryArray();
   }
 
-  async processWithOpenAIAPI(audioBlob, metadata = {}, wasCancelled = neverCancelled) {
-    const timings = {};
-    const apiSettings = getSettings();
-    const language = getBaseLanguageCode(this.getEffectiveSttLanguage(apiSettings));
-    const model = this.getTranscriptionModel();
-
+  async requestBatchTranscription(audioBlob, proxyPayload, wasCancelled) {
     const call = MISTRAL_TRANSCRIPTION.ipc();
     if (!call) {
       throw new Error("Speech transcription is unavailable in this window");
     }
-    const apiCallStart = performance.now();
-    const proxyDictionaryPrompt = this.getWhisperPrompt(apiSettings);
-    const proxyPayload = MISTRAL_TRANSCRIPTION.buildPayload({
-      audioBuffer: await audioBlob.arrayBuffer(),
-      model,
-      language,
-      dictionaryPrompt: proxyDictionaryPrompt,
-    });
-    if (metadata.preferLocal) proxyPayload.preferLocal = true;
+    proxyPayload.audioBuffer = await audioBlob.arrayBuffer();
     if (wasCancelled()) throw new DOMException("Dictation cancelled", "AbortError");
     const requestId = crypto.randomUUID();
     proxyPayload.requestId = requestId;
@@ -2329,6 +2332,29 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       // message (net::ERR_*), so classify the rebuilt error here.
       throw classifyProxyFailure(errorFromIpcResult(result));
     }
+    return result;
+  }
+
+  async processWithOpenAIAPI(
+    audioBlob,
+    metadata = {},
+    wasCancelled = neverCancelled,
+    local = null
+  ) {
+    const timings = {};
+    const apiCallStart = performance.now();
+    const apiSettings = getSettings();
+    const model = this.getTranscriptionModel();
+    const proxyDictionaryPrompt = this.getWhisperPrompt(apiSettings);
+    const proxyPayload = MISTRAL_TRANSCRIPTION.buildPayload({
+      model,
+      language: getBaseLanguageCode(this.getEffectiveSttLanguage(apiSettings)),
+      dictionaryPrompt: proxyDictionaryPrompt,
+    });
+    if (metadata.preferLocal) proxyPayload.preferLocal = true;
+    let result = metadata.preferLocal ? await local?.finish() : null;
+    if (wasCancelled()) throw new DOMException("Dictation cancelled", "AbortError");
+    result ??= await this.requestBatchTranscription(audioBlob, proxyPayload, wasCancelled);
     const provider = result?.source || "mistral";
     if (typeof result?.text !== "string")
       throw new Error("Speech model returned no transcript field");
@@ -2639,17 +2665,43 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
   warmLocalRecording() {
     const startedAt = this.recordingStartTime;
+    const chunks = this.isStreaming ? this.streamingFallbackChunks : this.audioChunks;
+    const recorder = this.isStreaming ? this.streamingFallbackRecorder : this.mediaRecorder;
     this.onSpeechProvider?.(null);
     void window.electronAPI
       ?.warmLocalModel?.()
       .then((ready) => {
         if (ready && this.isRecording && this.recordingStartTime === startedAt) {
           this.onSpeechProvider?.("parakeet");
+          const segments = this.isStreaming ? this._streamingFallbackSegments : this._batchSegments;
+          const currentRecorder = this.isStreaming
+            ? this.streamingFallbackRecorder
+            : this.mediaRecorder;
+          if (
+            recorder &&
+            currentRecorder === recorder &&
+            !segments?.length &&
+            (recorder.mimeType || "audio/webm").startsWith("audio/webm") &&
+            window.electronAPI.writeLocalRecordingChunk &&
+            !this.liveLocalRecording
+          ) {
+            this.liveLocalRecording = createLiveLocalRecording(
+              chunks,
+              startedAt,
+              window.electronAPI
+            );
+            this.liveLocalRecording.update(chunks);
+          }
         }
       })
       .catch((error) =>
         logger.warn("Local model warmup failed", { error: error.message }, "audio")
       );
+  }
+
+  cancelLiveLocalRecording(local = this.liveLocalRecording) {
+    local?.cancel();
+    if (this.liveLocalRecording === local) this.liveLocalRecording = null;
   }
 
   async warmupStreamingConnection({ warmMic = true } = {}) {
@@ -2751,6 +2803,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         if (event.data?.size > 0) {
           chunks.push(event.data);
           spoolChunk?.(event.data);
+          this.liveLocalRecording?.update(chunks);
         }
       };
       recorder.start(RECORDING_TIMESLICE_MS);
@@ -2787,6 +2840,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   async replaceStreamingMic(replacement, previous) {
+    this.cancelLiveLocalRecording();
     if (!this.streamingProcessor || !this.streamingAudioContext) {
       throw new Error("Streaming audio pipeline is unavailable");
     }
@@ -3245,13 +3299,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const sessionId = this._activeStreamingSessionId;
     const spool = this._takeRecordingSpool();
     const delivery = {};
-    const stopPromise = this._finalizeStreamingRecording(sessionId, delivery);
+    const local = this.liveLocalRecording ?? null;
+    const stopPromise = this._finalizeStreamingRecording(sessionId, delivery, local);
     this._streamingStopPromise = stopPromise;
     this._streamingStopMode = "finalize";
     try {
       return await stopPromise;
     } finally {
       // The stop settles at delivery; the spool waits until the result is saved.
+      this.cancelLiveLocalRecording(local);
       if (spool) void Promise.resolve(delivery.resultHandled).finally(() => spool.finish());
       if (this._streamingStopPromise === stopPromise) {
         this._streamingStopPromise = null;
@@ -3272,6 +3328,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   _requestStreamingCancellation() {
+    this.cancelLiveLocalRecording();
+    this._activeProcessingPipeline?.localRecording?.cancel();
     if (this.batchRequestId) {
       void window.electronAPI?.cancelBatchDictation?.(this.batchRequestId);
     }
@@ -3395,7 +3453,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     window.electronAPI?.chatgptSocketEarly?.(wrapCleanupTranscript(text));
   }
 
-  async _finalizeStreamingRecording(sessionId, delivery = {}) {
+  async _finalizeStreamingRecording(sessionId, delivery = {}, local = null) {
     const stopRequestedAt = this.stopRequestedAt ?? performance.now();
     if (
       sessionId !== null &&
@@ -3520,6 +3578,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     let savedAudioIsPartial = false;
     await this.finishStreamingFallbackSegment();
     if (wasCancelled()) return abandonFinalization();
+    if (local && this._streamingFallbackSegments.length > 1) local.cancel();
     try {
       fallbackBlob = await this.mergeRecordedSegments(this._streamingFallbackSegments);
     } catch (error) {
@@ -3774,7 +3833,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         const batchResult = await this.processWithOpenAIAPI(
           fallbackBlob,
           { durationSeconds, preferLocal: Boolean(failoverReason), stopRequestedAt },
-          wasCancelled
+          wasCancelled,
+          local
         );
         if (wasCancelled()) return true;
         if (batchResult?.text) {
@@ -3976,6 +4036,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
   async cleanupStreaming() {
     const sessionId = this._activeStreamingSessionId;
+    this.cancelLiveLocalRecording();
     this.micRecovery.stop();
     this._takeRecordingSpool()?.finish();
     this.cleanupStreamingAudio();
@@ -3986,6 +4047,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   cleanup() {
     // Read before cleanupStreaming ends the session below.
     const streamingProviderName = this.getActiveStreamingProviderName();
+    this.cancelLiveLocalRecording();
     this.micRecovery.stop();
     this._unsubscribeSettings?.();
     this.preparedMicCapture.cancel();
