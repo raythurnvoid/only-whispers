@@ -26,4 +26,14 @@ test("the cleanup prompt is English and asks for English output", async (t) => {
   assert.match(prompt, /^You are a transcript cleanup engine/);
   assert.match(prompt, /You MUST write your entire output in English/);
   assert.doesNotMatch(prompt, /write your output in that same language/);
+
+  const { getDefaultPromptText } = await vite.ssrLoadModule("/config/prompts.ts");
+  const studioDefault = getDefaultPromptText("cleanup", "fr");
+  assert.equal(studioDefault, getDefaultPromptText("cleanup", "en"));
+  assert.match(prompt, /sound-alike/);
+  assert.match(prompt, /uncertain name/);
+
+  useSettingsStore.setState({ customPrompts: { cleanup: "Keep my exact words." } });
+  assert.match(service.getSystemPrompt(null), /^Keep my exact words\./);
+  assert.doesNotMatch(service.getSystemPrompt(null), /sound-alike/);
 });

@@ -22,7 +22,8 @@ export function resolvePrompt(kind: PromptKind, opts: ResolvePromptOptions): str
 
 export function getDefaultPromptText(kind: PromptKind, uiLanguage?: string): string {
   const def = PROMPT_KINDS[kind];
-  if (!def.i18nKey) return def.fallback;
+  // Prompt Studio must show the same English cleanup prompt used for dictation.
+  if (!def.i18nKey || kind === "cleanup") return def.fallback;
   const locale = normalizeUiLanguage(uiLanguage || "en");
   const t = i18n.getFixedT(locale, "prompts");
   return t(def.i18nKey, { defaultValue: def.fallback });
