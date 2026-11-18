@@ -8,12 +8,10 @@ Keep responses focused, brief, and concise. Keep disclaimers and caveats short, 
 
 ## Development process
 
-- Change the code, commit straight to `main`, and push (`git push origin main`). Never push to `upstream`.
-- No feature branches and no pull requests, except a short-lived `ci/<topic>` PR to test a change on CI (below).
+- Follow [AGENTS.md](AGENTS.md) for branches, pushes, and pull requests. Never push to `upstream`.
 - No commit message format. Write a short, simple message.
 - Tests on every system: the Test workflow (`.github/workflows/test.yml`) builds the native helpers and runs `pnpm test` on Linux, macOS and Windows, plus lint, type check and translations. It runs on every push to `main` and on every PR. Many tests run on one system only, and this PC can't run the Linux or macOS ones (WSL can't use the Windows `node_modules`).
-  - To check a change before it reaches `main` (always for macOS or Linux code, or a native helper): push it to a `ci/<topic>` branch, `gh pr create`, wait with `gh pr checks --watch` (right after creating the PR it can say "no checks reported"; wait a few seconds and run it again), fix failures with more commits on the branch, then `gh pr merge --squash --delete-branch`. A run's failed logs: `gh run view <id> --log-failed`
-  - After a direct push to `main`, check its run too: `gh run list --workflow test.yml --branch main --limit 1`, then `gh run watch <id> --exit-status`
+  - After pushing to `main`, find the test run with `gh run list --workflow test.yml --commit <sha>`, then check it with `gh run watch <id> --exit-status`. Read failed logs with `gh run view <id> --log-failed`.
   - In CI a native helper that doesn't compile fails the job (`CI` is set), instead of falling back to a downloaded binary. `windows-fast-paste` still downloads first; its own workflow (`build-windows-fast-paste.yml`) compiles it on PRs and on `main`
   - Locally, `pnpm test` skips the database tests, since better-sqlite3 is built for Electron. CI builds it for Node and sets `REQUIRE_DB_TESTS=1`, so a skip fails there (`test/helpers/harness/db.js`; database tests must use its `createDb`). To run a database test file here, use Electron's Node from Git Bash: `ELECTRON_RUN_AS_NODE=1 node_modules/electron/dist/electron.exe --test <file>`
 - Build or release only when the user asks. Local builds are unsigned: `pnpm run prebuild:win`, `pnpm run build:renderer`, then `pnpm exec electron-builder --win --config electron-builder.unsigned-win.json`. For day-to-day checks run the app in dev mode (`pnpm dev`) instead of building.
