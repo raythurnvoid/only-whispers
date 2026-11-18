@@ -4,6 +4,22 @@ Keep this file current. After each measurement, add or fix the numbers here, wit
 
 ## Local Parakeet (2026-11-18)
 
+### Wait after release on saved dictations
+
+On Windows, the app's warm local model took a median of **0.46 s** after release to return raw text. The p90 was **3.06 s** over 72 replays. We used 34 saved dictations from that day and two older long dictations, from 1.14 to 220.50 seconds. Each recording ran twice. Four short recordings returned empty text on both runs. These timings include audio conversion and recognition. Luna and paste run later.
+
+| Audio length | Recordings | Median wait | p90 wait |
+| --- | ---: | ---: | ---: |
+| Up to 5 s | 14 | 0.22 s | 0.38 s |
+| Over 5 to 15 s | 11 | 0.51 s | 0.73 s |
+| Over 15 to 30 s | 3 | 1.24 s | 1.61 s |
+| Over 30 to 60 s | 5 | 2.54 s | 3.06 s |
+| Over 60 s | 3 | 6.41 s | 13.18 s |
+
+We then ran the same worker twice per clip on one short control and five long recordings. The control took 0.14 s when reading the completed file and 0.23 s when fed at recording speed. On the five long recordings (30.72 to 122.16 seconds), the median wait fell from **3.65 s to 1.02 s**. The nearest-rank p90 fell from **8.38 s to 1.37 s**. All six pairs returned exactly the same raw text, including punctuation. This checks agreement with the current worker. The recordings had no human reference in this test.
+
+The replay sent the original WebM bytes in 250 ms groups to the existing worker. The worker kept the same quiet cuts near 30 seconds, so it could finish earlier pieces while the rest of the audio was arriving. The 122-second recording took 8.38 s after release as a completed file and 0.73 s when fed progressively. The test used a Windows pipe and a simulated release. The installed app still sends the complete recording after release.
+
 ### First dictation after launch
 
 Loading the local worker while the mic records cut the wait after release from **3.043 s to 0.339 s** at the median on this PC. The 90th percentile went from **4.383 s to 0.504 s**.
