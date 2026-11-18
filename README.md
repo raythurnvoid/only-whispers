@@ -45,6 +45,8 @@ Your words stay yours.
 
 You can review a recording in History and use it to compare speech models on the same audio. [Run a local comparison](scripts/evaluate-stt.md)
 
+With local history enabled, open **Logs → Open logs folder** and look for `dictionary-edits.jsonl` to see why a learned word appeared again. Events with the same `pasteId` belong to one dictation. An `undone` event followed by `repeat-suppressed` means the app saw the edit again and kept the word out of the dictionary. The log uses anonymous IDs for words and leaves out the text you typed.
+
 ## Code signing policy
 
 Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
