@@ -20,7 +20,7 @@
 2. Let go.
 3. Clean text appears where your cursor is, in any app.
 
-For long local dictations, Parakeet transcribes on your computer while you speak. When you let go, it finishes the last part, then polishes the text if cleanup is on. If the microphone changes or early processing fails, the app uses the saved recording.
+For long local dictations, Parakeet transcribes on your computer while you speak. When you let go, Parakeet finishes the last part. If cleanup is on, the app then sends the transcript to the cleanup model. If the microphone changes or early processing fails, the app uses the saved recording.
 
 ## Install
 
