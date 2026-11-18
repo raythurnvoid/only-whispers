@@ -35,7 +35,7 @@ For a cold-start comparison, use a fresh worker for each recording. For the earl
 
 Use the same saved WebM bytes for both runs. Send one copy to the warm worker as a complete file. On Windows, the worker can also read a named pipe through FFmpeg. Use the audio packet times and byte positions from `ffprobe -show_packets` to send the second copy at recording speed in 250 ms groups. Keep the WebM headers and final bytes. Close the pipe at simulated key release. Time from release to the worker's reply and compare the complete raw text, including punctuation.
 
-Include a short control and several recordings longer than 30 seconds. Alternate which run comes first. Report the number of pairs, median and p90 waits, and how many transcripts match. This measures the recognition worker. Measure the recorder, Luna and paste separately when testing the app.
+Include a short control and several recordings longer than 30 seconds. Alternate which run comes first. Report the number of pairs, median and p90 waits, and how many transcripts match. To check the app, use Electron’s file-backed test microphone. Time real decoder calls against key release and compare the stored raw text with a fresh transcription of the stored audio. Force a live write to fail and verify the whole-file retry and saved audio. Measure Luna and paste separately.
 
 ## 1. Timing of real dictations (the app's own logs)
 

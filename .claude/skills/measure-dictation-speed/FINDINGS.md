@@ -18,7 +18,9 @@ On Windows, the app's warm local model took a median of **0.46 s** after release
 
 We then ran the same worker twice per clip on one short control and five long recordings. The control took 0.14 s when reading the completed file and 0.23 s when fed at recording speed. On the five long recordings (30.72 to 122.16 seconds), the median wait fell from **3.65 s to 1.02 s**. The nearest-rank p90 fell from **8.38 s to 1.37 s**. All six pairs returned exactly the same raw text, including punctuation. This checks agreement with the current worker. The recordings had no human reference in this test.
 
-The replay sent the original WebM bytes in 250 ms groups to the existing worker. The worker kept the same quiet cuts near 30 seconds, so it could finish earlier pieces while the rest of the audio was arriving. The 122-second recording took 8.38 s after release as a completed file and 0.73 s when fed progressively. The test used a Windows pipe and a simulated release. The installed app still sends the complete recording after release.
+The replay sent the original WebM bytes in 250 ms groups to the existing worker. The worker kept the same quiet cuts near 30 seconds, so it could finish earlier pieces while the rest of the audio was arriving. The 122-second recording took 8.38 s after release as a completed file and 0.73 s when fed progressively. The test used a Windows pipe and a simulated release.
+
+In 0.1.17 we also tested the Electron recorder with a test microphone playing recorded speech. In one 70-second run, two pieces reached the real decoder before release. The result and audio were saved 1.66 s after release. Reading the same complete audio with the warm worker took 4.39 s and gave identical text. Cleanup was off. In a separate 39-second run, we forced the first live write to fail. The full recording still produced the same text and was saved to history.
 
 ### First dictation after launch
 
