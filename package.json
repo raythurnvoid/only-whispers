@@ -1,7 +1,7 @@
 {
   "name": "only-whispers",
   "version": "0.1.12",
-  "description": "Hold the Key, speak, and get clean text in any app. Mistral Voxtral speech-to-text with ChatGPT Luna cleanup.",
+  "description": "Hold the Key, speak, and get clean text in any app. Local Parakeet dictation with optional Mistral and ChatGPT cleanup.",
   "main": "main.js",
   "private": true,
   "engines": {

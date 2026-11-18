@@ -40,7 +40,7 @@ Your words stay yours.
 
 - We never see your voice or your text. There is no account with us.
 - Parakeet processes audio on your computer. Adding a Mistral key sends audio to Mistral for transcription.
-- ChatGPT receives the transcript for cleanup.
+- When cleanup is enabled, ChatGPT receives the transcript.
 - Your history stays on your computer.
 
 ## Code signing policy

@@ -207,6 +207,33 @@ test("a rate-limited dictation transcribes the same audio locally", async (t) =>
   assert.deepEqual(result, { text: "saved dictation", source: "parakeet", model: "parakeet-test" });
 });
 
+test("cancelling a dictation stops its local worker request", async (t) => {
+  t.mock.method(fakeThis.environmentManager, "getMistralKey", () => "");
+  const started = Promise.withResolvers();
+  const done = Promise.withResolvers();
+  t.mock.method(
+    require("../../src/helpers/localModel"),
+    "transcribeLocalAudio",
+    (audio, { signal }) => {
+      started.resolve(signal);
+      return done.promise;
+    }
+  );
+  const event = { sender: {} };
+  const result = handlers.get("proxy-mistral-transcription")(event, {
+    requestId: "test",
+    audioBuffer: Uint8Array.of(7),
+  });
+  const signal = await started.promise;
+  const cancel = handlers.get("cancel-batch-dictation");
+  await cancel({ sender: {} }, "test");
+  assert.equal(signal.aborted, false);
+  await cancel(event, "test");
+  assert.equal(signal.aborted, true);
+  done.reject(signal.reason);
+  assert.ok((await result).error);
+});
+
 test("proxy-mistral-transcription resolves to a structured error when the local model is missing", async (t) => {
   const original = fetchResponse;
   t.after(() => {

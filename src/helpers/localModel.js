@@ -264,7 +264,8 @@ class LocalSpeechModel {
       });
       return { text, model: installed.model };
     } finally {
-      if (temp) await fs.promises.rm(temp, { force: true });
+      // On Windows, FFmpeg can hold this file briefly after cancellation kills the worker.
+      if (temp) await fs.promises.rm(temp, { force: true, recursive: true, maxRetries: 8 });
     }
   }
 }

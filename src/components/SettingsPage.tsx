@@ -21,6 +21,7 @@ import { useSettings } from "../hooks/useSettings";
 import { useDialogs } from "../hooks/useDialogs";
 import { usePermissions } from "../hooks/usePermissions";
 import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
+import { hasMistralKey } from "../helpers/transcriptionRoute";
 import { HotkeyListInput } from "./ui/HotkeyListInput";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
 import { useHotkeyModeInfo } from "../hooks/useHotkeyModeInfo";
@@ -73,7 +74,7 @@ function MistralKeySection() {
   const model = useSettingsStore((s) => s.cloudTranscriptionModel);
   const check = useConnectionAutoCheck({
     config: { scope: "transcription", provider: "mistral", apiKey: mistralApiKey, model },
-    ready: Boolean(mistralApiKey.trim()),
+    ready: hasMistralKey(mistralApiKey),
   });
 
   return (

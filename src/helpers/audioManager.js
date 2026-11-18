@@ -255,7 +255,7 @@ const textBeforeLastWord = (text) => {
 };
 
 // Finalize sends input_audio.end and returns the final text. Any stream
-// failure keeps recording and sends the full capture to batch Voxtral.
+// failure keeps the full recording for local or cloud batch transcription.
 const STREAMING_PROVIDERS = {
   "mistral-realtime": {
     awaitsFinalTranscript: true,
@@ -273,8 +273,7 @@ const STREAMING_PROVIDERS = {
   },
 };
 
-// Mistral batch goes through the main process, which holds the key and sends
-// it as x-api-key.
+// Main chooses Parakeet or Mistral. Only Mistral uses the dictionary prompt.
 const MISTRAL_TRANSCRIPTION = {
   displayName: "Mistral",
   ipc: () => window.electronAPI?.proxyMistralTranscription,
@@ -2282,7 +2281,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     const call = MISTRAL_TRANSCRIPTION.ipc();
     if (!call) {
-      throw new Error("Mistral transcription is unavailable in this window");
+      throw new Error("Speech transcription is unavailable in this window");
     }
     const apiCallStart = performance.now();
     const proxyDictionaryPrompt = this.getWhisperPrompt(apiSettings);
@@ -2293,6 +2292,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       dictionaryPrompt: proxyDictionaryPrompt,
     });
     if (metadata.preferLocal) proxyPayload.preferLocal = true;
+    if (wasCancelled()) throw new DOMException("Dictation cancelled", "AbortError");
+    const requestId = crypto.randomUUID();
+    proxyPayload.requestId = requestId;
+    this.batchRequestId = requestId;
     const classifyProxyFailure = (err) =>
       asProviderError(err, {
         provider: MISTRAL_TRANSCRIPTION.displayName,
@@ -2303,6 +2306,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       result = await call(proxyPayload);
     } catch (err) {
       throw classifyProxyFailure(err);
+    } finally {
+      if (this.batchRequestId === requestId) this.batchRequestId = null;
     }
     if (result?.error) {
       // Main serialises an unclassified network failure as its bare
@@ -3208,6 +3213,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   _requestStreamingCancellation() {
+    if (this.batchRequestId) {
+      void window.electronAPI?.cancelBatchDictation?.(this.batchRequestId);
+    }
     this._streamingCancellationGeneration += 1;
     ReasoningService.cancelAllRequests();
     this.pendingSelectionEdit = null;

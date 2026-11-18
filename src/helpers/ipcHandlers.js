@@ -96,10 +96,11 @@ async function transcribeRecording(
   apiKey,
   configuredModel,
   contextBias = [],
-  preferLocal = false
+  preferLocal = false,
+  signal
 ) {
   const local = async () => ({
-    ...(await localModel.transcribeLocalAudio(audio)),
+    ...(await localModel.transcribeLocalAudio(audio, { signal })),
     source: "parakeet",
   });
   const { hasMistralKey, resolveMistralModel, MISTRAL_FILE_SIZE_LIMIT } =
@@ -133,6 +134,7 @@ async function transcribeRecording(
         headers: { "x-api-key": apiKey },
         body: form,
         useSessionCookies: false,
+        signal,
       });
       if (!response.ok) {
         const body = await response.text();
@@ -1278,16 +1280,30 @@ class IPCHandlers {
 
     ipcMain.handle("get-local-model-status", () => localModel.getLocalModelStatus());
     ipcMain.handle("download-local-model", () => localModel.downloadLocalModel());
+    const pendingDictations = new Map();
+    ipcMain.handle("cancel-batch-dictation", (event, requestId) => {
+      const job = pendingDictations.get(requestId);
+      if (job && job.sender === event.sender) job.controller.abort();
+    });
     ipcMain.handle(
       "proxy-mistral-transcription",
-      serializeIpcError((_event, { audioBuffer, model, contextBias, preferLocal }) =>
-        transcribeRecording(
-          Buffer.from(audioBuffer),
-          this.environmentManager.getMistralKey(),
-          model,
-          contextBias,
-          preferLocal
-        )
+      serializeIpcError(
+        async (event, { audioBuffer, model, contextBias, preferLocal, requestId }) => {
+          const controller = new AbortController();
+          if (requestId) pendingDictations.set(requestId, { controller, sender: event.sender });
+          try {
+            return await transcribeRecording(
+              Buffer.from(audioBuffer),
+              this.environmentManager.getMistralKey(),
+              model,
+              contextBias,
+              preferLocal,
+              controller.signal
+            );
+          } finally {
+            if (requestId) pendingDictations.delete(requestId);
+          }
+        }
       )
     );
 

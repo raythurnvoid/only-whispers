@@ -23,6 +23,7 @@ import { VoiceModePanelCore } from "./components/dictation/VoiceModePanelCore";
 import { PillTooltip } from "./components/dictation/PillTooltip";
 import { PillCommandMenu } from "./components/dictation/PillCommandMenu";
 import { createMainWindowResizeCoordinator } from "./utils/mainWindowResizeCoordinator";
+import { hasMistralKey } from "./helpers/transcriptionRoute";
 import {
   ASSISTANT_FOOTER_TRANSITION_TIMING,
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
@@ -72,7 +73,7 @@ export default function App() {
   const floatingIconAutoHide = useSettingsStore((s) => s.floatingIconAutoHide);
   const panelStartPosition = useSettingsStore((s) => s.panelStartPosition);
   const activationMode = useSettingsStore((s) => s.activationMode);
-  const hasMistralKey = useSettingsStore((s) => Boolean(s.mistralApiKey));
+  const mistralEnabled = useSettingsStore((s) => hasMistralKey(s.mistralApiKey));
   const [pushLocked, setPushLocked] = useState(false);
   const prevAutoHideRef = useRef(floatingIconAutoHide);
   const [voiceHorizontalDirection, setVoiceHorizontalDirection] = useState(() =>
@@ -524,7 +525,7 @@ export default function App() {
       : {
           phase: dictationPhase,
           provider: onVoxtral ? "mistral" : "dictation",
-          model: onVoxtral ? "Voxtral Mini 3" : hasMistralKey ? "Only Whispers" : "Parakeet",
+          model: onVoxtral ? "Voxtral Mini 3" : mistralEnabled ? "Only Whispers" : "Parakeet",
           activity: t(
             dictationPhase === "processing" ? "app.mic.isTranscribing" : "app.mic.isListening"
           ),

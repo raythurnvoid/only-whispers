@@ -707,7 +707,9 @@ declare global {
       // Mistral API key management
       getMistralKey: () => Promise<string | null>;
       saveMistralKey: (key: string) => Promise<void>;
+      cancelBatchDictation: (requestId: string) => Promise<void>;
       proxyMistralTranscription: (data: {
+        requestId?: string;
         audioBuffer: ArrayBuffer;
         model?: string;
         language?: string;
