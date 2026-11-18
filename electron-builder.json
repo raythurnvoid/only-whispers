@@ -90,6 +90,8 @@
   ],
   "asarUnpack": [
     "src/helpers/parakeetWorker.js",
+    "src/helpers/recordedDictationCue.js",
+    "src/config/dictationCues.json",
     "**/node_modules/sherpa-onnx-*/**/*",
     "**/node_modules/ffmpeg-static/**/*",
     "**/node_modules/ps-list/**/*",

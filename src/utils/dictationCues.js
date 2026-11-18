@@ -1,10 +1,6 @@
 import logger from "./logger";
 import { getSettings } from "../stores/settingsStore";
-
-const START_NOTES = [523.25, 659.25];
-const STOP_NOTES = [587.33, 440];
-const NOTE_DURATION_SECONDS = 0.09;
-const NOTE_GAP_SECONDS = 0.025;
+import cues from "../config/dictationCues.json";
 const NOTE_ATTACK_SECONDS = 0.015;
 const MAX_GAIN = 0.2;
 const MIN_GAIN = 0.0001;
@@ -53,7 +49,7 @@ const resumeContextIfNeeded = async () => {
 const scheduleTone = (context, frequency, startTime) => {
   const oscillator = context.createOscillator();
   const gainNode = context.createGain();
-  const stopTime = startTime + NOTE_DURATION_SECONDS;
+  const stopTime = startTime + cues.noteDurationSeconds;
 
   oscillator.type = "sine";
   oscillator.frequency.setValueAtTime(frequency, startTime);
@@ -82,7 +78,7 @@ const playCue = async (notes) => {
 
     const baseTime = context.currentTime + 0.005;
     notes.forEach((frequency, index) => {
-      const noteStart = baseTime + index * (NOTE_DURATION_SECONDS + NOTE_GAP_SECONDS);
+      const noteStart = baseTime + index * (cues.noteDurationSeconds + cues.noteGapSeconds);
       scheduleTone(context, frequency, noteStart);
     });
   } catch (error) {
@@ -94,6 +90,6 @@ const playCue = async (notes) => {
   }
 };
 
-export const playStartCue = () => playCue(START_NOTES);
+export const playStartCue = () => playCue(cues.startNotes);
 
-export const playStopCue = () => playCue(STOP_NOTES);
+export const playStopCue = () => playCue(cues.stopNotes);

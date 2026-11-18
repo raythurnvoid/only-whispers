@@ -3,6 +3,7 @@
 const path = require("path");
 const { spawn } = require("child_process");
 const { OfflineRecognizer } = require("sherpa-onnx-node");
+const { removeRecordedDictationCues } = require("./recordedDictationCue");
 
 const directory = process.argv[2];
 const recognizer = new OfflineRecognizer({
@@ -42,10 +43,11 @@ function pauseCut(pcm) {
   return cut;
 }
 
-function decode(pcm) {
+function decode(pcm, isStart, isEnd) {
   if (!pcm.length) return "";
   const stream = recognizer.createStream();
   const samples = new Float32Array(pcm.buffer, pcm.byteOffset, Math.floor(pcm.length / 4));
+  removeRecordedDictationCues(samples, isStart, isEnd);
   stream.acceptWaveform({ samples, sampleRate: 16000 });
   recognizer.decode(stream);
   return recognizer.getResult(stream).text.trim();
@@ -91,14 +93,14 @@ async function transcribe(input, ffmpeg) {
         offset += count;
         if (used === pcm.length) {
           const cut = pauseCut(pcm);
-          words.push(decode(pcm.subarray(0, cut)));
+          words.push(decode(pcm.subarray(0, cut), words.length === 0, false));
           used = pcm.copy(pcm, 0, cut);
         }
       }
     }
     const error = await closed;
     if (error) throw new Error(error);
-    words.push(decode(pcm.subarray(0, used)));
+    words.push(decode(pcm.subarray(0, used), words.length === 0, true));
     return words.filter(Boolean).join(" ");
   } finally {
     child.kill();

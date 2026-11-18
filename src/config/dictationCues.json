@@ -1,0 +1,6 @@
+{
+  "startNotes": [523.25, 659.25],
+  "stopNotes": [587.33, 440],
+  "noteDurationSeconds": 0.09,
+  "noteGapSeconds": 0.025
+}
