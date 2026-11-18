@@ -1,6 +1,5 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { randomUUID } = require("node:crypto");
 const { EventEmitter } = require("node:events");
 const Module = require("node:module");
 
@@ -29,7 +28,7 @@ test.after(() => {
 function setup() {
   const sender = Object.assign(new EventEmitter(), { mainFrame: {} });
   const event = { sender, senderFrame: sender.mainFrame };
-  const id = randomUUID();
+  const id = 1;
   const result = { text: "local words", model: "test", modelRevision: "v3" };
   const chunks = [];
   let startCount = 0;
@@ -73,10 +72,12 @@ test("the main dictation frame owns the chunks, result and cancellation", async 
     { sender, senderFrame: {} },
   ];
   for (const caller of foreign) assert.equal(await write(Uint8Array.of(9), caller), false);
-  assert.equal(await write(Uint8Array.of(4), event, "invalid"), false);
+  for (const invalid of ["1", 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(await write(Uint8Array.of(4), event, invalid), false);
+  }
   assert.equal(starts(), 0);
   assert.equal(await write(Uint8Array.of(1, 2).buffer), true);
-  const otherId = randomUUID();
+  const otherId = 2;
   for (const caller of foreign) {
     assert.equal(await finish(caller), null);
     await cancel(caller);
@@ -112,7 +113,7 @@ test("finish waits for the last chunk, and a cancelled result stays discarded", 
   assert.equal(await pendingWrite, true);
   assert.ok(await pendingFinish);
 
-  const next = randomUUID();
+  const next = 2;
   const finished = Promise.withResolvers();
   session.finish = () => finished.promise;
   assert.equal(await write(Uint8Array.of(2), undefined, next), true);
@@ -123,7 +124,7 @@ test("finish waits for the last chunk, and a cancelled result stays discarded", 
   finished.resolve({ text: "discard me" });
   assert.equal(await lateResult, null);
   assert.equal(await write(Uint8Array.of(3), undefined, next), false);
-  const neverStarted = randomUUID();
+  const neverStarted = 3;
   await cancel(undefined, neverStarted);
   assert.equal(await write(Uint8Array.of(3), undefined, neverStarted), false);
   assert.equal(starts(), 2);
@@ -136,7 +137,7 @@ test("a failed or overlapping write falls back without accepting a partial resul
   };
   assert.equal(await write(Uint8Array.of(1)), false);
   assert.equal(await finish(), null);
-  const next = randomUUID();
+  const next = 2;
   const pending = Promise.withResolvers();
   session.write = () => pending.promise;
   const first = write(Uint8Array.of(2), undefined, next);
@@ -147,13 +148,37 @@ test("a failed or overlapping write falls back without accepting a partial resul
   assert.equal(await finish(undefined, next), null);
 });
 
+test("a late first write cannot reopen an older recording", async () => {
+  const { write, finish, cancel, starts } = setup();
+  const chunk = Uint8Array.of(1);
+  await cancel(undefined, 7);
+  assert.equal(await write(chunk, undefined, 6), false, "cancel must also reject older IDs");
+  assert.equal(await write(chunk, undefined, 8), true);
+  assert.equal(await finish(undefined, 10), null);
+  assert.equal(
+    await write(chunk, undefined, 8),
+    true,
+    "the active recording can still accept chunks"
+  );
+  assert.ok(await finish(undefined, 8));
+  assert.equal(await write(chunk, undefined, 9), false, "finish must also reject older IDs");
+  assert.equal(await write(chunk, undefined, 11), true);
+  assert.equal(starts(), 2);
+});
+
 test("closing, reloading or crashing the renderer releases its recording", async () => {
   for (const name of ["destroyed", "did-navigate", "render-process-gone"]) {
-    const { sender, write, session, finish } = setup();
+    const { sender, event, write, session, finish } = setup();
     assert.equal(await write(Uint8Array.of(1)), true);
     sender.emit(name);
     assert.equal(session.cancel.mock.callCount(), 1, name);
     assert.equal(sender.listenerCount("destroyed"), 0, name);
-    assert.equal(await finish(), null);
+    sender.mainFrame = {};
+    assert.equal(await finish(event), null);
+    if (name !== "destroyed") {
+      const newPage = { sender, senderFrame: sender.mainFrame };
+      assert.equal(await write(Uint8Array.of(1), newPage), true, "IDs start over on a new page");
+      assert.ok(await finish(newPage));
+    }
   }
 });

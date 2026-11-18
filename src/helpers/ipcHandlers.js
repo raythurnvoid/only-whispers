@@ -1352,20 +1352,20 @@ class IPCHandlers {
         sender !== this.windowManager.mainWindow?.webContents ||
         !senderFrame ||
         senderFrame !== sender.mainFrame ||
-        typeof id !== "string" ||
-        !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)
-      )
+        !Number.isSafeInteger(id) ||
+        id <= 0
+      ) {
         return null;
+      }
 
       let owner = localRecordingOwners.get(sender);
       if (!owner) {
-        // Remember closed IDs for this page so late chunks cannot open a partial recording.
-        owner = { seen: new Set(), active: null };
+        // IDs increase within one page. A late chunk must never open an older recording.
+        owner = { lastId: 0, active: null };
         localRecordingOwners.set(sender, owner);
         const dispose = () => {
           const job = owner.active;
           owner.active = null;
-          owner.seen.clear();
           job?.session.cancel();
           localRecordingOwners.delete(sender);
           for (const name of ownerEndEvents) sender.off(name, dispose);
@@ -1376,7 +1376,7 @@ class IPCHandlers {
     };
     const cancelLocalRecording = (owner, id) => {
       const job = owner.active;
-      owner.seen.add(id);
+      owner.lastId = Math.max(owner.lastId, id);
       if (job?.id === id) {
         owner.active = null;
         job.session.cancel();
@@ -1397,12 +1397,12 @@ class IPCHandlers {
       }
       try {
         if (!job) {
-          if (owner.seen.has(id)) return false;
-          owner.seen.add(id);
+          if (id <= owner.lastId) return false;
+          owner.lastId = id;
           job = { id, session: localModel.startLocalRecording(), pending: null, finishing: false };
           owner.active = job;
         }
-        // The recorder waits for each write. Do not queue extra audio ahead of the worker.
+        // Allow only one write request at a time.
         job.pending = job.session.write(Buffer.from(bytes));
         await job.pending;
         return owner.active === job;
@@ -1417,7 +1417,7 @@ class IPCHandlers {
       const owner = recordingOwner(event, id);
       const job = owner?.active;
       if (!job || job.id !== id || job.finishing) {
-        owner?.seen.add(id);
+        if (owner) owner.lastId = Math.max(owner.lastId, id);
         return null;
       }
       job.finishing = true;

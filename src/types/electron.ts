@@ -825,14 +825,14 @@ declare global {
       getLocalModelStatus: () => Promise<LocalModelStatus>;
       downloadLocalModel: () => Promise<LocalModelStatus>;
       warmLocalModel: () => Promise<boolean>;
-      writeLocalRecordingChunk: (id: string, bytes: ArrayBuffer | Uint8Array) => Promise<boolean>;
-      finishLocalRecording: (id: string) => Promise<{
+      writeLocalRecordingChunk: (id: number, bytes: ArrayBuffer | Uint8Array) => Promise<boolean>;
+      finishLocalRecording: (id: number) => Promise<{
         text: string;
         model: string;
         modelRevision: string;
         source: "parakeet";
       } | null>;
-      cancelLocalRecording: (id: string) => Promise<void>;
+      cancelLocalRecording: (id: number) => Promise<void>;
 
       // BYOK audio file transcription
       transcribeAudioFileByok?: (options: { filePath: string; model: string }) => Promise<{
