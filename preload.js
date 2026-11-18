@@ -148,11 +148,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   setAutoLearnEnabled: (enabled) => ipcRenderer.send("auto-learn-changed", enabled),
   onCorrectionsLearned: (callback) => {
-    const listener = (_event, words) => callback?.(words);
+    const listener = (_event, offer) => callback?.(offer);
     ipcRenderer.on("corrections-learned", listener);
     return () => ipcRenderer.removeListener("corrections-learned", listener);
   },
-  undoLearnedCorrections: (words) => ipcRenderer.invoke("undo-learned-corrections", words),
+  undoLearnedCorrections: (words, pasteId) =>
+    ipcRenderer.invoke("undo-learned-corrections", words, pasteId),
+  dictionaryToastEnded: (pasteId, words, reason) =>
+    ipcRenderer.send("dictionary-toast-ended", pasteId, words, reason),
 
   exportDictionary: (words) => ipcRenderer.invoke("export-dictionary", words),
 

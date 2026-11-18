@@ -92,6 +92,7 @@ class TextEditMonitor extends EventEmitter {
     super();
     this.process = null;
     this.currentOriginalText = null;
+    this._monitorGeneration = 0;
     this.timeout = null;
     this._pollInterval = null;
     this._lastValue = null;
@@ -491,14 +492,15 @@ class TextEditMonitor extends EventEmitter {
     }
 
     debugLogger.debug("[TextEditMonitor] Spawning monitor", {
-      textPreview: originalText.substring(0, 80),
+      pastedChars: originalText.length,
     });
 
-    this.process = spawn(command, args, {
+    const child = spawn(command, args, {
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
     });
 
+    this.process = child;
     // Send original text via stdin
     this.process.stdin.write(originalText + "\n");
     this.process.stdin.end();
@@ -506,21 +508,21 @@ class TextEditMonitor extends EventEmitter {
     this._stdoutBuffer = "";
     this.process.stdout.setEncoding("utf8");
     this.process.stdout.on("data", (chunk) => {
-      debugLogger.debug("[TextEditMonitor] stdout", { data: chunk.trim() });
+      if (this.process !== child) return;
       this._handleProcessStdoutChunk(chunk);
     });
 
     this.process.stderr.setEncoding("utf8");
-    this.process.stderr.on("data", (data) => {
-      debugLogger.debug("[TextEditMonitor] stderr", { data: data.trim() });
-    });
+    this.process.stderr.resume();
 
     this.process.on("error", (err) => {
+      if (this.process !== child) return;
       debugLogger.debug("[TextEditMonitor] Process error", { error: err.message });
       this.process = null;
     });
 
     this.process.on("exit", (code, signal) => {
+      if (this.process !== child) return;
       debugLogger.debug("[TextEditMonitor] Process exited", { code, signal });
       this.process = null;
     });
@@ -530,6 +532,7 @@ class TextEditMonitor extends EventEmitter {
   }
 
   stopMonitoring() {
+    this._monitorGeneration++;
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = null;
@@ -579,7 +582,7 @@ class TextEditMonitor extends EventEmitter {
     }
 
     debugLogger.debug("[TextEditMonitor] Text changed", {
-      newFieldValue: newFieldValue.substring(0, 80),
+      fieldChars: newFieldValue.length,
     });
     this.emit("text-edited", {
       originalText: this.currentOriginalText,
@@ -631,11 +634,12 @@ class TextEditMonitor extends EventEmitter {
 
     debugLogger.debug("[TextEditMonitor] macOS native: starting", {
       targetPid,
-      textPreview: originalText.substring(0, 80),
+      pastedChars: originalText.length,
     });
 
+    const generation = this._monitorGeneration;
     await new Promise((r) => setTimeout(r, INITIAL_QUERY_DELAY_MS));
-    if (this.currentOriginalText === null) return;
+    if (generation !== this._monitorGeneration) return;
 
     const { command, args } = resolved;
 
@@ -653,29 +657,30 @@ class TextEditMonitor extends EventEmitter {
     // Per-child verdict state, so overlapping monitor runs can never cache
     // each other's target.
     const axRun = { stderr: "", noElement: false };
-    this.process = spawn(command, [...args, String(targetPid)], {
+    const child = spawn(command, [...args, String(targetPid)], {
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
     });
 
+    this.process = child;
     this.process.stdin.write(originalText + "\n");
     this.process.stdin.end();
 
     this._stdoutBuffer = "";
     this.process.stdout.setEncoding("utf8");
     this.process.stdout.on("data", (chunk) => {
-      debugLogger.debug("[TextEditMonitor] stdout", { data: chunk.trim() });
+      if (this.process !== child) return;
       if (chunk.includes("NO_ELEMENT")) axRun.noElement = true;
       this._handleProcessStdoutChunk(chunk);
     });
 
     this.process.stderr.setEncoding("utf8");
     this.process.stderr.on("data", (data) => {
-      debugLogger.debug("[TextEditMonitor] stderr", { data: data.trim() });
       axRun.stderr += data;
     });
 
     this.process.on("error", (err) => {
+      if (this.process !== child) return;
       debugLogger.debug("[TextEditMonitor] macOS native: process error, falling back to polling", {
         error: err.message,
       });
@@ -685,6 +690,7 @@ class TextEditMonitor extends EventEmitter {
     });
 
     this.process.on("exit", (code, signal) => {
+      if (this.process !== child) return;
       debugLogger.debug("[TextEditMonitor] Process exited", { code, signal });
       this.process = null;
     });
@@ -735,12 +741,13 @@ class TextEditMonitor extends EventEmitter {
 
     debugLogger.debug("[TextEditMonitor] macOS: starting osascript polling", {
       targetPid,
-      textPreview: originalText.substring(0, 80),
+      pastedChars: originalText.length,
     });
 
     // Delay before querying to let the paste keystroke be processed.
+    const generation = this._monitorGeneration;
     setTimeout(
-      () => this._queryInitialValue(targetPid, originalText, timeoutMs),
+      () => this._queryInitialValue(targetPid, timeoutMs, generation),
       INITIAL_QUERY_DELAY_MS
     );
   }
@@ -749,12 +756,12 @@ class TextEditMonitor extends EventEmitter {
    * Query the initial AXValue with retries. The target app may not have processed
    * the pasted text yet, so an empty value is retried a few times before giving up.
    */
-  async _queryInitialValue(targetPid, originalText, timeoutMs, attempt = 1) {
+  async _queryInitialValue(targetPid, timeoutMs, generation, attempt = 1) {
     // Guard against stopMonitoring() being called while we waited
-    if (this.currentOriginalText === null) return;
+    if (generation !== this._monitorGeneration) return;
 
     const initialValue = await this._queryMacOSValue(targetPid);
-    if (this.currentOriginalText === null) return;
+    if (generation !== this._monitorGeneration) return;
 
     if (initialValue === null) {
       debugLogger.debug("[TextEditMonitor] macOS: no focused element");
@@ -769,7 +776,7 @@ class TextEditMonitor extends EventEmitter {
           maxRetries: INITIAL_QUERY_RETRIES,
         });
         setTimeout(
-          () => this._queryInitialValue(targetPid, originalText, timeoutMs, attempt + 1),
+          () => this._queryInitialValue(targetPid, timeoutMs, generation, attempt + 1),
           INITIAL_QUERY_RETRY_DELAY_MS
         );
         return;
@@ -781,14 +788,14 @@ class TextEditMonitor extends EventEmitter {
 
     this._lastValue = initialValue;
     debugLogger.debug("[TextEditMonitor] macOS: initial value", {
-      valuePreview: initialValue.substring(0, 80),
+      fieldChars: initialValue.length,
       attempt,
     });
 
     this._pollInterval = setInterval(async () => {
       const currentValue = await this._queryMacOSValue(targetPid);
       // Guard against stopMonitoring() being called during the query
-      if (this.currentOriginalText === null) return;
+      if (generation !== this._monitorGeneration) return;
 
       if (currentValue === null) {
         debugLogger.debug("[TextEditMonitor] macOS: lost focused element");
@@ -798,13 +805,7 @@ class TextEditMonitor extends EventEmitter {
 
       if (currentValue !== this._lastValue) {
         this._lastValue = currentValue;
-        debugLogger.debug("[TextEditMonitor] macOS: text changed", {
-          newValuePreview: currentValue.substring(0, 80),
-        });
-        this.emit("text-edited", {
-          originalText: this.currentOriginalText,
-          newFieldValue: currentValue,
-        });
+        this._emitTextEdited(currentValue);
       }
     }, POLL_INTERVAL_MS);
 

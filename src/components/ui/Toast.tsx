@@ -178,6 +178,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (duration > 0) {
         const timer = setTimeout(() => {
+          props.onTimeout?.();
           startExitAnimation(id);
         }, duration);
         timersRef.current[id] = timer;
@@ -226,6 +227,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     (id: string, remainingTime: number) => {
       if (remainingTime > 0) {
         const timer = setTimeout(() => {
+          toastsRef.current.find((item) => item.id === id)?.onTimeout?.();
           startExitAnimation(id);
         }, remainingTime);
         timersRef.current[id] = timer;

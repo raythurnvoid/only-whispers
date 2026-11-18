@@ -1,10 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const Module = require("node:module");
+const { EventEmitter } = require("node:events");
 
 const handlersModulePath = require.resolve("../../src/helpers/ipcHandlers");
 const originalLoad = Module._load;
 const handlers = new Map();
+const listeners = new Map();
+const dictionaryEvents = [];
 
 const electronStub = {
   app: {
@@ -17,7 +20,7 @@ const electronStub = {
   },
   ipcMain: {
     handle: (channel, fn) => handlers.set(channel, fn),
-    on: () => {},
+    on: (channel, fn) => listeners.set(channel, fn),
     removeHandler: () => {},
   },
   net: { fetch: async () => ({ ok: true, status: 200, json: async () => ({}) }) },
@@ -44,7 +47,13 @@ const electronStub = {
 Module._load = function loadWithElectronStub(request, parent, isMain) {
   if (request === "electron") return electronStub;
   if (parent?.filename === handlersModulePath && request === "./debugLogger") {
-    return new Proxy({}, { get: () => () => {} });
+    return new Proxy(
+      {},
+      {
+        get: (_, key) =>
+          key === "appendDictionaryEdit" ? (event) => dictionaryEvents.push(event) : () => {},
+      }
+    );
   }
   return originalLoad.call(this, request, parent, isMain);
 };
@@ -281,4 +290,101 @@ test("Accessibility settings opens the macOS system pane and reports launch fail
     success: false,
     error: "launch failed",
   });
+});
+
+test("dictionary Undo and manual removal last for the current paste", async (t) => {
+  const Ctor = require(handlersModulePath);
+  Object.setPrototypeOf(target, Ctor.prototype);
+  const words = new Set();
+  const offers = [];
+  const webContents = {
+    send(channel, offer) {
+      if (channel === "corrections-learned") offers.push(offer);
+    },
+  };
+  const mainWindow = { isDestroyed: () => false, isFocused: () => false, webContents };
+  t.mock.method(electronStub.BrowserWindow, "getAllWindows", () => [mainWindow]);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  target.windowManager = { mainWindow, showDictationPanel() {} };
+  target.clipboardManager = { pasteText: async () => ({ pasted: true }) };
+  target.databaseManager = {
+    getDictionary: () => [...words],
+    applyDictionaryChanges({ add = [], remove = [] }) {
+      for (const word of add) words.add(word);
+      const removed = remove.filter((word) => words.delete(word)).length;
+      return { success: true, removed };
+    },
+  };
+  const monitor = Object.assign(new EventEmitter(), {
+    startMonitoring(originalText) {
+      this.currentOriginalText = originalText;
+    },
+    stopMonitoring() {
+      this.currentOriginalText = null;
+    },
+  });
+  target.textEditMonitor = monitor;
+  target._setupTextEditMonitor();
+  target._autoLearnEnabled = true;
+  target._retentionSettingsSynced = true;
+  target._retentionSettings = { dataRetentionEnabled: true };
+  const sender = { sender: webContents };
+  const originalText = "Meet Shunade about Parakit after lunch";
+  const startPaste = async () => {
+    await handlers.get("paste-text")(sender, originalText);
+    t.mock.timers.tick(500);
+  };
+  const edit = (newFieldValue) => {
+    monitor.emit("text-edited", { originalText, newFieldValue });
+    t.mock.timers.tick(1500);
+  };
+  await startPaste();
+  edit("Meet Sinead about Parakit after lunch");
+  const first = offers[0];
+  assert.deepEqual(first.words, ["Sinead"]);
+  await handlers.get("undo-learned-corrections")(sender, first.words, first.pasteId);
+  edit("Meet Sinead about Parakeet after lunch");
+  assert.equal(words.has("Sinead"), false, "an undone word must stay removed after the next edit");
+  assert.deepEqual(offers[1].words, ["Parakeet"]);
+  listeners.get("dictionary-toast-ended")(sender, first.pasteId, ["Parakeet"], "closed");
+  assert.ok(words.has("Parakeet"), "closing the notice keeps the word");
+  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Parakeet"] });
+  edit("Meet Sinead about Parakeet after lunch tomorrow");
+  assert.deepEqual([...words], []);
+  assert.equal(offers.length, 2);
+  const event = (name) => dictionaryEvents.find((entry) => entry.event === name);
+  assert.equal(event("added").candidates[0], event("undone").candidates[0]);
+  assert.deepEqual(event("undone").candidates, event("repeat-suppressed").candidates);
+  assert.deepEqual(event("removed-in-dictionary").candidates, event("toast-closed").candidates);
+  assert.ok(dictionaryEvents.every((entry) => entry.pasteId === first.pasteId));
+  assert.equal(
+    dictionaryEvents.filter((entry) => entry.event === "edit-checked").at(-1).editNumber,
+    3
+  );
+  assert.doesNotMatch(JSON.stringify(dictionaryEvents), /Sinead|Shunade|Parakeet|lunch/i);
+
+  // A new paste may contain a genuine correction of the same word.
+  monitor.emit("text-edited", {
+    originalText,
+    newFieldValue: "Meet Shuna about Parakit after lunch",
+  });
+  await startPaste();
+  t.mock.timers.tick(1500);
+  assert.equal(offers.length, 2, "pending edits must stay with their original paste");
+  edit("Meet Sinead about Parakit after lunch");
+  const latest = offers.at(-1);
+  assert.notEqual(latest.pasteId, first.pasteId);
+  assert.deepEqual(latest.words, first.words);
+  listeners.get("dictionary-toast-ended")(sender, latest.pasteId, latest.words, "timed-out");
+  assert.ok(event("toast-timed-out"));
+  const logLength = dictionaryEvents.length;
+  target._retentionSettings.dataRetentionEnabled = false;
+  edit("Meet Sinead about Parakeet after lunch");
+  assert.ok(words.has("Parakeet"));
+  assert.equal(dictionaryEvents.length, logLength, "history off stops the diagnostics");
+  await handlers.get("paste-text")(sender, originalText);
+  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Sinead"] });
+  t.mock.timers.tick(500);
+  edit("Meet Sinead about Parakit after lunch");
+  assert.equal(words.has("Sinead"), false, "a removal while the monitor starts must stick");
 });

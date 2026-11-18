@@ -253,6 +253,20 @@ class DebugLogger {
     }
   }
 
+  appendDictionaryEdit(entry) {
+    try {
+      const dir = path.join(app.getPath("userData"), "logs");
+      const file = path.join(dir, "dictionary-edits.jsonl");
+      fs.mkdirSync(dir, { recursive: true });
+      if (fs.statSync(file, { throwIfNoEntry: false })?.size >= 256 * 1024) {
+        fs.renameSync(file, file + ".1");
+      }
+      fs.appendFileSync(file, JSON.stringify({ time: new Date().toISOString(), ...entry }) + "\n");
+    } catch {
+      // Diagnostics must never interrupt a paste or an edit.
+    }
+  }
+
   /** Newest first. Keeps the file small by trimming it to the last entries. */
   readErrorLog() {
     const MAX_ENTRIES = 500;

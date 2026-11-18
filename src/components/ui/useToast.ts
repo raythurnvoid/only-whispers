@@ -36,6 +36,7 @@ export interface ToastProps {
   variant?: "default" | "destructive" | "success";
   duration?: number;
   onClose?: () => void;
+  onTimeout?: () => void;
   dismissible?: boolean;
 }
 

@@ -536,8 +536,15 @@ declare global {
         callback: (snippets: Array<{ trigger: string; replacement: string }>) => void
       ) => () => void;
       setAutoLearnEnabled?: (enabled: boolean) => void;
-      onCorrectionsLearned?: (callback: (words: string[]) => void) => () => void;
-      undoLearnedCorrections?: (words: string[]) => Promise<{ success: boolean }>;
+      onCorrectionsLearned?: (
+        callback: (event: { words: string[]; pasteId: string }) => void
+      ) => () => void;
+      undoLearnedCorrections?: (words: string[], pasteId: string) => Promise<{ success: boolean }>;
+      dictionaryToastEnded?: (
+        pasteId: string,
+        words: string[],
+        reason: "closed" | "timed-out"
+      ) => void;
 
       exportDictionary: (words: string[]) => Promise<{ success: boolean; error?: string }>;
 

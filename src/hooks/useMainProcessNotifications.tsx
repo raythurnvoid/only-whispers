@@ -38,33 +38,41 @@ export function useMainProcessNotifications({
       });
     });
 
-    const unsubscribeCorrections = window.electronAPI?.onCorrectionsLearned?.((words) => {
-      if (words && words.length > 0) {
-        const wordList = words.map((w) => `“${w}”`).join(", ");
-        let toastId: string;
-        toastId = toast({
-          title: t("app.toasts.addedToDict", { words: wordList }),
-          variant: "success",
-          duration: 6000,
-          action: (
-            <ToastActionButton
-              onClick={async () => {
-                try {
-                  const result = await window.electronAPI?.undoLearnedCorrections?.(words);
-                  if (result?.success) {
-                    dismiss(toastId);
+    const unsubscribeCorrections = window.electronAPI?.onCorrectionsLearned?.(
+      ({ words, pasteId }) => {
+        if (words && words.length > 0) {
+          const wordList = words.map((w) => `“${w}”`).join(", ");
+          let toastId: string;
+          toastId = toast({
+            title: t("app.toasts.addedToDict", { words: wordList }),
+            variant: "success",
+            duration: 6000,
+            onClose: () => window.electronAPI?.dictionaryToastEnded?.(pasteId, words, "closed"),
+            onTimeout: () =>
+              window.electronAPI?.dictionaryToastEnded?.(pasteId, words, "timed-out"),
+            action: (
+              <ToastActionButton
+                onClick={async () => {
+                  try {
+                    const result = await window.electronAPI?.undoLearnedCorrections?.(
+                      words,
+                      pasteId
+                    );
+                    if (result?.success) {
+                      dismiss(toastId);
+                    }
+                  } catch {
+                    // silently fail — word stays in dictionary
                   }
-                } catch {
-                  // silently fail — word stays in dictionary
-                }
-              }}
-            >
-              {t("app.toasts.undo")}
-            </ToastActionButton>
-          ),
-        });
+                }}
+              >
+                {t("app.toasts.undo")}
+              </ToastActionButton>
+            ),
+          });
+        }
       }
-    });
+    );
 
     return () => {
       unsubscribeFallback?.();

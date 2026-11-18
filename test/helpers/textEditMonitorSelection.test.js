@@ -28,6 +28,27 @@ test("getSelectedText returns unavailable for an inaccessible target", async () 
 
 const darwinOnly = { skip: process.platform !== "darwin" };
 
+test("an unfinished field query cannot restart monitoring for an older paste", async (t) => {
+  const monitor = new TextEditMonitor();
+  t.after(() => monitor.stopMonitoring());
+  let finishQuery;
+  monitor._queryMacOSValue = () =>
+    new Promise((resolve) => {
+      finishQuery = resolve;
+    });
+  monitor.currentOriginalText = "same dictation";
+  const pending = monitor._queryInitialValue(42, 30000, monitor._monitorGeneration);
+  monitor.stopMonitoring();
+  monitor.currentOriginalText = "same dictation";
+  finishQuery("the old field");
+  await pending;
+  assert.equal(
+    monitor._pollInterval,
+    null,
+    "a new paste with identical text still ends the old watch"
+  );
+});
+
 test("startMonitoring stops immediately without a target PID", darwinOnly, () => {
   const m = new TextEditMonitor();
   m.startMonitoring("pasted text", 5000, { targetPid: null });
@@ -92,26 +113,30 @@ test("getSelectedText identifies an empty writable field", darwinOnly, async () 
   assert.deepEqual(await m.getSelectedText(42), { state: "none", editable: true });
 });
 
-test("isFocusedEditable maps the native verdicts, including the dormant-tree UNKNOWN", darwinOnly, async () => {
-  const withOutput = (line) => {
-    const m = new TextEditMonitor();
-    m.resolveBinary = () => ({ command: "/bin/sh", args: ["-c", `echo "${line}"`] });
-    return m;
-  };
+test(
+  "isFocusedEditable maps the native verdicts, including the dormant-tree UNKNOWN",
+  darwinOnly,
+  async () => {
+    const withOutput = (line) => {
+      const m = new TextEditMonitor();
+      m.resolveBinary = () => ({ command: "/bin/sh", args: ["-c", `echo "${line}"`] });
+      return m;
+    };
 
-  assert.equal(
-    await withOutput("EDITABLE").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
-    "editable"
-  );
-  assert.equal(
-    await withOutput("NOT_EDITABLE").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
-    "not_editable"
-  );
-  assert.equal(
-    await withOutput("UNKNOWN").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
-    "unknown"
-  );
-});
+    assert.equal(
+      await withOutput("EDITABLE").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
+      "editable"
+    );
+    assert.equal(
+      await withOutput("NOT_EDITABLE").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
+      "not_editable"
+    );
+    assert.equal(
+      await withOutput("UNKNOWN").isFocusedEditable({ kind: "mac-pid", pid: 42 }),
+      "unknown"
+    );
+  }
+);
 
 test("isFocusedEditable answers from a stale binary's first monitor line", darwinOnly, async () => {
   const m = new TextEditMonitor();

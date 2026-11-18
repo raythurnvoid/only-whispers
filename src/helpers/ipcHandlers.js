@@ -196,6 +196,7 @@ class IPCHandlers {
     this._dictationIdleTimer = null;
     this._hotkeyCaptureMode = false;
     this._autoLearnEnabled = true; // Default on, synced from renderer
+    this._autoLearnPaste = null;
     this._autoLearnDebounceTimer = null;
     this._autoLearnLatestData = null;
     this._textEditHandler = null;
@@ -283,12 +284,10 @@ class IPCHandlers {
 
       const { originalText, newFieldValue } = data;
 
-      debugLogger.debug("[AutoLearn] text-edited event", {
-        originalPreview: originalText.substring(0, 80),
-        newValuePreview: newFieldValue.substring(0, 80),
-      });
-
-      this._autoLearnLatestData = { originalText, newFieldValue };
+      const paste = this._autoLearnPaste;
+      if (!paste || !this._autoLearnEnabled) return;
+      paste.edits++;
+      this._autoLearnLatestData = { originalText, newFieldValue, paste };
 
       if (this._autoLearnDebounceTimer) {
         clearTimeout(this._autoLearnDebounceTimer);
@@ -302,6 +301,19 @@ class IPCHandlers {
     this.textEditMonitor.on("text-edited", this._textEditHandler);
   }
 
+  _logDictionaryEdit(pasteId, event, words = [], details = {}) {
+    if (!this._retentionSettingsSynced || !this._retentionSettings.dataRetentionEnabled) return;
+    // The same candidate has the same ID until restart. Never write text from the focused field.
+    const candidates = words.map((word) =>
+      crypto
+        .createHmac("sha256", this.sessionId)
+        .update(word.toLowerCase())
+        .digest("hex")
+        .slice(0, 12)
+    );
+    debugLogger.appendDictionaryEdit({ pasteId, event, candidates, ...details });
+  }
+
   _processCorrections() {
     this._autoLearnDebounceTimer = null;
     if (!this._autoLearnLatestData) return;
@@ -311,17 +323,22 @@ class IPCHandlers {
       return;
     }
 
-    const { originalText, newFieldValue } = this._autoLearnLatestData;
+    const { originalText, newFieldValue, paste } = this._autoLearnLatestData;
     this._autoLearnLatestData = null;
+    if (paste !== this._autoLearnPaste) return;
 
     try {
       const { extractCorrections } = require("../utils/correctionLearner");
       const currentDict = this._getDictionarySafe();
-      const corrections = extractCorrections(originalText, newFieldValue, currentDict);
-      debugLogger.debug("[AutoLearn] Corrections result", {
-        corrections,
-        dictSize: currentDict.length,
+      const candidates = extractCorrections(originalText, newFieldValue, currentDict);
+      const corrections = candidates.filter((word) => !paste.excluded.has(word.toLowerCase()));
+      const suppressed = candidates.filter((word) => paste.excluded.has(word.toLowerCase()));
+      this._logDictionaryEdit(paste.id, "edit-checked", candidates, {
+        editNumber: paste.edits,
+        pastedChars: originalText.length,
+        fieldChars: newFieldValue.length,
       });
+      if (suppressed.length) this._logDictionaryEdit(paste.id, "repeat-suppressed", suppressed);
 
       if (corrections.length > 0) {
         const saveResult = this.databaseManager.applyDictionaryChanges(
@@ -330,18 +347,19 @@ class IPCHandlers {
         );
 
         if (saveResult?.success === false) {
+          this._logDictionaryEdit(paste.id, "add-failed", corrections);
           debugLogger.debug("[AutoLearn] Failed to save dictionary", { error: saveResult.error });
           return;
         }
 
+        this._logDictionaryEdit(paste.id, "added", corrections);
         // Broadcast the post-save normalized list, not the raw input (which
         // still has case-variant dupes), so renderers don't flash ghost rows.
         broadcastToWindows("dictionary-updated", this.databaseManager.getDictionary());
 
         // Show the overlay so the toast is visible (it may have been hidden after dictation)
         this.windowManager.showDictationPanel();
-        broadcastToWindows("corrections-learned", corrections);
-        debugLogger.debug("[AutoLearn] Saved corrections", { corrections });
+        broadcastToWindows("corrections-learned", { words: corrections, pasteId: paste.id });
       }
     } catch (error) {
       debugLogger.debug("[AutoLearn] Error processing corrections", { error: error.message });
@@ -701,6 +719,8 @@ class IPCHandlers {
       if (!changed) return;
       this._autoLearnEnabled = next;
       if (!this._autoLearnEnabled) {
+        this._autoLearnPaste = null;
+        this.textEditMonitor?.stopMonitoring();
         if (this._autoLearnDebounceTimer) {
           clearTimeout(this._autoLearnDebounceTimer);
           this._autoLearnDebounceTimer = null;
@@ -729,7 +749,21 @@ class IPCHandlers {
       if (remove !== undefined && !Array.isArray(remove)) {
         throw new Error("remove must be an array");
       }
-      return this.databaseManager.applyDictionaryChanges({ add, remove });
+      const paste = this._autoLearnPaste;
+      const monitoring =
+        paste &&
+        (paste.startPending ||
+          this.textEditMonitor?.currentOriginalText != null ||
+          this._autoLearnLatestData?.paste === paste);
+      const before = monitoring && remove?.length ? this._getDictionarySafe() : [];
+      const result = this.databaseManager.applyDictionaryChanges({ add, remove });
+      if (result.removed && before.length) {
+        const remaining = new Set(this._getDictionarySafe().map((word) => word.toLowerCase()));
+        const removed = before.filter((word) => !remaining.has(word.toLowerCase()));
+        for (const word of removed) paste.excluded.add(word.toLowerCase());
+        this._logDictionaryEdit(paste.id, "removed-in-dictionary", removed);
+      }
+      return result;
     });
 
     ipcMain.handle("db-get-snippets", async () => {
@@ -743,7 +777,15 @@ class IPCHandlers {
       return this.databaseManager.setSnippets(snippets);
     });
 
-    ipcMain.handle("undo-learned-corrections", async (_event, words) => {
+    ipcMain.on("dictionary-toast-ended", (event, pasteId, words, reason) => {
+      if (event.sender !== this.windowManager.mainWindow?.webContents) return;
+      if (reason !== "closed" && reason !== "timed-out") return;
+      if (typeof pasteId !== "string" || !/^[0-9a-f-]{36}$/i.test(pasteId)) return;
+      if (!Array.isArray(words) || !words.every((word) => typeof word === "string")) return;
+      this._logDictionaryEdit(pasteId, `toast-${reason}`, words);
+    });
+
+    ipcMain.handle("undo-learned-corrections", async (_event, words, pasteId) => {
       try {
         if (!Array.isArray(words) || words.length === 0) {
           return { success: false };
@@ -760,7 +802,14 @@ class IPCHandlers {
           return { success: false };
         }
         broadcastToWindows("dictionary-updated", this.databaseManager.getDictionary());
-        debugLogger.debug("[AutoLearn] Undo: removed words", { words: validWords });
+        if (typeof pasteId === "string" && /^[0-9a-f-]{36}$/i.test(pasteId)) {
+          if (this._autoLearnPaste?.id === pasteId) {
+            for (const word of validWords) this._autoLearnPaste.excluded.add(word.toLowerCase());
+          }
+          this._logDictionaryEdit(pasteId, "undone", validWords, {
+            removedCount: saveResult.removed,
+          });
+        }
         return { success: true };
       } catch (err) {
         debugLogger.debug("[AutoLearn] Undo failed", { error: err.message });
@@ -949,11 +998,20 @@ class IPCHandlers {
         pasted,
       });
       if (pasted && this.textEditMonitor && this._autoLearnEnabled) {
+        // Undo or removing a word should last for this paste, including pending edits.
+        const paste = {
+          id: crypto.randomUUID(),
+          excluded: new Set(),
+          edits: 0,
+          startPending: true,
+        };
+        this._autoLearnPaste = paste;
+        this.textEditMonitor.stopMonitoring();
+        this._logDictionaryEdit(paste.id, "monitor-requested", [], { pastedChars: text.length });
         setTimeout(() => {
+          if (this._autoLearnPaste !== paste) return;
+          paste.startPending = false;
           try {
-            debugLogger.debug("[AutoLearn] Starting monitoring", {
-              textPreview: text.substring(0, 80),
-            });
             this.textEditMonitor.startMonitoring(text, 30000, { targetPid });
           } catch (err) {
             debugLogger.debug("[AutoLearn] Failed to start monitoring", { error: err.message });
