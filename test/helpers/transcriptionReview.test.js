@@ -30,6 +30,16 @@ test("a retry preserves the first speech result and the listener's reference", (
   assert.equal(db.setTranscriptionReference(id, null).reference_text, null);
 });
 
+test("failed recordings need a real empty prediction before they can be reviewed", (t) => {
+  const db = createDb(t);
+  if (!db) return;
+  const { id } = db.saveTranscription("", null, { status: "failed" });
+  db.updateTranscriptionAudio(id, audio);
+  assert.equal(db.setTranscriptionReference(id, "missed words"), undefined);
+  db.updateTranscriptionAudio(id, { ...audio, stt: { ...stt, text: "" } });
+  assert.equal(db.setTranscriptionReference(id, "missed words").reference_text, "missed words");
+});
+
 test("legacy audio can be reviewed without inventing first-pass data", (t) => {
   const db = createDb(t);
   if (!db) return;

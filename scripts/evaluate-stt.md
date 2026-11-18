@@ -8,9 +8,9 @@ Run this command from the project folder.
 vp env exec node scripts/evaluate-stt.js
 ```
 
-The command reads your local history and replays reviewed audio with the installed Parakeet model. It uses no network and prints totals without transcripts. Only saved audio can be replayed. Reviewed recordings made before the app began saving original model results count toward candidate-only scores.
+The command reads your local history and replays reviewed audio with the installed Parakeet model. It uses no network and prints totals without transcripts. You can review completed recordings and recordings where the model returned no words. If you spoke and it missed everything, type what you said in History. Only retained audio can be replayed. Microphone, connection and other failures without a model result do not count. Reviewed recordings made before the app began saving original model results count toward candidate-only scores.
 
-The report groups clips by the original app version, speech model and candidate model. Word error rate (WER) counts added, missing and changed words per 100 reference words. Case and punctuation are ignored. When all references in a group are silent, the report gives edit counts and leaves the rate empty. The original time runs from key release to raw text. Replay time measures processing a saved clip and includes loading the model on the first run.
+The report groups clips by the original app version, speech model and candidate model. Word error rate (WER) counts added, missing and changed words per 100 reference words. It ignores case and treats punctuation as word breaks, except for apostrophes inside words. When all references in a group are silent, the report gives edit counts and leaves the rate empty. The original time runs from key release to raw text. Replay time measures processing a saved clip and includes loading the model on the first run.
 
 You can also check for changes before reviewing any words.
 

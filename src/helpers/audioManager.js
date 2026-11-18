@@ -1740,7 +1740,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         pipeline.resultHandled = this.saveFailedTranscription(
           error.message,
           error.code || null,
-          metadata,
+          { ...metadata, stt: error.stt },
           { transcript: error.transcript, clientTranscriptionId: error.transcriptClientId }
         );
       }
@@ -2330,18 +2330,29 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       throw classifyProxyFailure(errorFromIpcResult(result));
     }
     const provider = result?.source || "mistral";
+    if (typeof result?.text !== "string")
+      throw new Error("Speech model returned no transcript field");
+    const rawTextReadyAt = performance.now();
+    const stt = {
+      text: result.text.trim() ? result.text : "",
+      provider,
+      model: result.modelRevision ? `${result.model}@${result.modelRevision}` : result.model,
+      latencyMs: Math.round(rawTextReadyAt - (metadata.stopRequestedAt ?? apiCallStart)),
+    };
     const sendsDictionaryBias = provider === "mistral" && payloadSendsDictionaryBias(proxyPayload);
     const proxyText = this.stripTrailingDictionaryEcho(
       result?.text,
       sendsDictionaryBias ? proxyDictionaryPrompt : null
     );
     if (!proxyText?.trim()) {
-      throw Object.assign(new Error("No speech detected in audio"), { code: "NO_SPEECH_DETECTED" });
+      throw Object.assign(new Error("No speech detected in audio"), {
+        code: "NO_SPEECH_DETECTED",
+        ...(stt.text === "" && { stt }),
+      });
     }
     if (sendsDictionaryBias && this.isDictionaryEcho(result.text)) {
       throw dictionaryEchoError();
     }
-    const rawTextReadyAt = performance.now();
     timings.transcriptionProcessingDurationMs = Math.round(rawTextReadyAt - apiCallStart);
     const reasoningStart = performance.now();
     const text = await this.processTranscription(proxyText, provider, wasCancelled);
@@ -2352,12 +2363,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       success: true,
       text,
       rawText: proxyText,
-      stt: {
-        text: result.text,
-        provider,
-        model: result.modelRevision ? `${result.model}@${result.modelRevision}` : result.model,
-        latencyMs: Math.round(rawTextReadyAt - (metadata.stopRequestedAt ?? apiCallStart)),
-      },
+      stt,
       source,
       model: result.model || model,
       timings,
@@ -2491,8 +2497,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           const arrayBuffer = await audioBlob.arrayBuffer();
           await window.electronAPI.saveTranscriptionAudio(result.id, arrayBuffer, {
             durationMs,
-            provider: null,
-            model: null,
+            provider: metadata.stt?.provider ?? null,
+            model: metadata.stt?.model ?? null,
+            ...(metadata.stt && { stt: metadata.stt }),
           });
         } catch (audioErr) {
           logger.warn(
@@ -3455,6 +3462,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const provider = this.getStreamingProvider(providerName);
     let acknowledgedFinal = null;
     let finalAcknowledged = false;
+    let confirmedEmpty = false;
     // The worklet emits PCM followed by "flushed" on the same message port.
     // IPC sends and the finalize invoke preserve that order in the main process.
     if (this.streamingProcessor && provider.finalizeAcknowledged) {
@@ -3551,6 +3559,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         finalAcknowledged = result?.success === true;
         if (finalAcknowledged && typeof result.text === "string") {
           this.streamingFinalText = result.text;
+          confirmedEmpty = !result.text.trim();
         }
         if (!finalAcknowledged) {
           logger.warn("Streaming finalization failed", { error: result?.error }, "streaming");
@@ -3590,6 +3599,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         this.streamingPartialText ||
         stopResult?.text ||
         "";
+      if (confirmedEmpty && !finalText.trim()) finalText = "";
     }
 
     this.cleanupStreamingListeners(sessionId);
@@ -3618,6 +3628,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     // snapshot the pre-reasoning transcript now to report as `rawText` — matching
     // the batch path, which already keeps raw and processed text separate.
     const rawStreamingText = finalText;
+    // Only a full recording can be paired with the final live model result.
+    const liveStt = savedAudioIsPartial
+      ? undefined
+      : {
+          text: confirmedEmpty ? "" : rawStreamingText,
+          provider: providerName,
+          model: streamingSttModel,
+          latencyMs: Math.round(tTerminate - stopRequestedAt),
+        };
 
     let usedBatchFallback = false;
     let batchWarning = null;
@@ -3732,7 +3751,11 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         delivery.resultHandled = this.saveFailedTranscription(
           error.message,
           error.code || null,
-          { durationSeconds, analyticsOccurredAt: analyticsOccurredAt.toISOString() },
+          {
+            durationSeconds,
+            analyticsOccurredAt: analyticsOccurredAt.toISOString(),
+            stt: error.stt,
+          },
           { transcript: error.transcript, clientTranscriptionId: error.transcriptClientId }
         );
       }
@@ -3769,6 +3792,14 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       }
     }
 
+    // A confirmed empty final can be a missed dictation. Keep it with its audio for review.
+    if (confirmedEmpty && !finalText && !failoverReason && liveStt && fallbackBlob?.size) {
+      delivery.resultHandled = this.saveFailedTranscription(
+        "No speech detected in audio",
+        "NO_SPEECH_DETECTED",
+        { durationSeconds, analyticsOccurredAt: analyticsOccurredAt.toISOString(), stt: liveStt }
+      );
+    }
     if (finalText) {
       // The batch fallback routes through processTranscription, which already
       // applied the script; only streamed text still needs it.
@@ -3793,17 +3824,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         success: true,
         text: finalText,
         rawText: batchFallbackResult?.rawText || rawStreamingText || finalText,
-        // A recovered segment can reproduce its batch result, but not a full live transcript.
-        stt: usedBatchFallback
-          ? batchFallbackResult.stt
-          : savedAudioIsPartial
-            ? undefined
-            : {
-                text: rawStreamingText,
-                provider: providerName,
-                model: streamingSttModel,
-                latencyMs: Math.round(tTerminate - stopRequestedAt),
-              },
+        stt: usedBatchFallback ? batchFallbackResult.stt : liveStt,
         source: batchFallbackResult?.source || `${providerName}-streaming`,
         clientTranscriptionId,
         analyticsOccurredAt: resultAnalyticsOccurredAt,

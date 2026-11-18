@@ -27,9 +27,13 @@ test("offline comparison scores matching recordings against human words or again
   add.run(5, "e", "do not read", "missing audio", null);
   add.run(6, "f", "ignore", "deleted", null);
   add.run(7, "g", null, "legacy", null);
+  add.run(8, "missed", "", "missed both", null);
+  add.run(9, "error", null, "technical failure", null);
+  db.exec("UPDATE transcriptions SET status='failed' WHERE id IN (8, 9)");
+  db.exec("UPDATE transcriptions SET stt_model='empty-model' WHERE id=8");
   db.exec("UPDATE transcriptions SET deleted_at='now' WHERE id=6");
   db.close();
-  for (const id of [1, 2, 3, 4, 6, 7])
+  for (const id of [1, 2, 3, 4, 6, 7, 8, 9])
     fs.writeFileSync(path.join(profile, "audio", id + ".webm"), "");
   const predictions = path.join(profile, "models.jsonl");
   fs.writeFileSync(
@@ -39,6 +43,7 @@ test("offline comparison scores matching recordings against human words or again
       { id: "b", text: "", model: "candidate" },
       { id: "c", text: "two", model: "candidate" },
       { id: "g", text: "legacy", model: "candidate" },
+      { id: "missed", text: "missed both", model: "candidate" },
     ]
       .map((x) => JSON.stringify(x))
       .join("\n")
@@ -53,13 +58,16 @@ test("offline comparison scores matching recordings against human words or again
   assert.equal(reviewed.status, 0, reviewed.stderr);
   assert.doesNotMatch(reviewed.stdout, /strongly agree|do not read/);
   const report = JSON.parse(reviewed.stdout);
-  assert.equal(report.eligible, 5);
-  assert.equal(report.scored, 3);
-  assert.equal(report.paired, 2);
+  assert.equal(report.eligible, 6);
+  assert.equal(report.scored, 4);
+  assert.equal(report.paired, 3);
   assert.equal(report.candidateOnly, 1);
   assert.equal(report.missingAudio, 1);
   assert.equal(report.missingPrediction, 1);
   const legacy = report.comparisons.find((group) => group.recordedModel === null);
+  const missed = report.comparisons.find((group) => group.recordedModel === "empty-model");
+  assert.equal(missed.recordedWerPct, 100);
+  assert.equal(missed.candidateWerPct, 0);
   assert.equal(legacy.candidateWerPct, 0);
   assert.equal(legacy.recordedWerPct, null);
   assert.equal(legacy.recordedEdits, null);

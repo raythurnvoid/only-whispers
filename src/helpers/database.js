@@ -524,7 +524,8 @@ class DatabaseManager {
     return this.db
       .prepare(
         `UPDATE transcriptions SET reference_text = ?
-         WHERE id = ? AND deleted_at IS NULL AND has_audio = 1 AND status = 'completed'
+         WHERE id = ? AND deleted_at IS NULL AND has_audio = 1
+           AND (status = 'completed' OR (status = 'failed' AND stt_raw_text = ''))
          RETURNING *`
       )
       .get(text === null ? null : text.trim(), id);

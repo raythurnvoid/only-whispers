@@ -428,6 +428,26 @@ test("a failed live stream skips finalize and uses the full recording even if la
   assert.deepEqual(completions[0].stt, stt);
 });
 
+test("a confirmed empty live final is saved for review and still signals no speech", async (t) => {
+  const { AudioManager } = await loadCancelGuardManagerClass(t);
+  const { manager, completions } = createStreamingLeakManager(AudioManager);
+  manager.getStreamingProvider = () => ({
+    finalizeAcknowledged: true,
+    finalize: async () => ({ success: true, text: "" }),
+    stop: async () => ({ success: true, model: "live-model" }),
+  });
+  const save = t.mock.fn();
+  manager.saveFailedTranscription = save;
+  await manager.stopStreamingRecording();
+  assert.equal(save.mock.callCount(), 1);
+  const [, code, metadata] = save.mock.calls[0].arguments;
+  assert.equal(code, "NO_SPEECH_DETECTED");
+  assert.equal(metadata.stt.text, "");
+  assert.equal(metadata.stt.model, "live-model");
+  assert.equal(metadata.stt.provider, "mistral-realtime");
+  assert.deepEqual(completions, [{ success: true, text: "" }]);
+});
+
 test("a partial saved segment cannot be compared with the full live transcript", async (t) => {
   const { AudioManager } = await loadCancelGuardManagerClass(t);
   const { manager, completions } = createStreamingLeakManager(AudioManager);

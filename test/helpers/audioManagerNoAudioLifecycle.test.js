@@ -75,3 +75,38 @@ test("A provider finding no speech is the no-audio outcome and keeps the recordi
   assert.deepEqual(order, ["idle", "no-audio"]);
   assert.deepEqual(saved, [{ message: "No speech detected in audio", code: "NO_SPEECH_DETECTED" }]);
 });
+
+test("an empty model result is paired with its audio, but a broken response has no prediction", async (t) => {
+  const { window, createManager } = await loadAudioManager(t, {
+    cachePrefix: "only-whispers-empty-model-result-",
+    settingsKey: "__noAudioLifecycleSettings",
+    settings: { dataRetentionEnabled: true, audioRetentionDays: 7 },
+  });
+  const clip = new Blob(["recording"]);
+  const saved = [];
+  let prediction = { source: "parakeet", model: "local", modelRevision: "rev", text: "" };
+  Object.assign(window.electronAPI, {
+    proxyMistralTranscription: async () => prediction,
+    saveTranscription: async () => ({ id: 1 }),
+    saveTranscriptionAudio: async (_id, bytes, metadata) =>
+      saved.push({ audio: new TextDecoder().decode(bytes), stt: metadata.stt }),
+  });
+  const manager = createManager({
+    getEffectiveSttLanguage: () => "en",
+    getWhisperPrompt: () => null,
+  });
+  for (const response of [prediction, { ...prediction, text: undefined }]) {
+    prediction = response;
+    manager.isProcessing = true;
+    manager.lastAudioBlob = clip;
+    const pipeline = manager._startProcessingPipeline();
+    await manager.processAudio(clip, { stopRequestedAt: performance.now() - 20 }, pipeline);
+    await pipeline.resultHandled;
+  }
+  assert.equal(saved[0].audio, "recording");
+  assert.equal(saved[0].stt?.text, "");
+  assert.equal(saved[0].stt.provider, "parakeet");
+  assert.equal(saved[0].stt.model, "local@rev");
+  assert.ok(saved[0].stt.latencyMs >= 20);
+  assert.equal(saved[1].stt, undefined);
+});

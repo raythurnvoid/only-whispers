@@ -333,7 +333,15 @@ export default function TranscriptionItem({
       </div>
 
       <div className="col-start-2 row-start-1 min-w-0">
-        {isFailed ? (
+        {editor === "reference" ? (
+          <TranscriptTextEditor
+            review
+            initialText={item.reference_text ?? item.stt_raw_text ?? rawText ?? ""}
+            onSave={saveReference}
+            onRemove={item.reference_text != null ? () => saveReference(null) : undefined}
+            onCancel={() => setEditor(null)}
+          />
+        ) : isFailed ? (
           <div className="flex items-start gap-2">
             <AlertCircle size={14} className="mt-0.5 shrink-0 text-destructive" />
             <div className="min-w-0">
@@ -376,14 +384,6 @@ export default function TranscriptionItem({
                 : t("controlPanel.history.discarded.recording")}
             </span>
           </div>
-        ) : editor === "reference" ? (
-          <TranscriptTextEditor
-            review
-            initialText={item.reference_text ?? item.stt_raw_text ?? rawText ?? ""}
-            onSave={saveReference}
-            onRemove={item.reference_text != null ? () => saveReference(null) : undefined}
-            onCancel={() => setEditor(null)}
-          />
         ) : editor === "text" ? (
           <TranscriptTextEditor
             initialText={item.text}
@@ -395,20 +395,22 @@ export default function TranscriptionItem({
             {item.text}
           </p>
         )}
-        {item.status === "completed" && hasAudio && editor === null && (
-          <button
-            type="button"
-            className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
-            onClick={() => setEditor("reference")}
-          >
-            <ListChecks size={13} />
-            {t(
-              item.reference_text != null
-                ? "controlPanel.history.editReview"
-                : "controlPanel.history.reviewWords"
-            )}
-          </button>
-        )}
+        {(item.status === "completed" || (isFailed && item.stt_raw_text === "")) &&
+          hasAudio &&
+          editor === null && (
+            <button
+              type="button"
+              className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
+              onClick={() => setEditor("reference")}
+            >
+              <ListChecks size={13} />
+              {t(
+                item.reference_text != null
+                  ? "controlPanel.history.editReview"
+                  : "controlPanel.history.reviewWords"
+              )}
+            </button>
+          )}
         {hasKeptText && (
           <p dir="auto" className={cn("mt-2", TRANSCRIPT_TEXT_CLASS)}>
             {item.text}

@@ -102,7 +102,8 @@ async function main() {
   let rows, eligible;
   try {
     // A legacy or retried history result alone cannot establish the original model or words.
-    const where = `deleted_at IS NULL AND status = 'completed' AND has_audio = 1
+    const where = `deleted_at IS NULL AND has_audio = 1
+      AND (status = 'completed' OR (status = 'failed' AND stt_raw_text = ''))
       AND client_transcription_id IS NOT NULL AND id <= ? AND ${
         values.agreement
           ? "reference_text IS NULL AND stt_raw_text IS NOT NULL AND stt_model IS NOT NULL AND stt_provider IS NOT NULL"
