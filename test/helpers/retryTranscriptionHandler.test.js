@@ -200,10 +200,16 @@ test("a rate-limited dictation transcribes the same audio locally", async (t) =>
     assert.deepEqual(audio, Buffer.from([7, 1]));
     return { text: "saved dictation", model: "parakeet-test" };
   });
+  const updates = [];
+  const sender = { isDestroyed: () => false, send: (...event) => updates.push(event) };
   const result = await handlers.get("proxy-mistral-transcription")(
-    {},
-    { audioBuffer: Uint8Array.of(7, 1) }
+    { sender },
+    { requestId: "dictation", audioBuffer: Uint8Array.of(7, 1) }
   );
+  assert.deepEqual(updates, [
+    ["batch-dictation-provider", "dictation", "mistral"],
+    ["batch-dictation-provider", "dictation", "parakeet"],
+  ]);
   assert.deepEqual(result, { text: "saved dictation", source: "parakeet", model: "parakeet-test" });
 });
 
@@ -219,7 +225,7 @@ test("cancelling a dictation stops its local worker request", async (t) => {
       return done.promise;
     }
   );
-  const event = { sender: {} };
+  const event = { sender: { isDestroyed: () => false, send() {} } };
   const result = handlers.get("proxy-mistral-transcription")(event, {
     requestId: "test",
     audioBuffer: Uint8Array.of(7),

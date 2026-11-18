@@ -12,7 +12,7 @@ export const VOICE_PILL_FOOTPRINT = Object.freeze({
   // inset (the waveform side keeps extra air; insets include the 1px border).
   recording: Object.freeze({ width: 98, height: 36 }),
   // Plain dictation's status pill keeps one size from key press to paste:
-  // model icon + "Voxtral Mini 3 is transcribing" (the longest label) + mini waveform.
+  // model icon, status text, and mini waveform.
   dictation: Object.freeze({ width: 240, height: 28 }),
 });
 

@@ -4,6 +4,20 @@ Keep this file current. After each measurement, add or fix the numbers here, wit
 
 ## Local Parakeet (2026-11-18)
 
+### First dictation after launch
+
+Loading the local worker while the mic records cut the wait after release from **3.043 s to 0.339 s** at the median on this PC. The 90th percentile went from **4.383 s to 0.504 s**.
+
+Used the same 3.505-second public clip (LibriSpeech 6930-75918-0000) with eight fresh workers per mode. For the early start, called `warm()` at the start of the clip, waited its real duration, then timed `transcribe()` to raw text. Each worker transcribed the clip twice. All 32 transcripts matched the reference. The second, already-warm decode took a median of 0.293 s before and 0.350 s after. This change saves model loading time on the first use. It does not speed up the decoder itself. A late fallback or a very short recording gives the worker less time to load before release.
+
+### Time to cleaned text
+
+We replayed seven public English clips (2.02 to 3.71 seconds) on this PC with the app's local Parakeet worker and Luna cleanup on the ChatGPT plan. On the six warm runs, the median was **0.23 s for Parakeet**, **1.76 s for cleanup** and **2.08 s from release to cleaned text**. The combined times ranged from 1.23 to 3.40 s. On the first run, with no early worker start, the same steps took 4.34 s and 1.56 s. These timers start at simulated key release and end before paste.
+
+Mistral realtime returned HTTP 429 on this account. An isolated Electron check using the real IPC handler took 1.72 s for the refused connection. The next attempt took 1 ms using the saved retry time. When Mistral omits a retry time, the app waits five minutes before trying the stream again.
+
+### Speed and quality across speakers
+
 Tested the app's `LocalSpeechModel.transcribe` on Windows 11, on an Intel Core i9-14900HX with four CPU threads. Used NVIDIA Parakeet TDT 0.6B v3, the pinned int8 sherpa-onnx export, with sherpa-onnx-node 2.0.1. The timer included the worker, FFmpeg audio conversion and recognition. It ended when raw text was ready. [Model](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8)
 
 The short test used 20 public English audiobook clips from 20 speakers, totaling 121.775 seconds. Each clip was between 1.98 and 17.32 seconds. We compared the raw words with the human reference after removing case and punctuation. [LibriSpeech dataset](https://www.openslr.org/12/)
@@ -20,13 +34,13 @@ The short test used 20 public English audiobook clips from 20 speakers, totaling
 - A 76.25-second stress clip made by joining ten unrelated speakers took 8.36 seconds and had 25 errors out of 189 (13.23%). Reducing the longest chunk from 30 seconds to 20, 16 and 12 seconds gave 22, 54 and 29 errors on that clip.
 - A live Mistral Voxtral 3 realtime connection returned HTTP 429 before any audio was sent. The earlier Mistral timings below used different recordings and references.
 
-## Where the time goes (after the key is released)
+## Earlier live Voxtral measurements
 
 1. Mistral: the app sends `input_audio.end` and waits for `transcription.done` (`stopMs` in the app log).
 2. Luna cleanup on the ChatGPT plan socket (`lunaMs`).
 3. Focus check and paste (`focusCheckMs`, `pasteHelperMs`).
 
-Today the user waits about 1.0 s for Mistral, then Luna, then the paste.
+In the October replay, Mistral took about 1.0 s with the old 1200 ms delay. Cleanup and paste followed.
 
 ## Mistral (2026-10-31)
 

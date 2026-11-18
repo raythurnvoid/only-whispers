@@ -45,7 +45,7 @@ export const useAudioRecording = (toast, options = {}) => {
   // it drops dictation hotkeys while processing, and the next dictation may start
   // while a paste is still waiting.
   const [isPasting, setIsPasting] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [speechProvider, setSpeechProvider] = useState(null);
   // True once the cleanup model works on this dictation's text.
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [isAssistantVoice, setIsAssistantVoice] = useState(false);
@@ -134,6 +134,7 @@ export const useAudioRecording = (toast, options = {}) => {
         const preparationGeneration = ++preparationGenerationRef.current;
         setIsStopping(false);
         setIsPreparing(true);
+        setSpeechProvider(null);
         // Preserve the requested identity while Windows is still opening the
         // microphone; AudioManager confirms the same value once recording.
         setIsAssistantVoice(voiceAgentRequested);
@@ -456,6 +457,7 @@ export const useAudioRecording = (toast, options = {}) => {
     };
 
     audioManagerRef.current.setCallbacks({
+      onSpeechProvider: setSpeechProvider,
       onStateChange: ({
         isRecording,
         isProcessing,
@@ -477,7 +479,6 @@ export const useAudioRecording = (toast, options = {}) => {
         wasRecordingRef.current = isRecording;
         setIsRecording(isRecording);
         setIsProcessing(isProcessing);
-        setIsStreaming(isStreaming ?? false);
         // Cleanup stays marked until the next recording, so the pill keeps
         // its cleanup look through the paste and the fade out.
         if (isRecording) setIsCleaningUp(false);
@@ -952,6 +953,7 @@ export const useAudioRecording = (toast, options = {}) => {
       const generation = ++preparationGenerationRef.current;
       setIsAssistantVoice(false);
       setIsPreparing(true);
+      setSpeechProvider(null);
       // The prepare event precedes the flag-setting start, so the kind must come
       // from the payload — the audioManager flags still describe the PREVIOUS
       // recording at this point.
@@ -1082,7 +1084,7 @@ export const useAudioRecording = (toast, options = {}) => {
     // A paste still waiting when the next recording starts must not paint that
     // recording's pill as processing.
     isProcessing: isProcessing || (isPasting && !isRecording),
-    isStreaming,
+    speechProvider,
     isCleaningUp,
     isAssistantVoice,
     cancellingRef,

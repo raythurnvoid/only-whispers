@@ -29,6 +29,8 @@ Use public recordings with known transcripts for a repeatable quality check. Thi
 4. Measure the first clip once after starting a fresh process. Then run all 20 in order and again in reverse, one at a time. Report the cold time, warm median, warm p90 and total audio seconds divided by warm processing seconds. For long dictation, join rows 0–11 of `clean/test` from one chapter. To stress speaker changes, join the ten clean clips from step 1. Encode each passage once and time one warm run.
 5. Compare the first pass with the human references. Lowercase, keep apostrophes inside words, and split at other punctuation and whitespace. Divide total inserted, missing and changed words by total reference words. Check whether the second pass gave the same words. Report this as recognition time and word error rate. The check leaves out cleanup, paste and punctuation quality.
 
+For a cold-start comparison, use a fresh worker for each recording. For the early-start mode, call `model.warm()` when the clip starts and wait the clip's real duration before timing `transcribe()`. For the control, skip the warm call. Time a second decode on each worker as a warm control. Report the median and nearest-rank p90 of the time after release. Keep other CPU benchmarks off this machine during the replay.
+
 ## 1. Timing of real dictations (the app's own logs)
 
 The app logs each stage. Info lines reach the log file only in debug mode:

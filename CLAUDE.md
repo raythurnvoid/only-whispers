@@ -211,8 +211,9 @@ These features are still in the code, but their UI is hidden in this release. Th
 ### Speech-to-text
 
 - Setup downloads one revision of Parakeet. The files and SHA-256 checksums are pinned in `localModel.js`. After setup, the dictation window checks the revision at startup. Settings shows progress and lets the user retry.
-- Without a Mistral key, dictation, history retry and file transcription run locally. The worker uses the CPU and stays warm between recordings.
+- Without a Mistral key, dictation, history retry and file transcription run locally. For local dictation, Parakeet starts loading when the mic opens and stays warm between recordings.
 - A saved Mistral key enables live transcription. Batch requests use the configured Voxtral model or `voxtral-mini-transcribe-3-0`. If the cloud is unavailable or rate-limited, a ready local model can transcribe the recording. Files over the cloud limit go to Parakeet.
+- After a rate-limited live connection, dictation skips live attempts until Mistral's retry time (five minutes if none was given). It uses Parakeet if installed. The pill shows Voxtral or Parakeet once the app knows which engine is handling the recording. It shows Luna during cleanup.
 
 ### Build Scripts (scripts/)
 

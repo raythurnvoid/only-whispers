@@ -6,6 +6,22 @@ const os = require("node:os");
 const { createHash } = require("node:crypto");
 const { LocalSpeechModel } = require("../../src/helpers/localModel");
 
+test("warm starts the installed recognizer before the first clip and skips a missing model", async (t) => {
+  const model = new LocalSpeechModel(os.tmpdir());
+  const installed = { model: "local", directory: model.directory };
+  const available = t.mock.method(model, "installedModel", async () => null);
+  const worker = t.mock.method(model, "getWorker", () => ({}));
+  assert.equal(await model.warm(), false);
+  assert.equal(worker.mock.callCount(), 0);
+
+  available.mock.mockImplementation(async () => installed);
+  assert.equal(await model.warm(), true);
+  assert.deepEqual(
+    worker.mock.calls.map(({ arguments: args }) => args),
+    [[model.directory]]
+  );
+});
+
 test("a failed model update keeps the old files and can be retried", async (t) => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "only-whispers-model-"));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
