@@ -3,6 +3,14 @@ const assert = require("node:assert/strict");
 
 const load = () => import("../../src/helpers/transcriptionRoute.ts");
 
+test("a blank or example key keeps audio on the device", async () => {
+  const { hasMistralKey } = await load();
+  for (const key of [undefined, "", "   ", " your_mistral_api_key_here "]) {
+    assert.equal(hasMistralKey(key), false);
+  }
+  assert.equal(hasMistralKey("saved-key"), true);
+});
+
 test("a configured Voxtral model is kept", async () => {
   const { resolveMistralModel } = await load();
   assert.equal(resolveMistralModel(" voxtral-small-latest "), "voxtral-small-latest");

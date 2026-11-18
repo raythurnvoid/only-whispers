@@ -505,7 +505,7 @@
         "selfHosted": "Self-Hosted"
       },
       "title": "AI Models",
-      "description": "Mistral turns your speech into text. Your ChatGPT plan cleans up the text."
+      "description": "Add a Mistral key to send audio to Mistral first. If it fails, Parakeet transcribes it on this device. Your ChatGPT plan handles text cleanup."
     },
     "dictionary": {
       "title": "Dictionary",
@@ -788,9 +788,16 @@
       "addPlaceholder": "Add a trigger phrase — \"investor ask\", \"cal link\""
     }
   },
+  "localSpeech": {
+    "title": "Local speech model",
+    "description": "Download once to transcribe on this device. Only Whispers updates the model when needed.",
+    "download": "Download model",
+    "downloading": "Downloading · {{percent}}%",
+    "ready": "Ready for offline transcription"
+  },
   "appSetup": {
-    "description": "Forget the keyboard, speak, and clean text appears in any app.\nAdd two things to start.",
-    "mistralKey": "Mistral API key (speech-to-text)",
+    "description": "Download the speech model and sign in for text cleanup.",
+    "mistralKey": "Mistral API key (optional)",
     "getMistralKey": "Get a key in Mistral admin",
     "start": "Start dictating"
   },

@@ -505,7 +505,7 @@
         "selfHosted": "自架主機"
       },
       "title": "AI 模型",
-      "description": "Mistral 將你的語音轉為文字,你的 ChatGPT 方案負責整理文字。"
+      "description": "新增 Mistral 金鑰後，音訊會先傳送給 Mistral。如果失敗，Parakeet 會在此裝置上轉錄。文字整理由你的 ChatGPT 方案提供。"
     },
     "dictionary": {
       "title": "字典",
@@ -788,9 +788,16 @@
     "expand": "展開側邊欄",
     "logs": "日誌"
   },
+  "localSpeech": {
+    "title": "本機語音模型",
+    "description": "下載一次即可在此裝置上轉錄。Only Whispers 會在需要時更新模型。",
+    "download": "下載模型",
+    "downloading": "正在下載 · {{percent}}%",
+    "ready": "可以離線轉錄"
+  },
   "appSetup": {
-    "description": "忘掉鍵盤,開口說話,整潔的文字就會出現在任何應用程式中。\n新增兩項即可開始。",
-    "mistralKey": "Mistral API 金鑰(語音轉文字)",
+    "description": "下載語音模型並登入，以便整理文字。",
+    "mistralKey": "Mistral API 金鑰（選填）",
     "getMistralKey": "在 Mistral admin 取得金鑰",
     "start": "開始聽寫"
   },

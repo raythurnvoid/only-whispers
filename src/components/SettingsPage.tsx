@@ -7,6 +7,7 @@ import PermissionCard from "./ui/PermissionCard";
 import PasteToolsInfo from "./ui/PasteToolsInfo";
 import NixOsPasteInfo from "./ui/NixOsPasteInfo";
 import ChatGPTSignIn from "./ChatGPTSignIn";
+import LocalSpeechModel from "./settings/LocalSpeechModel";
 import {
   AlertDialog,
   Dialog,
@@ -20,6 +21,7 @@ import { useSettings } from "../hooks/useSettings";
 import { useDialogs } from "../hooks/useDialogs";
 import { usePermissions } from "../hooks/usePermissions";
 import { useConnectionAutoCheck } from "../hooks/useConnectionAutoCheck";
+import { hasMistralKey } from "../helpers/transcriptionRoute";
 import { HotkeyListInput } from "./ui/HotkeyListInput";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
 import { useHotkeyModeInfo } from "../hooks/useHotkeyModeInfo";
@@ -65,7 +67,6 @@ function SectionHeader({
   );
 }
 
-// Mistral Voxtral is the only speech-to-text service, so its key is all it needs.
 function MistralKeySection() {
   const { t } = useTranslation();
   const mistralApiKey = useSettingsStore((s) => s.mistralApiKey);
@@ -73,7 +74,7 @@ function MistralKeySection() {
   const model = useSettingsStore((s) => s.cloudTranscriptionModel);
   const check = useConnectionAutoCheck({
     config: { scope: "transcription", provider: "mistral", apiKey: mistralApiKey, model },
-    ready: Boolean(mistralApiKey.trim()),
+    ready: hasMistralKey(mistralApiKey),
   });
 
   return (
@@ -133,8 +134,6 @@ function CleanupSection() {
   );
 }
 
-// 0.1.0 has one AI page: the Mistral key for speech-to-text and the ChatGPT
-// sign-in for cleanup. The assistant tabs are not shown.
 function LlmsSection() {
   const { t } = useTranslation();
 
@@ -144,6 +143,11 @@ function LlmsSection() {
         title={t("settingsPage.aiModels.title")}
         description={t("settingsPage.aiModels.description")}
       />
+      <SettingsPanel>
+        <SettingsPanelRow>
+          <LocalSpeechModel />
+        </SettingsPanelRow>
+      </SettingsPanel>
       <MistralKeySection />
       <CleanupSection />
     </div>

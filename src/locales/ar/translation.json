@@ -550,7 +550,7 @@
         "selfHosted": "مستضاف ذاتيًا"
       },
       "title": "نماذج الذكاء الاصطناعي",
-      "description": "يحوّل Mistral كلامك إلى نص، وتنظّف خطة ChatGPT النص."
+      "description": "أضف مفتاح Mistral لإرسال الصوت إلى Mistral أولًا. إذا فشل الطلب، ينسخ Parakeet الصوت على هذا الجهاز. تُستخدم خطة ChatGPT لتنقيح النص."
     },
     "dictionary": {
       "title": "القاموس",
@@ -919,9 +919,16 @@
     "expand": "توسيع الشريط الجانبي",
     "logs": "السجلات"
   },
+  "localSpeech": {
+    "title": "نموذج الكلام المحلي",
+    "description": "نزّل النموذج مرة واحدة لنسخ الكلام على هذا الجهاز. يحدّثه Only Whispers عند الحاجة.",
+    "download": "تنزيل النموذج",
+    "downloading": "جارٍ التنزيل · {{percent}}٪",
+    "ready": "جاهز للنسخ دون اتصال"
+  },
   "appSetup": {
-    "description": "انسَ لوحة المفاتيح، تحدث، فيظهر نص نظيف في أي تطبيق.\nأضف شيئين للبدء.",
-    "mistralKey": "مفتاح Mistral API (تحويل الكلام إلى نص)",
+    "description": "نزّل نموذج الكلام وسجّل الدخول لتنقيح النص.",
+    "mistralKey": "مفتاح Mistral API (اختياري)",
     "getMistralKey": "احصل على مفتاح من Mistral admin",
     "start": "ابدأ الإملاء"
   },

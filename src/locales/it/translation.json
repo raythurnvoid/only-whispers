@@ -505,7 +505,7 @@
         "selfHosted": "Self-hosted"
       },
       "title": "Modelli IA",
-      "description": "Mistral trasforma la tua voce in testo. Il tuo piano ChatGPT ripulisce il testo."
+      "description": "Aggiungi una chiave Mistral per inviare prima l’audio a Mistral. In caso di errore, Parakeet lo trascrive su questo dispositivo. Il tuo piano ChatGPT serve per correggere il testo."
     },
     "dictionary": {
       "title": "Dizionario",
@@ -788,9 +788,16 @@
     "expand": "Espandi barra laterale",
     "logs": "Log"
   },
+  "localSpeech": {
+    "title": "Modello vocale locale",
+    "description": "Scaricalo una volta per trascrivere su questo dispositivo. Only Whispers lo aggiorna quando serve.",
+    "download": "Scarica modello",
+    "downloading": "Download · {{percent}}%",
+    "ready": "Pronto per la trascrizione offline"
+  },
   "appSetup": {
-    "description": "Dimentica la tastiera, parla e il testo pulito appare in qualsiasi app.\nAggiungi due cose per iniziare.",
-    "mistralKey": "Chiave API Mistral (voce in testo)",
+    "description": "Scarica il modello vocale e accedi per correggere il testo.",
+    "mistralKey": "Chiave API Mistral (facoltativa)",
     "getMistralKey": "Ottieni una chiave in Mistral admin",
     "start": "Inizia a dettare"
   },

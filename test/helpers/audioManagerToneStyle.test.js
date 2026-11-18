@@ -127,7 +127,12 @@ test("dictation cleanup carries the tone for the app it was captured in", async 
       // The next dictation started while the cancelled one's request was in flight.
       manager.beginToneStyleCapture();
       const requestsBefore = reasonRequests.length;
-      await manager.processWithOpenAIAPI(new Blob(["synthetic audio"]), {}, () => true);
+      let cancelled = false;
+      window.electronAPI.proxyMistralTranscription = async () => {
+        cancelled = true;
+        return { text: RAW };
+      };
+      await manager.processWithOpenAIAPI(new Blob(["synthetic audio"]), {}, () => cancelled);
       assert.equal(reasonRequests.length, requestsBefore, "a cancelled dictation sends no cleanup");
       assert.deepEqual(await manager.consumeToneStyle(), { appCategory: "work", tone: "casual" });
     }

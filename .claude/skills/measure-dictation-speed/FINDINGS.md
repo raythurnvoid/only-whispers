@@ -2,6 +2,24 @@
 
 Keep this file current. After each measurement, add or fix the numbers here, with the date, the number of runs and the setup. Mark old results that a newer test replaced. Never put the user's dictated text here.
 
+## Local Parakeet (2026-11-18)
+
+Tested the app's `LocalSpeechModel.transcribe` on Windows 11, on an Intel Core i9-14900HX with four CPU threads. Used NVIDIA Parakeet TDT 0.6B v3, the pinned int8 sherpa-onnx export, with sherpa-onnx-node 2.0.1. The timer included the worker, FFmpeg audio conversion and recognition. It ended when raw text was ready. [Model](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8)
+
+The short test used 20 public English audiobook clips from 20 speakers, totaling 121.775 seconds. Each clip was between 1.98 and 17.32 seconds. We compared the raw words with the human reference after removing case and punctuation. [LibriSpeech dataset](https://www.openslr.org/12/)
+
+| Short recordings | Word errors / reference words | Word error rate |
+| --- | ---: | ---: |
+| 10 clean clips | 3 / 189 | 1.59% |
+| 10 harder clips | 13 / 108 | 12.04% |
+| All 20 clips | 16 / 297 | 5.39% |
+
+- The first 3.505-second clip took 3.213 seconds after starting the process with the model on disk. After that, 40 runs took a median of 459 ms and a p90 of 1,053 ms. Total audio duration divided by total warm processing time was 10.54. Every clip gave the same text on both passes.
+- All three clean-clip errors were spelling variants. The harder clips included mistakes on names and ordinary words. This sample measures short English reading. It does not score punctuation or measure cleanup and paste.
+- A 97.76-second passage made of 12 consecutive clips from one speaker took 5.33 seconds warm. It had 3 word errors out of 267 (1.12%).
+- A 76.25-second stress clip made by joining ten unrelated speakers took 8.36 seconds and had 25 errors out of 189 (13.23%). Reducing the longest chunk from 30 seconds to 20, 16 and 12 seconds gave 22, 54 and 29 errors on that clip.
+- A live Mistral Voxtral 3 realtime connection returned HTTP 429 before any audio was sent. The earlier Mistral timings below used different recordings and references.
+
 ## Where the time goes (after the key is released)
 
 1. Mistral: the app sends `input_audio.end` and waits for `transcription.done` (`stopMs` in the app log).

@@ -262,6 +262,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getUiLanguage: () => ipcRenderer.invoke("get-ui-language"),
   setUiLanguage: (language) => ipcRenderer.invoke("set-ui-language", language),
 
+  getLocalModelStatus: () => ipcRenderer.invoke("get-local-model-status"),
+  downloadLocalModel: () => ipcRenderer.invoke("download-local-model"),
+  cancelBatchDictation: (requestId) => ipcRenderer.invoke("cancel-batch-dictation", requestId),
   proxyMistralTranscription: (data) => ipcRenderer.invoke("proxy-mistral-transcription", data),
 
   // Custom endpoint API keys

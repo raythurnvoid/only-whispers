@@ -505,7 +505,7 @@
         "selfHosted": "Selbst gehostet"
       },
       "title": "KI-Modelle",
-      "description": "Mistral wandelt deine Sprache in Text um. Dein ChatGPT-Abo bereinigt den Text."
+      "description": "Mit einem Mistral-Schlüssel wird Audio zuerst an Mistral gesendet. Bei einem Fehler wandelt Parakeet es auf diesem Gerät in Text um. Dein ChatGPT-Abo übernimmt die Textkorrektur."
     },
     "dictionary": {
       "title": "Wörterbuch",
@@ -788,9 +788,16 @@
       "addPlaceholder": "Auslöser-Phrase hinzufügen – „mein Kalender“, „mein LinkedIn“"
     }
   },
+  "localSpeech": {
+    "title": "Lokales Sprachmodell",
+    "description": "Lade das Modell einmal herunter, um auf diesem Gerät zu transkribieren. Only Whispers aktualisiert es bei Bedarf.",
+    "download": "Modell herunterladen",
+    "downloading": "Download · {{percent}} %",
+    "ready": "Bereit für die Offline-Transkription"
+  },
   "appSetup": {
-    "description": "Vergiss die Tastatur, sprich, und sauberer Text erscheint in jeder App.\nFüge zwei Dinge hinzu, um zu starten.",
-    "mistralKey": "Mistral-API-Schlüssel (Sprache zu Text)",
+    "description": "Lade das Sprachmodell herunter und melde dich für die Textkorrektur an.",
+    "mistralKey": "Mistral-API-Schlüssel (optional)",
     "getMistralKey": "Schlüssel in Mistral admin erstellen",
     "start": "Diktieren starten"
   },

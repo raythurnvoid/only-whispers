@@ -483,7 +483,11 @@ test("a cancelled voice-agent command's reasoning failure notifies nothing", asy
     },
     onError: (error) => errors.push(error),
   });
-  window.electronAPI.proxyMistralTranscription = async () => ({ text: "the raw transcript" });
+  let cancelled = false;
+  window.electronAPI.proxyMistralTranscription = async () => {
+    cancelled = true;
+    return { text: "the raw transcript" };
+  };
 
   const result = await manager.processWithOpenAIAPI(
     {
@@ -492,7 +496,7 @@ test("a cancelled voice-agent command's reasoning failure notifies nothing", asy
       arrayBuffer: async () => new ArrayBuffer(8),
     },
     {},
-    () => true
+    () => cancelled
   );
 
   assert.equal(result.text, "the raw transcript", "the raw transcript is still returned");

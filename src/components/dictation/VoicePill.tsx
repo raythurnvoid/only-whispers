@@ -17,7 +17,7 @@ export type VoicePillState =
 /** Which model is working right now, shown on plain dictation's status pill. */
 export interface DictationPillStatus {
   phase: "listening" | "processing";
-  provider: "mistral" | "openai";
+  provider: "dictation" | "mistral" | "openai";
   model: string;
   activity: string;
 }
@@ -178,8 +178,10 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
         <>
           {dictationStatus.provider === "openai" ? (
             <OpenAIIcon className="relative size-3.5 shrink-0" />
-          ) : (
+          ) : dictationStatus.provider === "mistral" ? (
             <MistralIcon className="relative size-3.5 shrink-0" />
+          ) : (
+            <BrandMarkIcon size={14} className="relative shrink-0" />
           )}
           <span
             className={cn(

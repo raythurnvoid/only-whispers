@@ -19,6 +19,16 @@ Read `FINDINGS.md` first. It has every result measured so far and the ideas alre
 - Run Node through Vite Plus: `vp env exec node <script>`.
 - When you learn something new, update `FINDINGS.md` (numbers, date, runs, setup) and this file (steps, gotchas) in the same task.
 
+## Local Parakeet replay
+
+Use public recordings with known transcripts for a repeatable quality check. This also lets a cloud comparison run without sharing personal audio.
+
+1. Use the OpenSLR LibriSpeech dataset (`openslr/librispeech_asr` on Hugging Face). Read rows 0, 250, 500, …, 2250 from both the `clean/test` and `other/test` splits. Keep the clip ID, speaker, duration and reference text. [Dataset card](https://huggingface.co/datasets/openslr/librispeech_asr)
+2. Convert each clip to mono Opus/WebM with FFmpeg (`-ar 48000 -ac 1 -c:a libopus -b:a 64k`). Read the encoded buffer before starting the timer. This measures the app's audio conversion as well as recognition.
+3. Create one `LocalSpeechModel` from `src/helpers/localModel.js` with the path to a scratch user data folder. Download the pinned model with `await model.install()`. Set `TEMP` and `TMP` to the scratch folder on Windows. Run `await model.transcribe(buffer)` and measure elapsed time with `performance.now()`.
+4. Measure the first clip once after starting a fresh process. Then run all 20 in order and again in reverse, one at a time. Report the cold time, warm median, warm p90 and total audio seconds divided by warm processing seconds. For long dictation, join rows 0–11 of `clean/test` from one chapter. To stress speaker changes, join the ten clean clips from step 1. Encode each passage once and time one warm run.
+5. Compare the first pass with the human references. Lowercase, keep apostrophes inside words, and split at other punctuation and whitespace. Divide total inserted, missing and changed words by total reference words. Check whether the second pass gave the same words. Report this as recognition time and word error rate. The check leaves out cleanup, paste and punctuation quality.
+
 ## 1. Timing of real dictations (the app's own logs)
 
 The app logs each stage. Info lines reach the log file only in debug mode:

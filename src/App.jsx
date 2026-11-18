@@ -23,6 +23,7 @@ import { VoiceModePanelCore } from "./components/dictation/VoiceModePanelCore";
 import { PillTooltip } from "./components/dictation/PillTooltip";
 import { PillCommandMenu } from "./components/dictation/PillCommandMenu";
 import { createMainWindowResizeCoordinator } from "./utils/mainWindowResizeCoordinator";
+import { hasMistralKey } from "./helpers/transcriptionRoute";
 import {
   ASSISTANT_FOOTER_TRANSITION_TIMING,
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
@@ -72,6 +73,7 @@ export default function App() {
   const floatingIconAutoHide = useSettingsStore((s) => s.floatingIconAutoHide);
   const panelStartPosition = useSettingsStore((s) => s.panelStartPosition);
   const activationMode = useSettingsStore((s) => s.activationMode);
+  const mistralEnabled = useSettingsStore((s) => hasMistralKey(s.mistralApiKey));
   const [pushLocked, setPushLocked] = useState(false);
   const prevAutoHideRef = useRef(floatingIconAutoHide);
   const [voiceHorizontalDirection, setVoiceHorizontalDirection] = useState(() =>
@@ -206,6 +208,7 @@ export default function App() {
   const {
     isRecording,
     isProcessing,
+    isStreaming,
     isAssistantVoice,
     isPreparing,
     isStopping,
@@ -493,12 +496,6 @@ export default function App() {
         : "idle";
   const anyPanelOpen = assistant.open || liveTranscript.open;
   const anyPanelMounted = assistant.mounted || liveTranscript.mounted;
-  // Plain dictation shows one fixed-size status pill that names the model at
-  // work: Voxtral while it listens, then while it transcribes (after the key
-  // is released the app waits for Voxtral's final transcript, or for the
-  // upload's transcript without streaming), then Luna only once it cleans up
-  // the text. An empty transcript never reaches Luna, so its pill stays on
-  // Voxtral. The assistant and the panels keep the original pill.
   const activeDictationPhase =
     anyPanelMounted || isAssistantVoice
       ? null
@@ -514,6 +511,8 @@ export default function App() {
     if (activeDictationPhase) setHeldDictationPhase(activeDictationPhase);
   }, [activeDictationPhase]);
   const dictationPhase = activeDictationPhase ?? (autoHideIdle ? heldDictationPhase : null);
+  // After release a cloud request can fall back to Parakeet before the renderer knows.
+  const onVoxtral = dictationPhase === "listening" && isStreaming;
   const dictationStatus = !dictationPhase
     ? null
     : dictationPhase === "processing" && isCleaningUp
@@ -525,8 +524,8 @@ export default function App() {
         }
       : {
           phase: dictationPhase,
-          provider: "mistral",
-          model: "Voxtral Mini 3",
+          provider: onVoxtral ? "mistral" : "dictation",
+          model: onVoxtral ? "Voxtral Mini 3" : mistralEnabled ? "Only Whispers" : "Parakeet",
           activity: t(
             dictationPhase === "processing" ? "app.mic.isTranscribing" : "app.mic.isListening"
           ),

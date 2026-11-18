@@ -35,7 +35,7 @@ import {
   selectResolvedLLMConfig,
 } from "../stores/settingsStore";
 import { getCloudModel, getProviderDisplayName } from "../models/ModelRegistry";
-import { resolveMistralModel } from "./transcriptionRoute.ts";
+import { hasMistralKey, resolveMistralModel } from "./transcriptionRoute.ts";
 import { transcriptionFailureOutcome } from "./transcriptionFailureOutcome";
 import { errorFromIpcResult } from "./ipcErrorFields";
 import { PROVIDER_ERROR_CODES, asProviderError, providerError } from "./providerHttpErrors";
@@ -229,19 +229,6 @@ function resolveReasoningRoute(
   return { kind: "skip", cleanupReachable };
 }
 
-const PLACEHOLDER_KEYS = {
-  openai: "your_openai_api_key_here",
-  groq: "your_groq_api_key_here",
-  xai: "your_xai_api_key_here",
-  mistral: "your_mistral_api_key_here",
-};
-
-const isValidApiKey = (key, provider = "openai") => {
-  if (!key || key.trim() === "") return false;
-  const placeholder = PLACEHOLDER_KEYS[provider] || PLACEHOLDER_KEYS.openai;
-  return key !== placeholder;
-};
-
 // A realtime provider with no finalize handshake lands the transcript tail
 // whenever it lands — wait, don't sleep.
 const STREAMING_FINAL_QUIET_MS = 250;
@@ -268,7 +255,7 @@ const textBeforeLastWord = (text) => {
 };
 
 // Finalize sends input_audio.end and returns the final text. Any stream
-// failure keeps recording and sends the full capture to batch Voxtral.
+// failure keeps the full recording for local or cloud batch transcription.
 const STREAMING_PROVIDERS = {
   "mistral-realtime": {
     awaitsFinalTranscript: true,
@@ -286,8 +273,7 @@ const STREAMING_PROVIDERS = {
   },
 };
 
-// Mistral batch goes through the main process, which holds the key and sends
-// it as x-api-key.
+// Main chooses Parakeet or Mistral. Only Mistral uses the dictionary prompt.
 const MISTRAL_TRANSCRIPTION = {
   displayName: "Mistral",
   ipc: () => window.electronAPI?.proxyMistralTranscription,
@@ -322,7 +308,6 @@ class AudioManager {
     this.onTranscriptionComplete = null;
     this.onPartialTranscript = null;
     this.micCaptureStatus = "inactive";
-    this.cachedApiKey = null;
     this._micWarmedAt = 0;
     this._startInProgress = false;
     this.preparedMicCapture = new PreparedMicCapture({
@@ -360,7 +345,6 @@ class AudioManager {
     });
 
     this._onApiKeyChanged = () => {
-      this.cachedApiKey = null;
       // Replace a socket warmed with the previous key now rather than at the next
       // start. A key save in Settings is no reason to open the mic.
       if (!this.isRecording && !this.isProcessing && this.shouldUseStreaming()) {
@@ -1674,8 +1658,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     }
 
     try {
-      const activeModel = this.getTranscriptionModel();
       let result = await this.processWithOpenAIAPI(audioBlob, metadata, wasCancelled);
+      const activeModel = result?.model;
 
       if (wasCancelled() || !this.isProcessing) {
         return;
@@ -1705,7 +1689,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       const roundTripDurationMs = Math.round(performance.now() - pipelineStart);
 
       const timingData = {
-        mode: "cloud",
+        mode: result.source,
         model: activeModel,
         audioDurationMs: metadata.durationSeconds
           ? Math.round(metadata.durationSeconds * 1000)
@@ -1760,24 +1744,6 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       // ownership, instead of receiving an IPC event mid-pipeline.
       if (shouldNotifyNoAudio) this.onNoAudio?.();
     }
-  }
-
-  // The key stays in the main process; this only fails early with a clear error.
-  async getAPIKey() {
-    if (this.cachedApiKey !== null) return this.cachedApiKey;
-    // Prefer store value (user-entered via UI) over main process (.env)
-    // to avoid stale keys in process.env after auth mode transitions
-    let apiKey = getSettings().mistralApiKey;
-    if (!isValidApiKey(apiKey, "mistral")) {
-      apiKey = await window.electronAPI.getMistralKey?.();
-    }
-    if (!isValidApiKey(apiKey, "mistral")) {
-      const err = new Error("No Mistral API key is set. Add it in Settings → AI Models.");
-      err.code = "API_KEY_MISSING";
-      throw err;
-    }
-    this.cachedApiKey = apiKey;
-    return apiKey;
   }
 
   async processWithReasoningModel(text, model, agentName, config) {
@@ -2313,23 +2279,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const language = getBaseLanguageCode(this.getEffectiveSttLanguage(apiSettings));
     const model = this.getTranscriptionModel();
 
-    logger.debug(
-      "Transcription request starting",
-      {
-        provider: "mistral",
-        model,
-        blobSize: audioBlob.size,
-        blobType: audioBlob.type,
-        durationSeconds: metadata.durationSeconds ?? null,
-        language,
-      },
-      "transcription"
-    );
-
-    await this.getAPIKey();
     const call = MISTRAL_TRANSCRIPTION.ipc();
     if (!call) {
-      throw new Error("Mistral transcription is unavailable in this window");
+      throw new Error("Speech transcription is unavailable in this window");
     }
     const apiCallStart = performance.now();
     const proxyDictionaryPrompt = this.getWhisperPrompt(apiSettings);
@@ -2339,6 +2291,11 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       language,
       dictionaryPrompt: proxyDictionaryPrompt,
     });
+    if (metadata.preferLocal) proxyPayload.preferLocal = true;
+    if (wasCancelled()) throw new DOMException("Dictation cancelled", "AbortError");
+    const requestId = crypto.randomUUID();
+    proxyPayload.requestId = requestId;
+    this.batchRequestId = requestId;
     const classifyProxyFailure = (err) =>
       asProviderError(err, {
         provider: MISTRAL_TRANSCRIPTION.displayName,
@@ -2349,32 +2306,40 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       result = await call(proxyPayload);
     } catch (err) {
       throw classifyProxyFailure(err);
+    } finally {
+      if (this.batchRequestId === requestId) this.batchRequestId = null;
     }
     if (result?.error) {
       // Main serialises an unclassified network failure as its bare
       // message (net::ERR_*), so classify the rebuilt error here.
       throw classifyProxyFailure(errorFromIpcResult(result));
     }
-    const sendsDictionaryBias = payloadSendsDictionaryBias(proxyPayload);
+    const provider = result?.source || "mistral";
+    const sendsDictionaryBias = provider === "mistral" && payloadSendsDictionaryBias(proxyPayload);
     const proxyText = this.stripTrailingDictionaryEcho(
       result?.text,
       sendsDictionaryBias ? proxyDictionaryPrompt : null
     );
     if (!proxyText?.trim()) {
-      throw new Error(
-        `No text transcribed - ${MISTRAL_TRANSCRIPTION.displayName} response was empty`
-      );
+      throw Object.assign(new Error("No speech detected in audio"), { code: "NO_SPEECH_DETECTED" });
     }
     if (sendsDictionaryBias && this.isDictionaryEcho(result.text)) {
       throw dictionaryEchoError();
     }
     timings.transcriptionProcessingDurationMs = Math.round(performance.now() - apiCallStart);
     const reasoningStart = performance.now();
-    const text = await this.processTranscription(proxyText, "mistral", wasCancelled);
+    const text = await this.processTranscription(proxyText, provider, wasCancelled);
     timings.reasoningProcessingDurationMs = Math.round(performance.now() - reasoningStart);
 
-    const source = (await this.isReasoningAvailable()) ? "mistral-reasoned" : "mistral";
-    return { success: true, text, rawText: proxyText, source, timings };
+    const source = (await this.isReasoningAvailable()) ? `${provider}-reasoned` : provider;
+    return {
+      success: true,
+      text,
+      rawText: proxyText,
+      source,
+      model: result.model || model,
+      timings,
+    };
   }
 
   getTranscriptionModel() {
@@ -2641,7 +2606,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   shouldUseStreaming() {
-    return isValidApiKey(getSettings().mistralApiKey, "mistral");
+    return hasMistralKey(getSettings().mistralApiKey);
   }
 
   async warmupStreamingConnection({ warmMic = true } = {}) {
@@ -3248,6 +3213,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   _requestStreamingCancellation() {
+    if (this.batchRequestId) {
+      void window.electronAPI?.cancelBatchDictation?.(this.batchRequestId);
+    }
     this._streamingCancellationGeneration += 1;
     ReasoningService.cancelAllRequests();
     this.pendingSelectionEdit = null;
@@ -3733,7 +3701,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       try {
         const batchResult = await this.processWithOpenAIAPI(
           fallbackBlob,
-          { durationSeconds },
+          { durationSeconds, preferLocal: Boolean(failoverReason) },
           wasCancelled
         );
         if (wasCancelled()) return true;
@@ -3769,7 +3737,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           ? Math.round(durationSeconds * 1000)
           : Math.round(tBeforePaste - t0),
         provider: batchFallbackResult?.source || `${providerName}-streaming`,
-        model: batchFallbackResult ? null : streamingSttModel || null,
+        model: batchFallbackResult ? batchFallbackResult.model : streamingSttModel || null,
       };
       if (wasCancelled()) return true;
       delivery.resultHandled = this.onTranscriptionComplete?.({
