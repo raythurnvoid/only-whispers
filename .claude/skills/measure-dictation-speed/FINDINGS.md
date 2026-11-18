@@ -18,6 +18,8 @@ Mistral realtime returned HTTP 429 on this account. An isolated Electron check u
 
 ### Speed and quality across speakers
 
+On 30 saved English dictations, we compared raw local Parakeet with archived live Voxtral output at 800 ms (the closest saved setting to the app's 720 ms). Against the same 1,486-word Mistral batch reference, Parakeet had 149 word differences (10.0%) and live Voxtral had 92 (6.2%). Parakeet was farther from the reference on 19 clips, closer on five and tied on six. The 3.8-point gap measures agreement with Mistral batch. Its reference may favor Voxtral and has no human correction. Both engines matched all 118 words in four scripted synthetic recordings. A new live Voxtral attempt at 720 ms returned HTTP 429.
+
 Tested the app's `LocalSpeechModel.transcribe` on Windows 11, on an Intel Core i9-14900HX with four CPU threads. Used NVIDIA Parakeet TDT 0.6B v3, the pinned int8 sherpa-onnx export, with sherpa-onnx-node 2.0.1. The timer included the worker, FFmpeg audio conversion and recognition. It ended when raw text was ready. [Model](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8)
 
 The short test used 20 public English audiobook clips from 20 speakers, totaling 121.775 seconds. Each clip was between 1.98 and 17.32 seconds. We compared the raw words with the human reference after removing case and punctuation. [LibriSpeech dataset](https://www.openslr.org/12/)
