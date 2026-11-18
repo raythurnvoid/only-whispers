@@ -172,6 +172,23 @@ test("sweep leaves a stored copy of the current default alone", async () => {
   assert.equal(storage.getItem("customPrompt.cleanup"), current);
 });
 
+test("only the cleanup slot migrates an unedited former local-language default", async () => {
+  const { sweepRetiredPromptOverrides } = await load();
+  const previous = readLocaleBundles().fr.cleanupPrompt;
+  const storage = makeStorage({
+    "customPrompt.cleanup": previous,
+    "customPrompt.chatAgent": previous,
+  });
+  assert.deepEqual(await sweepRetiredPromptOverrides(storage, ["cleanup", "chatAgent"]), [
+    "cleanup",
+  ]);
+  assert.equal(storage.getItem("customPrompt.cleanup.retired"), previous);
+  assert.equal(storage.getItem("customPrompt.chatAgent"), previous);
+  storage.setItem("customPrompt.cleanup", previous + "!");
+  assert.deepEqual(await sweepRetiredPromptOverrides(storage, ["cleanup"]), []);
+  assert.equal(storage.getItem("customPrompt.cleanup"), previous + "!");
+});
+
 test("sweep is idempotent across restarts", async () => {
   const { sweepRetiredPromptOverrides } = await load();
   const storage = makeStorage({ "customPrompt.cleanup": fixtures.enPreHardeningCleanupPrompt });

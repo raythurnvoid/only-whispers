@@ -84,9 +84,7 @@ export const RETIRED_DEFAULT_PROMPT_HASHES = new Set([
   "c667ef52a6ae19354cd5f93f06dca6372df09e8a87ecd81179e65f45e7543081",
 ]);
 
-// Hashes of the defaults currently shipped, keyed by locale/bundle key. Not
-// used by the sweep; the registry test compares these against the live locale
-// bundles so a prompt change cannot land without updating the retired set.
+// The registry test checks these hashes against the shipped locale bundles.
 export const CURRENT_DEFAULT_PROMPT_HASHES = {
   "ar/cleanupPrompt": "6f62d1802de5e49a38bb0a3dbb6bb18afd2b1cd6a9306519b05507014efcd41f",
   "ar/fullPrompt": "9312644f8de56d874e0de9e18d610a3ed6afd0ca1b31411f02d021e012fee601",
@@ -129,10 +127,19 @@ export async function hashPromptText(text) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export async function isRetiredDefaultPrompt(text) {
+export async function isRetiredDefaultPrompt(text, kind) {
   if (typeof text !== "string" || text.length === 0) return false;
   if (!globalThis.crypto?.subtle) return false;
-  return RETIRED_DEFAULT_PROMPT_HASHES.has(await hashPromptText(text));
+  const hash = await hashPromptText(text);
+  if (RETIRED_DEFAULT_PROMPT_HASHES.has(hash)) return true;
+  // Prompt Studio used to save the UI language's default in the cleanup slot.
+  return (
+    kind === "cleanup" &&
+    hash !== CURRENT_DEFAULT_PROMPT_HASHES["en/cleanupPrompt"] &&
+    Object.entries(CURRENT_DEFAULT_PROMPT_HASHES).some(
+      ([key, value]) => key.endsWith("/cleanupPrompt") && value === hash
+    )
+  );
 }
 
 // Clears customPrompt.<kind> overrides that byte-match a retired shipped
@@ -146,7 +153,7 @@ export async function sweepRetiredPromptOverrides(storage, kinds) {
       const key = `customPrompt.${kind}`;
       const value = storage.getItem(key);
       if (!value) continue;
-      if (!(await isRetiredDefaultPrompt(value))) continue;
+      if (!(await isRetiredDefaultPrompt(value, kind))) continue;
       // Re-read before removing: the user may have saved a new prompt while
       // the hash was being computed.
       if (storage.getItem(key) !== value) continue;
