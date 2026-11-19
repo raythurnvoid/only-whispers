@@ -507,6 +507,8 @@
     "aiModels": {
       "enableTextCleanup": "Activar corrección de texto",
       "enableTextCleanupDescription": "Quita muletillas y corrige la gramática y la puntuación. Si está desactivado, se pega el texto sin procesar.",
+      "useMistral": "Usar Mistral",
+      "useMistralDescription": "Transcripción en vivo con tu clave de Mistral (de pago). Si está desactivado, Parakeet transcribe en este equipo.",
       "modes": {
         "selfHosted": "Autoalojado"
       },

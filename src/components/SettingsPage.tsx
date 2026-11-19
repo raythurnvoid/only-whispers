@@ -67,10 +67,13 @@ function SectionHeader({
   );
 }
 
-function MistralKeySection() {
+// Rows inside the speech model panel, under Parakeet.
+function MistralKeyRows() {
   const { t } = useTranslation();
   const mistralApiKey = useSettingsStore((s) => s.mistralApiKey);
   const setMistralApiKey = useSettingsStore((s) => s.setMistralApiKey);
+  const mistralEnabled = useSettingsStore((s) => s.mistralEnabled);
+  const setMistralEnabled = useSettingsStore((s) => s.setMistralEnabled);
   const model = useSettingsStore((s) => s.cloudTranscriptionModel);
   const check = useConnectionAutoCheck({
     config: { scope: "transcription", provider: "mistral", apiKey: mistralApiKey, model },
@@ -78,7 +81,16 @@ function MistralKeySection() {
   });
 
   return (
-    <SettingsPanel>
+    <>
+      {/* Off keeps the saved key, but every transcription runs on Parakeet. */}
+      <SettingsPanelRow>
+        <SettingsRow
+          label={t("settingsPage.aiModels.useMistral")}
+          description={t("settingsPage.aiModels.useMistralDescription")}
+        >
+          <Toggle checked={mistralEnabled} onChange={setMistralEnabled} />
+        </SettingsRow>
+      </SettingsPanelRow>
       <SettingsPanelRow>
         <label className="block">
           <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
@@ -103,7 +115,7 @@ function MistralKeySection() {
           </a>
         </label>
       </SettingsPanelRow>
-    </SettingsPanel>
+    </>
   );
 }
 
@@ -147,8 +159,8 @@ function LlmsSection() {
         <SettingsPanelRow>
           <LocalSpeechModel />
         </SettingsPanelRow>
+        <MistralKeyRows />
       </SettingsPanel>
-      <MistralKeySection />
       <CleanupSection />
     </div>
   );

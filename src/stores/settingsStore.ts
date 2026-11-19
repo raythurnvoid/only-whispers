@@ -129,6 +129,7 @@ const BOOLEAN_SETTINGS = new Set([
   "autoPasteEnabled",
   "keepTranscriptionInClipboard",
   "copyUnpastedToClipboard",
+  "mistralEnabled",
   "dataRetentionEnabled",
   "saveDiscardedTranscriptions",
   "showTranscriptionPreview",
@@ -367,6 +368,8 @@ export interface SettingsState
   autoPasteEnabled: boolean;
   keepTranscriptionInClipboard: boolean;
   copyUnpastedToClipboard: boolean;
+  /** Use the saved Mistral key. When off, every transcription runs on Parakeet. */
+  mistralEnabled: boolean;
 
   cleanupMode: InferenceMode;
   cleanupRemoteUrl: string;
@@ -431,6 +434,7 @@ export interface SettingsState
   setGroqApiKey: (key: string) => void;
   setXaiApiKey: (key: string) => void;
   setMistralApiKey: (key: string) => void;
+  setMistralEnabled: (value: boolean) => void;
 
   setDictationKey: (key: string) => void;
   setVoiceAgentKey: (key: string) => Promise<HotkeyRegistrationResult>;
@@ -627,6 +631,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ),
   // A non-Voxtral value reads as the default (resolveMistralModel).
   cloudTranscriptionModel: readString("cloudTranscriptionModel", "voxtral-mini-transcribe-3-0"),
+  mistralEnabled: readBoolean("mistralEnabled", true),
   cleanupCloudMode: readString("cleanupCloudMode", "byok"),
   cleanupCloudBaseUrl: readString("cleanupCloudBaseUrl", API_ENDPOINTS.OPENAI_BASE),
   customDictionary: readStringArray("customDictionary", []),
@@ -878,6 +883,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   setGroqApiKey: createSecretSetter("groqApiKey", "groq", "groq"),
   setXaiApiKey: createSecretSetter("xaiApiKey", "xai"),
   setMistralApiKey: createSecretSetter("mistralApiKey", "mistral", "mistral"),
+  setMistralEnabled: createBooleanSetter("mistralEnabled"),
   setDictationKey: (key: string) => {
     if (isBrowser) localStorage.setItem("dictationKey", key);
     set({ dictationKey: key });

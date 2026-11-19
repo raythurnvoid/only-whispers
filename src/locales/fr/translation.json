@@ -507,6 +507,8 @@
     "aiModels": {
       "enableTextCleanup": "Activer la correction de texte",
       "enableTextCleanupDescription": "Supprime les mots de remplissage et corrige la grammaire et la ponctuation. Désactivé, le texte brut est collé.",
+      "useMistral": "Utiliser Mistral",
+      "useMistralDescription": "Transcription en direct avec votre clé Mistral (payante). Si désactivé, Parakeet transcrit sur cet ordinateur.",
       "modes": {
         "selfHosted": "Auto-hébergé"
       },

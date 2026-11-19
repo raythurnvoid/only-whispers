@@ -500,7 +500,11 @@ declare global {
       }) => void;
       retryTranscription: (
         id: number,
-        settings?: { cloudTranscriptionModel?: string; preferredLanguage?: string }
+        settings?: {
+          cloudTranscriptionModel?: string;
+          preferredLanguage?: string;
+          mistralEnabled?: boolean;
+        }
       ) => Promise<{
         success: boolean;
         transcription?: TranscriptionItem;
@@ -740,6 +744,7 @@ declare global {
         language?: string;
         contextBias?: string[];
         preferLocal?: boolean;
+        mistralEnabled?: boolean;
       }) => Promise<ProxyTranscriptionResult>;
 
       // Corti credential management

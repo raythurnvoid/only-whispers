@@ -507,6 +507,8 @@
     "aiModels": {
       "enableTextCleanup": "テキスト補正を有効にする",
       "enableTextCleanupDescription": "フィラーワードを除き、文法と句読点を直します。オフにすると、元のテキストが貼り付けられます。",
+      "useMistral": "Mistral を使う",
+      "useMistralDescription": "Mistral キー（有料）でライブ文字起こしします。オフのときは、このコンピューターで Parakeet が文字起こしします。",
       "modes": {
         "selfHosted": "セルフホスト"
       },

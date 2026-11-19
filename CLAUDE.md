@@ -210,7 +210,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 
 - Setup downloads one revision of Parakeet. The files and SHA-256 checksums are pinned in `localModel.js`. After setup, the dictation window checks the revision at startup. Settings shows progress and lets the user retry.
 - Without a Mistral key, dictation, history retry and file transcription run locally. For local dictation, Parakeet starts loading when the mic opens and stays warm between recordings.
-- A saved Mistral key enables live transcription. Batch requests use the configured Voxtral model or `voxtral-mini-transcribe-3-0`. If the cloud is unavailable or rate-limited, a ready local model can transcribe the recording. Files over the cloud limit go to Parakeet.
+- A saved Mistral key enables live transcription. Settings → AI Models → "Use Mistral" (`mistralEnabled`, default on) turns it off without deleting the key: then dictation, retry and upload all run on Parakeet (the renderer skips live Voxtral and sends `mistralEnabled: false`, so main ignores the key). Batch requests use the configured Voxtral model or `voxtral-mini-transcribe-3-0`. If the cloud is unavailable or rate-limited, a ready local model can transcribe the recording. Files over the cloud limit go to Parakeet.
 - After a rate-limited live connection, dictation skips live attempts until Mistral's retry time (five minutes if none was given). It uses Parakeet if installed. The pill shows Voxtral or Parakeet once the app knows which engine is handling the recording. It shows Luna during cleanup.
 
 ### Build Scripts (scripts/)
@@ -274,6 +274,7 @@ Settings stored in localStorage with these keys:
 - `dictationKey`: Custom dictation hotkey
 - `pasteLastKey`: The paste-last hotkey (empty when unset; main holds the registered one in `PASTE_LAST_KEY`)
 - `copyUnpastedToClipboard`: Put a dictation on the clipboard when no text field has focus (default on)
+- `mistralEnabled`: Use the saved Mistral key (default on). Off sends every transcription to Parakeet
 - `onboardingCompleted`: First-run setup completion flag
 - `customDictionary`: JSON array of words/phrases for improved transcription accuracy
 - `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`). Hidden: there is no UI to change them in this release

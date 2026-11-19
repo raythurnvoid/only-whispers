@@ -507,6 +507,8 @@
     "aiModels": {
       "enableTextCleanup": "启用文本整理",
       "enableTextCleanupDescription": "去除语气词，修正语法和标点。关闭后，将粘贴原始文本。",
+      "useMistral": "使用 Mistral",
+      "useMistralDescription": "使用你的 Mistral 密钥（付费）进行实时转录。关闭时，由 Parakeet 在这台电脑上转录。",
       "modes": {
         "selfHosted": "自托管"
       },

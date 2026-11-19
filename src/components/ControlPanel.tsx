@@ -279,6 +279,7 @@ export default function ControlPanel() {
         const result = await window.electronAPI.retryTranscription(id, {
           cloudTranscriptionModel: s.cloudTranscriptionModel,
           preferredLanguage: s.preferredLanguage,
+          mistralEnabled: s.mistralEnabled,
         });
         if (result.success && result.transcription) {
           const rawText = result.transcription.text;

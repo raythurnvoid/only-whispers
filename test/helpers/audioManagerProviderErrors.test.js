@@ -8,7 +8,12 @@ async function loadManager(t, settings, window = {}) {
   const loaded = await loadAudioManager(t, {
     cachePrefix: "only-whispers-provider-errors-test-",
     settingsKey: "__providerErrorsSettings",
-    settings: { useLocalWhisper: false, allowLocalFallback: false, ...settings },
+    settings: {
+      useLocalWhisper: false,
+      allowLocalFallback: false,
+      mistralEnabled: true,
+      ...settings,
+    },
   });
   Object.assign(loaded.window.electronAPI, window);
   return loaded.createManager({
@@ -91,6 +96,23 @@ test("a rate-limited warmup uses local speech until retry time and applies only 
   manager.mistralRetryAt = 0;
   await manager.warmupStreamingConnection();
   assert.equal(manager.mistralRetryAt, 0);
+});
+
+test("with Mistral switched off a saved key records locally and tells main not to use it", async (t) => {
+  let payload;
+  const manager = await loadManager(
+    t,
+    { mistralApiKey: "saved-key", mistralEnabled: false },
+    {
+      proxyMistralTranscription: async (data) => {
+        payload = data;
+        return { text: "local words", source: "parakeet", model: "local" };
+      },
+    }
+  );
+  assert.equal(manager.shouldUseStreaming(), false);
+  await manager.processWithOpenAIAPI(recording());
+  assert.equal(payload.mistralEnabled, false);
 });
 
 test("batch dictation reports only the current request's active provider", async (t) => {

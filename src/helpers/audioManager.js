@@ -2352,6 +2352,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       dictionaryPrompt: proxyDictionaryPrompt,
     });
     if (metadata.preferLocal) proxyPayload.preferLocal = true;
+    proxyPayload.mistralEnabled = apiSettings.mistralEnabled;
     let result = metadata.preferLocal ? await local?.finish() : null;
     if (wasCancelled()) throw new DOMException("Dictation cancelled", "AbortError");
     result ??= await this.requestBatchTranscription(audioBlob, proxyPayload, wasCancelled);
@@ -2660,7 +2661,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   shouldUseStreaming() {
-    return hasMistralKey(getSettings().mistralApiKey) && !(this.mistralRetryAt > Date.now());
+    const { mistralEnabled, mistralApiKey } = getSettings();
+    return mistralEnabled && hasMistralKey(mistralApiKey) && !(this.mistralRetryAt > Date.now());
   }
 
   warmLocalRecording() {

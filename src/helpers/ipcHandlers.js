@@ -1446,13 +1446,17 @@ class IPCHandlers {
     ipcMain.handle(
       "proxy-mistral-transcription",
       serializeIpcError(
-        async (event, { audioBuffer, model, contextBias, preferLocal, requestId }) => {
+        async (
+          event,
+          { audioBuffer, model, contextBias, preferLocal, mistralEnabled, requestId }
+        ) => {
           const controller = new AbortController();
           if (requestId) pendingDictations.set(requestId, { controller, sender: event.sender });
           try {
             return await transcribeRecording(
               Buffer.from(audioBuffer),
-              this.environmentManager.getMistralKey(),
+              // No key means Parakeet. Callers that don't send the switch keep Mistral.
+              mistralEnabled === false ? "" : this.environmentManager.getMistralKey(),
               model,
               contextBias,
               preferLocal,
@@ -1770,7 +1774,7 @@ class IPCHandlers {
       try {
         const result = await transcribeRecording(
           buffer,
-          this.environmentManager.getMistralKey(),
+          settings?.mistralEnabled === false ? "" : this.environmentManager.getMistralKey(),
           settings?.cloudTranscriptionModel
         );
 

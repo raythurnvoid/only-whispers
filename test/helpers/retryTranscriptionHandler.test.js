@@ -188,6 +188,35 @@ test("retry without a key runs locally without sending audio to Mistral", async 
   assert.equal(fetches.length, 0);
 });
 
+test("retry with Mistral switched off runs locally even with a saved key", async (t) => {
+  fetches.length = 0;
+  const local = require("../../src/helpers/localModel");
+  t.mock.method(local, "transcribeLocalAudio", async () => ({
+    text: "local words",
+    model: "parakeet-test",
+  }));
+  const result = await invoke({ mistralEnabled: false });
+  assert.equal(result.success, true);
+  assert.deepEqual(textUpdates.at(-1), { id: 7, text: "local words" });
+  assert.equal(fetches.length, 0);
+});
+
+test("a dictation with Mistral switched off runs locally even with a saved key", async (t) => {
+  fetches.length = 0;
+  const local = require("../../src/helpers/localModel");
+  t.mock.method(local, "transcribeLocalAudio", async () => ({
+    text: "local dictation",
+    model: "parakeet-test",
+  }));
+  const event = { sender: { isDestroyed: () => false, send() {} } };
+  const result = await handlers.get("proxy-mistral-transcription")(event, {
+    audioBuffer: Uint8Array.of(7),
+    mistralEnabled: false,
+  });
+  assert.deepEqual(result, { text: "local dictation", source: "parakeet", model: "parakeet-test" });
+  assert.equal(fetches.length, 0);
+});
+
 test("a rate-limited dictation transcribes the same audio locally", async (t) => {
   const original = fetchResponse;
   t.after(() => {
