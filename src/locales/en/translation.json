@@ -507,7 +507,7 @@
     "aiModels": {
       "enableTextCleanup": "Enable text cleanup",
       "enableTextCleanupDescription": "Remove filler words and fix grammar and punctuation. When off, the raw text is pasted.",
-      "useMistral": "Use Mistral",
+      "useMistral": "Use Mistral Voxtral 3",
       "useMistralDescription": "Live transcription with your Mistral key (paid). When off, Parakeet transcribes on this computer.",
       "modes": {
         "selfHosted": "Self-Hosted"

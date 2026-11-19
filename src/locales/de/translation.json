@@ -507,7 +507,7 @@
     "aiModels": {
       "enableTextCleanup": "Textbereinigung aktivieren",
       "enableTextCleanupDescription": "Entfernt Füllwörter und korrigiert Grammatik und Zeichensetzung. Wenn aus, wird der Rohtext eingefügt.",
-      "useMistral": "Mistral verwenden",
+      "useMistral": "Mistral Voxtral 3 verwenden",
       "useMistralDescription": "Live-Transkription mit deinem Mistral-Schlüssel (kostenpflichtig). Wenn aus, transkribiert Parakeet auf diesem Computer.",
       "modes": {
         "selfHosted": "Selbst gehostet"

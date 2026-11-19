@@ -507,7 +507,7 @@
     "aiModels": {
       "enableTextCleanup": "啟用文字整理",
       "enableTextCleanupDescription": "移除語助詞，修正文法和標點。關閉後，會貼上原始文字。",
-      "useMistral": "使用 Mistral",
+      "useMistral": "使用 Mistral Voxtral 3",
       "useMistralDescription": "使用你的 Mistral 金鑰（付費）進行即時轉錄。關閉時，由 Parakeet 在這台電腦上轉錄。",
       "modes": {
         "selfHosted": "自架主機"

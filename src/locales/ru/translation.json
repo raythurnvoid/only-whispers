@@ -507,7 +507,7 @@
     "aiModels": {
       "enableTextCleanup": "Включить очистку текста",
       "enableTextCleanupDescription": "Убирает слова-паразиты и исправляет грамматику и пунктуацию. Если выключено, вставляется исходный текст.",
-      "useMistral": "Использовать Mistral",
+      "useMistral": "Использовать Mistral Voxtral 3",
       "useMistralDescription": "Живая расшифровка с вашим ключом Mistral (платно). Если выключено, Parakeet расшифровывает на этом компьютере.",
       "modes": {
         "selfHosted": "Свой сервер"

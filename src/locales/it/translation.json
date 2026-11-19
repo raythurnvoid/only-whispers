@@ -507,7 +507,7 @@
     "aiModels": {
       "enableTextCleanup": "Attiva correzione testo",
       "enableTextCleanupDescription": "Rimuove le parole riempitive e corregge grammatica e punteggiatura. Se disattivato, viene incollato il testo grezzo.",
-      "useMistral": "Usa Mistral",
+      "useMistral": "Usa Mistral Voxtral 3",
       "useMistralDescription": "Trascrizione dal vivo con la tua chiave Mistral (a pagamento). Se disattivato, Parakeet trascrive su questo computer.",
       "modes": {
         "selfHosted": "Self-hosted"

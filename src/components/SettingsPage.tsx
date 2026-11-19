@@ -67,8 +67,8 @@ function SectionHeader({
   );
 }
 
-// Rows inside the speech model panel, under Parakeet.
-function MistralKeyRows() {
+// One row in the speech model panel, under Parakeet: the switch and the key.
+function MistralKeyRow() {
   const { t } = useTranslation();
   const mistralApiKey = useSettingsStore((s) => s.mistralApiKey);
   const setMistralApiKey = useSettingsStore((s) => s.setMistralApiKey);
@@ -81,41 +81,37 @@ function MistralKeyRows() {
   });
 
   return (
-    <>
+    <SettingsPanelRow>
       {/* Off keeps the saved key, but every transcription runs on Parakeet. */}
-      <SettingsPanelRow>
-        <SettingsRow
-          label={t("settingsPage.aiModels.useMistral")}
-          description={t("settingsPage.aiModels.useMistralDescription")}
+      <SettingsRow
+        label={t("settingsPage.aiModels.useMistral")}
+        description={t("settingsPage.aiModels.useMistralDescription")}
+      >
+        <Toggle checked={mistralEnabled} onChange={setMistralEnabled} />
+      </SettingsRow>
+      <label className="mt-3 block">
+        <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
+        <ProviderCheckField
+          aria-label={t("appSetup.mistralKey")}
+          check={check}
+          invalidOn="credentialsRejected"
+          type="password"
+          value={mistralApiKey}
+          onChange={(event) => setMistralApiKey(event.target.value.trim())}
+          placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <a
+          href="https://admin.mistral.ai/organization/api-keys"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
         >
-          <Toggle checked={mistralEnabled} onChange={setMistralEnabled} />
-        </SettingsRow>
-      </SettingsPanelRow>
-      <SettingsPanelRow>
-        <label className="block">
-          <FieldLabel>{t("appSetup.mistralKey")}</FieldLabel>
-          <ProviderCheckField
-            aria-label={t("appSetup.mistralKey")}
-            check={check}
-            invalidOn="credentialsRejected"
-            type="password"
-            value={mistralApiKey}
-            onChange={(event) => setMistralApiKey(event.target.value.trim())}
-            placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <a
-            href="https://admin.mistral.ai/organization/api-keys"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1.5 inline-block text-xs text-link hover:opacity-80"
-          >
-            {t("appSetup.getMistralKey")}
-          </a>
-        </label>
-      </SettingsPanelRow>
-    </>
+          {t("appSetup.getMistralKey")}
+        </a>
+      </label>
+    </SettingsPanelRow>
   );
 }
 
@@ -159,7 +155,7 @@ function LlmsSection() {
         <SettingsPanelRow>
           <LocalSpeechModel />
         </SettingsPanelRow>
-        <MistralKeyRows />
+        <MistralKeyRow />
       </SettingsPanel>
       <CleanupSection />
     </div>

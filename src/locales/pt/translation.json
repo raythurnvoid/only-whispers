@@ -501,7 +501,7 @@
     "aiModels": {
       "enableTextCleanup": "Ativar limpeza de texto",
       "enableTextCleanupDescription": "Remove palavras de preenchimento e corrige gramática e pontuação. Desligado, o texto bruto é colado.",
-      "useMistral": "Usar Mistral",
+      "useMistral": "Usar Mistral Voxtral 3",
       "useMistralDescription": "Transcrição ao vivo com sua chave Mistral (paga). Quando desativado, o Parakeet transcreve neste computador.",
       "modes": {
         "selfHosted": "Auto-hospedado"

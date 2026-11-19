@@ -552,7 +552,7 @@
     "aiModels": {
       "enableTextCleanup": "تمكين تنظيف النص",
       "enableTextCleanupDescription": "يزيل كلمات الحشو ويصلح القواعد وعلامات الترقيم. عند إيقافه، يُلصق النص الخام.",
-      "useMistral": "استخدام Mistral",
+      "useMistral": "استخدام Mistral Voxtral 3",
       "useMistralDescription": "تفريغ مباشر باستخدام مفتاح Mistral (مدفوع). عند الإيقاف، يفرّغ Parakeet الصوت على هذا الكمبيوتر.",
       "modes": {
         "selfHosted": "مستضاف ذاتيًا"
