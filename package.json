@@ -1,6 +1,6 @@
 {
   "name": "only-whispers",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Hold the Key, speak, and get clean text in any app. Local Parakeet dictation with optional Mistral and ChatGPT cleanup.",
   "main": "main.js",
   "private": true,
