@@ -13,6 +13,7 @@ test("the live worker decodes a full segment before release and keeps the batch 
   worker.argv = ["node", "worker", "/model"];
   worker.send = (reply) => replies.emit("reply", reply);
   const modules = {
+    os: require("node:os"),
     path: require("node:path"),
     child_process: {
       spawn(_ffmpeg, args) {
@@ -67,4 +68,33 @@ test("the live worker decodes a full segment before release and keeps the batch 
   const [result] = await finished;
   assert.equal(result.text, expected.text);
   assert.deepEqual(decoded, [416800, 95200]);
+});
+
+test("the worker uses half the logical cores, from 4 up to 8 threads", () => {
+  const threads = (cores) => {
+    let config;
+    runInNewContext(readFileSync(require.resolve("../../src/helpers/parakeetWorker"), "utf8"), {
+      require: (name) =>
+        ({
+          os: { availableParallelism: () => cores },
+          path: require("node:path"),
+          child_process: {},
+          "sherpa-onnx-node": {
+            OfflineRecognizer: class {
+              constructor(value) {
+                config = value;
+              }
+            },
+          },
+          "./recordedDictationCue": {},
+        })[name],
+      process: { argv: ["node", "worker", "/model"], on() {} },
+      Buffer,
+    });
+    return config.modelConfig.numThreads;
+  };
+  assert.equal(threads(32), 8);
+  assert.equal(threads(12), 6);
+  assert.equal(threads(8), 4);
+  assert.equal(threads(2), 4);
 });

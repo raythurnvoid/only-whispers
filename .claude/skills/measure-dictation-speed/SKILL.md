@@ -31,6 +31,10 @@ Use public recordings with known transcripts for a repeatable quality check. Thi
 
 For a cold-start comparison, use a fresh worker for each recording. For the early-start mode, call `model.warm()` when the clip starts and wait the clip's real duration before timing `transcribe()`. For the control, skip the warm call. Time a second decode on each worker as a warm control. Report the median and nearest-rank p90 of the time after release. Keep other CPU benchmarks off this machine during the replay.
 
+### Accuracy on the user's own speech
+
+LibriSpeech can hide a loss on the user's accented speech (pause cuts looked fine there and were worse on the user's audio, see FINDINGS 2026-11-20). For a reference, use history rows that live Voxtral transcribed (`provider = 'mistral-realtime-streaming'`, `has_audio = 1`): their `raw_text` is the reference, and the audio file ends with `-<id>.webm`. Copy `transcriptions.db*` to the scratch folder first and read it with Electron's Node (`ELECTRON_RUN_AS_NODE=1 node_modules/electron/dist/electron.exe <script>`), since better-sqlite3 is built for Electron. Pick rows in length bands and score word errors (lowercase, punctuation removed). This costs no API calls. Converting each recording to 16 kHz float PCM once makes offline decoder tests fast.
+
 ### Test processing while the person speaks
 
 Use the same saved WebM bytes for both runs. Send one copy to the warm worker as a complete file. On Windows, the worker can also read a named pipe through FFmpeg. Use the audio packet times and byte positions from `ffprobe -show_packets` to send the second copy at recording speed in 250 ms groups. Keep the WebM headers and final bytes. Close the pipe at simulated key release. Time from release to the worker's reply and compare the complete raw text, including punctuation.

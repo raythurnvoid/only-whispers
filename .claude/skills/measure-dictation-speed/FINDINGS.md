@@ -2,6 +2,37 @@
 
 Keep this file current. After each measurement, add or fix the numbers here, with the date, the number of runs and the setup. Mark old results that a newer test replaced. Never put the user's dictated text here.
 
+## Local Parakeet, Mistral off (2026-11-20)
+
+The user turned Mistral off (paid now), so every dictation runs on Parakeet, then Luna. Without Mistral's live text, the Luna prefill and the cleanup guesses never run (they live in the streaming path only), so Luna reads the whole text after Parakeet ends.
+
+### More decoder threads: kept
+
+The real worker (FFmpeg and decode of the whole file) on 60 saved dictations, two passes, one worker process per thread count, order turning on each clip. Same text on all 120 runs.
+
+| Audio length | 4 threads (before) | 6 threads | 8 threads |
+| --- | ---: | ---: | ---: |
+| Up to 5 s | 494 ms | 325 ms | 381 ms |
+| 5 to 15 s | 797 ms | 701 ms | 593 ms |
+| 15 to 30 s | 1709 ms | 1460 ms | 1286 ms |
+| 30 to 60 s | 3513 ms | 2717 ms | 2419 ms |
+| Over 60 s | 8426 ms | 6935 ms | 6493 ms |
+| Total | 310 s | 263 s | 237 s (−24%) |
+
+Medians. The PC was slower this day than on 2026-11-18 (4 threads, up to 5 s: 494 ms against 220 ms then), so compare the columns, not the days. An in-process run with 2–12 threads agreed (12 threads: −26% total, little better than 8). Built: `numThreads` is half the logical cores, at least 4 and at most 8 (`parakeetWorker.js`). On the i9-14900HX (32 logical cores) that is 8.
+
+### Decoding at each pause: ruled out (worse text)
+
+Idea: decode a piece at each 400 ms pause (pieces of at least 5 s), so at release only the words since the last pause are left. Offline, the decode left after release fell from a median of 827 ms to 333 ms. But the text got worse on the user's own speech:
+
+- Reference: 60 history rows transcribed by live Voxtral (`provider = 'mistral-realtime-streaming'`), their raw text, 3249 words. Errors against it: today (30 s windows) 360 (11.1%); pieces of at least 3 s 555 (17.1%), 5 s 507 (15.6%), 8 s 447 (13.8%); 5 s with 600 ms pauses 517 (15.9%). With 5 s pieces, 34 clips got worse and 5 better.
+- On public audio it looked fine: the one-speaker LibriSpeech passage kept 3–4 errors of 267, and the ten-speaker stress clip fell from 26 to 2 of 189 (cuts at speaker changes). So test pause rules on the user's speech, not only on LibriSpeech.
+- Parakeet needs the context of the whole sentence for this accented speech. Differences against today's text alone (15%) do not say which text is better; a reference is needed.
+
+### Skipping Luna on short text: not built
+
+From 347 history rows (raw against cleaned text): on dictations of up to 8 words (14% of all), Luna changed real words (not only case and punctuation) in 12 of 50 (24%). Up to 3 words: 0 of 11 changed, but that is only 3% of dictations. So skipping Luna would lose real fixes for little gain.
+
 ## Local Parakeet (2026-11-18)
 
 ### Wait after release on saved dictations
