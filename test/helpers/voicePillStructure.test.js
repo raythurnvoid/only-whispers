@@ -245,6 +245,47 @@ test("an interactive voice pill is keyboard focusable", async () => {
   assert.match(interactive, /tabindex="0"/);
 });
 
+// On Windows the pill window can't take focus, so Windows answers a click with
+// MA_NOACTIVATEANDEAT: the press is thrown away and only the release reaches
+// the X, with no click event.
+test("the cancel X cancels on the mouse release alone, and only once per click", async () => {
+  const { VoicePill } = await import("../../src/components/dictation/VoicePill.tsx");
+  let cancels = 0;
+  const pill = VoicePill.render(
+    {
+      variant: "floating",
+      state: "recording",
+      expanded: true,
+      getAudioLevel: () => 0,
+      dictationStatus: {
+        phase: "listening",
+        provider: "dictation",
+        model: "Parakeet",
+        activity: "is listening",
+      },
+      cancel: { label: "Cancel recording", onCancel: () => (cancels += 1) },
+    },
+    null
+  );
+  const findButton = (node) => {
+    if (!node || typeof node !== "object") return null;
+    if (Array.isArray(node)) return node.map(findButton).find(Boolean) ?? null;
+    if (node.type === "button") return node;
+    return findButton(node.props?.children);
+  };
+  const { onMouseUp, onClick } = findButton(pill).props;
+  const event = (fields) => ({ preventDefault() {}, stopPropagation() {}, ...fields });
+
+  onMouseUp(event({ button: 0 }));
+  assert.equal(cancels, 1, "the release alone cancels");
+  onClick(event({ detail: 1 }));
+  assert.equal(cancels, 1, "the click after a release does not cancel again");
+  onMouseUp(event({ button: 2 }));
+  assert.equal(cancels, 1, "a right-button release does not cancel");
+  onClick(event({ detail: 0 }));
+  assert.equal(cancels, 2, "a keyboard click cancels");
+});
+
 test("the waveform uses the accent color, rounded caps, and a pronounced height range", async () => {
   const recording = await renderPill("recording", true);
   const { WAVEFORM_BAR_MIN_PX, WAVEFORM_BAR_MAX_PX, resolveWaveformBarHeight } =

@@ -680,7 +680,9 @@ export default function App() {
         >
           <PillTooltip
             content={canReopenLiveTranscript ? t("transcriptionPreview.label") : micTooltip}
-            disabled={anyPanelMounted}
+            // The pill already says it is listening, so "Recording..." stays
+            // only its aria-label.
+            disabled={anyPanelMounted || (!canReopenLiveTranscript && micState === "recording")}
             align={voicePillPopoverAlign}
           >
             <VoicePill

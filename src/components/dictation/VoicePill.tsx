@@ -300,17 +300,22 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
 
       {showCancel && cancel && (
         // Stop every event so the pill's own toggle, drag and key handlers
-        // do not also fire.
+        // do not also fire. It cancels on the release: the Windows pill window
+        // can't take focus, so Windows throws the press away and no click fires.
         <button
           type="button"
           aria-label={cancel.label}
           onMouseDown={(event) => event.stopPropagation()}
-          onMouseUp={(event) => event.stopPropagation()}
+          onMouseUp={(event) => {
+            event.stopPropagation();
+            if (event.button === 0) cancel.onCancel();
+          }}
           onKeyDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            cancel.onCancel();
+            // A mouse click already cancelled on release; detail 0 is a keyboard click.
+            if (event.detail === 0) cancel.onCancel();
           }}
           className="relative flex shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           style={{
