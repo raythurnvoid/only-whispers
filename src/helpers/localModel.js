@@ -7,26 +7,24 @@ const { pipeline } = require("stream/promises");
 const { getFFmpegPath } = require("./ffmpegUtils");
 const { getSafeTempDir } = require("./safeTempDir");
 
-// NVIDIA Parakeet TDT 0.6B v2 (CC BY 4.0), quantized by the sherpa-onnx project.
-// v2 is English only. v3 guesses among 25 languages and has no way to fix one,
-// so it sometimes wrote English speech as German or Dutch.
+// NVIDIA Parakeet TDT 0.6B v3 (CC BY 4.0), quantized by the sherpa-onnx project.
 // The revision identifies the files on disk across app updates.
-const MODEL = "parakeet-tdt-0.6b-v2";
-const REVISION = "84b478d541cdbf0c296a7ab5f1e20a6f8f998114";
-const SOURCE = "https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8";
+const MODEL = "parakeet-tdt-0.6b-v3";
+const REVISION = "ed5d745623472f97cfc2e6c2916ee248798fc5a8";
+const SOURCE = "https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8";
 const FILES = [
   [
     "encoder.int8.onnx",
-    652282309,
-    "92a10bd9c23936ea0566c29f963bc57c2a5df4261b6a8921c39abea66557ca8b",
+    652282294,
+    "1afbe69c1ffdabee94755f42e4daf1d93549131a3da11356bda84fcef0f2c479",
   ],
   [
     "decoder.int8.onnx",
-    7257753,
-    "4d097bae3bac5c96018d5293ba39f1b657296102b142affda40378f38b020f41",
+    11845274,
+    "0222a86147299d4dee90edf95b6d13827edb42ad8b7c9cf0b2582f030937c0b5",
   ],
-  ["joiner.int8.onnx", 1739080, "77a29f3e5ac7d37074e0af465391b80f314015d5b97f0f90c6c7767f1d56f428"],
-  ["tokens.txt", 9384, "ec182b70dd42113aff6c5372c75cac58c952443eb22322f57bbd7f53977d497d"],
+  ["joiner.int8.onnx", 6355277, "cbd02f3696e9944970111fb439d9c3fd365a80374565f13f2b9c7007d253fc98"],
+  ["tokens.txt", 93939, "d58544679ea4bc6ac563d1f545eb7d474bd6cfa467f0a6e2c1dc1c7d37e3c35d"],
 ];
 const RELEASE = { model: MODEL, revision: REVISION, files: FILES };
 const ENGINE = "sherpa-nemo-transducer-v1";
@@ -83,7 +81,7 @@ class LocalSpeechModel {
           : "missing";
     return {
       state,
-      name: "Parakeet TDT 0.6B v2",
+      name: "Parakeet TDT 0.6B v3",
       totalBytes: this.totalBytes,
       downloadedBytes: state === "ready" ? this.totalBytes : this.downloadedBytes,
       ...(this.error && { error: this.error }),
