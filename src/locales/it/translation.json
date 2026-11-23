@@ -79,12 +79,6 @@
     "screenRecording": "Le impostazioni di registrazione dello schermo non sono disponibili su questa piattaforma.",
     "loginItems": "Le impostazioni degli elementi di login non sono disponibili su questa piattaforma."
   },
-  "windowControls": {
-    "minimize": "Riduci a icona",
-    "maximize": "Ingrandisci",
-    "restore": "Ripristina",
-    "close": "Chiudi"
-  },
   "windows": {
     "pttUnavailable": "Il listener di tasti di only-whispers non è disponibile."
   },

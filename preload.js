@@ -213,10 +213,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteTempAudio: (tempPath) => ipcRenderer.invoke("delete-temp-audio", tempPath),
 
   // Window control functions
-  windowMinimize: () => ipcRenderer.invoke("window-minimize"),
-  windowMaximize: () => ipcRenderer.invoke("window-maximize"),
-  windowClose: () => ipcRenderer.invoke("window-close"),
-  windowIsMaximized: () => ipcRenderer.invoke("window-is-maximized"),
   getPlatform: () => process.platform,
 
   updateHotkey: (hotkey) => ipcRenderer.invoke("update-hotkey", hotkey),

@@ -786,12 +786,6 @@
     "screenRecording": "إعدادات تسجيل الشاشة غير متوفرة على هذه المنصة.",
     "loginItems": "إعدادات عناصر تسجيل الدخول غير متوفرة على هذه المنصة."
   },
-  "windowControls": {
-    "minimize": "تصغير",
-    "maximize": "تكبير",
-    "restore": "استعادة",
-    "close": "إغلاق"
-  },
   "windows": {
     "pttUnavailable": "مستمع مفاتيح only-whispers غير متوفر."
   },

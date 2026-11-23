@@ -1,11 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { PanelLeftClose } from "./icons";
-import WindowControls from "./WindowControls";
 import { cn } from "./lib/utils";
 import { getCachedPlatform } from "../utils/platform";
 
 const platform = getCachedPlatform();
+
+// On Windows and Linux the system draws its window buttons over the right end
+// (titleBarOverlay in windowManager.js), so the bar stops before them. The
+// env() values give their real width; on macOS they are unset and this is px-3.
+const titleBarStyle = {
+  WebkitAppRegion: "drag",
+  paddingRight:
+    "calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 0.75rem)",
+} as React.CSSProperties;
 
 // Controls inside the drag region must opt out or the click starts a window drag.
 const noDragStyle = { WebkitAppRegion: "no-drag" } as React.CSSProperties;
@@ -43,7 +51,7 @@ export default function ControlPanelTopBar({
           "transition-[padding] duration-300 ease-out",
           clearTrafficLights && "ltr:ps-[76px]"
         )}
-        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+        style={titleBarStyle}
       >
         <div className="flex min-w-0 items-center gap-2.5">
           <button
@@ -65,12 +73,6 @@ export default function ControlPanelTopBar({
             {title}
           </h1>
         </div>
-
-        {platform !== "darwin" && (
-          <div data-no-window-drag="" style={noDragStyle} className="ms-auto">
-            <WindowControls />
-          </div>
-        )}
       </header>
       {/* Egg-and-dart moulding: the titlebar's bottom edge (styles/palazzo.css). */}
       <div className="pz-ornament pz-moulding" aria-hidden="true" />

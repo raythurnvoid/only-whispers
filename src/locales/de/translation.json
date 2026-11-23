@@ -79,12 +79,6 @@
     "screenRecording": "Einstellungen zur Bildschirmaufnahme sind auf dieser Plattform nicht verfügbar.",
     "loginItems": "Einstellungen für Anmeldeobjekte sind auf dieser Plattform nicht verfügbar."
   },
-  "windowControls": {
-    "minimize": "Minimieren",
-    "maximize": "Maximieren",
-    "restore": "Wiederherstellen",
-    "close": "Schließen"
-  },
   "windows": {
     "pttUnavailable": "Der only-whispers-Tasten-Listener ist nicht verfügbar."
   },

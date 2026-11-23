@@ -79,12 +79,6 @@
     "screenRecording": "Screen recording settings are not available on this platform.",
     "loginItems": "Login item settings are not available on this platform."
   },
-  "windowControls": {
-    "minimize": "Minimize",
-    "maximize": "Maximize",
-    "restore": "Restore",
-    "close": "Close"
-  },
   "windows": {
     "pttUnavailable": "only-whispers's key listener isn't available."
   },

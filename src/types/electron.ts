@@ -584,10 +584,6 @@ declare global {
       // Audio
 
       // Window control operations
-      windowMinimize: () => Promise<void>;
-      windowMaximize: () => Promise<void>;
-      windowClose: () => Promise<void>;
-      windowIsMaximized: () => Promise<boolean>;
       getPlatform: () => string;
       startControlPanelDrag: () => Promise<void>;
       stopControlPanelDrag: () => Promise<void>;

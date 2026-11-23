@@ -1,4 +1,4 @@
-const { app, screen, BrowserWindow, dialog, ipcMain, Menu } = require("electron");
+const { app, screen, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } = require("electron");
 const debugLogger = require("./debugLogger");
 const { createLinuxWindowInputRegion } = require("./linuxWindowInputRegion");
 // Aliased: this class has an openExternalUrl method wrapping the helper.
@@ -46,6 +46,16 @@ const {
   WindowPositionUtil,
 } = require("./windowConfig");
 const AGENT_DICTATION_PILL_SIZE = Object.freeze({ ...WINDOW_SIZES.BASE });
+// The system's window buttons over the control panel's top bar (Windows and
+// Linux). Clear, so the page shows under them. The symbols use --ink-muted
+// (styles/palazzo.css), like the bar's own icons; the app has no theme
+// setting, so the page follows the system theme too. 40 px: the height of the
+// top bar, which starts at the window's top edge.
+const controlPanelTitleBarOverlay = () => ({
+  color: "#00000000",
+  symbolColor: nativeTheme.shouldUseDarkColors ? "#b39e86" : "#76624f",
+  height: 40,
+});
 const { centeredBounds, clampedBounds } = require("./onboardingWindowBounds");
 const { createHotkeyRepeatGate } = require("./hotkeyRepeatGate");
 
@@ -1375,7 +1385,10 @@ class WindowManager {
       return;
     }
 
-    this.controlPanelWindow = new BrowserWindow(CONTROL_PANEL_CONFIG);
+    this.controlPanelWindow = new BrowserWindow({
+      ...CONTROL_PANEL_CONFIG,
+      ...(process.platform !== "darwin" && { titleBarOverlay: controlPanelTitleBarOverlay() }),
+    });
     this._onboardingRestoreBounds = null;
     this._onboardingWindowMode = null;
     this._onboardingWindowState = null;
@@ -1400,7 +1413,14 @@ class WindowManager {
       }
     });
 
+    // The panel lives for days in the tray, and the system can switch light and
+    // dark meanwhile.
+    const syncTitleBarOverlay = () =>
+      this.controlPanelWindow?.setTitleBarOverlay(controlPanelTitleBarOverlay());
+    if (process.platform !== "darwin") nativeTheme.on("updated", syncTitleBarOverlay);
+
     this.controlPanelWindow.on("closed", () => {
+      nativeTheme.off("updated", syncTitleBarOverlay);
       this._clearControlPanelVisibilityTimer();
       this.controlPanelWindow = null;
       this._onboardingActive = true;

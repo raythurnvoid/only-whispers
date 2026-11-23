@@ -445,8 +445,22 @@ export default function ControlPanel() {
             }}
           />
         </div>
-        <main className="flex-1 flex flex-col overflow-hidden p-2">
-          <div className="flex min-h-0 flex-1 flex-col overflow-clip pz-shell rounded-(--radius-shell) border border-border">
+        {/* On Windows and Linux the shell meets the window's edges (all but the sidebar's), so
+            the system's window buttons (titleBarOverlay in windowManager.js) sit in its corner. */}
+        <main
+          className={`flex-1 flex flex-col overflow-hidden transition-[padding] duration-300 ease-out ${
+            platform === "darwin" ? "p-2" : sidebarCollapsed ? "" : "ps-2"
+          }`}
+        >
+          <div
+            className={`flex min-h-0 flex-1 flex-col overflow-clip pz-shell border-border ${
+              platform === "darwin"
+                ? "rounded-(--radius-shell) border"
+                : sidebarCollapsed
+                  ? ""
+                  : "border-s"
+            }`}
+          >
             <ControlPanelTopBar
               title={navItems.find((item) => item.id === activeView)?.label ?? ""}
               sidebarCollapsed={sidebarCollapsed}

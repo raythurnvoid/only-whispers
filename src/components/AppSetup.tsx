@@ -3,16 +3,12 @@ import { useTranslation } from "react-i18next";
 import ChatGPTSignIn from "./ChatGPTSignIn";
 import LocalSpeechModel from "./settings/LocalSpeechModel";
 import LaurelLogo from "./LaurelLogo";
-import WindowControls from "./WindowControls";
 import { Button } from "./ui/button";
 import { useHotkeyRegistration } from "../hooks/useHotkeyRegistration";
 import type { MicrophoneCheck } from "../hooks/useMicrophoneCheck";
 import { usePalazzoTheme } from "../hooks/usePalazzoTheme";
 import { useSettingsStore } from "../stores/settingsStore";
 import { getDefaultHotkey } from "../utils/hotkeys";
-import { getCachedPlatform } from "../utils/platform";
-
-const platform = getCachedPlatform();
 
 const TRANSCRIPTION_MODEL = "voxtral-mini-transcribe-3-0";
 const CLEANUP_MODEL = "gpt-6-luna";
@@ -80,18 +76,13 @@ export default function AppSetup({
 
   return (
     <main className="pz-window flex h-screen flex-col">
-      {/* The frameless window's titlebar. */}
+      {/* The frameless window's titlebar. On Windows and Linux the system draws its window
+          buttons over it (titleBarOverlay in windowManager.js). */}
       <header
-        className="flex h-10 shrink-0 items-center justify-end px-3"
+        className="h-10 shrink-0"
         style={{ WebkitAppRegion: "drag" } as CSSProperties}
         data-window-drag-zone=""
-      >
-        {platform !== "darwin" && (
-          <div data-no-window-drag="" style={{ WebkitAppRegion: "no-drag" } as CSSProperties}>
-            <WindowControls />
-          </div>
-        )}
-      </header>
+      />
       <div className="pz-ornament pz-moulding" aria-hidden="true" />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-6">

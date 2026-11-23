@@ -655,12 +655,6 @@
       }
     }
   },
-  "windowControls": {
-    "minimize": "Minimizar",
-    "maximize": "Maximizar",
-    "restore": "Restaurar",
-    "close": "Fechar"
-  },
   "notes": {
     "list": {
       "timeNow": "Agora",

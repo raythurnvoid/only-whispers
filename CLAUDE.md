@@ -650,6 +650,7 @@ Hidden features (the voice assistant, Tone & Style) are not in this list. Test t
 **Windows**:
 
 - No special accessibility permissions needed
+- **Window buttons**: the control panel has no title bar (`titleBarStyle: "hidden"`), and Windows draws its own minimize, maximize and close buttons over the page's top bar (`titleBarOverlay` in `windowManager.js`, also on Linux), so the snap layouts menu works. The bar stops before them with `env(titlebar-area-*)` (`ControlPanelTopBar.tsx`)
 - Microphone privacy settings at `ms-settings:privacy-microphone`
 - Sound settings at `ms-settings:sound`
 - NSIS installer for distribution

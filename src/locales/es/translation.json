@@ -79,12 +79,6 @@
     "screenRecording": "La configuración de grabación de pantalla no está disponible en esta plataforma.",
     "loginItems": "La configuración de elementos de inicio no está disponible en esta plataforma."
   },
-  "windowControls": {
-    "minimize": "Minimizar",
-    "maximize": "Maximizar",
-    "restore": "Restaurar",
-    "close": "Cerrar"
-  },
   "windows": {
     "pttUnavailable": "El detector de teclas de only-whispers no está disponible."
   },

@@ -79,12 +79,6 @@
     "screenRecording": "Les réglages d'enregistrement de l'écran ne sont pas disponibles sur cette plateforme.",
     "loginItems": "Les réglages des éléments d'ouverture ne sont pas disponibles sur cette plateforme."
   },
-  "windowControls": {
-    "minimize": "Réduire",
-    "maximize": "Agrandir",
-    "restore": "Restaurer",
-    "close": "Fermer"
-  },
   "windows": {
     "pttUnavailable": "L'écouteur de touches d'only-whispers n'est pas disponible."
   },

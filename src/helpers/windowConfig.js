@@ -237,10 +237,13 @@ const CONTROL_PANEL_CONFIG = {
   resizable: true,
   show: false,
   frame: false,
-  ...(process.platform === "darwin" && {
-    titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 20, y: 20 },
-  }),
+  // Windows and Linux: no title bar, but the system still draws its own
+  // minimize, maximize and close buttons over the page's top bar
+  // (titleBarOverlay in windowManager.js), so Windows 11 shows the snap layouts
+  // menu on maximize.
+  ...(process.platform === "darwin"
+    ? { titleBarStyle: "hiddenInset", trafficLightPosition: { x: 20, y: 20 } }
+    : { titleBarStyle: "hidden" }),
   // macOS only: transparent so a renderer that insets or rounds itself shows
   // the desktop rather than a square page backing bleeding out behind it. Safe
   // for the other control panel screens because each paints its own opaque

@@ -79,12 +79,6 @@
     "screenRecording": "此平台不提供屏幕录制设置。",
     "loginItems": "此平台不支持登录项设置。"
   },
-  "windowControls": {
-    "minimize": "最小化",
-    "maximize": "最大化",
-    "restore": "还原",
-    "close": "关闭"
-  },
   "windows": {
     "pttUnavailable": "only-whispers 按键监听器不可用。"
   },

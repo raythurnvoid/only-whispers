@@ -425,35 +425,6 @@ class IPCHandlers {
       cachedConnectionCheck(config, () => testProviderConnection(config, fetch, runPaidKeyCheck))
     );
 
-    ipcMain.handle("window-minimize", () => {
-      if (this.windowManager.controlPanelWindow) {
-        this.windowManager.controlPanelWindow.minimize();
-      }
-    });
-
-    ipcMain.handle("window-maximize", () => {
-      if (this.windowManager.controlPanelWindow) {
-        if (this.windowManager.controlPanelWindow.isMaximized()) {
-          this.windowManager.controlPanelWindow.unmaximize();
-        } else {
-          this.windowManager.controlPanelWindow.maximize();
-        }
-      }
-    });
-
-    ipcMain.handle("window-close", () => {
-      if (this.windowManager.controlPanelWindow) {
-        this.windowManager.controlPanelWindow.close();
-      }
-    });
-
-    ipcMain.handle("window-is-maximized", () => {
-      if (this.windowManager.controlPanelWindow) {
-        return this.windowManager.controlPanelWindow.isMaximized();
-      }
-      return false;
-    });
-
     ipcMain.handle("hide-window", () => {
       this.windowManager.hideDictationPanel();
     });
