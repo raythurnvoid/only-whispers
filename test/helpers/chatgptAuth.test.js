@@ -53,7 +53,7 @@ test("a refresh token OpenAI refuses ends the sign-in and tells the windows once
     return new Response(JSON.stringify({ error: "invalid_grant" }), { status: 400 });
   };
   let notified = 0;
-  auth.onSignInExpired(() => notified++);
+  auth.onStatusChange(() => notified++);
 
   // Cleanup asks for a token from several places at once.
   const tokens = await Promise.all([
@@ -80,7 +80,7 @@ test("a refresh that fails offline keeps the sign-in for the next try", async ()
     throw new TypeError("fetch failed");
   };
   let notified = 0;
-  auth.onSignInExpired(() => notified++);
+  auth.onStatusChange(() => notified++);
 
   assert.equal(await auth.getAccessToken(), "");
   assert.equal(notified, 0);

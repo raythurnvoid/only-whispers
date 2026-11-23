@@ -550,7 +550,7 @@ class IPCHandlers {
     ipcMain.handle("chatgpt-sign-out", () => chatgptAuth.signOut());
     ipcMain.handle("chatgpt-status", () => chatgptAuth.status());
     ipcMain.handle("chatgpt-access-token", () => chatgptAuth.getAccessToken());
-    chatgptAuth.onSignInExpired(() => broadcastToWindows("chatgpt-sign-in-expired"));
+    chatgptAuth.onStatusChange((status) => broadcastToWindows("chatgpt-status-changed", status));
     ipcMain.handle("chatgpt-socket-warmup", () => chatgptResponsesSocket.warmup());
     ipcMain.handle("chatgpt-socket-prefill", (_event, text, options) =>
       chatgptResponsesSocket.prefillTranscript(text, options)

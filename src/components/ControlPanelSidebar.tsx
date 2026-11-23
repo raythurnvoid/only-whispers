@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Settings } from "./icons";
 import { useTranslation } from "react-i18next";
 import { cn } from "./lib/utils";
@@ -17,7 +17,7 @@ const rowButtonClass =
 interface ControlPanelSidebarProps {
   activeView: ControlPanelView;
   onViewChange: (view: ControlPanelView) => void;
-  onOpenSettings: () => void;
+  onOpenSettings: (section?: string) => void;
 }
 
 export default function ControlPanelSidebar({
@@ -27,6 +27,15 @@ export default function ControlPanelSidebar({
 }: ControlPanelSidebarProps) {
   const { t } = useTranslation();
   const navItems = useControlPanelNavItems();
+  // OpenAI ended the ChatGPT sign-in: cleanup is off until the user signs in again.
+  const [chatgptExpired, setChatgptExpired] = useState(false);
+
+  useEffect(() => {
+    window.electronAPI?.chatgptStatus?.().then((status) => setChatgptExpired(!!status?.expired));
+    return window.electronAPI?.onChatGPTStatusChanged?.((status) =>
+      setChatgptExpired(!!status.expired)
+    );
+  }, []);
 
   return (
     <div className="pz-window relative w-56 h-full shrink-0 flex flex-col ps-2 pe-9 pb-3">
@@ -66,8 +75,20 @@ export default function ControlPanelSidebar({
 
       <div className="flex-1" />
 
+      {chatgptExpired && (
+        <div className="mb-2 rounded-md border border-border bg-surface-1/60 px-2.5 py-2 text-xs">
+          <p className="text-foreground">{t("app.toasts.chatgptSignInExpired.title")}</p>
+          <button
+            onClick={() => onOpenSettings("llms")}
+            className="mt-1 text-link hover:opacity-80"
+          >
+            {t("providerErrors.openSettings")}
+          </button>
+        </div>
+      )}
+
       <button
-        onClick={onOpenSettings}
+        onClick={() => onOpenSettings()}
         aria-label={t("sidebar.settings")}
         className={rowButtonClass}
       >

@@ -695,7 +695,9 @@ declare global {
       chatgptSignOut: () => Promise<{ signedIn: boolean }>;
       chatgptStatus: () => Promise<{ signedIn: boolean; email: string; expired?: boolean }>;
       getChatGPTAccessToken: () => Promise<string>;
-      onChatGPTSignInExpired?: (callback: () => void) => () => void;
+      onChatGPTStatusChanged?: (
+        callback: (status: { signedIn: boolean; email: string; expired?: boolean }) => void
+      ) => () => void;
       chatgptSocketWarmup?: () => Promise<{ success: boolean; error?: string }>;
       chatgptSocketPrefill?: (
         text: string,

@@ -19,9 +19,7 @@ export default function ChatGPTSignIn({
   useEffect(() => {
     window.electronAPI.chatgptStatus().then(setStatus);
     // The sign-in can stop working while Settings is open.
-    return window.electronAPI.onChatGPTSignInExpired?.(() =>
-      window.electronAPI.chatgptStatus().then(setStatus)
-    );
+    return window.electronAPI.onChatGPTStatusChanged?.(setStatus);
   }, []);
 
   useEffect(() => {

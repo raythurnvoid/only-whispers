@@ -190,7 +190,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   chatgptSignOut: () => ipcRenderer.invoke("chatgpt-sign-out"),
   chatgptStatus: () => ipcRenderer.invoke("chatgpt-status"),
   getChatGPTAccessToken: () => ipcRenderer.invoke("chatgpt-access-token"),
-  onChatGPTSignInExpired: registerListener("chatgpt-sign-in-expired", (cb) => () => cb()),
+  onChatGPTStatusChanged: registerListener(
+    "chatgpt-status-changed",
+    (callback) => (_event, status) => callback(status)
+  ),
   chatgptSocketWarmup: () => ipcRenderer.invoke("chatgpt-socket-warmup"),
   chatgptSocketPrefill: (text, options) =>
     ipcRenderer.invoke("chatgpt-socket-prefill", text, options),

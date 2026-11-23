@@ -25,11 +25,17 @@ const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
 // `expired` marks a sign-in OpenAI refused to renew: the user must sign in again.
 let saved;
 let refreshing = null;
-const expiredListeners = new Set();
+const statusListeners = new Set();
 
-function onSignInExpired(listener) {
-  expiredListeners.add(listener);
-  return () => expiredListeners.delete(listener);
+// Called with the new status after a sign-in, a sign-out, or a sign-in OpenAI ended.
+function onStatusChange(listener) {
+  statusListeners.add(listener);
+  return () => statusListeners.delete(listener);
+}
+
+async function notifyStatus() {
+  const current = await status();
+  for (const listener of statusListeners) listener(current);
 }
 
 function authFile() {
@@ -73,6 +79,7 @@ async function signOut() {
   const current = await load();
   // Keep the registered client and host IDs so the next sign-in reuses them.
   if (current) await save({ clientID: current.clientID, hostID: current.hostID });
+  await notifyStatus();
   return { signedIn: false };
 }
 
@@ -118,6 +125,7 @@ async function signIn() {
         .writeHead(200, { "Content-Type": "text/html" })
         .end(page("You are signed in. You can close this tab."));
       debugLogger.info("ChatGPT sign-in done", { clientID }, "chatgpt");
+      await notifyStatus();
       return status();
     } catch (error) {
       response.writeHead(400, { "Content-Type": "text/html" }).end(page(error.message));
@@ -159,7 +167,7 @@ async function getAccessToken() {
         email: current.email,
         expired: true,
       });
-      for (const listener of expiredListeners) listener();
+      await notifyStatus();
     }
     return "";
   }
@@ -273,4 +281,4 @@ function page(message) {
   return `<!doctype html><meta charset="utf-8"><title>only-whispers</title><p style="font-family:sans-serif">${text}</p>`;
 }
 
-module.exports = { signIn, signOut, status, getAccessToken, onSignInExpired };
+module.exports = { signIn, signOut, status, getAccessToken, onStatusChange };
