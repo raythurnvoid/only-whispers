@@ -21,22 +21,37 @@ const AGENT_NAME = "only-whispers";
 const REGISTRATION_PORT = 1455;
 const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
 
-// { clientID, hostID, access?, refresh?, expires?, email? }; null once read and absent.
+// { clientID, hostID, access?, refresh?, expires?, email?, expired? }; null once read and absent.
+// `expired` marks a sign-in OpenAI refused to renew: the user must sign in again.
 let saved;
 let refreshing = null;
+const expiredListeners = new Set();
+
+function onSignInExpired(listener) {
+  expiredListeners.add(listener);
+  return () => expiredListeners.delete(listener);
+}
 
 function authFile() {
   return path.join(app.getPath("userData"), "secure-keys", "CHATGPT_AUTH.enc");
 }
 
+let loading = null;
+
 async function load() {
   if (saved !== undefined) return saved;
-  try {
-    saved = JSON.parse(secretCrypto.decrypt(await fs.readFile(authFile())).value);
-  } catch {
-    saved = null;
-  }
-  return saved;
+  // One read for all callers. Parallel first reads would each get their own copy,
+  // and two refreshes could then send the same one-use refresh token.
+  loading ??= fs
+    .readFile(authFile())
+    .then((data) => JSON.parse(secretCrypto.decrypt(data).value))
+    .catch(() => null)
+    .then((value) => {
+      // A sign-in that saved while the file was read wins.
+      if (saved === undefined) saved = value;
+      return saved;
+    });
+  return loading;
 }
 
 async function save(value) {
@@ -47,7 +62,11 @@ async function save(value) {
 
 async function status() {
   const current = await load();
-  return { signedIn: !!current?.refresh, email: current?.email || "" };
+  return {
+    signedIn: !!current?.refresh,
+    email: current?.email || "",
+    expired: !!current?.expired,
+  };
 }
 
 async function signOut() {
@@ -130,6 +149,18 @@ async function getAccessToken() {
     return saved.access;
   } catch (error) {
     debugLogger.warn("ChatGPT token refresh failed", { error: error.message }, "chatgpt");
+    // 400/401: OpenAI refused the refresh token (revoked or expired), so every later
+    // try fails too. Drop the tokens and tell the windows. Other failures (offline,
+    // 5xx) keep them for the next try.
+    if ((error.status === 400 || error.status === 401) && saved === current) {
+      await save({
+        clientID: current.clientID,
+        hostID: current.hostID,
+        email: current.email,
+        expired: true,
+      });
+      for (const listener of expiredListeners) listener();
+    }
     return "";
   }
 }
@@ -190,7 +221,16 @@ async function tokenRequest(body) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams(body).toString(),
   });
-  if (!response.ok) throw new Error(`ChatGPT token request failed: ${response.status}`);
+  if (!response.ok) {
+    // OAuth errors carry a code and a reason (for example "invalid_grant"), never a token.
+    const body = await response.json().catch(() => null);
+    const reason = [body?.error, body?.error_description].filter(Boolean).join(": ");
+    const error = new Error(
+      `ChatGPT token request failed: ${response.status}${reason ? ` (${reason})` : ""}`
+    );
+    error.status = response.status;
+    throw error;
+  }
   return response.json();
 }
 
@@ -233,4 +273,4 @@ function page(message) {
   return `<!doctype html><meta charset="utf-8"><title>only-whispers</title><p style="font-family:sans-serif">${text}</p>`;
 }
 
-module.exports = { signIn, signOut, status, getAccessToken };
+module.exports = { signIn, signOut, status, getAccessToken, onSignInExpired };

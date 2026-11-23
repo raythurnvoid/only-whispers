@@ -44,7 +44,6 @@ async function mountWithErrorCard(t) {
     requestMainWindowSize: async () => ({ success: true }),
     dictationErrorActionCount: 1,
     toastCount: 0,
-    isCommandMenuOpen: false,
     isCompactPill: false,
     isDictationActive: false,
     assistantOpen: false,

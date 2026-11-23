@@ -3,19 +3,59 @@
  * the edited field value. Returns corrected words to add to the custom dictionary.
  */
 
-// Swapping one everyday word for another ("why" -> "what") is a content edit,
-// not vocabulary; learning it would only pad the cleanup prompt. Words under
-// three letters are already dropped, so none are listed here.
-const COMMON_WORDS = new Set(
-  `the and for not with you this but his from they say her she will one all would
-  there their what out about who get which when make can like time just him know
-  take into year your good some could them see other than then now look only come
-  over think also back after use two how our work first well way even new want
-  because any these give day most are was were been has had did does said went
-  made got came took saw knew thought where why here very much many still too again
-  off down never every own same another both each few more less last next while
-  before through under between should might must being have that its yes okay`.split(/\s+/)
-);
+const fs = require("fs");
+const path = require("path");
+const nspell = require("nspell");
+
+// Only unknown words (product and company names, team jargon) belong in the
+// dictionary. A fix to a known word ("except" -> "accept", a common name) is
+// a mishearing the cleanup model already handles, and learning it only pads
+// the prompt. Hunspell en_US knows everyday words with their endings, plus
+// days, places, brands and many names; the name lists add people's first
+// names and surnames.
+let isKnownWord = null;
+
+function getKnownWordCheck() {
+  if (isKnownWord) return isKnownWord;
+  // dictionary-en is an ES module with top-level await, so read its files directly.
+  const dictionaryDir = path.dirname(require.resolve("dictionary-en"));
+  const spell = nspell(
+    fs.readFileSync(path.join(dictionaryDir, "index.aff")),
+    fs.readFileSync(path.join(dictionaryDir, "index.dic"))
+  );
+  const names = new Set();
+  // First names in six languages. Each file exports a Map of lowercase name -> gender.
+  for (const language of ["en", "it", "fr", "de", "es", "tr"]) {
+    for (const name of require(`gender-detection-from-name/names/${language}`).keys()) {
+      names.add(name);
+    }
+  }
+  // cspell's list of first names and surnames, one per line. "#" lines are comments.
+  // The package exports only its config file, so find the list next to it.
+  const peopleNamesDir = path.dirname(require.resolve("@cspell/dict-people-names"));
+  const peopleNames = fs.readFileSync(path.join(peopleNamesDir, "dict/people-names.txt"), "utf8");
+  for (const line of peopleNames.split(/\r?\n/)) {
+    if (line && !line.startsWith("#")) names.add(line.toLowerCase());
+  }
+  // Common surnames by country (Italy, Germany, Spain and more), one JSON list per country.
+  const surnamesDir = path.join(
+    path.dirname(require.resolve("common-surnames/package.json")),
+    "surnames"
+  );
+  for (const file of fs.readdirSync(surnamesDir)) {
+    for (const name of require(path.join(surnamesDir, file))) names.add(name.toLowerCase());
+  }
+  isKnownWord = (word) => {
+    const lower = word.toLowerCase();
+    // Hunspell rejects a proper noun typed in lowercase ("monday"), so also try it capitalized.
+    return (
+      names.has(lower) ||
+      spell.correct(word) ||
+      spell.correct(lower[0].toUpperCase() + lower.slice(1))
+    );
+  };
+  return isKnownWord;
+}
 
 /** Levenshtein edit distance between two strings */
 function editDistance(a, b) {
@@ -176,13 +216,14 @@ function extractCorrections(originalText, fieldValue, existingDictionary) {
     if (seenCorrections.has(normalizedCorrected)) continue;
     if (origWord.toLowerCase() === normalizedCorrected) continue;
     if (correctedWord.length < 3) continue;
-    if (COMMON_WORDS.has(normalizedCorrected)) continue;
 
     // 0.65 threshold allows phonetic corrections like "Shunade" → "Sinead" (dist 4/7 = 0.57)
     // while filtering out unrelated word replacements.
     const dist = editDistance(origWord.toLowerCase(), correctedWord.toLowerCase());
     const maxLen = Math.max(origWord.length, correctedWord.length);
     if (dist / maxLen > 0.65) continue;
+    // Checked last, so the dictionary loads only when a word gets this far.
+    if (getKnownWordCheck()(correctedWord)) continue;
 
     results.push(correctedWord);
     seenCorrections.add(normalizedCorrected);

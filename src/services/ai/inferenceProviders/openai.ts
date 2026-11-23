@@ -10,7 +10,14 @@ export const openaiProvider: InferenceProvider = {
     const planToken =
       typeof window !== "undefined" ? await window.electronAPI?.getChatGPTAccessToken?.() : "";
     if (!planToken) {
-      throw providerError(PROVIDER_ERROR_CODES.KEY_MISSING, { provider: "OpenAI", surface: "llm" });
+      // There is no API key here, only the ChatGPT sign-in, so say that.
+      throw Object.assign(
+        providerError(PROVIDER_ERROR_CODES.KEY_MISSING, { provider: "OpenAI", surface: "llm" }),
+        {
+          message: "Not signed in with ChatGPT. Sign in again in Settings → AI Models.",
+          messageKey: "providerErrors.chatgptSignedOut",
+        }
+      );
     }
     return callChatGPTPlan({ text, model, agentName, config, ctx }, planToken);
   },

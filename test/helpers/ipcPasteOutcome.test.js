@@ -329,7 +329,7 @@ test("dictionary Undo and manual removal last for the current paste", async (t) 
   target._retentionSettingsSynced = true;
   target._retentionSettings = { dataRetentionEnabled: true };
   const sender = { sender: webContents };
-  const originalText = "Meet Shunade about Parakit after lunch";
+  const originalText = "Meet Supabass about Voxtrel after lunch";
   const startPaste = async () => {
     await handlers.get("paste-text")(sender, originalText);
     t.mock.timers.tick(500);
@@ -339,17 +339,21 @@ test("dictionary Undo and manual removal last for the current paste", async (t) 
     t.mock.timers.tick(1500);
   };
   await startPaste();
-  edit("Meet Sinead about Parakit after lunch");
+  edit("Meet Supabase about Voxtrel after lunch");
   const first = offers[0];
-  assert.deepEqual(first.words, ["Sinead"]);
+  assert.deepEqual(first.words, ["Supabase"]);
   await handlers.get("undo-learned-corrections")(sender, first.words, first.pasteId);
-  edit("Meet Sinead about Parakeet after lunch");
-  assert.equal(words.has("Sinead"), false, "an undone word must stay removed after the next edit");
-  assert.deepEqual(offers[1].words, ["Parakeet"]);
-  listeners.get("dictionary-toast-ended")(sender, first.pasteId, ["Parakeet"], "closed");
-  assert.ok(words.has("Parakeet"), "closing the notice keeps the word");
-  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Parakeet"] });
-  edit("Meet Sinead about Parakeet after lunch tomorrow");
+  edit("Meet Supabase about Voxtral after lunch");
+  assert.equal(
+    words.has("Supabase"),
+    false,
+    "an undone word must stay removed after the next edit"
+  );
+  assert.deepEqual(offers[1].words, ["Voxtral"]);
+  listeners.get("dictionary-toast-ended")(sender, first.pasteId, ["Voxtral"], "closed");
+  assert.ok(words.has("Voxtral"), "closing the notice keeps the word");
+  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Voxtral"] });
+  edit("Meet Supabase about Voxtral after lunch tomorrow");
   assert.deepEqual([...words], []);
   assert.equal(offers.length, 2);
   const event = (name) => dictionaryEvents.find((entry) => entry.event === name);
@@ -361,17 +365,17 @@ test("dictionary Undo and manual removal last for the current paste", async (t) 
     dictionaryEvents.filter((entry) => entry.event === "edit-checked").at(-1).editNumber,
     3
   );
-  assert.doesNotMatch(JSON.stringify(dictionaryEvents), /Sinead|Shunade|Parakeet|lunch/i);
+  assert.doesNotMatch(JSON.stringify(dictionaryEvents), /Supabase|Supabass|Voxtral|lunch/i);
 
   // A new paste may contain a genuine correction of the same word.
   monitor.emit("text-edited", {
     originalText,
-    newFieldValue: "Meet Shuna about Parakit after lunch",
+    newFieldValue: "Meet Supa about Voxtrel after lunch",
   });
   await startPaste();
   t.mock.timers.tick(1500);
   assert.equal(offers.length, 2, "pending edits must stay with their original paste");
-  edit("Meet Sinead about Parakit after lunch");
+  edit("Meet Supabase about Voxtrel after lunch");
   const latest = offers.at(-1);
   assert.notEqual(latest.pasteId, first.pasteId);
   assert.deepEqual(latest.words, first.words);
@@ -379,12 +383,12 @@ test("dictionary Undo and manual removal last for the current paste", async (t) 
   assert.ok(event("toast-timed-out"));
   const logLength = dictionaryEvents.length;
   target._retentionSettings.dataRetentionEnabled = false;
-  edit("Meet Sinead about Parakeet after lunch");
-  assert.ok(words.has("Parakeet"));
+  edit("Meet Supabase about Voxtral after lunch");
+  assert.ok(words.has("Voxtral"));
   assert.equal(dictionaryEvents.length, logLength, "history off stops the diagnostics");
   await handlers.get("paste-text")(sender, originalText);
-  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Sinead"] });
+  await handlers.get("db-apply-dictionary-changes")(sender, { remove: ["Supabase"] });
   t.mock.timers.tick(500);
-  edit("Meet Sinead about Parakit after lunch");
-  assert.equal(words.has("Sinead"), false, "a removal while the monitor starts must stick");
+  edit("Meet Supabase about Voxtrel after lunch");
+  assert.equal(words.has("Supabase"), false, "a removal while the monitor starts must stick");
 });

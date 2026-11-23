@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "更新已準備就緒",
+      "readyTitleVersion": "版本 {{version}} 已準備好安裝",
       "readyDescription": "點擊「安裝更新」以重新啟動並套用最新版本。",
       "installButton": "安裝更新"
     },
@@ -263,7 +264,8 @@
       "signIn": "使用 ChatGPT 登入",
       "signingIn": "請在瀏覽器中完成登入...",
       "signOut": "登出",
-      "signedInAs": "已登入為 {{email}}"
+      "signedInAs": "已登入為 {{email}}",
+      "expired": "你的 ChatGPT 登入已失效。請重新登入以恢復清理功能。"
     }
   },
   "hooks": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "字典",
       "autoLearnTitle": "從校正中自動學習",
-      "autoLearnDescription": "當你在應用程式中修改貼上的字詞時，Only Whispers 會把修改後的字詞新增到你的字典。"
+      "autoLearnDescription": "當你在應用程式中修改貼上的字詞時，Only Whispers 會把修改後的字詞新增到你的字典。常見英文單字和人名會被略過。"
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "清理失敗",
         "description": "你的聽寫已直接貼上，未經 AI 清理。"
+      },
+      "chatgptSignInExpired": {
+        "title": "ChatGPT 登入已失效",
+        "description": "清理功能已關閉，聽寫內容會照原樣貼上。請在「設定 → AI 模型」中重新登入。"
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "取消處理"
     },
     "commandMenu": {
-      "stopListening": "停止錄音",
-      "startListening": "開始錄音",
-      "hideForNow": "暫時隱藏",
-      "askAssistant": "詢問助理",
       "busyRecording": "請先結束目前的錄音"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "未能收到 {{provider}} 的回應。請檢查你的 API 金鑰和網路連線。",
     "unknown": "{{provider}} 回傳了意外的錯誤。",
     "keyMissing": "尚未為 {{provider}} 設定 API 金鑰。請在「設定 → AI 模型」中新增。",
+    "chatgptSignedOut": "未登入 ChatGPT。請在「設定 → AI 模型」中重新登入。",
     "selfHosted": {
       "authFailed": "你的伺服器拒絕了 API 金鑰。",
       "accessDenied": "你的伺服器拒絕存取。該金鑰可能不包含此模型。",

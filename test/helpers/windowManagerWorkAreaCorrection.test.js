@@ -103,7 +103,6 @@ Module._load = function loadWithStubs(request, parent, isMain) {
   return originalLoad.call(this, request, parent, isMain);
 };
 const WindowManager = require("../../src/helpers/windowManager");
-const DragManager = require("../../src/helpers/dragManager");
 const { WindowPositionUtil } = require("../../src/helpers/windowConfig");
 Module._load = originalLoad;
 
@@ -184,32 +183,4 @@ test("work areas that arrive after placement re-anchor an auto-placed pill", asy
   assert.deepEqual(window.bounds, anchoredOn(PLASMA_WORK_AREAS[35]));
   await manager._reanchorMainWindow();
   assert.equal(window.setBoundsCalls, 1, "a pill already at its anchor isn't moved again");
-});
-
-test("a pill the user dragged keeps its spot when work areas change", async () => {
-  plasmaAnswered = true;
-  const dragged = { x: 2400, y: 500, ...PILL };
-  const { manager, window } = makeManager(dragged);
-  manager._mainWindowPlacementCoordinator.markManuallyPositioned();
-
-  await manager._reanchorMainWindow();
-
-  assert.deepEqual(window.bounds, dragged);
-  assert.equal(window.setBoundsCalls, 0);
-});
-
-test("dragging stops at the monitor's own panel, not at the root work area", () => {
-  plasmaAnswered = true;
-  const drag = new DragManager();
-  const positions = [];
-  drag.activeWindow = {
-    getBounds: () => anchoredOn(PLASMA_WORK_AREAS[35]),
-    setPosition: (x, y) => positions.push({ x, y }),
-  };
-  drag.dragOffset = { x: 100, y: 60 };
-  cursor = { x: 4050, y: 1260 };
-
-  drag.updateWindowPosition();
-
-  assert.deepEqual(positions, [{ x: 3950, y: 1223 - PILL.height }]);
 });

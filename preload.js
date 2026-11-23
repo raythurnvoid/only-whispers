@@ -190,6 +190,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   chatgptSignOut: () => ipcRenderer.invoke("chatgpt-sign-out"),
   chatgptStatus: () => ipcRenderer.invoke("chatgpt-status"),
   getChatGPTAccessToken: () => ipcRenderer.invoke("chatgpt-access-token"),
+  onChatGPTSignInExpired: registerListener("chatgpt-sign-in-expired", (cb) => () => cb()),
   chatgptSocketWarmup: () => ipcRenderer.invoke("chatgpt-socket-warmup"),
   chatgptSocketPrefill: (text, options) =>
     ipcRenderer.invoke("chatgpt-socket-prefill", text, options),
@@ -219,8 +220,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setHotkeyListeningMode: (enabled) => ipcRenderer.invoke("set-hotkey-listening-mode", enabled),
   getHotkeyModeInfo: (hotkey) => ipcRenderer.invoke("get-hotkey-mode-info", hotkey),
   getHyprlandConfigStatus: () => ipcRenderer.invoke("get-hyprland-config-status"),
-  startWindowDrag: () => ipcRenderer.invoke("start-window-drag"),
-  stopWindowDrag: () => ipcRenderer.invoke("stop-window-drag"),
   startControlPanelDrag: () => ipcRenderer.invoke("start-control-panel-drag"),
   stopControlPanelDrag: () => ipcRenderer.invoke("stop-control-panel-drag"),
   getMainWindowHorizontalDirection: () =>

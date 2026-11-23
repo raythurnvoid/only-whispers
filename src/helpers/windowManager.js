@@ -29,7 +29,6 @@ const {
   shouldBlockDictationWhilePanelOpen,
 } = require("./dictationLifecycle");
 const { DEV_SERVER_PORT } = DevServerManager;
-const DRAG_MOVE_TOLERANCE_PX = 2;
 // Too short to say anything, so a press this short is a tap, not a dictation.
 const DOUBLE_TAP_MAX_PRESS_MS = 250;
 const DOUBLE_TAP_WINDOW_MS = 350;
@@ -153,7 +152,6 @@ class WindowManager {
 
     await this.loadMainWindow();
     await this.initializeHotkey();
-    this.dragManager.setTargetWindow(this.mainWindow);
     MenuManager.setupMainMenu(() => this.openSettings());
   }
 
@@ -482,10 +480,11 @@ class WindowManager {
       request
     );
 
-    // A window moved since the last resize (dragged) means the captured BASE
-    // bounds no longer describe where the user wants the pill — drop them.
-    // Tolerate a couple of pixels: fractional DPI scaling can round setBounds
-    // values, and treating that as a drag would defeat the restore forever.
+    // A window moved since the last resize (a new start position, or the OS
+    // moved it) means the captured BASE bounds no longer describe where the
+    // pill belongs — drop them. Tolerate a couple of pixels: fractional DPI
+    // scaling can round setBounds values, and treating that as a move would
+    // defeat the restore forever.
     const MOVE_TOLERANCE_PX = 2;
     if (
       this._lastResizeBounds &&
@@ -1258,7 +1257,7 @@ class WindowManager {
 
   setPanelStartPosition(position) {
     this._panelStartPosition = position || "bottom-right";
-    this._mainWindowPlacementCoordinator.resetManualPosition();
+    this._mainWindowPlacementCoordinator.cancelPending();
     this._activeHorizontalDirection = null;
     // Reposition the window immediately
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
@@ -1309,8 +1308,7 @@ class WindowManager {
 
   // The control panel is transparent on macOS, where Electron ignores
   // `-webkit-app-region: drag` entirely — the renderer recreates its titlebar
-  // drag through the shared DragManager instead (useControlPanelWindowDrag).
-  // No pill bookkeeping: position ownership below is main-window-only.
+  // drag through the DragManager instead (useControlPanelWindowDrag).
   async startControlPanelDrag() {
     if (!this.controlPanelWindow || this.controlPanelWindow.isDestroyed()) {
       return { success: false, message: "Window not available" };
@@ -1320,38 +1318,6 @@ class WindowManager {
 
   async stopControlPanelDrag() {
     return await this.dragManager.stopWindowDrag();
-  }
-
-  async startWindowDrag() {
-    // A lookup started by a prior hotkey must never land while the user is
-    // taking ownership of the panel position.
-    this._mainWindowPlacementCoordinator.cancelPending();
-    this._dragStartBounds =
-      this.mainWindow && !this.mainWindow.isDestroyed() ? this.mainWindow.getBounds() : null;
-    return await this.dragManager.startWindowDrag();
-  }
-
-  async stopWindowDrag() {
-    const result = await this.dragManager.stopWindowDrag();
-    if (result.success && this.mainWindow && !this.mainWindow.isDestroyed()) {
-      const draggedBounds = this.mainWindow.getBounds();
-      const start = this._dragStartBounds;
-      // Every pill click goes through start/stopWindowDrag; only an actual
-      // move hands position ownership to the user.
-      const moved =
-        !start ||
-        Math.abs(draggedBounds.x - start.x) > DRAG_MOVE_TOLERANCE_PX ||
-        Math.abs(draggedBounds.y - start.y) > DRAG_MOVE_TOLERANCE_PX;
-      if (moved) {
-        this._mainWindowPlacementCoordinator.markManuallyPositioned();
-        this._baseBoundsBeforeResize = null;
-        this._lastResizeBounds = { ...draggedBounds };
-      }
-    }
-    this._dragStartBounds = null;
-    this._activeHorizontalDirection = null;
-    this._notifyMainWindowHorizontalDirection();
-    return result;
   }
 
   openExternalUrl(url, showError = true) {
@@ -1587,12 +1553,7 @@ class WindowManager {
   }
 
   _performActiveDisplayReposition(activeDisplay, isCurrent) {
-    if (
-      !isCurrent() ||
-      this.dragManager.isDragActive() ||
-      !this.mainWindow ||
-      this.mainWindow.isDestroyed()
-    ) {
+    if (!isCurrent() || !this.mainWindow || this.mainWindow.isDestroyed()) {
       return { applied: false, reason: "superseded" };
     }
 
@@ -1601,9 +1562,8 @@ class WindowManager {
 
     if (currentDisplay.id === activeDisplay.id) {
       // Nearest-display math can't tell "on this display" from "just past its
-      // edge", so a rearranged monitor or a drag that ended over another
-      // display can leave the panel stranded in dead space, looking like the
-      // overlay vanished. Pull it back before showing it.
+      // edge", so a rearranged monitor can leave the panel stranded in dead
+      // space, looking like the overlay vanished. Pull it back before showing it.
       const clamped = WindowPositionUtil.clampToWorkArea(currentBounds, currentDisplay);
       if (clamped.x !== currentBounds.x || clamped.y !== currentBounds.y) {
         const clampedBounds = { ...currentBounds, ...clamped };
@@ -1632,8 +1592,8 @@ class WindowManager {
   _moveMainWindowTo(newPos) {
     this._clearRendererResizeMask();
     this.mainWindow.setBounds(newPos);
-    // This is an intentional native move, not a drag. Keep resize restoration
-    // from treating the old display's bounds as the user's desired base state.
+    // An intentional native move. Keep resize restoration from treating the
+    // old display's bounds as the pill's base state.
     this._lastResizeBounds = { ...newPos };
     this._baseBoundsBeforeResize = null;
     this._activeHorizontalDirection = null;
@@ -1642,18 +1602,11 @@ class WindowManager {
   }
 
   // Corrected work areas can arrive after the pill was placed: plasmashell
-  // answers after startup, or a panel changed. An auto-placed pill moves to its
-  // display's anchor; one the user dragged stays where they put it.
+  // answers after startup, or a panel changed. The pill moves to its
+  // display's anchor.
   _reanchorMainWindow() {
     return this._enqueueMainWindowMutation(() => {
-      if (
-        !this.mainWindow ||
-        this.mainWindow.isDestroyed() ||
-        this.dragManager.isDragActive() ||
-        this._mainWindowPlacementCoordinator.hasManualPosition()
-      ) {
-        return;
-      }
+      if (!this.mainWindow || this.mainWindow.isDestroyed()) return;
       const currentBounds = this.mainWindow.getBounds();
       const newPos = WindowPositionUtil.getMainWindowPosition(
         this._getMainWindowDisplayFor(currentBounds),

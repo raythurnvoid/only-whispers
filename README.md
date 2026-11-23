@@ -32,7 +32,7 @@ For long local dictations, Parakeet transcribes on your computer while you speak
 The app updates itself. When a release changes the local model, the app downloads the new version.
 For live transcription, you can add a paid Mistral API key in Settings. If Mistral reaches its limit, the app uses Parakeet.
 
-The local model is [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Only Whispers downloads the [8-bit sherpa-onnx conversion](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8).
+The local model is [NVIDIA Parakeet TDT 0.6B v2](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2) (English only), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Only Whispers downloads the [8-bit sherpa-onnx conversion](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8).
 
 **macOS** (preview, Apple Silicon only): open the `.dmg` and drag the app to Applications. The app is not checked by Apple, so macOS blocks the first open: go to System Settings → Privacy & Security and click **Open Anyway**. You do this once; updates open normally.
 

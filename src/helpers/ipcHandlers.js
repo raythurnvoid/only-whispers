@@ -550,6 +550,7 @@ class IPCHandlers {
     ipcMain.handle("chatgpt-sign-out", () => chatgptAuth.signOut());
     ipcMain.handle("chatgpt-status", () => chatgptAuth.status());
     ipcMain.handle("chatgpt-access-token", () => chatgptAuth.getAccessToken());
+    chatgptAuth.onSignInExpired(() => broadcastToWindows("chatgpt-sign-in-expired"));
     ipcMain.handle("chatgpt-socket-warmup", () => chatgptResponsesSocket.warmup());
     ipcMain.handle("chatgpt-socket-prefill", (_event, text, options) =>
       chatgptResponsesSocket.prefillTranscript(text, options)
@@ -1310,14 +1311,6 @@ class IPCHandlers {
     ipcMain.handle("unregister-cancel-hotkey", async () => {
       this.windowManager.hotkeyManager.unregisterSlot("cancel");
       return { success: true };
-    });
-
-    ipcMain.handle("start-window-drag", async (event) => {
-      return await this.windowManager.startWindowDrag();
-    });
-
-    ipcMain.handle("stop-window-drag", async (event) => {
-      return await this.windowManager.stopWindowDrag();
     });
 
     ipcMain.handle("start-control-panel-drag", async () => {

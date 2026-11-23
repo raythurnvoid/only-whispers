@@ -18,7 +18,6 @@ import {
   resolveVoiceActivityPresentation,
   resolveVoicePillDock,
   resolveVoicePillInteraction,
-  shouldOfferLiveTranscriptReopen,
 } from "../../helpers/voicePillPresentation";
 import { LiveTranscriptPanel, type LiveTranscriptPhase } from "./LiveTranscriptPanel";
 import { VoiceModePanelCore, type VoiceModePanelStage } from "./VoiceModePanelCore";
@@ -94,7 +93,6 @@ export default function AgentDictationPillOverlay() {
     assistantOpenRef,
     onWillOpen: undefined,
     isRecording,
-    isProcessing,
     isAssistantVoice: false,
   });
   const { close: closeLiveTranscript, mounted: liveTranscriptMounted } = liveTranscript;
@@ -145,12 +143,6 @@ export default function AgentDictationPillOverlay() {
   const liveTranscriptEntrance = resolveLiveTranscriptEntrancePresentation(
     liveTranscript.entrancePhase
   );
-  const canReopenLiveTranscript = shouldOfferLiveTranscriptReopen({
-    manuallyCollapsed: liveTranscript.manuallyCollapsed,
-    isRecording,
-    isProcessing,
-    isAssistantVoice: false,
-  });
   const horizontalDirection = companionState.horizontalDirection;
   const voicePillDock = resolveVoicePillDock({
     liveTranscriptOpen: liveTranscript.open,
@@ -184,23 +176,16 @@ export default function AgentDictationPillOverlay() {
     mainProcessInteractive: companionState.interactive,
     surfaceInteractive,
     isProcessing,
-    canReopenLiveTranscript,
   });
   const label = isRecording
     ? t("app.mic.recording")
     : isProcessing || isPreparing
       ? t("app.mic.processing")
-      : canReopenLiveTranscript
-        ? t("transcriptionPreview.label")
-        : t("app.mic.clickToSpeak");
+      : t("app.mic.clickToSpeak");
   const getAudioLevel = useCallback(() => audioLevelRef.current, []);
 
   const activatePill = () => {
     if (!pillInteractive) return;
-    if (canReopenLiveTranscript) {
-      liveTranscript.reopen();
-      return;
-    }
     void window.electronAPI.toggleAgentPanelDictation?.();
   };
 
@@ -226,7 +211,6 @@ export default function AgentDictationPillOverlay() {
           waveformVisible={listeningEntrance.waveformVisible}
           waveformOnlyWhileRecording={liveTranscript.mounted}
           integratedWithPanel={liveTranscript.open}
-          showExpandChevron={canReopenLiveTranscript && hovered}
           getAudioLevel={getAudioLevel}
           horizontalDirection={horizontalDirection}
           role={pillInteractive ? "button" : "status"}

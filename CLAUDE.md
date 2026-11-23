@@ -48,7 +48,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 ### Key Architectural Decisions
 
 1. **Dual Window Architecture**:
-   - Main Window: Minimal overlay for dictation (draggable, always on top)
+   - Main Window: Minimal overlay for dictation (always on top)
    - Control Panel: Full settings interface (normal window)
    - Both use same React codebase with URL-based routing
 
@@ -108,7 +108,7 @@ These features are still in the code, but their UI is hidden in this release. Th
   - `app.dock.show()`/`hide()` run only when the requested state differs from `app.dock.isVisible()`, so reopening an already open panel never triggers that Dock hand-off
   - Never derive that state from the window's `show`/`hide` events: on macOS those are occlusion events, so they also fire when the panel is merely covered by another window, minimized, or on another Space, and the icon flickers as the user switches windows
   - Decision logic lives in `dockPolicy.js` (pure)
-- **dragManager.js**: Window dragging functionality
+- **dragManager.js**: Moves the control panel by its titlebar on macOS (`useControlPanelWindowDrag`), where Electron ignores `-webkit-app-region: drag` on the transparent window. The dictation pill can't be dragged
 - **environment.js**: Environment variable and OpenAI API management
 - **hotkeyManager.js**: Global hotkey registration and management
   - Named hotkey slots: `dictation`, `pasteLast` (paste the newest transcript; `PASTE_LAST_KEY`, GNOME/Hyprland D-Bus method `PasteLast`) and `voiceAgent` (voice assistant, hidden: not registered at startup)
@@ -164,7 +164,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **toneAppCategories.js**: Tone & Style's app classifier (hidden feature) (pure, `test/helpers/toneAppCategories.test.js`): an app identity, window title and page host map to `personal`, `work`, `email` or `other` (see Tone & Style)
 - **tray.js**: System tray icon and menu (Show Control Panel, Quit). Windows uses the Night icon (`src/assets/icon-night.ico`) for the tray and the app
 - **windowConfig.js**: Centralized window configuration
-- **plasmaWorkAreas.js**: Per-monitor work areas on KDE Plasma. On X11 and XWayland, Chromium clips only the primary display with the single root `_NET_WORKAREA`, which KWin builds from every monitor's panels at once (#1110). This asks plasmashell over D-Bus (`evaluateScript`) for each screen's always-visible panels and rebuilds each display's `workArea` for the dictation pill, its companion windows and dragging. On X11, Qt reports a screen's origin in device pixels and only its size scaled, so those origins are divided by the display scale before matching. It refreshes on display events and each time a dictation shows the pill, retrying after 1, 5 and 15 s when plasmashell isn't ready; a display event starts those retries over. An auto-placed pill re-anchors when the result changes; a dragged one stays put. With a single display, or outside Linux + KDE, Chromium's work area is used as is
+- **plasmaWorkAreas.js**: Per-monitor work areas on KDE Plasma. On X11 and XWayland, Chromium clips only the primary display with the single root `_NET_WORKAREA`, which KWin builds from every monitor's panels at once (#1110). This asks plasmashell over D-Bus (`evaluateScript`) for each screen's always-visible panels and rebuilds each display's `workArea` for the dictation pill and its companion windows. On X11, Qt reports a screen's origin in device pixels and only its size scaled, so those origins are divided by the display scale before matching. It refreshes on display events and each time a dictation shows the pill, retrying after 1, 5 and 15 s when plasmashell isn't ready; a display event starts those retries over. The pill re-anchors when the result changes. With a single display, or outside Linux + KDE, Chromium's work area is used as is
 - **windowManager.js**: Window creation and lifecycle management
 - **connectors/emailCompose.js**: Builds Gmail, Outlook and mailto compose links (shared ESM, used by the email draft target; hidden feature)
 - **permissionGuideManager.js**: macOS permission overlay (hidden feature) — a frameless always-on-top window anchored to the bottom of the System Settings window (placement in `permissionGuidePlacement.js`, pure), polled one read at a time via `settingsWindowState.js` (exec of `macos-window-bounds`). Steps aside for authorization prompts, other apps and a dialog on another Space; closes when the dialog closes; never subscribes to the control panel's `hide` (occlusion fires it), so `hideControlPanelToTray()` closes it explicitly
@@ -185,7 +185,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 - **useAudioRecording.js**: MediaRecorder API wrapper with error handling
 - **useAssistantPanel.js**: Assistant panel lifecycle (hidden feature) (open/close choreography, thinking flourish, footer phases, pending voice commands, conversation session boundaries)
 - **useLiveTranscriptPanel.js**: Live transcript panel lifecycle (entrance choreography, buffered text scheduler, measure-then-reveal resize pipeline, preview IPC wiring)
-- **useMainWindowSizeOwner.js**: Single owner of the main window size ladder (panel > menu > toast > pill > base) and the dictation-error pill handoff
+- **useMainWindowSizeOwner.js**: Single owner of the main window size ladder (panel > toast > pill > base) and the dictation-error pill handoff
 - **useWindowResizeCompensation.js**: Masks split native setBounds frames via CSS-variable counter-translation
 - **useMainProcessNotifications.tsx**: Main-process notifications (hotkey fallback, hotkey failure, learned corrections) as toasts
 - **useClipboard.ts**: Clipboard operations hook
@@ -208,7 +208,7 @@ These features are still in the code, but their UI is hidden in this release. Th
 
 ### Speech-to-text
 
-- Setup downloads one revision of Parakeet. The files and SHA-256 checksums are pinned in `localModel.js`. After setup, the dictation window checks the revision at startup. Settings shows progress and lets the user retry.
+- Setup downloads one revision of Parakeet TDT 0.6B v2, which is English only (v3 guessed the language and sometimes wrote English as German). The files and SHA-256 checksums are pinned in `localModel.js`. After setup, the dictation window checks the revision at startup. Settings shows progress and lets the user retry.
 - Without a Mistral key, dictation, history retry and file transcription run locally. For local dictation, Parakeet starts loading when the mic opens and stays warm between recordings.
 - A saved Mistral key enables live transcription. Settings → AI Models → "Use Mistral Voxtral 3" (`mistralEnabled`, default on) turns it off without deleting the key: then dictation, retry and upload all run on Parakeet (the renderer skips live Voxtral and sends `mistralEnabled: false`, so main ignores the key). Batch requests use the configured Voxtral model or `voxtral-mini-transcribe-3-0`. If the cloud is unavailable or rate-limited, a ready local model can transcribe the recording. Files over the cloud limit go to Parakeet.
 - After a rate-limited live connection, dictation skips live attempts until Mistral's retry time (five minutes if none was given). It uses Parakeet if installed. The pill shows Voxtral or Parakeet once the app knows which engine is handling the recording. It shows Luna during cleanup.
@@ -398,6 +398,7 @@ Native Windows support for true push-to-talk functionality using low-level keybo
 - User adds words in the Dictionary view; they are stored as a JSON array in localStorage (`customDictionary`)
 - Sent to Mistral as `context_bias` (`mistralRealtimeStreaming.js`) and added to the cleanup prompt (the dictionary suffix)
 - The hidden voice assistant can change it with the `update_dictionary` tool
+- Auto-learn (`autoLearnCorrections`, default on) adds a word the user fixes after a paste (`src/utils/correctionLearner.js`, run in main by `ipcHandlers.js`), then shows a toast with Undo. It skips any word Hunspell en_US (`dictionary-en`, checked with `nspell`) knows, including its endings, days, places and brands, and people's names: first names from `gender-detection-from-name` (en, it, fr, de, es, tr), first names and surnames from `@cspell/dict-people-names`, and surnames from `common-surnames` (Italy, Germany, Spain and more). So only unknown words, such as product names and team jargon, are learned. The lists load once, on the first fix that gets that far (about 210 ms)
 
 ### 13. GNOME Wayland Global Hotkeys
 

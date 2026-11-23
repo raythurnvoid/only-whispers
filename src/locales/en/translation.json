@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Update ready to install",
+      "readyTitleVersion": "Version {{version}} is ready to install",
       "readyDescription": "Click 'Install Update' to restart with the latest version.",
       "installButton": "Install Update"
     },
@@ -252,7 +253,8 @@
       "signIn": "Sign in with ChatGPT",
       "signingIn": "Finish signing in in your browser...",
       "signOut": "Sign out",
-      "signedInAs": "Signed in as {{email}}"
+      "signedInAs": "Signed in as {{email}}",
+      "expired": "Your ChatGPT sign-in stopped working. Sign in again to turn cleanup back on."
     },
     "enterprise": {
       "technicalDetails": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "Dictionary",
       "autoLearnTitle": "Auto-learn from corrections",
-      "autoLearnDescription": "When you fix a pasted word in the app, Only Whispers adds the fixed word to your dictionary."
+      "autoLearnDescription": "When you fix a pasted word in the app, Only Whispers adds the fixed word to your dictionary. Common English words and people's names are skipped."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Cleanup failed",
         "description": "Original dictation pasted without AI cleanup."
+      },
+      "chatgptSignInExpired": {
+        "title": "ChatGPT sign-in stopped working",
+        "description": "Cleanup is off, so dictations are pasted as spoken. Sign in again in Settings → AI Models."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Cancel processing"
     },
     "commandMenu": {
-      "stopListening": "Stop listening",
-      "startListening": "Start listening",
-      "hideForNow": "Hide for now",
-      "askAssistant": "Ask assistant",
       "busyRecording": "Finish the current dictation first"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "Couldn't get a response from {{provider}}. Check your API key and connection.",
     "unknown": "{{provider}} returned an unexpected error.",
     "keyMissing": "No API key is set for {{provider}}. Add it in Settings → AI Models.",
+    "chatgptSignedOut": "Not signed in with ChatGPT. Sign in again in Settings → AI Models.",
     "selfHosted": {
       "authFailed": "Your server rejected the API key.",
       "accessDenied": "Your server denied access. The key may not include this model.",

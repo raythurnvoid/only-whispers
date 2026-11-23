@@ -1,6 +1,5 @@
 const { screen } = require("electron");
 const { WindowPositionUtil } = require("./windowConfig");
-const { plasmaWorkAreas } = require("./plasmaWorkAreas");
 const debugLogger = require("./debugLogger");
 
 class DragManager {
@@ -8,19 +7,12 @@ class DragManager {
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
     this.mouseTrackingInterval = null;
-    this.targetWindow = null;
     this.activeWindow = null;
   }
 
-  setTargetWindow(window) {
-    this.targetWindow = window;
-  }
-
-  /** Drags the configured target window by default; a caller that owns a
-   *  different frameless window (the control panel's manual titlebar) passes
-   *  it explicitly for the duration of one drag. */
-  async startWindowDrag(windowOverride = null) {
-    const win = windowOverride || this.targetWindow;
+  /** Drags the given window (the control panel's manual titlebar) until
+   *  stopWindowDrag. */
+  async startWindowDrag(win) {
     if (!win || win.isDestroyed()) {
       return { success: false, message: "Window not available" };
     }
@@ -86,12 +78,10 @@ class DragManager {
       // Constrain against the display the window lands on, not the one under the
       // cursor: near a boundary between differently sized displays, the cursor's
       // work area permits positions that leave the window in dead space.
-      const display = plasmaWorkAreas.resolve(
-        screen.getDisplayNearestPoint({
-          x: x + width / 2,
-          y: y + height / 2,
-        })
-      );
+      const display = screen.getDisplayNearestPoint({
+        x: x + width / 2,
+        y: y + height / 2,
+      });
       const clamped = WindowPositionUtil.clampToWorkArea({ x, y, width, height }, display);
 
       this.activeWindow.setPosition(clamped.x, clamped.y);
@@ -108,17 +98,12 @@ class DragManager {
     }
   }
 
-  isDragActive() {
-    return this.isDragging;
-  }
-
   getDragOffset() {
     return { ...this.dragOffset };
   }
 
   cleanup() {
     this.stopWindowDrag();
-    this.targetWindow = null;
   }
 }
 

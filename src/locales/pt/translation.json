@@ -156,6 +156,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Atualização pronta para instalar",
+      "readyTitleVersion": "A versão {{version}} está pronta para instalar",
       "readyDescription": "Clique em 'Instalar atualização' para reiniciar com a versão mais recente.",
       "installButton": "Instalar atualização"
     },
@@ -257,7 +258,8 @@
       "signIn": "Entrar com o ChatGPT",
       "signingIn": "Conclua o login no navegador...",
       "signOut": "Sair",
-      "signedInAs": "Conectado como {{email}}"
+      "signedInAs": "Conectado como {{email}}",
+      "expired": "Seu login do ChatGPT parou de funcionar. Entre novamente para religar a limpeza."
     }
   },
   "hooks": {
@@ -512,7 +514,7 @@
     "dictionary": {
       "title": "Dicionário",
       "autoLearnTitle": "Aprender automaticamente com correções",
-      "autoLearnDescription": "Quando você corrige uma palavra colada no app, o Only Whispers adiciona a palavra corrigida ao seu dicionário."
+      "autoLearnDescription": "Quando você corrige uma palavra colada no app, o Only Whispers adiciona a palavra corrigida ao seu dicionário. Palavras comuns em inglês e nomes de pessoas são ignorados."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Falha na limpeza",
         "description": "Seu ditado foi colado sem limpeza por IA."
+      },
+      "chatgptSignInExpired": {
+        "title": "O login do ChatGPT parou de funcionar",
+        "description": "A limpeza está desligada, então os ditados são colados como foram falados. Entre novamente em Configurações → Modelos de IA."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Cancelar processamento"
     },
     "commandMenu": {
-      "stopListening": "Parar de ouvir",
-      "startListening": "Começar a ouvir",
-      "hideForNow": "Ocultar por agora",
-      "askAssistant": "Perguntar ao assistente",
       "busyRecording": "Termine primeiro a gravação atual"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "Não foi possível obter uma resposta de {{provider}}. Verifique sua chave de API e sua conexão.",
     "unknown": "{{provider}} retornou um erro inesperado.",
     "keyMissing": "Nenhuma chave de API definida para {{provider}}. Adicione-a em Configurações → Modelos de IA.",
+    "chatgptSignedOut": "Você não está conectado ao ChatGPT. Entre novamente em Configurações → Modelos de IA.",
     "selfHosted": {
       "authFailed": "Seu servidor rejeitou a chave de API.",
       "accessDenied": "Seu servidor negou o acesso. A chave pode não incluir este modelo.",

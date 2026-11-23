@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Update bereit zur Installation",
+      "readyTitleVersion": "Version {{version}} ist bereit zur Installation",
       "readyDescription": "Klicken Sie auf 'Update installieren', um mit der neuesten Version neu zu starten.",
       "installButton": "Update installieren"
     },
@@ -263,7 +264,8 @@
       "signIn": "Mit ChatGPT anmelden",
       "signingIn": "Schließe die Anmeldung im Browser ab...",
       "signOut": "Abmelden",
-      "signedInAs": "Angemeldet als {{email}}"
+      "signedInAs": "Angemeldet als {{email}}",
+      "expired": "Ihre ChatGPT-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut an, um die Bereinigung wieder einzuschalten."
     }
   },
   "hooks": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "Wörterbuch",
       "autoLearnTitle": "Automatisch aus Korrekturen lernen",
-      "autoLearnDescription": "Wenn Sie ein eingefügtes Wort in der App korrigieren, fügt Only Whispers das korrigierte Wort Ihrem Wörterbuch hinzu."
+      "autoLearnDescription": "Wenn Sie ein eingefügtes Wort in der App korrigieren, fügt Only Whispers das korrigierte Wort Ihrem Wörterbuch hinzu. Gängige englische Wörter und Personennamen werden übersprungen."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Bereinigung fehlgeschlagen",
         "description": "Dein Diktat wurde ohne KI-Bereinigung eingefügt."
+      },
+      "chatgptSignInExpired": {
+        "title": "Die ChatGPT-Anmeldung funktioniert nicht mehr",
+        "description": "Die Bereinigung ist aus, daher werden Diktate unverändert eingefügt. Melden Sie sich unter Einstellungen → KI-Modelle erneut an."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Verarbeitung abbrechen"
     },
     "commandMenu": {
-      "stopListening": "Aufnahme beenden",
-      "startListening": "Aufnahme starten",
-      "hideForNow": "Vorerst ausblenden",
-      "askAssistant": "Assistent fragen",
       "busyRecording": "Beende zuerst die laufende Aufnahme"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "Keine Antwort von {{provider}} erhalten. Überprüfen Sie Ihren API-Schlüssel und Ihre Verbindung.",
     "unknown": "{{provider}} hat einen unerwarteten Fehler zurückgegeben.",
     "keyMissing": "Für {{provider}} ist kein API-Schlüssel hinterlegt. Fügen Sie ihn unter Einstellungen → KI-Modelle hinzu.",
+    "chatgptSignedOut": "Nicht mit ChatGPT angemeldet. Melden Sie sich unter Einstellungen → KI-Modelle erneut an.",
     "selfHosted": {
       "authFailed": "Ihr Server hat den API-Schlüssel abgelehnt.",
       "accessDenied": "Ihr Server hat den Zugriff verweigert. Der Schlüssel deckt dieses Modell möglicherweise nicht ab.",

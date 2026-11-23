@@ -202,37 +202,6 @@ test("Live Transcript restores stop and cancel interactions without unlocking As
   );
 });
 
-test("a mounted Live Transcript can stop after the floating pill was previously dragged", async () => {
-  const { shouldActivateVoicePill } = await load();
-
-  assert.equal(
-    shouldActivateVoicePill({
-      hasDragged: true,
-      liveTranscriptMounted: true,
-      isProcessing: false,
-      isAgentThinking: false,
-    }),
-    true
-  );
-  assert.equal(
-    shouldActivateVoicePill({
-      hasDragged: true,
-      liveTranscriptMounted: false,
-      isProcessing: false,
-      isAgentThinking: false,
-    }),
-    false
-  );
-});
-
-test("the interactive pill recognizes standard keyboard activation keys", async () => {
-  const { isVoicePillActivationKey } = await load();
-
-  assert.equal(isVoicePillActivationKey("Enter"), true);
-  assert.equal(isVoicePillActivationKey(" "), true);
-  assert.equal(isVoicePillActivationKey("Escape"), false);
-});
-
 test("a collapsed completed transcript leaves the normal pill interaction available", async () => {
   const { resolveVoicePillInteraction } = await load();
 
@@ -571,47 +540,6 @@ test("the voice panel core stays mounted but contentless while idle", async () =
   );
 });
 
-test("Live Transcript reopen belongs only to an active normal dictation", async () => {
-  const { shouldOfferLiveTranscriptReopen } = await load();
-
-  assert.equal(
-    shouldOfferLiveTranscriptReopen({
-      manuallyCollapsed: true,
-      isRecording: true,
-      isProcessing: false,
-      isAssistantVoice: false,
-    }),
-    true
-  );
-  assert.equal(
-    shouldOfferLiveTranscriptReopen({
-      manuallyCollapsed: true,
-      isRecording: false,
-      isProcessing: true,
-      isAssistantVoice: false,
-    }),
-    true
-  );
-  assert.equal(
-    shouldOfferLiveTranscriptReopen({
-      manuallyCollapsed: true,
-      isRecording: false,
-      isProcessing: false,
-      isAssistantVoice: false,
-    }),
-    false
-  );
-  assert.equal(
-    shouldOfferLiveTranscriptReopen({
-      manuallyCollapsed: true,
-      isRecording: true,
-      isProcessing: false,
-      isAssistantVoice: true,
-    }),
-    false
-  );
-});
-
 test("a fresh Agent request thinks in the floating logo circle", async () => {
   const { resolveAssistantThinkingTransition } = await load();
   assert.deepEqual(resolveAssistantThinkingTransition(false), {
@@ -632,15 +560,14 @@ test("an Agent follow-up keeps the existing response modal open while thinking",
   });
 });
 
-test("a collapsed transcript stays reopenable while its result is processing", async () => {
+test("the companion pill takes clicks only when nothing blocks it", async () => {
   const { resolveCompanionPillInteractive } = await load();
 
   assert.equal(
     resolveCompanionPillInteractive({
       mainProcessInteractive: true,
       surfaceInteractive: true,
-      isProcessing: true,
-      canReopenLiveTranscript: true,
+      isProcessing: false,
     }),
     true
   );
@@ -649,7 +576,6 @@ test("a collapsed transcript stays reopenable while its result is processing", a
       mainProcessInteractive: true,
       surfaceInteractive: true,
       isProcessing: true,
-      canReopenLiveTranscript: false,
     }),
     false
   );
@@ -658,7 +584,6 @@ test("a collapsed transcript stays reopenable while its result is processing", a
       mainProcessInteractive: false,
       surfaceInteractive: true,
       isProcessing: false,
-      canReopenLiveTranscript: true,
     }),
     false
   );
@@ -667,7 +592,6 @@ test("a collapsed transcript stays reopenable while its result is processing", a
       mainProcessInteractive: true,
       surfaceInteractive: false,
       isProcessing: false,
-      canReopenLiveTranscript: false,
     }),
     false
   );

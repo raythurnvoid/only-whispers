@@ -4,7 +4,6 @@ import {
   getLiveTranscriptEntranceTimeline,
   LIVE_TRANSCRIPT_ENTRANCE_TIMING,
   LIVE_TRANSCRIPT_SURFACE_LIMITS,
-  shouldOfferLiveTranscriptReopen,
 } from "../helpers/voicePillPresentation";
 
 const LIVE_TRANSCRIPT_RENDER_INTERVAL_MS = 50;
@@ -24,7 +23,6 @@ export function useLiveTranscriptPanel({
   assistantOpenRef,
   onWillOpen,
   isRecording,
-  isProcessing,
   isAssistantVoice,
 }) {
   const [open, setOpen] = useState(false);
@@ -33,11 +31,9 @@ export function useLiveTranscriptPanel({
   const [measurementText, setMeasurementText] = useState("");
   const [phase, setPhase] = useState("listening");
   const [entrancePhase, setEntrancePhase] = useState("idle");
-  const [manuallyCollapsed, setManuallyCollapsed] = useState(false);
 
   const openRef = useRef(open);
   const suppressedRef = useRef(false);
-  const reopenEligibleRef = useRef(false);
   const closeTimerRef = useRef(null);
   const finalHideTimerRef = useRef(null);
   const finalHoldRef = useRef(false);
@@ -172,10 +168,8 @@ export function useLiveTranscriptPanel({
       finalHoldRef.current = false;
       if (suppress) {
         suppressedRef.current = true;
-        setManuallyCollapsed(reopenEligibleRef.current);
       }
       if (clear) {
-        setManuallyCollapsed(false);
         textSchedulerRef.current.flush();
       }
       openGenerationRef.current += 1;
@@ -227,7 +221,6 @@ export function useLiveTranscriptPanel({
         return;
       }
       onWillOpen?.();
-      setManuallyCollapsed(false);
       contentReadyRef.current = false;
       textSchedulerRef.current.cancel();
       setText("");
@@ -291,11 +284,6 @@ export function useLiveTranscriptPanel({
     resumeText,
   ]);
 
-  const reopen = useCallback(() => {
-    suppressedRef.current = false;
-    openPanel();
-  }, [openPanel]);
-
   const scheduleFinalHide = useCallback(() => {
     clearFinalHide();
     finalHideTimerRef.current = setTimeout(() => {
@@ -324,7 +312,6 @@ export function useLiveTranscriptPanel({
       const finalText = typeof value === "string" ? value.trim() : "";
       if (!finalText) return;
       suppressedRef.current = false;
-      setManuallyCollapsed(false);
       updateText(finalText, { immediate: true });
       setPhase("final");
       openPanel();
@@ -341,7 +328,6 @@ export function useLiveTranscriptPanel({
     suppressedRef.current = true;
     openGenerationRef.current += 1;
     openPromiseRef.current = null;
-    setManuallyCollapsed(false);
     cancelAnimationFrame(openFrameRef.current);
     clearTimeout(closeTimerRef.current);
     clearEntranceTimers();
@@ -403,15 +389,6 @@ export function useLiveTranscriptPanel({
     };
   }, [clearFinalHide, close, openPanel, scheduleFinalHide, updateText]);
 
-  useLayoutEffect(() => {
-    reopenEligibleRef.current = shouldOfferLiveTranscriptReopen({
-      manuallyCollapsed: true,
-      isRecording,
-      isProcessing,
-      isAssistantVoice,
-    });
-  }, [isAssistantVoice, isProcessing, isRecording]);
-
   const previousNormalRecordingRef = useRef(false);
   useLayoutEffect(() => {
     const normalRecording = isRecording && !isAssistantVoice;
@@ -425,7 +402,6 @@ export function useLiveTranscriptPanel({
     const normalRecording = isRecording && !isAssistantVoice;
     if (normalRecording && !previousNormalRecordingRef.current) {
       suppressedRef.current = false;
-      setManuallyCollapsed(false);
       const contentWasReady = openRef.current && contentReadyRef.current;
       resetText();
       // An open panel is reused without another entrance to resume its text.
@@ -438,11 +414,6 @@ export function useLiveTranscriptPanel({
       close({ clear: true });
     }
   }, [isAssistantVoice, isRecording, mounted, close, resetText]);
-
-  useEffect(() => {
-    if (!isAssistantVoice && (isRecording || isProcessing)) return;
-    setManuallyCollapsed(false);
-  }, [isAssistantVoice, isProcessing, isRecording]);
 
   useEffect(
     () => () => {
@@ -462,11 +433,9 @@ export function useLiveTranscriptPanel({
     measurementText,
     phase,
     entrancePhase,
-    manuallyCollapsed,
     openRef,
     requestHeight,
     close,
-    reopen,
     holdFinal,
     showFinalText,
     dismissForError,

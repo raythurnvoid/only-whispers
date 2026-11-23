@@ -9,12 +9,19 @@ export default function ChatGPTSignIn({
   onStatusChange?: (signedIn: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [status, setStatus] = useState({ signedIn: false, email: "" });
+  const [status, setStatus] = useState<{ signedIn: boolean; email: string; expired?: boolean }>({
+    signedIn: false,
+    email: "",
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     window.electronAPI.chatgptStatus().then(setStatus);
+    // The sign-in can stop working while Settings is open.
+    return window.electronAPI.onChatGPTSignInExpired?.(() =>
+      window.electronAPI.chatgptStatus().then(setStatus)
+    );
   }, []);
 
   useEffect(() => {
@@ -48,9 +55,14 @@ export default function ChatGPTSignIn({
           </Button>
         </div>
       ) : (
-        <Button variant="outline" size="sm" onClick={signIn} disabled={busy}>
-          {busy ? t("reasoning.chatgpt.signingIn") : t("reasoning.chatgpt.signIn")}
-        </Button>
+        <>
+          {status.expired && (
+            <p className="text-xs text-destructive">{t("reasoning.chatgpt.expired")}</p>
+          )}
+          <Button variant="outline" size="sm" onClick={signIn} disabled={busy}>
+            {busy ? t("reasoning.chatgpt.signingIn") : t("reasoning.chatgpt.signIn")}
+          </Button>
+        </>
       )}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

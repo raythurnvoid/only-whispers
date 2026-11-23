@@ -308,22 +308,6 @@ export function resolveVoicePanelCorePresentation({
 }
 
 /**
- * A collapsed Live Transcript can be reopened only while its owning dictation
- * is still recording or finalizing. Completed and Agent sessions must return
- * the pill to its normal identity instead of inheriting a stale chevron.
- */
-export function shouldOfferLiveTranscriptReopen({
-  manuallyCollapsed,
-  isRecording,
-  isProcessing,
-  isAssistantVoice,
-}) {
-  return Boolean(
-    manuallyCollapsed && !isAssistantVoice && (Boolean(isRecording) || Boolean(isProcessing))
-  );
-}
-
-/**
  * Keeps the shared pill's action semantics scoped to the surface that owns it.
  * Live Transcript may stop an active recording through the pill and always
  * exposes a distinct discard action while recording or processing.
@@ -347,18 +331,13 @@ export function resolveVoicePillInteraction({
 }
 
 // The companion pill defers to the main process's interactivity verdict and
-// keeps toggle clicks away from a transcript still processing — except to
-// reopen a manually collapsed transcript, which must stay reachable until the
-// final text lands (activatePill routes the reopen before any toggle).
+// keeps toggle clicks away from a transcript still processing.
 export function resolveCompanionPillInteractive({
   mainProcessInteractive,
   surfaceInteractive,
   isProcessing,
-  canReopenLiveTranscript,
 }) {
-  if (!mainProcessInteractive || !surfaceInteractive) return false;
-  if (!isProcessing) return true;
-  return Boolean(canReopenLiveTranscript);
+  return Boolean(mainProcessInteractive && surfaceInteractive && !isProcessing);
 }
 
 // Final Agent actions own the footer, so the pill node stays mounted but
@@ -396,19 +375,6 @@ export function resolvePillVisualSuppression({
   if (dictationErrorSuppressed || assistantActionsSuppressed) return true;
   if (panelReturnResizeActive) return true;
   return Boolean(assistantClosing) && !hasLiveActivity;
-}
-
-export function shouldActivateVoicePill({
-  hasDragged,
-  liveTranscriptMounted,
-  isProcessing,
-  isAgentThinking,
-}) {
-  return Boolean((!hasDragged || liveTranscriptMounted) && !isProcessing && !isAgentThinking);
-}
-
-export function isVoicePillActivationKey(key) {
-  return key === "Enter" || key === " ";
 }
 
 /**

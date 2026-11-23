@@ -23,7 +23,7 @@ async function mountTrayQuickActions(t, props) {
   });
 
   const listeners = {};
-  const calls = { assistantOpens: 0, menuCloses: 0, refusals: [] };
+  const calls = { assistantOpens: 0, refusals: [] };
   const electronAPI = {
     onOpenAssistantPanel: (callback) => {
       listeners.assistant = callback;
@@ -46,9 +46,6 @@ async function mountTrayQuickActions(t, props) {
   function Harness() {
     useTrayQuickActions({
       ...props,
-      closeCommandMenu: () => {
-        calls.menuCloses += 1;
-      },
       openAssistantPanel: async () => {
         calls.assistantOpens += 1;
       },
@@ -70,13 +67,12 @@ const idle = {
   liveTranscriptMounted: false,
 };
 
-test("an idle pill opens the assistant and closes the command menu", async (t) => {
+test("an idle pill opens the assistant", async (t) => {
   const { listeners, calls } = await mountTrayQuickActions(t, idle);
 
   await React.act(async () => listeners.assistant());
 
   assert.equal(calls.assistantOpens, 1);
-  assert.equal(calls.menuCloses, 1);
   assert.deepEqual(calls.refusals, []);
 });
 

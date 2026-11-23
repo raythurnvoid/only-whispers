@@ -10,7 +10,6 @@ import { useChatPersistence } from "../chat/useChatPersistence";
 import { useChatStreaming } from "../chat/useChatStreaming";
 import { useChatMessageSender } from "../chat/useChatMessageSender";
 import { ChatInput } from "../chat/ChatInput";
-import { useWindowDrag } from "../../hooks/useWindowDrag";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { formatHotkeyListLabel } from "../../utils/hotkeys";
 import {
@@ -108,7 +107,6 @@ export function AssistantPanel({
 }: AssistantPanelProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { handleMouseDown, handleMouseUp } = useWindowDrag();
   const voiceAgentKey = useSettingsStore((state) => state.voiceAgentKey);
   const readableVoiceHotkey = formatHotkeyListLabel(voiceAgentKey);
 
@@ -427,11 +425,7 @@ export function AssistantPanel({
 
   return (
     <>
-      <header
-        className="flex h-16 shrink-0 cursor-grab items-center gap-3 px-5 active:cursor-grabbing"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      >
+      <header className="flex h-16 shrink-0 items-center gap-3 px-5">
         <BrandMarkIcon size={20} className="shrink-0 text-muted-foreground" />
         {messages.length > 0 && (
           <button

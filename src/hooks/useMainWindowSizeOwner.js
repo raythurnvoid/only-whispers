@@ -9,8 +9,8 @@ import { SIZE_RANK, resolveMainWindowSizeKey } from "../utils/windowSizeLadder";
 const PANEL_RETURN_FADE_MS = 180;
 
 /**
- * Single owner of the main window size: panel > menu > toast > compact pill >
- * base. Grows apply immediately so content never clips; shrinks wait for the
+ * Single owner of the main window size: panel > toast > compact pill > base.
+ * Grows apply immediately so content never clips; shrinks wait for the
  * content collapse animation to finish before the window snaps down. Also owns
  * the two pill-visibility handoffs around risky native resizes: the
  * dictation-error handoff (pill hidden until the window leaves the error
@@ -21,7 +21,6 @@ export function useMainWindowSizeOwner({
   requestMainWindowSize,
   dictationErrorActionCount,
   toastCount,
-  isCommandMenuOpen,
   isCompactPill,
   isDictationActive,
   assistantOpen,
@@ -104,7 +103,6 @@ export function useMainWindowSizeOwner({
     panelSizeReservationRef.current = false;
     const target = resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: isCommandMenuOpen,
       toastCount,
       compactPill: isCompactPill,
       dictationErrorActionCount,
@@ -180,7 +178,6 @@ export function useMainWindowSizeOwner({
     liveTranscriptOpen,
     liveTranscriptMounted,
     liveTranscriptOpenRef,
-    isCommandMenuOpen,
     toastCount,
     isCompactPill,
     dictationErrorActionCount,

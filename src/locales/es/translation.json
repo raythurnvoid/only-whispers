@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Actualización lista para instalar",
+      "readyTitleVersion": "La versión {{version}} está lista para instalar",
       "readyDescription": "Haz clic en 'Instalar actualización' para reiniciar con la última versión.",
       "installButton": "Instalar actualización"
     },
@@ -263,7 +264,8 @@
       "signIn": "Iniciar sesión con ChatGPT",
       "signingIn": "Termina de iniciar sesión en el navegador...",
       "signOut": "Cerrar sesión",
-      "signedInAs": "Sesión iniciada como {{email}}"
+      "signedInAs": "Sesión iniciada como {{email}}",
+      "expired": "Tu inicio de sesión de ChatGPT dejó de funcionar. Vuelve a iniciar sesión para reactivar la limpieza."
     }
   },
   "hooks": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "Diccionario",
       "autoLearnTitle": "Aprender automáticamente de las correcciones",
-      "autoLearnDescription": "Cuando corriges una palabra pegada en la app, Only Whispers añade la palabra corregida a tu diccionario."
+      "autoLearnDescription": "Cuando corriges una palabra pegada en la app, Only Whispers añade la palabra corregida a tu diccionario. Se omiten las palabras comunes en inglés y los nombres de personas."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Limpieza fallida",
         "description": "Tu dictado se pegó sin limpieza con IA."
+      },
+      "chatgptSignInExpired": {
+        "title": "El inicio de sesión de ChatGPT dejó de funcionar",
+        "description": "La limpieza está desactivada, así que los dictados se pegan tal cual. Vuelve a iniciar sesión en Ajustes → Modelos de IA."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Cancelar procesamiento"
     },
     "commandMenu": {
-      "stopListening": "Dejar de escuchar",
-      "startListening": "Empezar a escuchar",
-      "hideForNow": "Ocultar por ahora",
-      "askAssistant": "Preguntar al asistente",
       "busyRecording": "Primero termina la grabación actual"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "No se recibió respuesta de {{provider}}. Comprueba tu clave de API y tu conexión.",
     "unknown": "{{provider}} devolvió un error inesperado.",
     "keyMissing": "No hay ninguna clave de API configurada para {{provider}}. Añádela en Ajustes → Modelos de IA.",
+    "chatgptSignedOut": "No has iniciado sesión con ChatGPT. Vuelve a iniciar sesión en Ajustes → Modelos de IA.",
     "selfHosted": {
       "authFailed": "Tu servidor rechazó la clave de API.",
       "accessDenied": "Tu servidor denegó el acceso. Es posible que la clave no incluya este modelo.",

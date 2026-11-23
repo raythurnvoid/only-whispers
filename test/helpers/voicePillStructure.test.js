@@ -183,27 +183,6 @@ test("the waveform stays to the right of the identity across docks and voice mod
   }
 });
 
-test("the collapsed Live Transcript pill transitions its logo into an expand chevron", async () => {
-  const resting = await renderPill("recording", true);
-  const hovered = await renderPill("recording", true, "right", {
-    showExpandChevron: true,
-  });
-  const leftHovered = await renderPill("recording", true, "left", {
-    showExpandChevron: true,
-  });
-
-  assert.doesNotMatch(resting, /data-expand-chevron/);
-  assert.match(resting, /voice-pill-identity-logo[^"\n]*scale-100 opacity-100/);
-  assert.match(resting, /voice-pill-expand-chevron[^"\n]*opacity-0/);
-  assert.match(hovered, /data-expand-chevron="true"/);
-  assert.match(hovered, /voice-pill-identity-logo[^"\n]*opacity-0/);
-  assert.match(hovered, /voice-pill-expand-chevron[^"\n]*scale-100 opacity-100/);
-  assert.doesNotMatch(leftHovered, /flex-row-reverse/);
-  assert.ok(
-    leftHovered.indexOf("voice-pill-expand-chevron") < leftHovered.indexOf("voice-pill-waveform")
-  );
-});
-
 test("the idle pill keeps the logo at normal foreground strength", async () => {
   const idle = await renderPill("idle", false);
 

@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes } from "react";
-import { ChevronUp, X } from "../icons";
+import { X } from "../icons";
 import { cn } from "../lib/utils";
 import { MistralIcon, OpenAIIcon } from "./ModelIcons";
 import { PillWaveform } from "./PillWaveform";
@@ -32,8 +32,6 @@ interface VoicePillProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"
   waveformOnlyWhileRecording?: boolean;
   integratedWithPanel?: boolean;
   agentMode?: boolean;
-  showExpandChevron?: boolean;
-  isDragging?: boolean;
   horizontalDirection?: "left" | "right";
   /** Set for plain dictation: one fixed-size pill with the model's icon, a
    *  short status label and a mini waveform. Null keeps the original pill. */
@@ -87,8 +85,6 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
     waveformOnlyWhileRecording = false,
     integratedWithPanel = false,
     agentMode = false,
-    showExpandChevron = false,
-    isDragging = false,
     horizontalDirection = "right",
     dictationStatus = null,
     handsFree = null,
@@ -156,7 +152,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
         // surface and forced an unnecessary large window resize.
         width: footprint.width,
         height: footprint.height,
-        cursor: isProcessing || isThinking ? "not-allowed" : isDragging ? "grabbing" : "pointer",
+        cursor: isProcessing || isThinking ? "not-allowed" : "pointer",
         boxShadow: floatingHover ? "var(--shadow-card-hover-subtle)" : undefined,
         transition: `${sizeTransition}background-color 220ms ease-out, border-color 220ms ease-out, box-shadow 220ms ease-out`,
         ...style,
@@ -165,7 +161,6 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
       data-integrated-with-panel={integratedWithPanel || undefined}
       data-agent-mode={agentMode || undefined}
       data-agent-beam-active={(agentMode && isThinking) || undefined}
-      data-expand-chevron={showExpandChevron || undefined}
       data-hands-free={handsFree || undefined}
       {...props}
     >
@@ -229,12 +224,7 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
             style={{ width: identitySize, height: identitySize }}
             aria-hidden="true"
           >
-            <span
-              className={cn(
-                "voice-pill-identity-logo absolute inset-0 transition-[opacity,transform] duration-200 ease-out",
-                showExpandChevron ? "translate-y-1 scale-75 opacity-0" : "scale-100 opacity-100"
-              )}
-            >
+            <span className="voice-pill-identity-logo absolute inset-0">
               <BrandMarkIcon
                 size={identitySize}
                 className={cn(
@@ -244,13 +234,6 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
                 )}
               />
             </span>
-            <ChevronUp
-              className={cn(
-                "voice-pill-expand-chevron absolute inset-0 m-auto size-5 transition-[opacity,transform] duration-200 ease-out",
-                showExpandChevron ? "scale-100 opacity-100" : "translate-y-1 scale-75 opacity-0"
-              )}
-              strokeWidth={2}
-            />
           </span>
 
           <div
@@ -299,8 +282,8 @@ export const VoicePill = forwardRef<HTMLDivElement, VoicePillProps>(function Voi
       )}
 
       {showCancel && cancel && (
-        // Stop every event so the pill's own toggle, drag and key handlers
-        // do not also fire. It cancels on the release: the Windows pill window
+        // Stop every event so the pill's own click and key handlers do not
+        // also fire. It cancels on the release: the Windows pill window
         // can't take focus, so Windows throws the press away and no click fires.
         <button
           type="button"

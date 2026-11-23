@@ -589,8 +589,6 @@ declare global {
       windowClose: () => Promise<void>;
       windowIsMaximized: () => Promise<boolean>;
       getPlatform: () => string;
-      startWindowDrag: () => Promise<void>;
-      stopWindowDrag: () => Promise<void>;
       startControlPanelDrag: () => Promise<void>;
       stopControlPanelDrag: () => Promise<void>;
       setMainWindowInteractivity: (interactive: boolean) => Promise<void>;
@@ -602,9 +600,7 @@ declare global {
           | "RECORDING"
           | "DICTATION_ERROR"
           | "DICTATION_ERROR_WITH_TRANSCRIPT"
-          | "WITH_MENU"
           | "WITH_TOAST"
-          | "EXPANDED"
           | "ASSISTANT"
       ) => Promise<{
         success: boolean;
@@ -697,8 +693,9 @@ declare global {
       // Sign in with ChatGPT (OpenAI cleanup on the user's ChatGPT plan)
       chatgptSignIn: () => Promise<{ signedIn: boolean; email: string } | { error: string }>;
       chatgptSignOut: () => Promise<{ signedIn: boolean }>;
-      chatgptStatus: () => Promise<{ signedIn: boolean; email: string }>;
+      chatgptStatus: () => Promise<{ signedIn: boolean; email: string; expired?: boolean }>;
       getChatGPTAccessToken: () => Promise<string>;
+      onChatGPTSignInExpired?: (callback: () => void) => () => void;
       chatgptSocketWarmup?: () => Promise<{ success: boolean; error?: string }>;
       chatgptSocketPrefill?: (
         text: string,

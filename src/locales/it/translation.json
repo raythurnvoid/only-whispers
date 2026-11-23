@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Aggiornamento pronto da installare",
+      "readyTitleVersion": "La versione {{version}} è pronta da installare",
       "readyDescription": "Fai clic su 'Installa aggiornamento' per riavviare con l'ultima versione.",
       "installButton": "Installa aggiornamento"
     },
@@ -263,7 +264,8 @@
       "signIn": "Accedi con ChatGPT",
       "signingIn": "Completa l'accesso nel browser...",
       "signOut": "Esci",
-      "signedInAs": "Accesso effettuato come {{email}}"
+      "signedInAs": "Accesso effettuato come {{email}}",
+      "expired": "Il tuo accesso a ChatGPT non funziona più. Accedi di nuovo per riattivare la pulizia."
     }
   },
   "hooks": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "Dizionario",
       "autoLearnTitle": "Apprendimento automatico dalle correzioni",
-      "autoLearnDescription": "Quando correggi una parola incollata nell'app, Only Whispers aggiunge la parola corretta al tuo dizionario."
+      "autoLearnDescription": "Quando correggi una parola incollata nell'app, Only Whispers aggiunge la parola corretta al tuo dizionario. Le parole inglesi comuni e i nomi di persona vengono saltati."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Pulizia non riuscita",
         "description": "La dettatura è stata incollata senza pulizia IA."
+      },
+      "chatgptSignInExpired": {
+        "title": "L’accesso a ChatGPT non funziona più",
+        "description": "La pulizia è disattivata, quindi le dettature vengono incollate così come sono. Accedi di nuovo in Impostazioni → Modelli IA."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Annulla elaborazione"
     },
     "commandMenu": {
-      "stopListening": "Smetti di ascoltare",
-      "startListening": "Inizia ad ascoltare",
-      "hideForNow": "Nascondi per ora",
-      "askAssistant": "Chiedi all'assistente",
       "busyRecording": "Prima termina la registrazione in corso"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "Nessuna risposta da {{provider}}. Controlla la tua chiave API e la connessione.",
     "unknown": "{{provider}} ha restituito un errore imprevisto.",
     "keyMissing": "Nessuna chiave API impostata per {{provider}}. Aggiungila in Impostazioni → Modelli IA.",
+    "chatgptSignedOut": "Non hai effettuato l’accesso con ChatGPT. Accedi di nuovo in Impostazioni → Modelli IA.",
     "selfHosted": {
       "authFailed": "Il tuo server ha rifiutato la chiave API.",
       "accessDenied": "Il tuo server ha negato l’accesso. La chiave potrebbe non includere questo modello.",

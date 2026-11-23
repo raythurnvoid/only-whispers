@@ -4,6 +4,7 @@ import { ConfirmDialog, AlertDialog } from "./ui/dialog";
 import { useDialogs } from "../hooks/useDialogs";
 import { useHotkey } from "../hooks/useHotkey";
 import { useToast } from "./ui/useToast";
+import { useUpdateReadyToast } from "../hooks/useUpdateReadyToast";
 import { useSettings } from "../hooks/useSettings";
 import { useCollapsibleSidebar } from "../hooks/useCollapsibleSidebar";
 import { usePalazzoTheme } from "../hooks/usePalazzoTheme";
@@ -61,7 +62,7 @@ export default function ControlPanel() {
     leaveToggle: leaveSidebarToggle,
   } = useCollapsibleSidebar();
   const { hotkey } = useHotkey();
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const { useCleanupModel } = useSettings();
 
   const {
@@ -148,28 +149,7 @@ export default function ControlPanel() {
     return () => cleanup?.();
   }, [toast, t]);
 
-  // A downloaded update installs on quit anyway; the toast lets the user restart now.
-  useEffect(() => {
-    const showUpdateReady = () =>
-      toast({
-        title: t("controlPanel.update.readyTitle"),
-        description: t("controlPanel.update.readyDescription"),
-        duration: 0,
-        actions: [
-          {
-            label: t("controlPanel.update.installButton"),
-            onClick: () => {
-              window.electronAPI?.installUpdate?.();
-            },
-          },
-        ],
-      });
-    window.electronAPI?.getDownloadedUpdate?.().then((version) => {
-      if (version) showUpdateReady();
-    });
-    const cleanup = window.electronAPI?.onUpdateDownloaded?.(showUpdateReady);
-    return () => cleanup?.();
-  }, [toast, t]);
+  useUpdateReadyToast({ toast, dismiss, t });
 
   const copyToClipboard = useCallback(
     async (text: string) => {

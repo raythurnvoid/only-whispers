@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { TFunction } from "i18next";
 import { ToastActionButton } from "../components/ui/Toast";
 import type { ToastContextType } from "../components/ui/useToast";
+import { providerErrorActions } from "../utils/describeProviderError";
 
 /**
  * Surfaces main-process notifications (hotkey fallback/failure, learned
- * dictionary corrections) as toasts in the dictation window.
+ * dictionary corrections, a ChatGPT sign-in that stopped working) as toasts in
+ * the dictation window.
  */
 export function useMainProcessNotifications({
   toast,
@@ -80,4 +82,31 @@ export function useMainProcessNotifications({
       unsubscribeCorrections?.();
     };
   }, [toast, dismiss, t]);
+
+  // OpenAI refused to renew the ChatGPT sign-in, so cleanup is off and every
+  // dictation is pasted raw. The dictation window shows no error cards, so this
+  // is a plain card that stays until the user closes it. One card at a time.
+  const signInToastId = useRef<string | null>(null);
+  useEffect(() => {
+    const showSignInExpired = () => {
+      if (signInToastId.current) return;
+      signInToastId.current = toast({
+        title: t("app.toasts.chatgptSignInExpired.title"),
+        description: t("app.toasts.chatgptSignInExpired.description"),
+        duration: 0,
+        actions: providerErrorActions({ settingsTarget: "llms" }, t),
+        onClose: () => {
+          signInToastId.current = null;
+        },
+      });
+    };
+    // Also at launch, when the sign-in broke while the app was closed.
+    window.electronAPI
+      ?.chatgptStatus?.()
+      .then((status) => {
+        if (status?.expired) showSignInExpired();
+      })
+      .catch(() => {});
+    return window.electronAPI?.onChatGPTSignInExpired?.(showSignInExpired);
+  }, [toast, t]);
 }

@@ -162,6 +162,7 @@
   "controlPanel": {
     "update": {
       "readyTitle": "Mise à jour prête à installer",
+      "readyTitleVersion": "La version {{version}} est prête à installer",
       "readyDescription": "Cliquez sur « Installer la mise à jour » pour redémarrer avec la dernière version.",
       "installButton": "Installer la mise à jour"
     },
@@ -263,7 +264,8 @@
       "signIn": "Se connecter avec ChatGPT",
       "signingIn": "Terminez la connexion dans votre navigateur...",
       "signOut": "Se déconnecter",
-      "signedInAs": "Connecté en tant que {{email}}"
+      "signedInAs": "Connecté en tant que {{email}}",
+      "expired": "Votre connexion ChatGPT ne fonctionne plus. Reconnectez-vous pour réactiver le nettoyage."
     }
   },
   "hooks": {
@@ -518,7 +520,7 @@
     "dictionary": {
       "title": "Dictionnaire",
       "autoLearnTitle": "Apprentissage automatique à partir des corrections",
-      "autoLearnDescription": "Quand vous corrigez un mot collé dans l'application, Only Whispers ajoute le mot corrigé à votre dictionnaire."
+      "autoLearnDescription": "Quand vous corrigez un mot collé dans l'application, Only Whispers ajoute le mot corrigé à votre dictionnaire. Les mots anglais courants et les noms de personnes sont ignorés."
     },
     "general": {
       "floatingIcon": {
@@ -837,6 +839,10 @@
       "cleanupFailed": {
         "title": "Échec du nettoyage",
         "description": "Votre dictée a été collée sans nettoyage par IA."
+      },
+      "chatgptSignInExpired": {
+        "title": "La connexion ChatGPT ne fonctionne plus",
+        "description": "Le nettoyage est désactivé : les dictées sont collées telles quelles. Reconnectez-vous dans Réglages → Modèles IA."
       }
     },
     "mic": {
@@ -853,10 +859,6 @@
       "cancelProcessing": "Annuler le traitement"
     },
     "commandMenu": {
-      "stopListening": "Arrêter l’écoute",
-      "startListening": "Commencer l’écoute",
-      "hideForNow": "Masquer pour l’instant",
-      "askAssistant": "Demander à l'assistant",
       "busyRecording": "Terminez d'abord l'enregistrement en cours"
     }
   },
@@ -999,6 +1001,7 @@
     "noResponse": "Aucune réponse de {{provider}}. Vérifiez votre clé API et votre connexion.",
     "unknown": "{{provider}} a renvoyé une erreur inattendue.",
     "keyMissing": "Aucune clé API n’est définie pour {{provider}}. Ajoutez-la dans Réglages → Modèles IA.",
+    "chatgptSignedOut": "Vous n’êtes pas connecté à ChatGPT. Reconnectez-vous dans Réglages → Modèles IA.",
     "selfHosted": {
       "authFailed": "Votre serveur a rejeté la clé API.",
       "accessDenied": "Votre serveur a refusé l’accès. La clé ne couvre peut-être pas ce modèle.",

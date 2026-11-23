@@ -54,7 +54,6 @@ test("base state with nothing active", async () => {
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: false,
       toastCount: 0,
       compactPill: false,
     }),
@@ -67,7 +66,6 @@ test("compact listening pill grows the window", async () => {
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: false,
       toastCount: 0,
       compactPill: true,
     }),
@@ -80,7 +78,6 @@ test("a toast outranks the listening pill so both fit", async () => {
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: false,
       toastCount: 1,
       compactPill: true,
     }),
@@ -93,7 +90,6 @@ test("dictation errors use the matching one-action or two-action footprint", asy
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: false,
       toastCount: 1,
       compactPill: false,
       dictationErrorActionCount: 1,
@@ -103,7 +99,6 @@ test("dictation errors use the matching one-action or two-action footprint", asy
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: false,
-      menuOpen: false,
       toastCount: 1,
       compactPill: false,
       dictationErrorActionCount: 2,
@@ -112,38 +107,11 @@ test("dictation errors use the matching one-action or two-action footprint", asy
   );
 });
 
-test("menu over a listening pill needs the expanded window", async () => {
-  const { resolveMainWindowSizeKey } = await load();
-  assert.equal(
-    resolveMainWindowSizeKey({
-      panelOpen: false,
-      menuOpen: true,
-      toastCount: 0,
-      compactPill: true,
-    }),
-    "EXPANDED"
-  );
-});
-
-test("menu alone uses the menu size", async () => {
-  const { resolveMainWindowSizeKey } = await load();
-  assert.equal(
-    resolveMainWindowSizeKey({
-      panelOpen: false,
-      menuOpen: true,
-      toastCount: 0,
-      compactPill: false,
-    }),
-    "WITH_MENU"
-  );
-});
-
 test("the assistant panel wins over everything", async () => {
   const { resolveMainWindowSizeKey } = await load();
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: true,
-      menuOpen: true,
       toastCount: 2,
       compactPill: true,
     }),
@@ -152,7 +120,6 @@ test("the assistant panel wins over everything", async () => {
   assert.equal(
     resolveMainWindowSizeKey({
       panelOpen: true,
-      menuOpen: false,
       toastCount: 0,
       compactPill: false,
     }),
@@ -165,7 +132,6 @@ test("a toast dismissing never shrinks the window below an active state", async 
   // Toast dismissal while recording resolves to RECORDING, not BASE.
   const during = resolveMainWindowSizeKey({
     panelOpen: false,
-    menuOpen: false,
     toastCount: 0,
     compactPill: true,
   });
@@ -182,20 +148,17 @@ test("every ladder size key has a native footprint in WINDOW_SIZES", async () =>
   // resolver can actually return across its whole input domain.
   const ladderKeys = new Set(Object.keys(SIZE_RANK));
   for (const panelOpen of [false, true]) {
-    for (const menuOpen of [false, true]) {
-      for (const toastCount of [0, 1]) {
-        for (const compactPill of [false, true]) {
-          for (const dictationErrorActionCount of [0, 1, 2]) {
-            ladderKeys.add(
-              resolveMainWindowSizeKey({
-                panelOpen,
-                menuOpen,
-                toastCount,
-                compactPill,
-                dictationErrorActionCount,
-              })
-            );
-          }
+    for (const toastCount of [0, 1]) {
+      for (const compactPill of [false, true]) {
+        for (const dictationErrorActionCount of [0, 1, 2]) {
+          ladderKeys.add(
+            resolveMainWindowSizeKey({
+              panelOpen,
+              toastCount,
+              compactPill,
+              dictationErrorActionCount,
+            })
+          );
         }
       }
     }
@@ -215,9 +178,7 @@ test("size ranks order every key", async () => {
     SIZE_RANK.BASE < SIZE_RANK.RECORDING &&
       SIZE_RANK.RECORDING < SIZE_RANK.DICTATION_ERROR &&
       SIZE_RANK.DICTATION_ERROR < SIZE_RANK.DICTATION_ERROR_WITH_TRANSCRIPT &&
-      SIZE_RANK.DICTATION_ERROR_WITH_TRANSCRIPT < SIZE_RANK.WITH_MENU &&
-      SIZE_RANK.WITH_MENU < SIZE_RANK.WITH_TOAST &&
-      SIZE_RANK.WITH_TOAST < SIZE_RANK.EXPANDED &&
-      SIZE_RANK.EXPANDED < SIZE_RANK.ASSISTANT
+      SIZE_RANK.DICTATION_ERROR_WITH_TRANSCRIPT < SIZE_RANK.WITH_TOAST &&
+      SIZE_RANK.WITH_TOAST < SIZE_RANK.ASSISTANT
   );
 });

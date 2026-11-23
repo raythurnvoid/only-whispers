@@ -33,6 +33,14 @@ Idea: decode a piece at each 400 ms pause (pieces of at least 5 s), so at releas
 
 From 347 history rows (raw against cleaned text): on dictations of up to 8 words (14% of all), Luna changed real words (not only case and punctuation) in 12 of 50 (24%). Up to 3 words: 0 of 11 changed, but that is only 3% of dictations. So skipping Luna would lose real fixes for little gain.
 
+### Shorter cleanup prompt: not built (small, noisy gain, different text)
+
+- Test: the app's prompt (3178 chars) against a 7-line prompt (about 600 chars). We used 6 of the user's raw texts (10, 11, 19, 23, 50 and 125 words) and ran each 3 times, 36 requests in all. Each request ran after its own `generate: false` warmup, and the order alternated each round.
+- Median of all 18 per prompt: first token 1160 ms with the full prompt and 1107 ms with the short one. Whole answer: 1688 ms and 1430 ms. Paired by text and round, the short prompt saved a median of only 68 ms, ranging from 2057 ms slower to 2021 ms faster. So the noise is much bigger than the gain.
+- Per text, the short prompt was 100–500 ms sooner to the first token on texts of 10–23 words. On the 125-word text it was slower (first token 2145 ms against 865 ms), and on 50 words they were the same.
+- The cleaned text changed in 4 of 6 texts, and the short prompt cut more on long texts (545 against 597 chars at 125 words). So a shorter prompt would need an accuracy check, for little speed.
+- **So the prompt length is not why Luna is slow.** The first token takes about 1.1 s even right after a warmup, with any prompt. That is time on OpenAI's side. Script: `luna-prompt.cjs` in the task folder (`+ai/speed-ideas-2026-11-20/`).
+
 ## Local Parakeet (2026-11-18)
 
 ### Wait after release on saved dictations
@@ -68,6 +76,8 @@ Mistral realtime returned HTTP 429 on this account. An isolated Electron check u
 ### Speed and quality across speakers
 
 On 30 saved English dictations, we compared raw local Parakeet with archived live Voxtral output at 800 ms (the closest saved setting to the app's 720 ms). Against the same 1,486-word Mistral batch reference, Parakeet had 149 word differences (10.0%) and live Voxtral had 92 (6.2%). Parakeet was farther from the reference on 19 clips, closer on five and tied on six. The 3.8-point gap measures agreement with Mistral batch. Its reference may favor Voxtral and has no human correction. Both engines matched all 118 words in four scripted synthetic recordings. A new live Voxtral attempt at 720 ms returned HTTP 429.
+
+**2026-11-22: the app moved from Parakeet v3 to v2 (English only).** v3 guesses the language and has no setting to fix it. On one 27.5 s English dictation it wrote "the kontrakt", "situationen", "En nu kan" and "landlåren". On the user's last 12 dictations (8 threads, sherpa-onnx-node 2.0.1), v2 wrote that clip as clean English, got "Parakeet" right where v3 wrote "Park it", and matched v3 on the rest. v2 kept more "uh" fillers (cleanup removes them) and took about 8% longer (1,547 ms against 1,433 ms on the 27.5 s clip). The numbers below are for v3.
 
 Tested the app's `LocalSpeechModel.transcribe` on Windows 11, on an Intel Core i9-14900HX with four CPU threads. Used NVIDIA Parakeet TDT 0.6B v3, the pinned int8 sherpa-onnx export, with sherpa-onnx-node 2.0.1. The timer included the worker, FFmpeg audio conversion and recognition. It ended when raw text was ready. [Model](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8)
 

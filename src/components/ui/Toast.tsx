@@ -206,14 +206,15 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         clearTimer(id);
         startExitAnimation(id);
       } else {
-        const lastToast = toasts[toasts.length - 1];
+        // Read the ref, not state, so `dismiss` stays stable for effects that use it.
+        const lastToast = toastsRef.current[toastsRef.current.length - 1];
         if (lastToast) {
           clearTimer(lastToast.id);
           startExitAnimation(lastToast.id);
         }
       }
     },
-    [toasts, clearTimer, startExitAnimation]
+    [clearTimer, startExitAnimation]
   );
 
   const pauseTimer = React.useCallback(
