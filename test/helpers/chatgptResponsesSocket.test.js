@@ -64,7 +64,7 @@ const cleanupBody = (text) => ({
 });
 const inputText = (body) => body.input.map((item) => item.content[0].text);
 
-// One cleanup, so the next dictation has a prompt to warm, prefill and send early with.
+// One cleanup gives the next dictation a prompt for prefills and early cleanup.
 async function afterFirstCleanup() {
   const socket = loadSocket();
   await socket.createResponse(cleanupBody("<transcript>\nfirst one</transcript>"), 1000);
@@ -96,6 +96,15 @@ test("the cleanup after a prefill sends only the rest of the transcript", async 
   assert.equal(typeof result.firstTokenMs, "number");
 });
 
+test("starting the next recording opens sockets without sending a model request", async () => {
+  const { main, spare, spare2, spare3 } = await afterFirstCleanup();
+  assert.equal(main.sent.length, 1); // Only the previous recording's cleanup.
+  assert.deepEqual(
+    [spare, spare2, spare3].map((socket) => socket.sent.length),
+    [0, 0, 0]
+  );
+});
+
 test("a final transcript that does not start with the prefill is sent whole", async () => {
   const { socket, main } = await afterFirstCleanup();
 
@@ -106,7 +115,6 @@ test("a final transcript that does not start with the prefill is sent whole", as
   );
 
   const cleanup = main.sent.at(-1);
-  // The prefill replaced the warmup, so nothing is continued.
   assert.equal(cleanup.previous_response_id, undefined);
   assert.deepEqual(inputText(cleanup), ["<transcript>\nhello, there world</transcript>"]);
   assert.equal(result.prefilled, false);
@@ -134,8 +142,7 @@ test("an early cleanup of the same transcript is used, on the spare socket", asy
   assert.equal(result.text, "Hi from socket 1.");
   const early = spare.sent.at(-1);
   assert.deepEqual(inputText(early), [text]);
-  // It continues the spare socket's warmup.
-  assert.equal(early.previous_response_id, spare.sent.at(-2).id);
+  assert.equal(early.previous_response_id, undefined);
   assert.equal(main.sent.length, mainSent);
 });
 

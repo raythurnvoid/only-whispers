@@ -4,6 +4,14 @@ const wordSegmenter = new Intl.Segmenter("und", { granularity: "word" });
 const cleanupLabel =
   /^(?:Cleaned transcript:|\*\*Cleaned transcript:\*\*|\*\*Cleaned transcript\*\*:)$/i;
 
+export function isShortDictation(text: string): boolean {
+  let words = 0;
+  for (const segment of wordSegmenter.segment(text)) {
+    if (segment.isWordLike && ++words > 3) return false;
+  }
+  return true;
+}
+
 function comparisonTokens(text: string): string[] {
   // Keep contractions as one word when punctuation is discarded.
   const normalized = text

@@ -33,7 +33,7 @@ test("cleanup guesses and rolling prefills", async (t) => {
   window.electronAPI.getChatGPTAccessToken = async () => "plan-token";
 
   // The guess loop runs every 50 ms from the start of the recording, as in startStreamingRecording.
-  const finalize = async (speechEndAt, stopMs = 0) => {
+  const finalize = async (speechEndAt, stopMs = 0, raw = RAW) => {
     const early = [];
     const prefills = [];
     window.electronAPI.chatgptSocketPrefill = async (text, options) => {
@@ -41,6 +41,8 @@ test("cleanup guesses and rolling prefills", async (t) => {
       return { success: true };
     };
     let cleanupText;
+    let result;
+    let showedCleanup = false;
     window.electronAPI.chatgptSocketEarly = async (text) => {
       early.push(text);
       return { success: true };
@@ -57,7 +59,7 @@ test("cleanup guesses and rolling prefills", async (t) => {
       isReasoningAvailable: async () => true,
       finalizeChineseScript: async (text) => text,
       streamingFinalText: "",
-      streamingPartialText: ` ${RAW}`,
+      streamingPartialText: ` ${raw}`,
       _streamingSpeechEndAt: speechEndAt,
       _streamingTextAt: 0,
       _cleanupGuess: { text: "", prefillWords: 0, prefilling: false, releasedAt: null },
@@ -67,7 +69,7 @@ test("cleanup guesses and rolling prefills", async (t) => {
       mergeRecordedSegments: async () => null,
       // Mistral's final text, trimmed as mistralRealtimeStreaming.js does.
       awaitStreamingTextSettled: async () => {
-        manager.streamingFinalText = RAW;
+        manager.streamingFinalText = raw;
       },
       getStreamingProvider: () => ({
         awaitsFinalTranscript: true,
@@ -78,14 +80,34 @@ test("cleanup guesses and rolling prefills", async (t) => {
       }),
       getStreamingProviderName: () => "mistral-realtime",
       shouldUseStreaming: () => false,
-      onTranscriptionComplete: () => {},
+      onStateChange: (state) => {
+        if (state.isCleaningUp) showedCleanup = true;
+      },
+      onTranscriptionComplete: (value) => {
+        result = value;
+      },
     });
     const loop = setInterval(() => manager._sendCleanupGuess(), 50);
     manager._sendCleanupGuess();
     await manager._finalizeStreamingRecording(null);
     clearInterval(loop);
-    return { early, cleanupText, prefills };
+    return { early, cleanupText, prefills, result, showedCleanup };
   };
+
+  await t.test("one to three words go straight through without any Luna requests", async () => {
+    for (const raw of ["Hello!", "Thank you.", "Yes,  I'm ready."]) {
+      const run = await finalize(performance.now() - 5000, 0, raw);
+      assert.deepEqual(run.early, []);
+      assert.deepEqual(run.prefills, []);
+      assert.equal(run.cleanupText, undefined);
+      assert.equal(run.showedCleanup, false);
+      assert.equal(run.result.text, raw);
+    }
+    const run = await finalize(performance.now() - 5000, 0, "Send me the report.");
+    assert.equal(run.early.length, 1);
+    assert.ok(run.cleanupText);
+    assert.equal(run.showedCleanup, true);
+  });
 
   await t.test("speech ended long before release: sent once, before release", async () => {
     const { early, cleanupText, prefills } = await finalize(performance.now() - 5000);

@@ -63,13 +63,26 @@ test("cleanup on with no model warns once it is shown, and again after a fix bre
   setSettings({ cleanupModel: "gpt-6-luna" });
   window.electronAPI.getChatGPTAccessToken = async () => "plan-token";
   window.electronAPI.chatgptSocketResponse = async () => ({ success: true, text: "Cleaned." });
-  assert.equal(await manager.processTranscriptionCore("fixed now", "local"), "Cleaned.");
+  assert.equal(await manager.processTranscriptionCore("the setup works now", "local"), "Cleaned.");
   assert.equal(manager._takePendingResultExtras().cleanupFailure, undefined);
   setSettings({ cleanupMode: "providers", cleanupProvider: "openai", cleanupModel: "" });
   assert.equal((await dictate(manager, "broken again")).messageKey, UNCONFIGURED);
 
   setSettings({ useCleanupModel: false });
   assert.equal(await dictate(manager, "cleanup off"), undefined);
+});
+
+test("short local dictation skips Luna before checking sign-in or showing its label", async (t) => {
+  const { manager, setSettings } = await loadRealAudioManager(t);
+  setSettings({ cleanupModel: "gpt-6-luna" });
+  const available = t.mock.method(manager, "isReasoningAvailable", async () => false);
+  const onStateChange = t.mock.fn();
+  manager.onStateChange = onStateChange;
+  for (const raw of ["Hello!", "See you soon."]) {
+    assert.equal(await dictate(manager, raw), undefined);
+  }
+  assert.equal(available.mock.callCount(), 0);
+  assert.equal(onStateChange.mock.callCount(), 0);
 });
 
 test("cleanup with nothing to run on warns even when the assistant is reachable", async (t) => {

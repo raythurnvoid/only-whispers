@@ -3,8 +3,8 @@ const debugLogger = require("./debugLogger");
 const chatgptAuth = require("./chatgptAuth");
 
 // Cleanup on the ChatGPT plan over the Responses API WebSocket mode. The socket
-// is opened while the user speaks, so cleanup skips the ~1 s connect, and a
-// generate:false request with the last prompt warms the server for it.
+// is opened while the user speaks, so cleanup skips the ~1 s connect.
+// Wait for enough words before sending any model request.
 // The renderer cannot set the Authorization header on a WebSocket, so this
 // runs in the main process. Any failure makes the renderer use HTTP instead.
 const RESPONSES_URL = "wss://api.openai.com/v1/responses";
@@ -21,7 +21,6 @@ const SPARE_LANES = 3;
 const newLane = () => ({
   socket: null, // { ws, token, opened: Promise<void> }
   queue: Promise.resolve(),
-  warm: null, // { key, id } from the generate:false warmup
   warming: null,
   prefill: null, // { key, id, text, ms } from the generate:false prefill
   prefilling: null,
@@ -70,7 +69,7 @@ function openSocket(lane, token) {
   ws.on("close", () => {
     if (lane.socket?.ws === ws) {
       lane.socket = null;
-      lane.warm = null;
+      lane.prefill = null;
     }
   });
   lane.socket = { ws, token, opened };
@@ -83,7 +82,7 @@ function closeSocket(lane) {
     lane.socket.ws.close();
   } catch {}
   lane.socket = null;
-  lane.warm = null;
+  lane.prefill = null;
 }
 
 function touchIdleTimer(lane) {
@@ -153,7 +152,7 @@ function send(lane, body, timeoutMs) {
   return result;
 }
 
-// Called at dictation start. Without a cleanup in this app session it only opens the sockets.
+// At recording start we only know that another dictation has begun.
 function warmup() {
   dictation += 1;
   guesses = [];
@@ -166,20 +165,10 @@ function warmup() {
 
 async function runWarmup(lane) {
   try {
-    if (!lastPrompt) {
-      const token = await chatgptAuth.getAccessToken();
-      if (!token) return { success: false };
-      await openSocket(lane, token).opened;
-      touchIdleTimer(lane);
-      return { success: true };
-    }
-    const prompt = lastPrompt;
-    const result = await send(
-      lane,
-      { ...prompt, store: false, input: [], generate: false },
-      OPEN_TIMEOUT_MS
-    );
-    lane.warm = { key: promptKey(prompt), id: result.id };
+    const token = await chatgptAuth.getAccessToken();
+    if (!token) return { success: false };
+    await openSocket(lane, token).opened;
+    touchIdleTimer(lane);
     return { success: true };
   } catch (error) {
     debugLogger.debug("ChatGPT socket warmup failed", { error: error.message });
@@ -189,8 +178,7 @@ async function runWarmup(lane) {
 
 // Called with the start of the user message (the words Mistral has so far): at
 // key release, and while the user speaks (`rolling`). Luna reads it with
-// generate:false, so a cleanup or a guess then sends only the rest. It replaces
-// the warmup, since only the latest response can be continued. Rolling prefills
+// generate:false, so a cleanup or a guess then sends only the rest. Rolling prefills
 // skip the main socket: its prefill at release already ends before Mistral does.
 function prefillTranscript(text, { rolling = false } = {}) {
   const lanes = spares.filter((lane) => !lane.guessing);
@@ -209,7 +197,6 @@ async function runPrefill(lane, text) {
   await lane.warming;
   if (!lastPrompt || !text) return { success: false };
   const prompt = lastPrompt;
-  lane.warm = null;
   try {
     const result = await send(
       lane,
@@ -227,12 +214,11 @@ async function runPrefill(lane, text) {
 }
 
 // Continues the lane's prefill when the user message starts with its text, so
-// only the rest is sent, or else its warmup. Either is used once.
+// only the rest is sent. A prefill is used once.
 // Instructions are not carried over by previous_response_id, so they are sent again.
 function continueLane(lane, body, key, userText) {
-  const { prefill, warm } = lane;
+  const { prefill } = lane;
   lane.prefill = null;
-  lane.warm = null;
   if (prefill?.key === key && userText.startsWith(prefill.text)) {
     const rest = userMessage(userText.slice(prefill.text.length));
     return {
@@ -240,9 +226,6 @@ function continueLane(lane, body, key, userText) {
       prefilled: true,
       prefillMs: prefill.ms,
     };
-  }
-  if (warm?.key === key) {
-    return { request: { ...body, previous_response_id: warm.id }, prefilled: false };
   }
   return { request: body, prefilled: false };
 }
@@ -317,13 +300,13 @@ async function createResponse(body, timeoutMs) {
     earlyResult = "failed";
   }
 
-  // A warmup or prefill still in flight would leave an id that is no longer the latest response.
+  // A prefill still in flight would leave an id that is no longer the latest response.
   // The wait is logged: it is what a prefill sent earlier could save.
   const waitStart = Date.now();
   await main.warming;
   await main.prefilling;
   const prefillWaitMs = Date.now() - waitStart;
-  // The warm or prefilled response is reused only when the prompt is the same.
+  // The prefilled response is reused only when the prompt is the same.
   const { request, prefilled, prefillMs } = continueLane(main, body, key, userText);
   lastPrompt = prompt;
   const result = await send(main, request, timeoutMs);

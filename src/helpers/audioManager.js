@@ -1,6 +1,6 @@
 import ReasoningService from "../services/ReasoningService";
 import logger from "../utils/logger";
-import { assertValidCleanupOutput } from "../utils/cleanupOutput";
+import { assertValidCleanupOutput, isShortDictation } from "../utils/cleanupOutput";
 import { getBaseLanguageCode } from "../utils/languageSupport";
 import {
   applyChineseScript,
@@ -156,7 +156,8 @@ function resolveReasoningRoute(
   const agent = resolveDictationAgentInference(settings);
 
   const kind = resolveDictationRouteKind({
-    cleanupReachable,
+    cleanupReachable:
+      cleanupReachable && !(cleanup.model === "gpt-6-luna" && isShortDictation(text)),
     agentReachable: agent.reachable,
     // The assistant is hidden in this release, so "Hey <AgentName>" never routes
     // a dictation to it, even with an agent model saved by an older build.
@@ -2173,116 +2174,85 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const cleanupModel = getEffectiveCleanupModel();
     const settings = getSettings();
     const cleanupProvider = settings.cleanupProvider || "auto";
-    const cleanupReachable = !!settings.useCleanupModel && !!cleanupModel;
-    const agentReachable = dictationAgentReachable(settings);
     const agentName =
       typeof window !== "undefined" && window.localStorage ? getAgentName() : "Wisper";
-    if (
-      !cleanupReachable &&
-      !agentReachable &&
-      // A voice-assistant command always routes: standalone commands stream
-      // in the panel, which reports a missing model in-conversation.
-      !this.voiceAgentRequested
-    ) {
-      logger.logReasoning("REASONING_SKIPPED", {
-        reason: "No cleanup or dictation-agent model available",
-      });
-      this._noteCleanupRoute(settings, { kind: "skip", cleanupReachable });
-      return normalizedText;
-    }
-
-    const useReasoning = this.voiceAgentRequested || (await this.isReasoningAvailable());
-    if (wasCancelled()) return normalizedText;
-
-    logger.logReasoning("REASONING_CHECK", {
-      useReasoning,
-      cleanupModel,
-      cleanupProvider,
-      agentName,
-    });
-    // Nothing can run cleanup although the assistant could, so no route is decided.
-    if (!useReasoning) {
-      this._noteCleanupRoute(settings, { kind: "skip", cleanupReachable });
-      if (cleanupReachable) this._noteMissingCleanupKey(settings);
-    }
-
-    if (useReasoning) {
-      let route;
-      try {
-        const screenContext = this.voiceAgentRequested ? await this.consumeScreenContext() : null;
-        route = resolveReasoningRoute(
-          normalizedText,
-          settings,
-          agentName,
-          this.voiceAgentRequested,
-          screenContext
-        );
-        this._noteCleanupRoute(settings, route);
-        if (route.kind === "skip") return normalizedText;
-        // Tells the pill that the cleanup model now works on the text.
-        if (route.kind === "cleanup") {
-          this.onStateChange?.({ isRecording: false, isProcessing: true, isCleaningUp: true });
-        }
-
-        const targetModel = route.kind === "agent" ? route.model : cleanupModel;
-        const reasoningConfig =
-          route.kind === "cleanup"
-            ? { ...route.config, toneStyle: await this.consumeToneStyle() }
-            : route.config;
-
-        logger.logReasoning("SENDING_TO_REASONING", {
-          preparedTextLength: normalizedText.length,
-          model: targetModel,
-          provider: route.config?.provider || cleanupProvider,
-          path: route.kind,
-          disableThinking: reasoningConfig?.disableThinking,
-        });
-
-        const result =
-          route.kind === "agent"
-            ? await this.processAgentCommand(
-                normalizedText,
-                targetModel,
-                agentName,
-                {
-                  ...reasoningConfig,
-                  requiresAgent: true,
-                },
-                wasCancelled
-              )
-            : await this.processWithReasoningModel(
-                normalizedText,
-                targetModel,
-                agentName,
-                reasoningConfig
-              );
-
-        logger.logReasoning("REASONING_SUCCESS", {
-          resultLength: result.length,
-          resultPreview: result.substring(0, 100) + (result.length > 100 ? "..." : ""),
-          processingTime: new Date().toISOString(),
-        });
-
-        // A blank reply must not wipe the dictation — keep the transcript (#1616).
-        return hasTextContent(result) ? result : normalizedText;
-      } catch (error) {
-        if (error.selectionEditFatal) throw error;
+    let route;
+    try {
+      const screenContext = this.voiceAgentRequested ? await this.consumeScreenContext() : null;
+      if (wasCancelled()) return normalizedText;
+      route = resolveReasoningRoute(
+        normalizedText,
+        settings,
+        agentName,
+        this.voiceAgentRequested,
+        screenContext
+      );
+      this._noteCleanupRoute(settings, route);
+      if (route.kind === "skip") return normalizedText;
+      if (route.kind === "cleanup") {
+        const available = await this.isReasoningAvailable();
         if (wasCancelled()) return normalizedText;
-        logger.logReasoning("REASONING_FAILED", {
-          error: error.message,
-          stack: error.stack,
-          fallbackToCleanup: true,
-        });
-        logger.warn("Reasoning failed", { source, error: error.message }, "notes");
-        if (route?.kind === "cleanup") this.pendingCleanupFailure = cleanupFailureFromError(error);
-        if (route?.kind === "agent") this._notifyAgentReasoningFailed();
+        if (!available) {
+          this._noteMissingCleanupKey(settings);
+          return normalizedText;
+        }
+        // Tells the pill that the cleanup model now works on the text.
+        this.onStateChange?.({ isRecording: false, isProcessing: true, isCleaningUp: true });
       }
+
+      const targetModel = route.kind === "agent" ? route.model : cleanupModel;
+      const reasoningConfig =
+        route.kind === "cleanup"
+          ? { ...route.config, toneStyle: await this.consumeToneStyle() }
+          : route.config;
+
+      logger.logReasoning("SENDING_TO_REASONING", {
+        preparedTextLength: normalizedText.length,
+        model: targetModel,
+        provider: route.config?.provider || cleanupProvider,
+        path: route.kind,
+        disableThinking: reasoningConfig?.disableThinking,
+      });
+
+      const result =
+        route.kind === "agent"
+          ? await this.processAgentCommand(
+              normalizedText,
+              targetModel,
+              agentName,
+              {
+                ...reasoningConfig,
+                requiresAgent: true,
+              },
+              wasCancelled
+            )
+          : await this.processWithReasoningModel(
+              normalizedText,
+              targetModel,
+              agentName,
+              reasoningConfig
+            );
+
+      logger.logReasoning("REASONING_SUCCESS", {
+        resultLength: result.length,
+        resultPreview: result.substring(0, 100) + (result.length > 100 ? "..." : ""),
+        processingTime: new Date().toISOString(),
+      });
+
+      // A blank reply must not wipe the dictation — keep the transcript (#1616).
+      return hasTextContent(result) ? result : normalizedText;
+    } catch (error) {
+      if (error.selectionEditFatal) throw error;
+      if (wasCancelled()) return normalizedText;
+      logger.logReasoning("REASONING_FAILED", {
+        error: error.message,
+        stack: error.stack,
+        fallbackToCleanup: true,
+      });
+      logger.warn("Reasoning failed", { source, error: error.message }, "notes");
+      if (route?.kind === "cleanup") this.pendingCleanupFailure = cleanupFailureFromError(error);
+      if (route?.kind === "agent") this._notifyAgentReasoningFailed();
     }
-
-    logger.logReasoning("USING_STANDARD_CLEANUP", {
-      reason: useReasoning ? "Reasoning failed" : "Reasoning not enabled",
-    });
-
     return normalizedText;
   }
 
@@ -3418,9 +3388,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const guess = this._cleanupGuess;
     // After release, the prefill at release takes over.
     if (!guess || guess.prefilling || guess.releasedAt !== null) return;
-    const text = textBeforeLastWord(this.streamingFinalText || this.streamingPartialText || "");
+    const liveText = this.streamingFinalText || this.streamingPartialText || "";
+    const text = textBeforeLastWord(liveText);
     const words = text.split(/\s+/).filter(Boolean).length;
-    if (words - guess.prefillWords < ROLLING_PREFILL_WORDS) return;
+    if (words - guess.prefillWords < ROLLING_PREFILL_WORDS || isShortDictation(liveText)) return;
     guess.prefillWords = words;
     guess.prefilling = true;
     logger.debug("Rolling prefill sent", { words }, "streaming");
@@ -3441,7 +3412,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     if (now < this._streamingSpeechEndAt + EARLY_CLEANUP_AFTER_SPEECH_MS) return;
     if (now < this._streamingTextAt + EARLY_CLEANUP_QUIET_MS) return;
     const text = (this.streamingFinalText || this.streamingPartialText || "").trim();
-    if (!text || text === guess.text) return;
+    if (text === guess.text || isShortDictation(text)) return;
     guess.text = text;
     logger.debug(
       "Early cleanup sent",
@@ -3509,12 +3480,11 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
     // Luna reads the words Mistral has so far while Mistral finishes, so the
     // cleanup request sends only the rest (chatgptResponsesSocket.js).
-    const prefillText = textBeforeLastWord(
-      this.streamingFinalText || this.streamingPartialText || ""
-    );
     if (this._cleanupGuess) {
       this._cleanupGuess.releasedAt = t0;
-      if (prefillText) {
+      const liveText = this.streamingFinalText || this.streamingPartialText || "";
+      const prefillText = textBeforeLastWord(liveText);
+      if (prefillText && !isShortDictation(liveText)) {
         window.electronAPI?.chatgptSocketPrefill?.(cleanupTranscriptStart(prefillText));
       }
     }
