@@ -1,5 +1,4 @@
-// The control panel logo: the app name on one line, centered over a small
-// laurel crown (two branches crossing at the bottom, open at the top).
+// The setup wordmark sits over a small laurel crown.
 import { buildLaurelBranch, LaurelBranch } from "./laurel";
 
 const W = 180;

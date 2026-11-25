@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "アップデート",
+      "installed": "インストール済みのバージョン {{version}}",
+      "checking": "アップデートを確認中…",
+      "check": "アップデートを確認",
+      "current": "Only Whispers は最新です。",
+      "error": "アップデートを確認できませんでした。",
+      "dev": "アップデートはインストール版で利用できます。",
+      "unsupported": "このインストールでは自動更新を利用できません。",
+      "restart": "再起動して更新",
+      "restarting": "再起動中…",
+      "installError": "再起動できませんでした。もう一度お試しください。",
       "readyTitle": "アップデートの準備完了",
       "readyTitleVersion": "バージョン {{version}} のインストール準備ができました",
       "readyDescription": "「アップデートをインストール」をクリックして最新バージョンで再起動します。",

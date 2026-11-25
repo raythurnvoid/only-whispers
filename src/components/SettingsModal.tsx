@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Sliders, Brain, Keyboard } from "./icons";
 import SidebarModal, { type SidebarItem } from "./ui/SidebarModal";
 import SettingsPage, { SettingsSectionType } from "./SettingsPage";
+import UpdatesSection from "./settings/UpdatesSection";
 
 export type { SettingsSectionType };
 
@@ -67,6 +68,7 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
       activeSection={activeSection}
       onSectionChange={setActiveSection}
     >
+      <UpdatesSection visible={activeSection === "general"} />
       <SettingsPage activeSection={activeSection} />
     </SidebarModal>
   );

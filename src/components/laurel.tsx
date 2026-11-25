@@ -1,5 +1,4 @@
-// One laurel branch on an oval, open at the top: the sidebar logo and the app
-// mark (BrandMarkIcon) both draw it, mirrored, as a crown.
+// The wordmark and app icon mirror this branch to draw a laurel crown.
 
 interface LaurelOptions {
   cx: number;

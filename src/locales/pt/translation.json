@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "Atualizações",
+      "installed": "Versão instalada {{version}}",
+      "checking": "Procurando atualizações…",
+      "check": "Verificar atualizações",
+      "current": "O Only Whispers está atualizado.",
+      "error": "Não foi possível verificar as atualizações.",
+      "dev": "As atualizações estão disponíveis no aplicativo instalado.",
+      "unsupported": "As atualizações automáticas não estão disponíveis nesta instalação.",
+      "restart": "Reiniciar para atualizar",
+      "restarting": "Reiniciando…",
+      "installError": "Não foi possível reiniciar. Tente novamente.",
       "readyTitle": "Atualização pronta para instalar",
       "readyTitleVersion": "A versão {{version}} está pronta para instalar",
       "readyDescription": "Clique em 'Instalar atualização' para reiniciar com a versão mais recente.",

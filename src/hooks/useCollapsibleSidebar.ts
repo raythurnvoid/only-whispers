@@ -7,6 +7,7 @@ export function useCollapsibleSidebar() {
     () => localStorage.getItem("sidebarCollapsed") === "true"
   );
   const [peek, setPeek] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const peekTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const suppressPeek = useRef(false);
 
@@ -27,7 +28,10 @@ export function useCollapsibleSidebar() {
 
   const hidePeek = useCallback(() => {
     clearTimeout(peekTimer.current);
-    peekTimer.current = setTimeout(() => setPeek(false), PEEK_CLOSE_DELAY_MS);
+    peekTimer.current = setTimeout(() => {
+      // A keyboard user can still be moving through the rows after the pointer leaves.
+      if (!sidebarRef.current?.contains(document.activeElement)) setPeek(false);
+    }, PEEK_CLOSE_DELAY_MS);
   }, []);
 
   const leaveToggle = useCallback(() => {
@@ -37,5 +41,5 @@ export function useCollapsibleSidebar() {
 
   useEffect(() => () => clearTimeout(peekTimer.current), []);
 
-  return { collapsed, peek, toggle, showPeek, hidePeek, leaveToggle };
+  return { collapsed, peek, sidebarRef, toggle, showPeek, hidePeek, leaveToggle };
 }

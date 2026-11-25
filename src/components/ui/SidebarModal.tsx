@@ -54,6 +54,7 @@ export default function SidebarModal<T extends string>({
 }: SidebarModalProps<T>) {
   const { t } = useTranslation();
   const { registerContent, shouldBlockDismiss } = useDismissGuard<HTMLDivElement>();
+  const opener = React.useRef<HTMLElement | null>(null);
 
   const [isCompact, setIsCompact] = React.useState(false);
   const observerRef = React.useRef<ResizeObserver | null>(null);
@@ -129,7 +130,20 @@ export default function SidebarModal<T extends string>({
           // focus the dialog itself so the X doesn't open wearing a focus ring.
           onOpenAutoFocus={(e) => {
             e.preventDefault();
+            opener.current = document.activeElement as HTMLElement | null;
             (e.currentTarget as HTMLElement).focus();
+          }}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            // The sidebar can fold away while this dialog is open.
+            const hidden = opener.current?.closest("[inert]");
+            if (hidden?.id) {
+              document
+                .querySelector<HTMLElement>(`[aria-controls="${CSS.escape(hidden.id)}"]`)
+                ?.focus();
+            } else {
+              opener.current?.focus();
+            }
           }}
           onEscapeKeyDown={(e) => {
             if (document.querySelector("[data-capturing]")) e.preventDefault();

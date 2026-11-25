@@ -214,6 +214,9 @@ const ONBOARDING_WINDOW_SIZES = {
 const CONTROL_PANEL_CONFIG = {
   width: 1200,
   height: 800,
+  // Keep the brand, sidebar toggle and native caption buttons usable together.
+  minWidth: 480,
+  minHeight: 320,
   // macOS: fully transparent, so nothing paints into the compact onboarding
   // frame's rounded corners. Windows/Linux keep an opaque backing (the renderer
   // paints its own background on top) — see the transparent flag below.

@@ -2094,6 +2094,8 @@ class IPCHandlers {
 
     ipcMain.handle("clear-error-log", () => debugLogger.clearErrorLog());
 
+    ipcMain.handle("check-for-updates", () => this.updateManager.checkForUpdates());
+
     ipcMain.handle(
       "get-downloaded-update",
       () => this.updateManager?.getDownloadedVersion() ?? null

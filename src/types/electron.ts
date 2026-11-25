@@ -16,6 +16,10 @@ export type ChineseScriptPreference = "simplified" | "traditional" | "as-transcr
 
 export type InferenceMode = "providers" | "local" | "self-hosted" | "enterprise";
 
+export type UpdateCheck =
+  | { status: "current" | "error" | "unsupported" | "dev"; currentVersion: string }
+  | { status: "ready"; currentVersion: string; updateVersion: string };
+
 export interface LocalModelStatus {
   state: "missing" | "downloading" | "ready" | "error";
   name: string;
@@ -616,6 +620,7 @@ declare global {
       setAssistantPanelOpen: (open: boolean) => Promise<{ success: boolean }>;
       setAssistantPanelBusy: (busy: boolean) => Promise<{ success: boolean }>;
 
+      checkForUpdates: () => Promise<UpdateCheck>;
       /** Version of an update downloaded and waiting to install, or null. */
       getDownloadedUpdate?: () => Promise<string | null>;
       installUpdate?: () => Promise<boolean>;

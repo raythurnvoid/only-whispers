@@ -87,7 +87,7 @@ export default function AppSetup({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-6">
         <div className="mx-auto flex max-w-[26rem] flex-col">
-          {/* The same logo as the control panel sidebar and the website. */}
+          {/* The laurel wordmark from the website. */}
           <LaurelLogo />
           <p className="text-balance text-center text-[15px] italic text-muted-foreground">
             {t("appSetup.description")}

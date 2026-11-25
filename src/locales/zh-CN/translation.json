@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "更新",
+      "installed": "已安装版本 {{version}}",
+      "checking": "正在检查更新…",
+      "check": "检查更新",
+      "current": "Only Whispers 已是最新版本。",
+      "error": "无法检查更新。",
+      "dev": "请在安装版应用中检查更新。",
+      "unsupported": "此安装版本不支持自动更新。",
+      "restart": "重启并更新",
+      "restarting": "正在重启…",
+      "installError": "无法重启。请重试。",
       "readyTitle": "更新已准备就绪",
       "readyTitleVersion": "版本 {{version}} 已准备好安装",
       "readyDescription": "点击“安装更新”以重启并安装最新版本。",

@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "Actualizaciones",
+      "installed": "Versión instalada {{version}}",
+      "checking": "Buscando actualizaciones…",
+      "check": "Buscar actualizaciones",
+      "current": "Only Whispers está al día.",
+      "error": "No se pudieron buscar actualizaciones.",
+      "dev": "Las actualizaciones están disponibles en la aplicación instalada.",
+      "unsupported": "Las actualizaciones automáticas no están disponibles en esta instalación.",
+      "restart": "Reiniciar para actualizar",
+      "restarting": "Reiniciando…",
+      "installError": "No se pudo reiniciar. Inténtalo de nuevo.",
       "readyTitle": "Actualización lista para instalar",
       "readyTitleVersion": "La versión {{version}} está lista para instalar",
       "readyDescription": "Haz clic en 'Instalar actualización' para reiniciar con la última versión.",

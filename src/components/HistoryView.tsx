@@ -100,12 +100,12 @@ export default function HistoryView({
 
   return (
     <div className={cn(PAGE_CONTENT_WIDTH_CLASS, "px-6 pt-4 pb-6")}>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         {/* Hidden until the first load settles, so a returning user isn't greeted as new. */}
         <h2 className={cn("text-2xl text-foreground", isLoading && !hasHistory && "invisible")}>
           {t(hasHistory ? "controlPanel.history.welcomeBack" : "controlPanel.history.welcome")}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="default"
             size="sm"

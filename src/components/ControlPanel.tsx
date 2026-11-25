@@ -56,6 +56,7 @@ export default function ControlPanel() {
   const {
     collapsed: sidebarCollapsed,
     peek: sidebarPeek,
+    sidebarRef,
     toggle: toggleSidebar,
     showPeek: showSidebarPeek,
     hidePeek: hideSidebarPeek,
@@ -418,6 +419,14 @@ export default function ControlPanel() {
         </Suspense>
       )}
 
+      <ControlPanelTopBar
+        title={navItems.find((item) => item.id === activeView)?.label ?? ""}
+        sidebarCollapsed={sidebarCollapsed}
+        sidebarVisible={!sidebarCollapsed || sidebarPeek}
+        onToggleSidebar={toggleSidebar}
+        onToggleMouseEnter={sidebarCollapsed ? showSidebarPeek : undefined}
+        onToggleMouseLeave={sidebarCollapsed ? leaveSidebarToggle : undefined}
+      />
       <div className="flex flex-1 overflow-hidden relative">
         <div
           className="shrink-0 transition-[width] duration-300 ease-out"
@@ -433,8 +442,14 @@ export default function ControlPanel() {
               ? " shadow-[10px_0_40px_-18px_rgba(0,0,0,0.2)] rtl:shadow-[-10px_0_40px_-18px_rgba(0,0,0,0.2)]"
               : ""
           }`}
+          id="control-panel-sidebar"
+          ref={sidebarRef}
+          inert={sidebarCollapsed && !sidebarPeek}
           onMouseEnter={sidebarCollapsed ? showSidebarPeek : undefined}
           onMouseLeave={sidebarCollapsed ? hideSidebarPeek : undefined}
+          onBlur={(event) => {
+            if (sidebarCollapsed && !event.currentTarget.matches(":hover")) hideSidebarPeek();
+          }}
         >
           <ControlPanelSidebar
             activeView={activeView}
@@ -445,8 +460,6 @@ export default function ControlPanel() {
             }}
           />
         </div>
-        {/* On Windows and Linux the shell meets the window's edges (all but the sidebar's), so
-            the system's window buttons (titleBarOverlay in windowManager.js) sit in its corner. */}
         <main
           className={`flex-1 flex flex-col overflow-hidden transition-[padding] duration-300 ease-out ${
             platform === "darwin" ? "p-2" : sidebarCollapsed ? "" : "ps-2"
@@ -461,13 +474,6 @@ export default function ControlPanel() {
                   : "border-s"
             }`}
           >
-            <ControlPanelTopBar
-              title={navItems.find((item) => item.id === activeView)?.label ?? ""}
-              sidebarCollapsed={sidebarCollapsed}
-              onToggleSidebar={toggleSidebar}
-              onToggleMouseEnter={sidebarCollapsed ? showSidebarPeek : undefined}
-              onToggleMouseLeave={sidebarCollapsed ? leaveSidebarToggle : undefined}
-            />
             <div className="scrollbar-hidden flex-1 overflow-y-auto">
               {activeView === "home" && (
                 <HistoryView

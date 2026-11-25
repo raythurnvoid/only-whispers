@@ -294,6 +294,8 @@ function initializeCoreManagers() {
   clipboardManager = new ClipboardManager();
   updateManager = new UpdateManager();
   updateManager.setWindowManager(windowManager);
+  // Settings can check for updates as soon as the control panel opens.
+  updateManager.start();
   windowsKeyManager = new WindowsKeyManager();
   linuxKeyManager = new LinuxKeyManager();
   textEditMonitor = new TextEditMonitor();
@@ -542,8 +544,6 @@ async function startApp() {
   trayManager.setWindowManager(windowManager);
   trayManager.setCreateControlPanelCallback(() => windowManager.createControlPanelWindow());
   await trayManager.createTray();
-
-  updateManager.start();
 
   if (process.platform === "darwin") {
     const { isGlobeLikeHotkey, isMouseButtonHotkey } = require("./src/helpers/hotkeyManager");

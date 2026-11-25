@@ -29,7 +29,7 @@ For long local dictations, Parakeet transcribes on your computer while you speak
    - Download **Parakeet** for speech recognition on your computer.
    - Click **Sign in with ChatGPT**.
 
-The app updates itself. When a release changes the local model, the app downloads the new version.
+Open **Settings → Preferences → Updates** to see your installed version and check for an update. When an update is ready, choose **Restart to update** or let it install the next time you quit. When a release changes the local model, the app downloads the new version.
 For live transcription, you can add a paid Mistral API key in Settings. If Mistral reaches its limit, the app uses Parakeet.
 
 The local model is [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Only Whispers downloads the [8-bit sherpa-onnx conversion](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8).

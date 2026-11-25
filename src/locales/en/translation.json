@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "Updates",
+      "installed": "Installed version {{version}}",
+      "checking": "Checking for updates…",
+      "check": "Check for updates",
+      "current": "Only Whispers is up to date.",
+      "error": "Could not check for updates.",
+      "dev": "Updates are available in the installed app.",
+      "unsupported": "Automatic updates are unavailable for this installation.",
+      "restart": "Restart to update",
+      "restarting": "Restarting…",
+      "installError": "Could not restart. Try again.",
       "readyTitle": "Update ready to install",
       "readyTitleVersion": "Version {{version}} is ready to install",
       "readyDescription": "Click 'Install Update' to restart with the latest version.",

@@ -247,6 +247,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setAssistantPanelOpen: (open) => ipcRenderer.invoke("set-assistant-panel-open", open),
   setAssistantPanelBusy: (busy) => ipcRenderer.invoke("set-assistant-panel-busy", busy),
 
+  checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
   getDownloadedUpdate: () => ipcRenderer.invoke("get-downloaded-update"),
   installUpdate: () => ipcRenderer.invoke("install-update"),
   onUpdateDownloaded: registerListener(

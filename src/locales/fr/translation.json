@@ -155,6 +155,17 @@
   },
   "controlPanel": {
     "update": {
+      "title": "Mises à jour",
+      "installed": "Version installée {{version}}",
+      "checking": "Recherche de mises à jour…",
+      "check": "Rechercher des mises à jour",
+      "current": "Only Whispers est à jour.",
+      "error": "Impossible de vérifier les mises à jour.",
+      "dev": "Les mises à jour sont disponibles dans l’application installée.",
+      "unsupported": "Les mises à jour automatiques ne sont pas disponibles pour cette installation.",
+      "restart": "Redémarrer pour mettre à jour",
+      "restarting": "Redémarrage…",
+      "installError": "Le redémarrage a échoué. Réessayez.",
       "readyTitle": "Mise à jour prête à installer",
       "readyTitleVersion": "La version {{version}} est prête à installer",
       "readyDescription": "Cliquez sur « Installer la mise à jour » pour redémarrer avec la dernière version.",
